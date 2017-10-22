@@ -216,12 +216,13 @@ rar a -r -x*.tmp -x*.rar -x*.tt "$(TargetDir)$(TargetName)_$(ConfigurationName)_
 REM Create the SRC rar
 cd $(ProjectDir)
 rar a -r -x*\.svn\* -x*\bin\* -x*\obj\* -x*.rar -x*.tt  "$(TargetDir)$(TargetName)_$(PlatformName)_Src.rar" *.*
-</PostBuildEvent>
+	</PostBuildEvent>
     <PostBuildEvent Condition="'$(OS)' != 'Windows_NT'">
 cd $(TargetDir)
-rm "$(TargetDir)$(TargetName)_$(ConfigurationName)_$(PlatformName)_Src.rar"
-rm "$(TargetDir)$(TargetName)_$(ConfigurationName)_$(PlatformName)_Binaries.rar"
+rm -rf "$(TargetDir)$(TargetName)_$(ConfigurationName)_$(PlatformName)_Src.rar"
+rm -rf "$(TargetDir)$(TargetName)_$(ConfigurationName)_$(PlatformName)_Binaries.rar"
 
+cd $(TargetDir)
 rar a -r -x*.tmp -x*.rar -x*.tt "$(TargetDir)$(TargetName)_$(ConfigurationName)_$(PlatformName)_Binaries.rar" *.*
 
 cd $(ProjectDir)
