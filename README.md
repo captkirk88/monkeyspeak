@@ -1,5 +1,5 @@
 ![Monkeyspeak Hero](http://s2.quickmeme.com/img/1a/1a25ceb16d9921a1da97468be477f77c9fad22e552896ef49a74c0c1e15a9252.jpg)
-# Monkeyspeak
+# Monkeyspeak [![Build Status](https://travis-ci.org/captkirk88/monkeyspeak.svg?branch=master)](https://travis-ci.org/captkirk88/monkeyspeak)
 
 Monkeyspeak aims to give the end-user a very easy to use scripting language.  
 
@@ -81,7 +81,7 @@ page.LoadAllLibraries();
 page.Execute(); // optionally provide the trigger Id of 0 to execute (0:0)
 ```
 Output:
-```csharp
+```
 num = 5121.2
 Hello World
 ```
