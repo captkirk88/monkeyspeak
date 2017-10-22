@@ -23,41 +23,18 @@ Monkeyspeak aims to give the end-user a very easy to use scripting language.
   - [ ] Tables (supports the for each trigger)
   - [ ] Loops (supports while loop and possibly more in the future)
 
-### Basic Explaination
+### Basics
 A Trigger may optionally be wrapped in parenthesis but must alway begin with a number 
 from 0-9 and a colon in the middle to seperate the trigger's category, which is the 
 first number, and the trigger's id, which is the last group of numbers.
 
 Triggers are grouped into "blocks".  Blocks start with a Cause (see below) trigger 
 and usually end with a Effect (see below) trigger.
-##### Trigger Example:
+##### Trigger Explanation:
 
-`(` Optional wrapping parenthesis
+See [Triggers](wiki/Triggers.md#break-down).
 
-`0` The trigger's category.  Triggers are categorized as Causes, Conditions, Effects and Flow.
-
-* 0 Cause = Nothing happens without a Cause.  It is the first trigger executed in a group of triggers.
-  You could look at it as event based.  A Cause is called when something happens.
-* 1 Conditions = These are triggers act as a "if-then-continue".  If the condition succeeds then the 
-  rest of the triggers after the condition are executed, if the condition fails then the entire block 
-  is exited.
-* 5 Effects = Better known as actions!  These triggers perform the work.  They could do a file write 
-  operation, play music, popup a window, etc.  They must always perform work.
-* 6 Flow = No, they have nothing to do with liquid.  These triggers are for executing a block of 
-  triggers with a loop or a iterator.  They are slightly more advanced but fear not, there are 
-  limitations set so that you will not encounter a infinite loop scenario.
-
-`:` A seperator between the category and the id.
-
-`123` A group of numbers that give the trigger a id.
-
-* Id = Any group of numbers that identify that specific trigger.  A Cause can have a category of 
-  450 and a Effect can have a id of 450.  As long as you don't have two of the same id in one 
-  category or a exception will be thrown.
-
-All of this comes together to form a trigger `(0:123)`.
-
-### Basic Usage
+#### Basic Usage
 For simplicity sake, in this example, we will assume trigger (0:0) has already been given a handler.
 
 Let's say you had a Monkeyspeak script like this:
@@ -87,7 +64,7 @@ num = 5121.2
 Hello World
 ```
 
-### Advanced Usage
+#### Advanced Usage
 
 Here is a example of using Flow triggers
 
