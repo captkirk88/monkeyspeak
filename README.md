@@ -64,6 +64,8 @@ num = 5121.2
 Hello World
 ```
 
+> :bulb: Try to run the above snippet and experiment with it.
+
 #### Advanced Usage
 
 Here is a example of using Flow triggers
@@ -106,3 +108,13 @@ universal question but fails because we may never know the answer...
 
 To execute the [Advanced Usage](#advanced-usage) example, it is no different 
 than [Basic Usage](#basic-usage)'s execution example.
+
+#### Guides
+
+> [Triggers](wiki/Triggers.md):book:
+
+> [Variables](wiki/Variables.md):book:
+
+> [Strings](wiki/Strings.md):book:
+
+> [Libraries](wiki/Libraries.md):book:

@@ -10,3 +10,9 @@ via Options found in the MonkeyspeakEngine class.  For all examples, we will use
 defaults.  Variables can have `_,#,@,$,&,0-9,a-z,A-Z` (no commas).  So a Variable 
 called `%__@v$a#r&_` you can create but you might get a headache typing that out all 
 the time.
+
+#### Next Up
+> [Strings](Strings.md):book:
+
+#### Last Lesson
+> [Triggers](Triggers.md):books:

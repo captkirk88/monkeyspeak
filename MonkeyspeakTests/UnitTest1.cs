@@ -117,6 +117,7 @@ namespace MonkeyspeakTests
             Logger.Info(asm.FullName);
             Logger.Info(asm.ImageRuntimeVersion);
             Logger.Info(asm.GetName().Version);
+            Logger.Info(int.MaxValue.ToString());
         }
 
         [TestMethod]
