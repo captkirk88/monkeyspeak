@@ -50,9 +50,8 @@ You would load and execute it using a few methods:
 using Monkeyspeak;
 
 var engine = new MonkeyspeakEngine();
-Page page = engine.LoadFromString(testScript);
 
-page.Error += DebugAllErrors;
+Page page = engine.LoadFromString(testScript);
 
 page.LoadAllLibraries();
 
