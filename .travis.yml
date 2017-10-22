@@ -12,4 +12,4 @@ before_install:
 install:
   - nuget restore Monkeyspeak.sln
 script:
-  - xbuild /p:Configuration=Release Monkeyspeak/Monkeyspeak.csproj
+  - xbuild /p:Configuration=Release Monkeyspeak.sln
