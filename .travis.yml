@@ -29,7 +29,8 @@ script:
 before_deploy:
     - export GIT_TAG=$TRAVIS_BRANCH-0.1.$TRAVIS_BUILD_NUMBER
     - git tag $GIT_TAG -a -m "Generated tag from TravisCI for build $TRAVIS_BUILD_NUMBER"
-    - export FILES=$(ls bin/Release/*.rar)
+    - echo $TRAVIS_BUILD_DIR
+    - export FILES=$(ls -R ${TRAVIS_BUILD_DIR}/*.rar)
   
 deploy:
   provider: releases
