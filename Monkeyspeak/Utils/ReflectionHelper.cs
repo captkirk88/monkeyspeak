@@ -23,12 +23,24 @@ namespace Monkeyspeak.Utils
                 }
         }
 
-        public static IEnumerable<MethodInfo> GetAllMethods(Type type)
+        public static IEnumerable<MethodInfo> GetAllMethods(Type type, params Type[] args)
         {
             MethodInfo[] methods = type.GetMethods();
             for (int j = 0; j <= methods.Length - 1; j++)
             {
-                yield return methods[j];
+                var @params = methods[j].GetParameters();
+                if (args.Length != @params.Length) continue;
+                bool paramsMatch = true;
+                for (int i = @params.Length - 1; i >= 0; i--)
+                {
+                    if (@params[i].ParameterType != args[i])
+                    {
+                        paramsMatch = false;
+                        break;
+                    }
+                }
+                if (paramsMatch)
+                    yield return methods[j];
             }
         }
 

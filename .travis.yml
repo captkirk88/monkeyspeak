@@ -1,10 +1,14 @@
 language: csharp
 solution: Monkeyspeak.sln
 mono: latest
+sudo: true
+bundler_args: --retry 5
 branches:
   only:
   - master
   - stable
+before_install:
+  - sudo apt-get update
 install:
   - nuget restore Monkeyspeak.sln
 script:
