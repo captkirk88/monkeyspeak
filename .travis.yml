@@ -35,8 +35,7 @@ deploy:
   api_key:
     secure: SBhVhOQHU6Q6EQG07td5VLX6Re0hb8iZsyRl/8JU6f/ih+CSsiEMFdSgwwjuIRGZznrvtLQS9Uk4x43p3xkTl/pWiYxNRA2+Nj6oEL8rITCmlHK1T/YcaksP9E4pDBEJaZBQ7W7hpMCK8WvZY8bOO0g6ktsPGzInjeYY/kxWGI7pnM+iZFG8vK+AYnGYxbPPg4iH8ogiwymj657bOSzKltY3jV+SBSI8WylIjyetUDYy5OF4azI7q9w6wvrGBGEkteVcKWgGJozwjz0fKRVUsWZZFs2y51PrJ/j3zPW+lbD8l05Ih7ElS5Uclpuo/JYPGJHBVxclC6UfgsDwcrGh6PTSzdv49TMwqnfBxzKS1hmj5fsR9L7Qix7YnznUBpQ0VazZl9WoBIs9OAHkYJKpn0w0Kp/0Mi9BiKsnNpNhC/fl9C8ZRooyLpiQrnij9I0e3YNQ7WAXx8QuJbm3zjXrmAfmWDt+MFmlvrvhf4PFMhFdp6Oh5az+EhiTCJyfrNpmYAbakM8NJAWNkrJwLMwkQ3ZeWgfO88O7orVLOgOJ8kwBxNov9o2J6Ba8wxQ3fZhxlFncJEWJcMN/TMkEVkLMow83XXlsuX/EBPOaj9Q9sMslD38kMrQWy5edFySXv8UbfhCeomx2Pl7d8zqfVGtrLRKfTPJCTP2366uuRKIfdhA=
   file_glob: true
-  file:
-    - $TRAVIS_BUILD_DIR/Monkeyspeak/bin/Release/*.rar
+  file: $TRAVIS_BUILD_DIR/Monkeyspeak/bin/Release/*.rar
   skip_cleanup: true
   on:
     repo: captkirk88/monkeyspeak
