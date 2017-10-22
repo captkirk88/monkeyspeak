@@ -1,0 +1,6 @@
+language: csharp
+solution: Monkeyspeak.sln
+install:
+  - nuget restore Monkeyspeak.sln
+script:
+  - xbuild /p:Configuration=Release Monkeyspeak.sln
