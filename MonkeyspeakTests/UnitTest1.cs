@@ -495,6 +495,7 @@ namespace MonkeyspeakTests
         public void GetTriggerDescriptionsTest()
         {
             MonkeyspeakEngine engine = new MonkeyspeakEngine();
+            engine.Options.Debug = true;
             Page page = engine.LoadFromString("");
 
             page.Error += DebugAllErrors;
@@ -537,7 +538,8 @@ namespace MonkeyspeakTests
     (5:102) print {elapsed count = %i2} to the console.
 ";
             var engine = new MonkeyspeakEngine();
-            Page page = engine.LoadFromString(timerLibTestScript);
+            engine.Options.Debug = true;
+            var page = engine.LoadFromString(timerLibTestScript);
 
             page.Error += DebugAllErrors;
 
@@ -563,7 +565,7 @@ namespace MonkeyspeakTests
 
         public static void DebugAllErrors(TriggerHandler handler, Trigger trigger, Exception ex)
         {
-            Logger.Error($"{trigger} {handler.Method.Name}");
+            Logger.Error($"DebugAllErrors: {trigger} {handler.Method.Name} {ex.Message}");
             Logger.Debug(ex);
         }
 

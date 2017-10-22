@@ -141,7 +141,7 @@ namespace Monkeyspeak.Libraries
         {
             var var = reader.ReadVariable();
             double num = 0;
-            return reader.ReadVariableOrNumber() == var.Value.As<double>();
+            return reader.ReadNumber() == var.Value.As<double>();
         }
 
         private bool IsVariableNotEqualToNumberOrVar(TriggerReader reader)

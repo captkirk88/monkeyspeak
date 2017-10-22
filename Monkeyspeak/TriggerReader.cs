@@ -370,11 +370,11 @@ namespace Monkeyspeak
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public bool PeekVariable<T>() where T : struct
+        public bool PeekVariable<T>()
         {
             if (contents.Count == 0) return false;
             var expr = contents.Peek() as VariableExpression;
-            return expr != null && page.HasVariable(expr.Value, out IVariable var) ? var.Value != null && var.Value is T : false;
+            return expr != null && page.HasVariable(expr.Value, out IVariable var) ? var.Value is T : false;
         }
 
         /// <summary>
@@ -406,11 +406,11 @@ namespace Monkeyspeak
         }
 
         /// <summary>
-        /// Reads the next Variable or Number available, throws TriggerReaderException on failure
+        /// Reads the next Number available, throws TriggerReaderException on failure
         /// </summary>
         /// <returns>Number</returns>
         /// <exception cref="TriggerReaderException"></exception>
-        public double ReadVariableOrNumber()
+        public double ReadNumber()
         {
             if (contents.Count == 0) throw new TriggerReaderException("Unexpected end of values");
 
@@ -420,7 +420,7 @@ namespace Monkeyspeak
             }
             else if (contents.Peek() is VariableExpression)
             {
-                return ReadVariable().Value.As<double>();
+                return (double)ReadVariable()?.Value?.As<double>();
             }
             else if (contents.Peek() is VariableTableExpression)
             {
@@ -428,27 +428,6 @@ namespace Monkeyspeak
                 return table[table.ActiveIndexer].As<double>();
             }
             else throw new TriggerReaderException($"Expected number, got {contents.Peek().GetType().Name} at {contents.Peek().Position}");
-        }
-
-        /// <summary>
-        /// Reads the next Number available, throws TriggerReaderException on failure
-        /// </summary>
-        /// <returns>Number</returns>
-        /// <exception cref="TriggerReaderException"></exception>
-        public double ReadNumber()
-        {
-            if (contents.Count == 0) throw new TriggerReaderException("Unexpected end of values");
-            if (!(contents.Peek() is NumberExpression)) throw new TriggerReaderException($"Expected number, got {contents.Peek().GetType().Name} at {contents.Peek().Position}");
-            try
-            {
-                var expr = (contents.Dequeue() as NumberExpression);
-                lastPos = expr.Position;
-                return expr.Value;
-            }
-            catch
-            {
-                throw new TriggerReaderException($"No value found at {lastPos}");
-            }
         }
 
         /// <summary>
@@ -470,7 +449,7 @@ namespace Monkeyspeak
         {
             if (!PeekNumber())
             {
-                number = double.NaN;
+                number = -1d;
                 return false;
             }
             number = ReadNumber();

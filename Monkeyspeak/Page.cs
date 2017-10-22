@@ -861,19 +861,35 @@ namespace Monkeyspeak
                 {
                     switch (current.Category)
                     {
+                        case TriggerCategory.Cause:
+                            // skip any more causes since the initial passed
+                            Trigger possibleCause = Trigger.Undefined;
+                            for (int i = index + 1; i <= triggerBlock.Count - 1; i++)
+                            {
+                                possibleCause = triggerBlock[i];
+                                if (possibleCause.Category == TriggerCategory.Cause)
+                                {
+                                    index = i; // set the current index of the outer loop
+                                    break;
+                                }
+                            }
+                            if (possibleCause.Category == TriggerCategory.Undefined) return;
+                            break;
+
                         case TriggerCategory.Flow:
                             var indexOfOtherFlow = triggerBlock.IndexOfTrigger(TriggerCategory.Flow, startIndex: index + 1);
                             var subBlock = triggerBlock.GetSubBlock(index + 1, indexOfOtherFlow);
                             var subReader = new TriggerReader(this, subBlock) { Parameters = reader.Parameters };
-                            int i;
-                            for (i = 0; i <= subBlock.Count - 1; i++)
+                            int j = 0;
+                            for (int i = 0; i <= subBlock.Count - 1; i++)
                             {
                                 ExecuteTrigger(subBlock, ref i, subReader);
+                                j = i;
                                 if (i == -1)
                                     break;
                             }
                             //ExecuteBlock(subBlock, args: reader.Parameters);
-                            if (i == -1)
+                            if (j == -1)
                                 index += subBlock.Count;
                             else index -= 1;
                             break;
@@ -882,10 +898,10 @@ namespace Monkeyspeak
             }
             catch (Exception e)
             {
+                index = triggerBlock.Count;
                 if (Error != null)
                     Error(handlers[current], current, e);
                 else throw;
-                index = triggerBlock.Count;
             }
         }
 

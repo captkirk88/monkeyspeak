@@ -101,7 +101,7 @@ namespace Monkeyspeak.Libraries
         private bool WhileVarIsValue(TriggerReader reader)
         {
             var var = reader.ReadVariable();
-            var value = reader.ReadVariableOrNumber();
+            var value = reader.ReadNumber();
             var varVal = var.Value.As<double>();
             bool canContinue = varVal == value;
 
@@ -123,7 +123,7 @@ namespace Monkeyspeak.Libraries
         private bool WhileVarIsNotValue(TriggerReader reader)
         {
             var var = reader.ReadVariable();
-            var value = reader.ReadVariableOrNumber();
+            var value = reader.ReadNumber();
             bool canContinue = var.Value.As<double>() != value;
             if (!reader.Page.HasVariable("___while_counter", out ConstantVariable whileCounter))
                 whileCounter = reader.Page.SetVariable(new ConstantVariable("___while_counter", 0d));

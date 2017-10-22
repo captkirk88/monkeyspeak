@@ -84,7 +84,7 @@ namespace Monkeyspeak.Libraries
         private bool PutNumIntoTable(TriggerReader reader)
         {
             var var = reader.ReadVariableTable(true);
-            var value = reader.ReadVariableOrNumber();
+            var value = reader.ReadNumber();
             var key = reader.ReadString();
             var[key] = value;
             return true;
