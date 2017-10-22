@@ -109,23 +109,8 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>REM DEL old files
-del "$(TargetDir)$(TargetName)_$(ConfigurationName)_$(PlatformName)_Src.rar"
-del "$(TargetDir)$(TargetName)_$(ConfigurationName)_$(PlatformName)_Binaries.rar"
-
-REM set path to WinRAR for rar command
-set path="C:\Program Files\WinRAR\";%25path%25
-
-REM Create the BIN rar
-cd $(TargetDir)
-del "$(TargetDir)$(TargetName)_$(ConfigurationName)_$(PlatformName)_Binaries.rar"
-winrar a -r -x*.tmp -x*.rar "$(TargetDir)$(TargetName)_$(ConfigurationName)_$(PlatformName)_Binaries.rar" *.*
-
-REM Create the SRC rar
-cd $(ProjectDir)
-del "$(TargetDir)$(TargetName)_$(PlatformName)_Src.rar"
-winrar a -r -x*\.svn\* -x*\bin\* -x*\obj\* -x*.rar "$(TargetDir)$(TargetName)_$(PlatformName)_Src.rar" *.*
-</PostBuildEvent>
+    <PostBuildEvent>
+    </PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
