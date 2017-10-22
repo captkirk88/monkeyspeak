@@ -202,7 +202,7 @@
   <Target Name="AfterBuild">
   </Target>
   <PropertyGroup>
-    <PostBuildEvent>REM DEL old files
+    <PostBuildEvent Condition="'$(BuildingInsideVisualStudio)' == '' Or '$(BuildingInsideVisualStudio)' == true">REM DEL old files
 del "$(TargetDir)$(TargetName)_$(ConfigurationName)_$(PlatformName)_Src.rar"
 del "$(TargetDir)$(TargetName)_$(ConfigurationName)_$(PlatformName)_Binaries.rar"
 
@@ -220,9 +220,9 @@ del "$(TargetDir)$(TargetName)_$(PlatformName)_Src.rar"
 rar a -r -x*\.svn\* -x*\bin\* -x*\obj\* -x*.rar -x*.tt  "$(TargetDir)$(TargetName)_$(PlatformName)_Src.rar" *.*
 </PostBuildEvent>
   </PropertyGroup>
-  <ProjectExtensions>
+<!--   <ProjectExtensions>
     <VisualStudio>
       <UserProperties BuildVersion_BuildVersioningStyle="None.None.Increment.MonthAndDayStamp" />
     </VisualStudio>
-  </ProjectExtensions>
+  </ProjectExtensions> -->
 </Project>
