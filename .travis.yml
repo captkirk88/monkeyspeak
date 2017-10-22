@@ -9,4 +9,4 @@ install:
   - nuget restore Monkeyspeak.sln
 script:
 # clear pre and post build rar commands due to them being batch and incompatible with linux
-  - xbuild /P:PreBuildEvent="" /p:PostBuildEvent="" /p:Configuration=Release Monkeyspeak.sln
+  - xbuild /p:Configuration=Release Monkeyspeak.sln
