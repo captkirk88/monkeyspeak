@@ -24,7 +24,7 @@ before_deploy:
     - git config --global user.name "$gitmail"
     - export GIT_TAG=$TRAVIS_BRANCH-0.1.$TRAVIS_BUILD_NUMBER
     - git tag $GIT_TAG -a -m "Generated tag from TravisCI for build $TRAVIS_BUILD_NUMBER"
-    - git push -q https://github.com/captkirk88/monkeyspeak --tags
+    - git push -q https:$gitmail:$gitauth//github.com/captkirk88/monkeyspeak --tags
     - ls -R
   
 deploy:
