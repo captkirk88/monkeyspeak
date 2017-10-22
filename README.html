@@ -1,0 +1,97 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>Monkeyspeak</title>
+</head>
+<body>
+
+    <p><img src="http://s2.quickmeme.com/img/1a/1a25ceb16d9921a1da97468be477f77c9fad22e552896ef49a74c0c1e15a9252.jpg" alt="Monkeyspeak Hero" /></p>
+<h1 id="monkeyspeak">Monkeyspeak</h1>
+<p>Monkeyspeak aims to give the end-user a very easy to use scripting language.</p>
+<h3 id="progress-v7.0">Progress v7.0</h3>
+<ul class="contains-task-list">
+<li class="task-list-item"><input disabled="disabled" type="checkbox" checked="checked" /> <a href="wiki/Triggers.md">Triggers</a> (the core construct of Monkeyspeak)
+<ul class="contains-task-list">
+<li class="task-list-item"><input disabled="disabled" type="checkbox" checked="checked" /> Causes <code>(0:0) when something happens,</code></li>
+<li class="task-list-item"><input disabled="disabled" type="checkbox" checked="checked" /> Conditions <code>(1:0) and it really did happen,</code></li>
+<li class="task-list-item"><input disabled="disabled" type="checkbox" checked="checked" /> Effects <code>(5:0) do something about it.</code></li>
+<li class="task-list-item"><input disabled="disabled" type="checkbox" checked="checked" /> Flow <code>(6:0) while it still is happening,</code></li>
+</ul>
+</li>
+<li class="task-list-item"><input disabled="disabled" type="checkbox" checked="checked" /> <a href="wiki/Variables.md">Variables</a> <code>%myVariable or %myTable[myKey]</code>
+<ul class="contains-task-list">
+<li class="task-list-item"><input disabled="disabled" type="checkbox" checked="checked" /> Double (with -+ and exponent support)</li>
+<li class="task-list-item"><input disabled="disabled" type="checkbox" checked="checked" /> Strings (Unicode)</li>
+<li class="task-list-item"><input disabled="disabled" type="checkbox" checked="checked" /> Tables (Dictionary objects with a configurable limit)</li>
+</ul>
+</li>
+<li class="task-list-item"><input disabled="disabled" type="checkbox" /> <a href="wiki/Libraries.md">Core Library</a>
+<ul class="contains-task-list">
+<li class="task-list-item"><input disabled="disabled" type="checkbox" /> Sys (triggers that support core Monkeyspeak tasks like setting variables)</li>
+<li class="task-list-item"><input disabled="disabled" type="checkbox" /> Math (very basic math operations + - / *)</li>
+<li class="task-list-item"><input disabled="disabled" type="checkbox" /> StringOperations (very basic string operations)</li>
+<li class="task-list-item"><input disabled="disabled" type="checkbox" /> IO (basic file operations)</li>
+<li class="task-list-item"><input disabled="disabled" type="checkbox" /> Timers (basic timer support with optional delay)</li>
+<li class="task-list-item"><input disabled="disabled" type="checkbox" /> Tables (supports the for each trigger)</li>
+<li class="task-list-item"><input disabled="disabled" type="checkbox" /> Loops (supports while loop and possibly more in the future)</li>
+</ul>
+</li>
+</ul>
+<h3 id="basic-explaination">Basic Explaination</h3>
+<p>A Trigger may optional be wrapped in parenthesis but must alway begin with a number
+from 0-9 and a colon in the middle to seperate the trigger's category, which is the
+first number, and the trigger's id, which is the last group of numbers.</p>
+<p>Triggers are grouped into &quot;blocks&quot;.  Blocks start with a Cause (see below) trigger
+and usually end with a Effect (see below) trigger.</p>
+<h5 id="trigger-example">Trigger Example:</h5>
+<p><code>(</code> Optional wrapping parenthesis</p>
+<p><code>0</code> The trigger's category.  Triggers are categorized as Causes, Conditions, Effects and Flow.</p>
+<ul>
+<li>0 Cause = Nothing happens without a Cause.  It is the first trigger executed in a group of triggers.
+You could look at it as event based.  A Cause is called when something happens.</li>
+<li>1 Conditions = These are triggers act as a &quot;if-then-continue&quot;.  If the condition succeeds then the
+rest of the triggers after the condition are executed, if the condition fails then the entire block
+is exited.</li>
+<li>5 Effects = Better known as actions!  These triggers perform the work.  They could do a file write
+operation, play music, popup a window, etc.  They must always perform work.</li>
+<li>6 Flow = No, they have nothing to do with liquid.  These triggers are for executing a block of
+triggers with a loop or a iterator.  They are slightly more advanced but fear not, there are
+limitations set so that you will not encounter a infinite loop scenario.</li>
+</ul>
+<p><code>:</code> A seperator between the category and the id.</p>
+<p><code>123</code> A group of numbers that give the trigger a id.</p>
+<ul>
+<li>Id = Any group of numbers that identify that specific trigger.  A Cause can have a category of
+450 and a Effect can have a id of 450.  As long as you don't have two of the same id in one
+category or a exception will be thrown.</li>
+</ul>
+<p>All of this comes together to form a trigger <code>(0:123)</code>.</p>
+<h3 id="basic-usage">Basic Usage</h3>
+<p>For simplicity sake, in this example, we will assume trigger (0:0) has already been given a handler.</p>
+<p>Let's say you had a Monkeyspeak script like this:</p>
+<pre><code class="language-stylus">(0:0) when the script is started,
+        (5:100) set %hello to {Hello World}.
+        (5:101) set %num to 5.1212E+003.
+        (5:102) print {num = %num} to the console.
+        (5:102) print {%hello} to the console.
+</code></pre>
+<p>You would load and execute it using a few methods:</p>
+<pre><code class="language-csharp">using Monkeyspeak;
+
+var engine = new MonkeyspeakEngine();
+Page page = engine.LoadFromString(testScript);
+
+page.Error += DebugAllErrors;
+
+page.LoadAllLibraries();
+
+page.Execute(); // optionally provide the trigger Id of 0 to execute (0:0)
+</code></pre>
+<p>Output:</p>
+<pre><code class="language-csharp">num = 5121.2
+Hello World
+</code></pre>
+
+
+</body>
+</html>

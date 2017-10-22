@@ -1,3 +1,4 @@
+![Monkeyspeak Hero](http://s2.quickmeme.com/img/1a/1a25ceb16d9921a1da97468be477f77c9fad22e552896ef49a74c0c1e15a9252.jpg)
 # Monkeyspeak
 
 Monkeyspeak aims to give the end-user a very easy to use scripting language.  
@@ -27,7 +28,7 @@ from 0-9 and a colon in the middle to seperate the trigger's category, which is 
 first number, and the trigger's id, which is the last group of numbers.
 
 Triggers are grouped into "blocks".  Blocks start with a Cause (see below) trigger 
-and usually end with a [Effect](/Basic_Usage) (see below) trigger.
+and usually end with a Effect (see below) trigger.
 ##### Trigger Example:
 
 `(` Optional wrapping parenthesis
