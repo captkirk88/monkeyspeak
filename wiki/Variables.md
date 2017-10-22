@@ -12,7 +12,7 @@ called `%__@v$a#r&_` you can create but you might get a headache typing that out
 the time.
 
 #### Next Up
-> [Strings](Strings.md):book:
+> :book: [Strings](Strings.md)
 
 #### Last Lesson
-> [Triggers](Triggers.md):books:
+> :books: [Triggers](Triggers.md)

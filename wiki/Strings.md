@@ -12,7 +12,7 @@ default is 1000 characters.  You can think of characters as each individual lett
 alphabet.  Combined they would make a String that is 24 characters in length.
 
 #### Next Up
-> [Libraries](Libraries.md):book:
+> :book: [Libraries](Libraries.md)
 
 #### Last Lesson
-> [Variables](Variables.md):books:
+> :books: [Variables](Variables.md)

@@ -84,7 +84,7 @@ Timers
 ```
 
 #### Next Up
-> [Home](../README.md):book:
+> :home: [Home](../README.md)
 
 #### Last Lesson
-> [Strings](Strings.md):books:
+> :books: [Strings](Strings.md)

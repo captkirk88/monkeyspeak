@@ -33,7 +33,7 @@ must create a Handler for those triggers.  I will get into Handlers later.
 All of this comes together to form a trigger `(0:123)`.
 
 #### Next Up
-> [Variables](Variables.md):book:
+> :book: [Variables](Variables.md)
 
 #### Last Lesson
-> [Home](../README.md):books:
+> :books: [Home](../README.md)

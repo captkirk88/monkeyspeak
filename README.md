@@ -111,10 +111,10 @@ than [Basic Usage](#basic-usage)'s execution example.
 
 #### Guides
 
-> [Triggers](wiki/Triggers.md):book:
+> :book: [Triggers](wiki/Triggers.md)
 
-> [Variables](wiki/Variables.md):book:
+> :book: [Variables](wiki/Variables.md)
 
-> [Strings](wiki/Strings.md):book:
+> :book: [Strings](wiki/Strings.md)
 
-> [Libraries](wiki/Libraries.md):book:
+> :book: [Libraries](wiki/Libraries.md)
