@@ -9,3 +9,6 @@
 
 	url = https://github.com/StarShip-Avalon-Projects/MonkeySpeakEx.git
 
+[submodule "MonkeyspeakTestsVB"]
+	path = MonkeyspeakTestsVB
+	url = https://github.com/Gerolkae/MonkeyspeakTestsVB.git
