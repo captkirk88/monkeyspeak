@@ -1,13 +1,14 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26730.16
+VisualStudioVersion = 15.0.27004.2002
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Monkeyspeak", "Monkeyspeak\Monkeyspeak.csproj", "{925781E6-8B75-471B-887F-616495BBBFDD}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{36738DD3-4CE5-4877-AC28-D14E16160FA0}"
 	ProjectSection(SolutionItems) = preProject
 		Monkeyspeak.vsmdi = Monkeyspeak.vsmdi
+		README.md = README.md
 	EndProjectSection
 EndProject
 Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "MonkeyspeakTestVB", "MonkeyspeakTestVB\MonkeyspeakTestVB.vbproj", "{3F32804A-6C3A-49AA-82A9-9AF527683209}"
@@ -17,6 +18,13 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Monkeyspeak.Editor", "Monkeyspeak.Editor\Monkeyspeak.Editor.csproj", "{D69B1B69-591D-4286-BE5C-52FB96D256EE}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MonkeyspeakTests", "MonkeyspeakTests\MonkeyspeakTests.csproj", "{4BCAEDFC-DD41-4836-A9D1-3A980D2240EB}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "wiki", "wiki", "{EBF2C0FE-BE42-4EF3-A9F2-7C8E197081A8}"
+	ProjectSection(SolutionItems) = preProject
+		wiki\Libraries.md = wiki\Libraries.md
+		wiki\Triggers.md = wiki\Triggers.md
+		wiki\Variables.md = wiki\Variables.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -106,6 +114,9 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{EBF2C0FE-BE42-4EF3-A9F2-7C8E197081A8} = {36738DD3-4CE5-4877-AC28-D14E16160FA0}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {209988D3-8881-4D11-A026-C6E1C6AE7FD1}

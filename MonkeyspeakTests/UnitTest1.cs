@@ -35,8 +35,10 @@ namespace MonkeyspeakTests
         (5:102) print {hello = %hello helloNum = %helloNum} to the console.
 
 (0:0) when the script is started,
-        (5:101) set %num to -5.6969E+003.
-        (5:102) print {num = %num} to the console
+        (5:100) set %hello to {Hello World}.
+        (5:101) set %num to 5.1212E+003.
+        (5:102) print {num = %num} to the console.
+        (5:102) print {%hello} to the console.
 
 (0:0) when the script is started,
     *Uncommented version
