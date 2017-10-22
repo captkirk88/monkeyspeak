@@ -1,3 +1,6 @@
 [submodule "monkeyspeak"]
 	path = monkeyspeak
 	url = https://github.com/StarShip-Avalon-Projects/MonkeySpeakEx.git
+[submodule "MonkeyspeakTest"]
+	path = MonkeyspeakTest
+	url = https://github.com/StarShip-Avalon-Projects/MonkeySpeakEx.git
