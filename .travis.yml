@@ -4,9 +4,9 @@ mono: latest
 sudo: true
 bundler_args: "--retry 5"
 
-branches:
-  except:
-    - /^*-v[0-9]/
+#branches:
+#  except:
+#    - /^*-v[0-9]/
   
 before_install:
 - sudo apt-get install rar
@@ -20,8 +20,8 @@ script:
 
 
 before_deploy:
-    #- git config --global user.email ""
-    #- git config --global user.name ""
+    - git config --global user.email "$gitmail"
+    - git config --global user.name "$gitmail"
     - export GIT_TAG=$TRAVIS_BRANCH-0.1.$TRAVIS_BUILD_NUMBER
     - git tag $GIT_TAG -a -m "Generated tag from TravisCI for build $TRAVIS_BUILD_NUMBER"
     - git push -q https://github.com/captkirk88/monkeyspeak --tags
@@ -35,6 +35,4 @@ deploy:
   file: bin/Release/*.rar
   skip_cleanup: true
   on:
-    tags: false
-    all_branches: true
-    #repo: captkirk88/monkeyspeak
+    repo: captkirk88/monkeyspeak
