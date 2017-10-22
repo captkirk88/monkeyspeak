@@ -36,4 +36,4 @@ All of this comes together to form a trigger `(0:123)`.
 > :book: [Variables](Variables.md)
 
 #### Last Lesson
-> :books: [Home](../README.md)
+> :house_with_garden: [Home](../README.md)

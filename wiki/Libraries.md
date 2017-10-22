@@ -1,3 +1,5 @@
+### Libraries
+
 #### Break Down
 Monkeyspeak has a lot of existing Trigges to play with.  See below for a list.
 
@@ -84,7 +86,7 @@ Timers
 ```
 
 #### Next Up
-> :home: [Home](../README.md)
+> :house_with_garden: [Home](../README.md)
 
 #### Last Lesson
 > :books: [Strings](Strings.md)
