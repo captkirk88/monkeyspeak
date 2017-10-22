@@ -1,5 +1,6 @@
-![Monkeyspeak Hero](http://s2.quickmeme.com/img/1a/1a25ceb16d9921a1da97468be477f77c9fad22e552896ef49a74c0c1e15a9252.jpg)
-# Monkeyspeak [![Build Status](https://travis-ci.org/captkirk88/monkeyspeak.svg?branch=master)](https://travis-ci.org/captkirk88/monkeyspeak)
+![Monkeyspeak Hero](https://i.pinimg.com/736x/2f/f0/87/2ff087415a5009984739aa8fde5d5d4a--cartoon-monkeys-monkey-cartoon.jpg)
+# Monkeyspeak
+[![Build Status](https://travis-ci.org/captkirk88/monkeyspeak.svg?branch=master)](https://travis-ci.org/captkirk88/monkeyspeak)
 
 Monkeyspeak aims to give the end-user a very easy to use scripting language.  
 
@@ -23,7 +24,7 @@ Monkeyspeak aims to give the end-user a very easy to use scripting language.
   - [ ] Loops (supports while loop and possibly more in the future)
 
 ### Basic Explaination
-A Trigger may optional be wrapped in parenthesis but must alway begin with a number 
+A Trigger may optionally be wrapped in parenthesis but must alway begin with a number 
 from 0-9 and a colon in the middle to seperate the trigger's category, which is the 
 first number, and the trigger's id, which is the last group of numbers.
 
@@ -60,7 +61,7 @@ All of this comes together to form a trigger `(0:123)`.
 For simplicity sake, in this example, we will assume trigger (0:0) has already been given a handler.
 
 Let's say you had a Monkeyspeak script like this:
-```stylus
+```
 (0:0) when the script is started,
         (5:100) set %hello to {Hello World}.
         (5:101) set %num to 5.1212E+003.
@@ -85,3 +86,46 @@ Output:
 num = 5121.2
 Hello World
 ```
+
+### Advanced Usage
+
+Here is a example of using Flow triggers
+
+```
+(0:0) when the script is started,
+    (5:250) create a table as %myTable.
+    (5:100) set %hello to {hi}
+    (5:252) with table %myTable put {%hello} in it at key {myKey1}.
+    (5:252) with table %myTable put {%hello} in it at key {myKey2}.
+    (5:252) with table %myTable put {%hello} in it at key {myKey3}.
+    (5:252) with table %myTable put {%hello} in it at key {myKey4}.
+    (5:252) with table %myTable put {%hello} in it at key {myKey5}.
+    (5:252) with table %myTable put {%hello} in it at key {myKey6}.
+    (5:252) with table %myTable put {%hello} in it at key {myKey7}.
+    (6:250) for each entry in table %myTable put it into %entry,
+        (5:102) print {%entry} to the console.
+        (5:150) take variable %i and add 1 to it.
+        (5:102) print {%i} to the console.
+    (6:454) after the loop is done,
+        (5:102) print {I'm done!} to the console.
+        (1:108) and variable %myTable is table,
+            (5:101) set %myTable[myKey1] to 123
+            (5:102) print {%myTable[myKey1]} to the console.
+
+(0:0) when the script is started,
+    (5:101) set %answer to 0
+    (5:101) set %life to 42
+    (6:450) while variable %answer is not %life,
+        (5:150) take variable %answer and add 1 to it.
+        (1:102) and variable %answer equals 21,
+            (5:450) exit the current loop.
+    (6:454) after the loop is done,
+        (5:102) print {We may never know the answer...} to the console.
+```
+The above script creates a table in the first Trigger block, iterates over 
+that table with Flow trigger (6:250) and after it prints "I'm done!" to the 
+console.  The last Trigger block attempts to answer that very important 
+universal question but fails because we may never know the answer...
+
+To execute the [Advanced Usage](#advanced-usage) example, it is no different 
+than [Basic Usage](#basic-usage)'s execution example.

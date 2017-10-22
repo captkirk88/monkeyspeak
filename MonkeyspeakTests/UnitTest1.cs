@@ -94,7 +94,7 @@ namespace MonkeyspeakTests
         (5:150) take variable %i and add 1 to it.
         (5:102) print {%i} to the console.
     (6:454) after the loop is done,
-        (5:102) print {I'm Mr. Meeseeks, look at me!} to the console.
+        (5:102) print {I'm done!} to the console.
         (1:108) and variable %myTable is table,
             (5:101) set %myTable[myKey1] to 123
             (5:102) print {%myTable[myKey1]} to the console.
@@ -107,7 +107,7 @@ namespace MonkeyspeakTests
         (1:102) and variable %answer equals 21,
             (5:450) exit the current loop.
     (6:454) after the loop is done,
-        (5:102) print {I'm Mr. Meeseeks, look at me!} to the console.
+        (5:102) print {We may never know the answer...} to the console.
 ";
 
         [TestMethod]
