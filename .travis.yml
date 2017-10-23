@@ -17,20 +17,20 @@ notifications:
 
 before_install:
 - sudo apt-get install rar
-- sudo apt-get update
+
 install:
 - nuget restore Monkeyspeak.sln
 
 script:
 - echo Welcome $EMAIL
+- export MONTH = date "%M.%j%H"
+- export JDAY = date "%j"
+- export HOUR = date "%H"
 - xbuild /p:Configuration=Release Monkeyspeak/Monkeyspeak.csproj
 - xbuild /p:Configuration=Release msxc/msxc.csproj
 
 
 before_deploy:
-    - export MONTH = ${date "%M.%j%H"}
-    - export JDAY = ${date "%j"}
-    - export HOUR = ${date "%H"}
     - export GIT_TAG=Monkeyspeak-7.0.$MONTH.$JDAY$HOUR
     - git tag $GIT_TAG -a -m "Generated tag from TravisCI for build $TRAVIS_BUILD_NUMBER"
   
