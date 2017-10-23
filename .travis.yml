@@ -8,12 +8,6 @@ bundler_args: "--retry 5"
 #  except:
 #    - /^*-v[0-9]/
 
-env:
-    global:
-    - MONTH = sudo date "%M.%j%H"
-    - JDAY = date "%j"
-    - HOUR = date "%H"
-
 notifications:
     email:
         recipients:
@@ -34,6 +28,9 @@ script:
 
 
 before_deploy:
+    - export MONTH = ${date "%M.%j%H"}
+    - export JDAY = ${date "%j"}
+    - export HOUR = ${date "%H"}
     - export GIT_TAG=Monkeyspeak-7.0.$MONTH.$JDAY$HOUR
     - git tag $GIT_TAG -a -m "Generated tag from TravisCI for build $TRAVIS_BUILD_NUMBER"
   
