@@ -8,10 +8,15 @@ bundler_args: "--retry 5"
 #  except:
 #    - /^*-v[0-9]/
 
+env:
+    - MONTH = sudo date "%M.%j%H"
+    - JDAY = date "%j"
+    - HOUR = date "%H"
+
 notifications:
     email:
         recipients:
-            - ${EMAIL}
+            - $EMAIL
         on_success: never
         on_failure: always
 
@@ -22,12 +27,13 @@ install:
 - nuget restore Monkeyspeak.sln
 
 script:
+- echo Welcome $EMAIL
 - xbuild /p:Configuration=Release Monkeyspeak/Monkeyspeak.csproj
 - xbuild /p:Configuration=Release msxc/msxc.csproj
 
 
 before_deploy:
-    - export GIT_TAG=$TRAVIS_BRANCH-7.0.$TRAVIS_BUILD_NUMBER
+    - export GIT_TAG=Monkeyspeak-7.0.$MONTH.$JDAY$HOUR
     - git tag $GIT_TAG -a -m "Generated tag from TravisCI for build $TRAVIS_BUILD_NUMBER"
   
 deploy:
