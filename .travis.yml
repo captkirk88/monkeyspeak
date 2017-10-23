@@ -9,6 +9,7 @@ bundler_args: "--retry 5"
 #    - /^*-v[0-9]/
 
 env:
+    global:
     - MONTH = sudo date "%M.%j%H"
     - JDAY = date "%j"
     - HOUR = date "%H"
