@@ -16,6 +16,9 @@ namespace Monkeyspeak.Libraries
             Add(TriggerCategory.Flow, ForEntryInTable,
                 "for each entry in table % put it into %,");
 
+            Add(TriggerCategory.Flow, ForEntryInTable,
+                "for each entry in table % put it into %,");
+
             Add(TriggerCategory.Effect, CreateTable,
                 "create a table as %.");
 
@@ -28,11 +31,9 @@ namespace Monkeyspeak.Libraries
             Add(TriggerCategory.Effect, GetTableKeyIntoVar,
                 "with table % get key {...} put it in into variable %.");
 
-            // (1:106) and variable % is constant,
             Add(TriggerCategory.Condition, VariableIsTable,
                 "and variable % is a table,");
 
-            // (1:107) and variable % is not constant,
             Add(TriggerCategory.Condition, VariableIsNotTable,
                 "and variable % is not a table,");
         }
