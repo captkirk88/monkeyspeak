@@ -1,6 +1,8 @@
 ![Monkeyspeak Hero](https://i.pinimg.com/736x/2f/f0/87/2ff087415a5009984739aa8fde5d5d4a--cartoon-monkeys-monkey-cartoon.jpg)
 # Monkeyspeak
-[![Build Status](https://travis-ci.org/captkirk88/monkeyspeak.svg?branch=master)](https://travis-ci.org/captkirk88/monkeyspeak)
+Linux/Mono |
+------------ |
+[![Build Status](https://travis-ci.org/captkirk88/monkeyspeak.svg?branch=master)](https://travis-ci.org/captkirk88/monkeyspeak) |
 
 Monkeyspeak aims to give the end-user a very easy to use scripting language.  
 
