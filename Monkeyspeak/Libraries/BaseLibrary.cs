@@ -27,7 +27,8 @@ namespace Monkeyspeak.Libraries
         /// <summary>
         /// Initializes this instance.  Add your trigger handlers here.
         /// </summary>
-        public abstract void Initialize();
+        /// <param name="args">Parametized argument of objects to use to pass runtime objects to a library at initialization</param>
+        public abstract void Initialize(params object[] args);
 
         /// <summary>
         /// Raises a MonkeyspeakException
@@ -151,7 +152,6 @@ namespace Monkeyspeak.Libraries
 
                 foreach (var lib in GetLibrariesFromAssembly(asm)) yield return lib;
             }
-            yield return Attributes.Instance;
         }
 
         /// <summary>
@@ -161,26 +161,6 @@ namespace Monkeyspeak.Libraries
         public static IEnumerable<BaseLibrary> GetLibrariesFromAssembly(Assembly asm)
         {
             if (asm == null) yield break;
-            foreach (var types in ReflectionHelper.GetAllTypesWithAttributeInMembers<TriggerHandlerAttribute>(asm))
-                foreach (MethodInfo method in types.GetMethods().Where(method => method.IsDefined(typeof(TriggerHandlerAttribute), false)))
-                {
-                    foreach (TriggerHandlerAttribute attribute in ReflectionHelper.GetAllAttributesFromMethod<TriggerHandlerAttribute>(method))
-                    {
-                        attribute.owner = method;
-                        try
-                        {
-                            var handler = (TriggerHandler)(reader => (bool)attribute.owner.Invoke(null, new object[] { reader }));
-                            if (handler != null)
-                            {
-                                Attributes.Instance.Add(new Trigger(attribute.TriggerCategory, attribute.TriggerID), handler, attribute.Description);
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            throw new MonkeyspeakException(String.Format("Failed to load library from assembly '{0}', couldn't bind to method '{1}.{2}'", asm.FullName, method.DeclaringType.Name, method.Name), ex);
-                        }
-                    }
-                }
 
             foreach (var type in ReflectionHelper.GetAllTypesWithBaseClass<BaseLibrary>(asm))
             {

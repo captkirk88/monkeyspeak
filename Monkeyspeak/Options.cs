@@ -110,6 +110,15 @@ namespace Monkeyspeak
         /// <value>
         ///   <c>true</c> if debug; otherwise, <c>false</c>.
         /// </value>
-        public bool Debug { get => Logger.DebugEnabled; set => Logger.DebugEnabled = value; }
+        public bool Debug
+        {
+#if DEBUG
+            get => Logger.DebugEnabled;
+            set => Logger.DebugEnabled = value;
+#else
+            get => false;
+            set { }
+#endif
+        }
     }
 }

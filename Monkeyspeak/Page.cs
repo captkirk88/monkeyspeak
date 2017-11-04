@@ -129,7 +129,6 @@ namespace Monkeyspeak
             SetVariable(new ConstantVariable(Variable.NoValue));
             SetVariable(new ConstantVariable("%MONKEY", engine.Banner));
             SetVariable(new ConstantVariable("%VERSION", engine.Options.Version.ToString(2)));
-            LoadLibrary(Attributes.Instance);
             Initiating?.Invoke(this);
         }
 
@@ -355,12 +354,12 @@ namespace Monkeyspeak
         /// Loads a <see cref="Libraries.BaseLibrary"/> into this Page
         /// </summary>
         /// <param name="lib"></param>
-        public void LoadLibrary(Libraries.BaseLibrary lib)
+        public void LoadLibrary(Libraries.BaseLibrary lib, params object[] args)
         {
             foreach (var existing in libraries)
                 if (existing.GetType().Equals(lib.GetType())) return;
 
-            lib.Initialize();
+            lib.Initialize(args);
             lock (syncObj)
             {
                 foreach (var kv in lib.Handlers)
@@ -378,22 +377,6 @@ namespace Monkeyspeak
         public void LoadLibraryFromAssembly(Assembly asm)
         {
             if (asm == null) return;
-            foreach (var types in ReflectionHelper.GetAllTypesWithAttributeInMembers<TriggerHandlerAttribute>(asm))
-                foreach (MethodInfo method in types.GetMethods().Where(method => method.IsDefined(typeof(TriggerHandlerAttribute), false)))
-                {
-                    foreach (TriggerHandlerAttribute attribute in ReflectionHelper.GetAllAttributesFromMethod<TriggerHandlerAttribute>(method))
-                    {
-                        attribute.owner = method;
-                        try
-                        {
-                            attribute.Register(this);
-                        }
-                        catch (Exception ex)
-                        {
-                            throw new MonkeyspeakException(String.Format("Failed to load library from assembly '{0}', couldn't bind to method '{1}.{2}'", asm.FullName, method.DeclaringType.Name, method.Name), ex);
-                        }
-                    }
-                }
 
             var subType = typeof(BaseLibrary);
             foreach (var type in asm.GetTypes())
@@ -421,23 +404,6 @@ namespace Monkeyspeak
             {
                 throw new MonkeyspeakException("Load library from file '" + assemblyFile + "' failed.");
             }
-
-            foreach (var types in ReflectionHelper.GetAllTypesWithAttributeInMembers<TriggerHandlerAttribute>(asm))
-                foreach (MethodInfo method in types.GetMethods().Where(method => method.IsDefined(typeof(TriggerHandlerAttribute), false)))
-                {
-                    foreach (TriggerHandlerAttribute attribute in ReflectionHelper.GetAllAttributesFromMethod<TriggerHandlerAttribute>(method))
-                    {
-                        attribute.owner = method;
-                        try
-                        {
-                            attribute.Register(this);
-                        }
-                        catch (Exception ex)
-                        {
-                            throw new MonkeyspeakException(String.Format("Failed to load library from file '{0}', couldn't bind to method '{1}.{2}'", assemblyFile, method.DeclaringType.Name, method.Name));
-                        }
-                    }
-                }
 
             var subType = typeof(BaseLibrary);
             foreach (var type in asm.GetTypes())
@@ -695,7 +661,6 @@ namespace Monkeyspeak
         /// <para>Example: "(0:1) when someone says something,"</para></param>
         public void SetTriggerHandler(Trigger trigger, TriggerHandler handler, string description = null)
         {
-            Attributes.Instance.AddDescription(trigger, description);
             lock (syncObj)
             {
                 if (!handlers.ContainsKey(trigger))

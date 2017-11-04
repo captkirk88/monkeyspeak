@@ -16,7 +16,7 @@ namespace Monkeyspeak.Libraries
     {
         public override int BaseId => 450;
 
-        public override void Initialize()
+        public override void Initialize(params object[] args)
         {
             Add(TriggerCategory.Flow, WhileVarIsNotValue,
                 "while variable % is not #,");

@@ -335,5 +335,13 @@ namespace Monkeyspeak
         {
             CurrentElementIndex = 0;
         }
+
+        /// <summary>
+        /// Clears all values in this table.
+        /// </summary>
+        public void Clear()
+        {
+            values.Clear();
+        }
     }
 }

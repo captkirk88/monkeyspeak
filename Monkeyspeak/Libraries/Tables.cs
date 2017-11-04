@@ -11,11 +11,8 @@ namespace Monkeyspeak.Libraries
     {
         public override int BaseId => 250;
 
-        public override void Initialize()
+        public override void Initialize(params object[] args)
         {
-            Add(TriggerCategory.Flow, ForEntryInTable,
-                "for each entry in table % put it into %,");
-
             Add(TriggerCategory.Flow, ForEntryInTable,
                 "for each entry in table % put it into %,");
 
@@ -31,11 +28,21 @@ namespace Monkeyspeak.Libraries
             Add(TriggerCategory.Effect, GetTableKeyIntoVar,
                 "with table % get key {...} put it in into variable %.");
 
+            Add(TriggerCategory.Effect, ClearTable,
+                "with table % remove all entries in it.");
+
             Add(TriggerCategory.Condition, VariableIsTable,
                 "and variable % is a table,");
 
             Add(TriggerCategory.Condition, VariableIsNotTable,
                 "and variable % is not a table,");
+        }
+
+        private bool ClearTable(TriggerReader reader)
+        {
+            var var = reader.ReadVariableTable();
+            var.Clear();
+            return true;
         }
 
         private bool VariableIsNotTable(TriggerReader reader)

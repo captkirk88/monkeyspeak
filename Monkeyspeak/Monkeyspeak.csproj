@@ -116,7 +116,6 @@
     <Compile Include="lexical\Expressions\VariableTableExpression.cs" />
     <Compile Include="lexical\TokenDefinitions\ITokenDefinition.cs" />
     <Compile Include="lexical\TokenDefinitions\VariableDefinition.cs" />
-    <Compile Include="Libraries\Attributes.cs" />
     <Compile Include="Libraries\AutoIncrementBaseLibrary.cs" />
     <Compile Include="Libraries\BaseLibrary.cs" />
     <Compile Include="Libraries\Loops.cs" />
@@ -154,7 +153,6 @@
     <Compile Include="Utils\ReflectionHelper.cs" />
     <Compile Include="Trigger.cs" />
     <Compile Include="TriggerBlock.cs" />
-    <Compile Include="TriggerHandlerAttribute.cs" />
     <Compile Include="TriggerReader.cs" />
     <Compile Include="Utils\TriggerIntegrityUpdater.cs" />
     <Compile Include="Variable.cs" />
@@ -225,7 +223,7 @@ cd $(TargetDir)
 rar a -r -x*.tmp -x*.rar -x*.tt "$(TargetDir)$(TargetName)_$(ConfigurationName)_$(PlatformName)_Binaries.rar" *.*
 </PostBuildEvent>
   </PropertyGroup>
-<!--   <ProjectExtensions>
+  <!--   <ProjectExtensions>
     <VisualStudio>
       <UserProperties BuildVersion_BuildVersioningStyle="None.None.Increment.MonthAndDayStamp" />
     </VisualStudio>

@@ -2,7 +2,7 @@
 {
     public class Debug : BaseLibrary
     {
-        public override void Initialize()
+        public override void Initialize(params object[] args)
         {
             //(0:10000) when a debug breakpoint is hit,
             Add(TriggerCategory.Cause, 10000, WhenBreakpointHit,

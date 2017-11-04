@@ -6,7 +6,7 @@ namespace Monkeyspeak.Libraries
 {
     public class Sys : BaseLibrary
     {
-        public override void Initialize()
+        public override void Initialize(params object[] args)
         {
             // (1:100) and variable % is defined,
             Add(new Trigger(TriggerCategory.Condition, 100), IsVariableDefined,
@@ -49,8 +49,8 @@ namespace Monkeyspeak.Libraries
                 "set variable % to #.");
 
             // (5:102) print {...} to the console.
-            Add(new Trigger(TriggerCategory.Effect, 102), PrintToConsole,
-                "print {...} to the console.");
+            Add(new Trigger(TriggerCategory.Effect, 102), PrintToLog,
+                "print {...} to the log.");
 
             // (5:103) get the environment variable named {...} and put it into #,
             Add(new Trigger(TriggerCategory.Effect, 103), GetEnvVariable,
@@ -173,10 +173,10 @@ namespace Monkeyspeak.Libraries
             return true;
         }
 
-        private bool PrintToConsole(TriggerReader reader)
+        private bool PrintToLog(TriggerReader reader)
         {
             string output = reader.ReadString();
-            Console.WriteLine(output);
+            Logger.Info<Sys>(output);
             return true;
         }
 

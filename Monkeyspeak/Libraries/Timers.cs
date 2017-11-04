@@ -113,7 +113,7 @@ namespace Monkeyspeak.Libraries
             this.timersLimit = timersLimit;
         }
 
-        public override void Initialize()
+        public override void Initialize(params object[] args)
         {
             // (0:300) When timer # goes off,
             Add(TriggerCategory.Cause, 300, WhenTimerGoesOff,

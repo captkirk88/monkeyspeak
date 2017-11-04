@@ -5,7 +5,7 @@ namespace Monkeyspeak.Libraries
 {
     public class Math : BaseLibrary
     {
-        public override void Initialize()
+        public override void Initialize(params object[] args)
         {
             // (1:150) and variable % is greater than #,
             Add(new Trigger(TriggerCategory.Condition, 150), VariableGreaterThan,

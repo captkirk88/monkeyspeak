@@ -4,7 +4,7 @@ namespace Monkeyspeak.Libraries
 {
     public class StringOperations : BaseLibrary
     {
-        public override void Initialize()
+        public override void Initialize(params object[] args)
         {
             Add(TriggerCategory.Effect, 400, PutWordCountIntoVariable,
                 "with {...} get word count and set it to variable %.");
