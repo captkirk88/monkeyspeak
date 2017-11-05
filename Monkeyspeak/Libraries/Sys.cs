@@ -1,6 +1,7 @@
 ﻿using Monkeyspeak.Extensions;
 using Monkeyspeak.Logging;
 using System;
+using System.Linq;
 
 namespace Monkeyspeak.Libraries
 {
@@ -67,10 +68,10 @@ namespace Monkeyspeak.Libraries
                 "load library from file {...}. (example Monkeyspeak.dll)");
 
             Add(new Trigger(TriggerCategory.Cause, 100), JobCalled,
-                "when job # is called,");
+                "when job # is called put arguments into table % (optional),");
 
             Add(new Trigger(TriggerCategory.Effect, 115), CallJob,
-                "call job #.");
+                "call job # with (add strings, variables, numbers here) arguments.");
         }
 
         private bool CallJob(TriggerReader reader)
@@ -85,8 +86,11 @@ namespace Monkeyspeak.Libraries
                 jobNumber = reader.ReadNumber();
             }
 
+            var args = reader.ReadValues().ToArray();
             if (jobNumber > 0)
-                reader.Page.Execute(100, jobNumber);
+                if (args == null || args.Length == 0)
+                    reader.Page.Execute(100, jobNumber);
+                else reader.Page.Execute(100, Enumerable.Concat(new object[] { jobNumber }, args).ToArray());
             return true;
         }
 
@@ -103,6 +107,13 @@ namespace Monkeyspeak.Libraries
             }
 
             double requiredJobNumber = reader.GetParameter<double>(0);
+
+            if (reader.TryReadVariableTable(out VariableTable table, true))
+            {
+                object[] args = reader.Parameters.Skip(1).ToArray();
+                for (int i = 0; i <= args.Length - 1; i++)
+                    table.Add(i.ToString(), args[i]);
+            }
 
             bool result = false;
             if (jobNumber > 0 && jobNumber == requiredJobNumber)

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Monkeyspeak.lexical.Expressions
+namespace Tapestry.Expressions
 {
     public class Expression : IExpression, IComparable<Expression>, IEquatable<Expression>
     {
@@ -46,9 +46,8 @@ namespace Monkeyspeak.lexical.Expressions
 
     public class Expression<T> : Expression, IComparable<Expression<T>>, IEquatable<Expression>, IEquatable<Expression<T>>
     {
-        public Expression(ref SourcePosition pos, T val) : base(ref pos)
+        protected Expression(ref SourcePosition pos) : base(ref pos)
         {
-            Value = val;
         }
 
         public new T Value { get; protected set; }

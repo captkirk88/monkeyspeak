@@ -63,6 +63,8 @@ namespace Monkeyspeak
                 this.currentBlock = new TriggerBlock(currentBlock);
         }
 
+        public bool HasMore { get => contents.Count > 0; }
+
         /// <summary>
         /// Gets the trigger.
         /// </summary>
@@ -301,6 +303,23 @@ namespace Monkeyspeak
         }
 
         /// <summary>
+        /// Trys to read the next Variable table available
+        /// </summary>
+        /// <param name="table">Variable table is assigned on success</param>
+        /// <param name="addIfNotExist"></param>
+        /// <returns>bool on success</returns>
+        public bool TryReadVariableTable(out VariableTable table, bool addIfNotExist = false)
+        {
+            if (!PeekVariable())
+            {
+                table = VariableTable.Empty;
+                return false;
+            }
+            table = ReadVariableTable(addIfNotExist);
+            return true;
+        }
+
+        /// <summary>
         /// Reads the next Variable table available and the key if there is one, throws TriggerReaderException on failure
         /// </summary>
         /// <param name="addIfNotExist">Add the Variable if it doesn't exist and return that Variable with a Value equal to null.</param>
@@ -324,7 +343,7 @@ namespace Monkeyspeak
                             var = page.SetVariableTable(varRef, false);
                             return var as VariableTable;
                         }
-                    return var is VariableTable ? (VariableTable)var : null;
+                    return var is VariableTable ? (VariableTable)var : VariableTable.Empty;
                 }
                 catch (Exception ex)
                 {
@@ -375,17 +394,6 @@ namespace Monkeyspeak
             if (contents.Count == 0) return false;
             var expr = contents.Peek() as VariableExpression;
             return expr != null && page.HasVariable(expr.Value, out IVariable var) ? var.Value is T : false;
-        }
-
-        /// <summary>
-        /// Peeks at the next value
-        /// </summary>
-        /// <returns></returns>
-        public bool PeekVariableTable()
-        {
-            if (contents.Count == 0) return false;
-            // TODO VariableTableExpression
-            return contents.Peek() is VariableTableExpression;
         }
 
         /// <summary>
@@ -454,6 +462,47 @@ namespace Monkeyspeak
             }
             number = ReadNumber();
             return true;
+        }
+
+        /// <summary>
+        /// Reads a undefined amount of values.  This is usually used for variable arguments on the end of a trigger.
+        /// </summary>
+        /// <returns></returns>
+        public IEnumerable<object> ReadValues()
+        {
+            while (HasMore)
+            {
+                if (PeekNumber())
+                {
+                    double num = 0;
+                    try
+                    {
+                        num = ReadNumber();
+                    }
+                    catch { continue; }
+                    yield return num;
+                }
+                else if (PeekString())
+                {
+                    string str = null;
+                    try
+                    {
+                        str = ReadString();
+                    }
+                    catch { continue; }
+                    yield return str;
+                }
+                else if (PeekVariable())
+                {
+                    IVariable var = null;
+                    try
+                    {
+                        var = ReadVariable();
+                    }
+                    catch { continue; }
+                    yield return var;
+                }
+            }
         }
     }
 }

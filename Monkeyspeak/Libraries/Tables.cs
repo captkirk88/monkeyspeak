@@ -67,6 +67,7 @@ namespace Monkeyspeak.Libraries
             if (!canContinue)
             {
                 table.ResetIndex();
+                reader.Page.RemoveVariable(var);
             }
             return canContinue;
         }

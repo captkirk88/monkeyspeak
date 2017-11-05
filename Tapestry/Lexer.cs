@@ -10,7 +10,7 @@ using System.Linq;
 
 #endregion Usings
 
-namespace Monkeyspeak
+namespace Tapestry
 {
     /// <summary>
     ///     Converts a reader containing a Monkeyspeak script into a
@@ -25,13 +25,9 @@ namespace Monkeyspeak
         /// </summary>
         /// <param name="engine">The engine.</param>
         /// <param name="reader">The reader.</param>
-        public Lexer(MonkeyspeakEngine engine, SStreamReader reader)
-            : base(engine, reader)
+        public Lexer(SStreamReader reader)
+            : base(reader)
         {
-            varDeclSym = engine.Options.VariableDeclarationSymbol;
-            stringBeginSym = engine.Options.StringBeginSymbol;
-            stringEndSym = engine.Options.StringEndSymbol;
-            lineCommentSym = engine.Options.LineCommentSymbol;
         }
 
         /// <summary>
@@ -139,9 +135,6 @@ namespace Monkeyspeak
 
                         case '%':
                             token = CreateToken(TokenType.MOD);
-                            break;
-
-                        case '#':
                             break;
 
                         case '0':
@@ -530,49 +523,13 @@ namespace Monkeyspeak
             return new Token(TokenType.VARIABLE, startPos, length, CurrentSourcePosition);
         }
 
-        private Token ProcessPreprocessors()
-        {
-            long startPos = reader.Position;
-            int length = 0;
-            Next();
-            length++;
-            var sourcePos = CurrentSourcePosition;
-
-            CheckMatch('#');
-            Next();
-            length++;
-            while (true)
-            {
-                if (currentChar == '\n' || currentChar == -1)
-                {
-                    length--;
-                    break;
-                }
-                Next();
-                length++;
-            }
-            return new Token(TokenType.PREPROCESSOR, startPos, length, CurrentSourcePosition);
-        }
-
         private void SkipBlockComment()
         {
-            var bcommentBegin = Engine.Options.BlockCommentBeginSymbol;
-            var bcommentEnd = Engine.Options.BlockCommentEndSymbol;
-
             CheckMatch(Engine.Options.BlockCommentBeginSymbol);
 
             Next();
-            int endCommentMatchConut = 0;
-            while (endCommentMatchConut < bcommentEnd.Length)
+            while (LookAhead(1) != '*' && LookAhead(2) != '/')
             {
-                endCommentMatchConut = 0;
-                for (int i = 0; i <= bcommentEnd.Length - 1; i++)
-                {
-                    if (LookAhead(i + 1) == bcommentEnd[i])
-                    {
-                        endCommentMatchConut++;
-                    }
-                }
                 if (currentChar == -1)
                 {
                     throw new MonkeyspeakException("Unexpected end of file", CurrentSourcePosition);

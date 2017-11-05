@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Monkeyspeak.lexical.Expressions
+namespace Tapestry.Expressions
 {
     public sealed class NullExpression : Expression<object>
     {
@@ -18,8 +18,6 @@ namespace Monkeyspeak.lexical.Expressions
 
         public static NullExpression Instance => instance;
 
-        protected NullExpression(ref SourcePosition pos) : base(ref pos, null)
-        {
-        }
+        protected NullExpression(ref SourcePosition pos) : base(ref pos) => Value = null;
     }
 }

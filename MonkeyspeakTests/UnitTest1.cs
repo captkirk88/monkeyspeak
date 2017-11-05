@@ -50,7 +50,7 @@ namespace MonkeyspeakTests
         (5:100) set %hello to {@%helloNum}
         (5:101) set %helloNum to 5.6969.
         (5:102) print {hello = %hello helloNum = %helloNum} to the console
-        (5:115) call job 1.
+        (5:115) call job 1 with %helloNum and {test arg}.
         (5:115) call job 2.
 
 (0:0) when the script is started,
@@ -69,8 +69,10 @@ namespace MonkeyspeakTests
 		(5:102) print {Hit a breakpoint!} to the console.
         (5:105) raise an error. * dirty exit
 
-(0:100) when job 1 is called,
+(0:100) when job 1 is called put arguments into table %table,
     (5:102) print {job 1 executed} to the console
+        (6:250) for each entry in table %table put it into %entry,
+            (5:102) print {%entry} to the console.
 
 (0:100) when job 2 is called,
     (5:102) print {job will not execute because infinite loop possibility} to the console
@@ -110,6 +112,17 @@ namespace MonkeyspeakTests
         (5:102) print {We may never know the answer...} to the console.
 ";
 
+        public static string tableScriptMini = @"
+(0:0)(5:250) %myTable(5:100) %hello {hi}(5:101) %i 0 (5:252) %myTable {%hello} {myKey1}.
+(5:252) %myTable {%hello} {myKey2}(5:252) %myTable {%hello} {myKey3}(5:252) %myTable {%hello}{myKey4}(5:252) %myTable {%hello} {myKey5}.
+(5:252) %myTable {%hello} {myKey6}(5:252) %myTable {%hello} {myKey7}(6:250) %myTable %entry
+(5:102) {%entry}(5:150) %i 1(5:102) {%i}(6:454),(5:102) {I'm done!}(1:250) %myTable(5:101) %myTable[myKey1] 123
+(5:102) {%myTable[myKey1]}
+
+(0:0)(5:101) %answer 0(5:101)%life 42
+(6:450) %answer %life(5:150) %answer 1(1:102) %answer 21(5:450)(6:454)(5:102) {%answer}(5:102) {We may never know the answer...}
+";
+
         [TestMethod]
         public void AssemblyInfo()
         {
@@ -125,7 +138,7 @@ namespace MonkeyspeakTests
         {
             var engine = new MonkeyspeakEngine();
             engine.Options.Debug = true;
-            Page page = engine.LoadFromString(tableScript);
+            Page page = engine.LoadFromString(tableScriptMini);
 
             //page.Error += DebugAllErrors;
             page.SetTriggerHandler(TriggerCategory.Condition, 666, AlwaysFalseCond);

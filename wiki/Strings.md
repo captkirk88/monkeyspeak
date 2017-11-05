@@ -7,9 +7,12 @@ is that this entire paragraph is a string.  In Monkeyspeak, Strings are surround
 
 #### Break Down
 Monkeyspeak Strings can contain Variables, the Variable's value is converted unless a @ is 
-at the beginning of the string.  Strings are optionally limited to a certain amount, the 
-default is 1000 characters.  You can think of characters as each individual letter in the 
-alphabet.  Combined they would make a String that is 24 characters in length.
+at the beginning of the string, like so `{@%dontProcessMe}`.
+
+#### Limitations
+Strings are optionally limited to a certain amount, the 
+default is 1000 characters.  Strings cannot contain inner brackets such as `{ {} }`.  It is a limitation of the 
+engine unfortunately.  Strings do not support unicode characters as of v7.0.
 
 #### Next Up
 > :book: [Libraries](Libraries.md)

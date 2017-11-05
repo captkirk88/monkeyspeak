@@ -1,4 +1,4 @@
-﻿namespace Monkeyspeak.lexical.Expressions
+﻿namespace Tapestry.Expressions
 {
     /// <summary>
     /// Expression pointing to a Variable reference
@@ -6,8 +6,9 @@
     /// </summary>
     public class VariableExpression : Expression<string>
     {
-        public VariableExpression(ref SourcePosition pos, string varRef) : base(ref pos, varRef)
+        public VariableExpression(ref SourcePosition pos, string varRef) : base(ref pos)
         {
+            Value = varRef;
         }
     }
 }

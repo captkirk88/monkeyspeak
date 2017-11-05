@@ -40,6 +40,7 @@ namespace Monkeyspeak.Libraries
         private bool AfterLoopIsDone(TriggerReader reader)
         {
             bool canContinue = true;
+            reader.Page.RemoveVariable("___while_counter");
             if (!reader.Page.HasVariable("___after_loop", out ConstantVariable counter))
                 counter = reader.Page.SetVariable(new ConstantVariable("___after_loop", 0d));
             else counter.SetValue(counter.Value.As<double>() + 1d);
@@ -54,6 +55,7 @@ namespace Monkeyspeak.Libraries
         private bool BreakCurrentFlow(TriggerReader reader)
         {
             reader.CurrentBlockIndex = -1;
+            reader.Page.RemoveVariable("___while_counter");
             return true;
         }
 

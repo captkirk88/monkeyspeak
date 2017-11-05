@@ -1,8 +1,7 @@
-﻿using Monkeyspeak.lexical;
-using System.Linq;
+﻿using System.Linq;
 using System.Runtime.InteropServices;
 
-namespace Monkeyspeak
+namespace Tapestry
 {
     public enum TokenType : byte
     {
@@ -18,7 +17,7 @@ namespace Monkeyspeak
         WORD, LITERAL,
 
         // custom
-        TRIGGER, VARIABLE, TABLE, REFERENCE, STRING_LITERAL, NUMBER, PREPROCESSOR, NONE
+        TRIGGER, VARIABLE, TABLE, REFERENCE, STRING_LITERAL, NUMBER, NONE
     }
 
     [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
