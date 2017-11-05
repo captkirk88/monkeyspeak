@@ -27,7 +27,7 @@ script:
 
 
 before_deploy:
-    - export GIT_TAG=Monkeyspeak-7.0.$TRAVIS_BUILD_NUMBER
+    - export GIT_TAG=Monkeyspeak-Build-$TRAVIS_BUILD_NUMBER
     - git tag $GIT_TAG -a -m "Generated tag from TravisCI for build $TRAVIS_BUILD_NUMBER"
   
 deploy:
