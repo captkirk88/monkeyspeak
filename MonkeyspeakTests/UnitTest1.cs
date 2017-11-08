@@ -165,7 +165,7 @@ namespace MonkeyspeakTests
                 page.Execute();
                 foreach (var variable in page.Scope)
                 {
-                    Console.WriteLine($"{variable.ToString()} {variable.GetType().Name}");
+                    Logger.Info($"{variable.ToString()} {variable.GetType().Name}");
                 }
             }
         }

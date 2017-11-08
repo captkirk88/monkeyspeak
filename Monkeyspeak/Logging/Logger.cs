@@ -134,7 +134,7 @@ namespace Monkeyspeak.Logging
     {
         private static ILogOutput _logOutput;
         internal static readonly ConcurrentList<LogMessage> history = new ConcurrentList<LogMessage>();
-        internal static readonly ConcurrentQueue<LogMessage> queue = new ConcurrentQueue<LogMessage>();
+        internal static readonly Queue<LogMessage> queue = new Queue<LogMessage>();
         private static LogMessageComparer comparer = new LogMessageComparer();
         private static bool _infoEnabled = true;
         private static bool _warningEnabled = true;
@@ -143,7 +143,10 @@ namespace Monkeyspeak.Logging
         private static bool _suppressSpam;
         private static TimeSpan _messagesExpire = TimeSpan.FromSeconds(10);
 
+        private static bool singleThreaded;
+
         private static Task logTask;
+
         private static CancellationTokenSource cancelToken;
 
         public static event Action<LogMessage> SpamFound;
@@ -157,28 +160,23 @@ namespace Monkeyspeak.Logging
 #else
             _debugEnabled = false; // can be set via property
 #endif
-            cancelToken = new CancellationTokenSource();
+            singleThreaded = true;
+
+            cancelToken = new CancellationTokenSource(100);
             logTask = new Task(() =>
             {
                 while (!cancelToken.IsCancellationRequested)
                 {
-                    //Thread.Sleep(10);
-                    // take many dumps
-                    do
-                    {
-                        Dump();
-                    } while (!queue.IsEmpty);
+                    // take a dump
+                    Dump();
                 }
             }, cancelToken.Token, TaskCreationOptions.LongRunning);
-            logTask.Start();
+            //logTask.Start(TaskScheduler.Current);
+
             AppDomain.CurrentDomain.ProcessExit += (sender, e) =>
             {
-                cancelToken.Cancel();
-                Thread.BeginCriticalRegion();
-                do
-                {
-                    Dump();
-                } while (!queue.IsEmpty);
+                Dump();
+                logTask.Dispose();
             };
         }
 
@@ -241,45 +239,56 @@ namespace Monkeyspeak.Logging
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether [single threaded].
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if [single threaded]; otherwise, <c>false</c>.
+        /// </value>
+        public static bool SingleThreaded { get => singleThreaded; set => singleThreaded = value; }
+
         private static void Log(LogMessage msg)
         {
             queue.Enqueue(msg);
+            if (singleThreaded)
+            {
+                Dump();
+            }
         }
 
         private static void Dump()
         {
-            if (queue.TryDequeue(out LogMessage msg))
+            if (queue.Count == 0) return;
+            var msg = queue.Dequeue();
+            if (msg.IsSpam)
             {
-                if (msg.IsSpam)
-                {
-                    SpamFound?.Invoke(msg);
-                    if (SuppressSpam)
-                        return;
-                }
-                switch (msg.Level)
-                {
-                    case Level.Debug:
-                        if (!_debugEnabled)
-                            return;
-                        break;
-
-                    case Level.Error:
-                        if (!_errorEnabled)
-                            return;
-                        break;
-
-                    case Level.Info:
-                        if (!_infoEnabled)
-                            return;
-                        break;
-
-                    case Level.Warning:
-                        if (!_warningEnabled)
-                            return;
-                        break;
-                }
-                _logOutput.Log(msg);
+                SpamFound?.Invoke(msg);
+                if (SuppressSpam)
+                    return;
             }
+            switch (msg.Level)
+            {
+                case Level.Debug:
+                    if (!_debugEnabled)
+                        return;
+                    break;
+
+                case Level.Error:
+                    if (!_errorEnabled)
+                        return;
+                    break;
+
+                case Level.Info:
+                    if (!_infoEnabled)
+                        return;
+                    break;
+
+                case Level.Warning:
+                    if (!_warningEnabled)
+                        return;
+                    break;
+            }
+            _logOutput.Log(msg);
         }
 
         public static bool Assert(bool cond, string failMsg)
