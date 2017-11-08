@@ -132,6 +132,18 @@ namespace MonkeyspeakTests
 (6:450) %answer %life(5:150) %answer 1(1:102) %answer 21(5:450)(6:454)(5:102) {%answer}(5:102) {We may never know the answer...}
 ";
 
+        [TestInitialize]
+        public void Initialize()
+        {
+            Logger.SingleThreaded = true;
+        }
+
+        [TestCleanup]
+        public void Cleanup()
+        {
+            Logger.Shutdown();
+        }
+
         [TestMethod]
         public void AssemblyInfo()
         {

@@ -134,8 +134,9 @@ namespace Monkeyspeak.Logging
     {
         private static ILogOutput _logOutput;
         internal static readonly ConcurrentList<LogMessage> history = new ConcurrentList<LogMessage>();
-        internal static readonly Queue<LogMessage> queue = new Queue<LogMessage>();
+        internal static readonly ConcurrentQueue<LogMessage> queue = new ConcurrentQueue<LogMessage>();
         private static LogMessageComparer comparer = new LogMessageComparer();
+        private static object syncObj = new object();
         private static bool _infoEnabled = true;
         private static bool _warningEnabled = true;
         private static bool _errorEnabled = true;
@@ -165,19 +166,31 @@ namespace Monkeyspeak.Logging
             cancelToken = new CancellationTokenSource(100);
             logTask = new Task(() =>
             {
-                while (!cancelToken.IsCancellationRequested)
+                while (true)
                 {
-                    // take a dump
-                    Dump();
+                    Thread.Sleep(10);
+                    if (!singleThreaded)
+                    {
+                        // take a dump
+                        Dump();
+                    }
                 }
-            }, cancelToken.Token, TaskCreationOptions.LongRunning);
-            //logTask.Start(TaskScheduler.Current);
+            }, cancelToken.Token);
+            logTask.Start();
 
             AppDomain.CurrentDomain.ProcessExit += (sender, e) =>
             {
-                Dump();
-                logTask.Dispose();
+                //Shutdown();
             };
+        }
+
+        /// <summary>
+        /// Shutdowns this instance.
+        /// </summary>
+        public static void Shutdown()
+        {
+            Dump();
+            cancelToken.Cancel();
         }
 
         public static bool InfoEnabled
@@ -259,36 +272,38 @@ namespace Monkeyspeak.Logging
         private static void Dump()
         {
             if (queue.Count == 0) return;
-            var msg = queue.Dequeue();
-            if (msg.IsSpam)
+            if (queue.TryDequeue(out LogMessage msg))
             {
-                SpamFound?.Invoke(msg);
-                if (SuppressSpam)
-                    return;
+                if (msg.IsSpam)
+                {
+                    SpamFound?.Invoke(msg);
+                    if (SuppressSpam)
+                        return;
+                }
+                switch (msg.Level)
+                {
+                    case Level.Debug:
+                        if (!_debugEnabled)
+                            return;
+                        break;
+
+                    case Level.Error:
+                        if (!_errorEnabled)
+                            return;
+                        break;
+
+                    case Level.Info:
+                        if (!_infoEnabled)
+                            return;
+                        break;
+
+                    case Level.Warning:
+                        if (!_warningEnabled)
+                            return;
+                        break;
+                }
+                _logOutput.Log(msg);
             }
-            switch (msg.Level)
-            {
-                case Level.Debug:
-                    if (!_debugEnabled)
-                        return;
-                    break;
-
-                case Level.Error:
-                    if (!_errorEnabled)
-                        return;
-                    break;
-
-                case Level.Info:
-                    if (!_infoEnabled)
-                        return;
-                    break;
-
-                case Level.Warning:
-                    if (!_warningEnabled)
-                        return;
-                    break;
-            }
-            _logOutput.Log(msg);
         }
 
         public static bool Assert(bool cond, string failMsg)
