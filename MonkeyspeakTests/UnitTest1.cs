@@ -93,9 +93,9 @@ namespace MonkeyspeakTests
     (5:252) with table %myTable put {%hello} in it at key {myKey7}.
     (6:250) for each entry in table %myTable put it into %entry,
         (5:102) print {%entry} to the console.
-        (5:150) take variable %i and add 1 to it.
         (5:102) print {%i} to the console.
     (6:454) after the loop is done,
+        (5:150) take variable %i and add 1 to it.
         (5:102) print {I'm done!} to the console.
         (1:250) and variable %myTable is a table,
             (5:101) set %myTable[myKey1] to 123
@@ -110,6 +110,15 @@ namespace MonkeyspeakTests
             (5:450) exit the current loop.
     (6:454) after the loop is done,
         (5:102) print {We may never know the answer...} to the console.
+
+(0:0) when the script is started,
+        (5:102) print {%i} to the console.
+        (5:102) print {%i} to the console.
+        (5:102) print {%i} to the console.
+        (5:102) print {%i} to the console.
+        (5:102) print {%i} to the console.
+        (5:102) print {%i} to the console.
+        (5:102) print {%i} to the console.
 ";
 
         public static string tableScriptMini = @"
@@ -136,25 +145,28 @@ namespace MonkeyspeakTests
         [TestMethod]
         public void Tables()
         {
-            var engine = new MonkeyspeakEngine();
-            engine.Options.Debug = true;
-            Page page = engine.LoadFromString(tableScriptMini);
-
-            //page.Error += DebugAllErrors;
-            page.SetTriggerHandler(TriggerCategory.Condition, 666, AlwaysFalseCond);
-            page.LoadAllLibraries();
-            page.RemoveLibrary<Monkeyspeak.Libraries.Debug>();
-            page.SetVariable("%testVariable", "Hello WOrld", true);
-
-            page.SetTriggerHandler(TriggerCategory.Cause, 0, HandleScriptStartCause);
-
-            // Trigger count created by subscribing to TriggerAdded event and putting triggers into a list.
-            Console.WriteLine("Trigger Count: " + page.Size);
-            Logger.Assert(page.Size > 0, "Page size was 0 = FAIL!");
-            page.Execute();
-            foreach (var variable in page.Scope)
+            for (int i = 0; i < 1; i++)
             {
-                Console.WriteLine($"{variable.ToString()} {variable.GetType().Name}");
+                var engine = new MonkeyspeakEngine();
+                engine.Options.Debug = true;
+                Page page = engine.LoadFromString(tableScript); // replace with tableScriptMini to see results of that script
+
+                page.Error += DebugAllErrors;
+                page.SetTriggerHandler(TriggerCategory.Condition, 666, AlwaysFalseCond);
+                page.LoadAllLibraries();
+                page.RemoveLibrary<Monkeyspeak.Libraries.Debug>();
+                page.SetVariable("%testVariable", "Hello WOrld", true);
+
+                page.SetTriggerHandler(TriggerCategory.Cause, 0, HandleScriptStartCause);
+
+                // Trigger count created by subscribing to TriggerAdded event and putting triggers into a list.
+                Console.WriteLine("Trigger Count: " + page.Size);
+                Logger.Assert(page.Size > 0, "Page size was 0 = FAIL!");
+                page.Execute();
+                foreach (var variable in page.Scope)
+                {
+                    Console.WriteLine($"{variable.ToString()} {variable.GetType().Name}");
+                }
             }
         }
 

@@ -162,7 +162,7 @@ namespace Monkeyspeak.Logging
             {
                 while (!cancelToken.IsCancellationRequested)
                 {
-                    Thread.Sleep(10);
+                    //Thread.Sleep(10);
                     // take many dumps
                     do
                     {
@@ -174,18 +174,11 @@ namespace Monkeyspeak.Logging
             AppDomain.CurrentDomain.ProcessExit += (sender, e) =>
             {
                 cancelToken.Cancel();
-                try
+                Thread.BeginCriticalRegion();
+                do
                 {
-                    Thread.BeginCriticalRegion();
-                    do
-                    {
-                        Dump();
-                    } while (!queue.IsEmpty);
-                }
-                finally
-                {
-                    Thread.EndCriticalRegion();
-                }
+                    Dump();
+                } while (!queue.IsEmpty);
             };
         }
 

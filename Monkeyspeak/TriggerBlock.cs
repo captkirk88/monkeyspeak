@@ -53,25 +53,42 @@ namespace Monkeyspeak
             return -1;
         }
 
-        /// <summary>
-        /// Determines whether the block contains the trigger.
-        /// </summary>
-        /// <param name="cat">The category.</param>
-        /// <param name="id">The identifier.</param>
-        /// <returns>
-        ///   <c>true</c> if the block contains the trigger; otherwise, <c>false</c>.
-        /// </returns>
-        public bool ContainsTrigger(TriggerCategory cat, int id = -1)
+        public int LastIndexOfTrigger(TriggerCategory cat, int id = -1, int index = 0)
         {
-            for (int i = 0; i <= Count - 1; i++)
+            int lastIndex = -1;
+            for (int i = index; i <= Count - 1; i++)
             {
                 Trigger trigger = base[i];
                 if (trigger.Category == cat)
                 {
                     if (id == -1 || trigger.Id == id)
-                        return true;
+                        lastIndex = i;
                 }
             }
+            return lastIndex;
+        }
+
+        /// <summary>
+        /// Determines whether the block contains the trigger.
+        /// </summary>
+        /// <param name="cat">The category.</param>
+        /// <param name="id">The identifier.</param>
+        /// <param name="index">Index in the block to start from</param>
+        /// <returns>
+        ///   <c>true</c> if the block contains the trigger; otherwise, <c>false</c>.
+        /// </returns>
+        public bool ContainsTrigger(TriggerCategory cat, int id = -1, int index = 0)
+        {
+            if (index < Count)
+                for (int i = index; i <= Count - 1; i++)
+                {
+                    Trigger trigger = base[i];
+                    if (trigger.Category == cat)
+                    {
+                        if (id == -1 || trigger.Id == id)
+                            return true;
+                    }
+                }
             return false;
         }
 
@@ -79,11 +96,12 @@ namespace Monkeyspeak
         /// Creates a sub block.
         /// </summary>
         /// <param name="index">The index.</param>
-        /// <param name="count">The count.  -1 will go to the end of the collection</param>
+        /// <param name="count">The count. Value of less than 0 will go to the end of the collection</param>
         /// <returns></returns>
         public TriggerBlock GetSubBlock(int index, int count = -1)
         {
             if (index < 0) index = 0;
+            if (count > Count) count = Count;
             return new TriggerBlock(GetRange(index, count < 0 ? Count - index : count - index));
         }
 

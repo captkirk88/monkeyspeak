@@ -817,7 +817,17 @@ namespace Monkeyspeak
                             break;
 
                         case TriggerCategory.Effect:
-                            found = true;
+                            for (int i = index + 1; i <= triggerBlock.Count - 1; i++)
+                            {
+                                Trigger possibleFlow = triggerBlock[i];
+                                if (possibleFlow.Category == TriggerCategory.Effect)
+                                {
+                                    index = i - 1; // set the current index of the outer loop
+                                    found = true;
+                                    break;
+                                }
+                            }
+                            //found = true;
                             break;
                     }
                     if (!found) index = triggerBlock.Count;
@@ -845,17 +855,17 @@ namespace Monkeyspeak
                             var indexOfOtherFlow = triggerBlock.IndexOfTrigger(TriggerCategory.Flow, startIndex: index + 1);
                             var subBlock = triggerBlock.GetSubBlock(index + 1, indexOfOtherFlow);
                             var subReader = new TriggerReader(this, subBlock) { Parameters = reader.Parameters };
-                            int j = 0;
+                            int j = index;
                             for (int i = 0; i <= subBlock.Count - 1; i++)
                             {
                                 ExecuteTrigger(subBlock, ref i, subReader);
-                                j = i;
+                                j += i;
                                 if (i == -1)
                                     break;
                             }
                             //ExecuteBlock(subBlock, args: reader.Parameters);
                             if (j == -1)
-                                index += subBlock.Count;
+                                index = j + 1;
                             else index -= 1;
                             break;
                     }

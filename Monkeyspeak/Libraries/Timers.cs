@@ -89,7 +89,7 @@ namespace Monkeyspeak.Libraries
     }
 
     // Changed from Internal to public in order to expose DestroyTimers() - Gerolkae
-    public class Timers : BaseLibrary
+    public class Timers : AutoIncrementBaseLibrary
     {
         private static DateTime startTime = DateTime.Now;
         internal static double CurrentTimer;
@@ -98,6 +98,8 @@ namespace Monkeyspeak.Libraries
         private static readonly List<TimerTask> timers = new List<TimerTask>();
 
         private uint timersLimit;
+
+        public override int BaseId => 300;
 
         public Timers() : this(10)
         {
