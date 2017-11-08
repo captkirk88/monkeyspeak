@@ -104,6 +104,9 @@ namespace Monkeyspeak
                         // we don't care about comments
                         break;
 
+                    case TokenType.PREPROCESSOR:
+                        break;
+
                     case TokenType.END_OF_FILE:
                         if (currentTrigger != Trigger.Undefined && currentTrigger.Category != TriggerCategory.Undefined)
                         {

@@ -521,6 +521,7 @@ namespace MonkeyspeakTests
     (5:101) set variable %timer to 1.
     (5:300) create timer %timer to go off every 2 second(s) with a start delay of 1 second(s).
     (5:300) create timer 2 to go off every 5 second(s). *don't need delay part here
+    (5:300) create timer 13 to go off every 900 second(s) with a start delay of 0 second(s).
 
 (0:300) when timer 2 goes off,
 (0:300) when timer %timer goes off,
@@ -549,6 +550,36 @@ namespace MonkeyspeakTests
 
             page.Execute(0);
             System.Threading.Thread.Sleep(10000);
+            page.Dispose();
+        }
+
+        [TestMethod]
+        public void NonExistantTimerTest()
+        {
+            var timerLibTestScript = @"
+
+(0:0) when the script starts,
+    (5:300) create timer 13 to go off every 900 second(s) with a start delay of 0 second(s).
+    (5:102) print {Timer 13 created} to the console.
+
+(0:300) when timer 2 goes off,
+    (5:302) get current timer and put the id into variable %timerId.
+    (5:304) get the current uptime and put it into variable %currentTime.
+    (5:102) print {Timer %timerId at %currentTime secs} to the console.
+";
+            var engine = new MonkeyspeakEngine();
+            engine.Options.Debug = true;
+            var page = engine.LoadFromString(timerLibTestScript);
+
+            //page.Error += DebugAllErrors;
+
+            page.LoadAllLibraries();
+            page.RemoveLibrary<Monkeyspeak.Libraries.Debug>();
+
+            page.SetTriggerHandler(TriggerCategory.Cause, 0, HandleScriptStartCause);
+
+            page.Execute(0);
+            System.Threading.Thread.Sleep(100);
             page.Dispose();
         }
 

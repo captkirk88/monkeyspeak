@@ -174,7 +174,7 @@ namespace Monkeyspeak
         /// <typeparam name="T"></typeparam>
         /// <param name="index">The index.</param>
         /// <returns></returns>
-        public T GetParameter<T>(int index) where T : struct
+        public T GetParameter<T>(int index = 0) where T : struct
         {
             if (args != null && args.Length > index)
                 return args[index].As<T>();

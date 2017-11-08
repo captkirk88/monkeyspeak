@@ -120,6 +120,7 @@
     <Compile Include="Libraries\BaseLibrary.cs" />
     <Compile Include="Libraries\Loops.cs" />
     <Compile Include="Libraries\Tables.cs" />
+    <Compile Include="Logging\ConcurrentList.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>

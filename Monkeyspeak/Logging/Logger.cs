@@ -2,6 +2,10 @@
 
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Linq;
 
 #endregion Usings
 
@@ -15,20 +19,27 @@ namespace Monkeyspeak.Logging
         Debug = 4
     }
 
+    internal class LogMessageComparer : IComparer<LogMessage>
+    {
+        public int Compare(LogMessage x, LogMessage y)
+        {
+            if (x.TimeStamp > y.TimeStamp) return -1;
+            if (x.TimeStamp < y.TimeStamp) return 1;
+            return 0;
+        }
+    }
+
     public struct LogMessage
     {
-        private static readonly LogMessage Empty = new LogMessage(Level.Info, null, TimeSpan.FromDays(365))
-        {
-            IsSpam = true
-        };
-
-        public readonly string message;
-        private readonly DateTime expires;
+        public string message;
+        private readonly DateTime expires, timeStamp;
         private readonly Level level;
+
+        private readonly Thread curThread;
 
         private bool IsEmpty
         {
-            get { return string.IsNullOrEmpty(message); }
+            get { return string.IsNullOrWhiteSpace(message); }
         }
 
         public bool IsSpam
@@ -39,39 +50,80 @@ namespace Monkeyspeak.Logging
 
         public Level Level { get { return level; } }
 
+        public Thread Thread => curThread;
+
+        public DateTime TimeStamp => timeStamp;
+
         private LogMessage(Level level, string msg, TimeSpan expireDuration)
         {
             this.level = level;
             message = msg;
-            expires = DateTime.Now.Add(expireDuration);
+            var now = DateTime.Now;
+            expires = now.Add(expireDuration);
+            timeStamp = now;
             IsSpam = false;
+            curThread = Thread.CurrentThread;
         }
 
-        public static LogMessage From(Level level, string msg)
+        public static LogMessage From(Level level, string msg, TimeSpan expireDuration)
         {
-            LogMessage logMsg = new LogMessage(level, msg, Logger.MessagesExpire);
+            LogMessage logMsg = new LogMessage(level, msg, expireDuration);
             var now = DateTime.Now;
             bool found = false;
 
-            logMsg.IsSpam |= found && Logger.SuppressSpam;
+            for (int i = Logger.history.Count - 1; i >= 0; i--)
+            {
+                var logMessage = Logger.history[i];
+                if (!found && logMessage.Equals(logMsg))
+                {
+                    found = true;
+                    break;
+                }
+                if (logMessage.expires < now)
+                    Logger.history.RemoveAt(i);
+            }
+
+            if (found && Logger.SuppressSpam)
+                logMsg.IsSpam = true;
+            else logMsg.IsSpam = false;
 
             if (!logMsg.IsSpam)
             {
+                Logger.history.Add(logMsg);
                 return logMsg;
             }
-            return Empty;
+            return default(LogMessage);
         }
 
+        /// <summary>
+        /// Returns a hash code for this instance.
+        /// </summary>
+        /// <returns>
+        /// A hash code for this instance, suitable for use in hashing algorithms and data structures like a hash table.
+        /// </returns>
         public override int GetHashCode()
         {
             return message.GetHashCode();
         }
 
+        /// <summary>
+        /// Determines whether the specified <see cref="System.Object" />, is equal to this instance.
+        /// </summary>
+        /// <param name="obj">The <see cref="System.Object" /> to compare with this instance.</param>
+        /// <returns>
+        ///   <c>true</c> if the specified <see cref="System.Object" /> is equal to this instance; otherwise, <c>false</c>.
+        /// </returns>
         public override bool Equals(object obj)
         {
-            return obj is LogMessage && GetHashCode() == ((LogMessage)obj).GetHashCode();
+            return obj != null && obj is LogMessage && GetHashCode() == ((LogMessage)obj).GetHashCode();
         }
 
+        /// <summary>
+        /// Returns a <see cref="System.String" /> that represents this instance.
+        /// </summary>
+        /// <returns>
+        /// A <see cref="System.String" /> that represents this instance.
+        /// </returns>
         public override string ToString()
         {
             return message;
@@ -81,13 +133,20 @@ namespace Monkeyspeak.Logging
     public static class Logger
     {
         private static ILogOutput _logOutput;
-        internal static readonly ConcurrentStack<LogMessage> queue = new ConcurrentStack<LogMessage>();
+        internal static readonly ConcurrentList<LogMessage> history = new ConcurrentList<LogMessage>();
+        internal static readonly ConcurrentQueue<LogMessage> queue = new ConcurrentQueue<LogMessage>();
+        private static LogMessageComparer comparer = new LogMessageComparer();
         private static bool _infoEnabled = true;
         private static bool _warningEnabled = true;
         private static bool _errorEnabled = true;
         private static bool _debugEnabled;
         private static bool _suppressSpam;
         private static TimeSpan _messagesExpire = TimeSpan.FromSeconds(10);
+
+        private static Task logTask;
+        private static CancellationTokenSource cancelToken;
+
+        public static event Action<LogMessage> SpamFound;
 
         static Logger()
         {
@@ -98,6 +157,36 @@ namespace Monkeyspeak.Logging
 #else
             _debugEnabled = false; // can be set via property
 #endif
+            cancelToken = new CancellationTokenSource();
+            logTask = new Task(() =>
+            {
+                while (!cancelToken.IsCancellationRequested)
+                {
+                    Thread.Sleep(10);
+                    // take many dumps
+                    do
+                    {
+                        Dump();
+                    } while (!queue.IsEmpty);
+                }
+            }, cancelToken.Token, TaskCreationOptions.LongRunning);
+            logTask.Start();
+            AppDomain.CurrentDomain.ProcessExit += (sender, e) =>
+            {
+                cancelToken.Cancel();
+                try
+                {
+                    Thread.BeginCriticalRegion();
+                    do
+                    {
+                        Dump();
+                    } while (!queue.IsEmpty);
+                }
+                finally
+                {
+                    Thread.EndCriticalRegion();
+                }
+            };
         }
 
         public static bool InfoEnabled
@@ -161,38 +250,50 @@ namespace Monkeyspeak.Logging
 
         private static void Log(LogMessage msg)
         {
-            if (msg.IsSpam && SuppressSpam)
-                return;
-            switch (msg.Level)
+            queue.Enqueue(msg);
+        }
+
+        private static void Dump()
+        {
+            if (queue.TryDequeue(out LogMessage msg))
             {
-                case Level.Debug:
-                    if (!_debugEnabled)
+                if (msg.IsSpam)
+                {
+                    SpamFound?.Invoke(msg);
+                    if (SuppressSpam)
                         return;
-                    break;
+                }
+                switch (msg.Level)
+                {
+                    case Level.Debug:
+                        if (!_debugEnabled)
+                            return;
+                        break;
 
-                case Level.Error:
-                    if (!_errorEnabled)
-                        return;
-                    break;
+                    case Level.Error:
+                        if (!_errorEnabled)
+                            return;
+                        break;
 
-                case Level.Info:
-                    if (!_infoEnabled)
-                        return;
-                    break;
+                    case Level.Info:
+                        if (!_infoEnabled)
+                            return;
+                        break;
 
-                case Level.Warning:
-                    if (!_warningEnabled)
-                        return;
-                    break;
+                    case Level.Warning:
+                        if (!_warningEnabled)
+                            return;
+                        break;
+                }
+                _logOutput.Log(msg);
             }
-            _logOutput.Log(msg);
         }
 
         public static bool Assert(bool cond, string failMsg)
         {
             if (!cond)
             {
-                Error(failMsg);
+                Error("ASSERT: " + failMsg);
                 return false;
             }
             return true;
@@ -202,7 +303,27 @@ namespace Monkeyspeak.Logging
         {
             if (!cond)
             {
-                Error<T>(failMsg);
+                Error<T>("ASSERT: " + failMsg);
+                return false;
+            }
+            return true;
+        }
+
+        public static bool Assert(Func<bool> cond, string failMsg)
+        {
+            if (!cond?.Invoke() ?? false)
+            {
+                Error("ASSERT: " + failMsg);
+                return false;
+            }
+            return true;
+        }
+
+        public static bool Assert<T>(Func<bool> cond, string failMsg)
+        {
+            if (!cond?.Invoke() ?? false)
+            {
+                Error<T>("ASSERT: " + failMsg);
                 return false;
             }
             return true;
@@ -212,7 +333,7 @@ namespace Monkeyspeak.Logging
         {
             if (cond)
             {
-                Error(failMsg);
+                Error("FAIL: " + failMsg);
                 return true;
             }
             return false;
@@ -222,7 +343,27 @@ namespace Monkeyspeak.Logging
         {
             if (cond)
             {
-                Error<T>(failMsg);
+                Error<T>("FAIL: " + failMsg);
+                return true;
+            }
+            return false;
+        }
+
+        public static bool Fails(Func<bool> cond, string failMsg)
+        {
+            if (cond?.Invoke() ?? false)
+            {
+                Error("FAIL: " + failMsg);
+                return true;
+            }
+            return false;
+        }
+
+        public static bool Fails<T>(Func<bool> cond, string failMsg)
+        {
+            if (cond?.Invoke() ?? false)
+            {
+                Error<T>("FAIL: " + failMsg);
                 return true;
             }
             return false;
@@ -230,88 +371,86 @@ namespace Monkeyspeak.Logging
 
         public static void Debug(object msg)
         {
-            if (msg == null)
-                msg = "null";
-            Log(LogMessage.From(Level.Debug, msg.ToString()));
+            Log(LogMessage.From(Level.Debug, msg != null ? msg.ToString() : "null", MessagesExpire));
         }
 
         public static void Debug<T>(object msg)
         {
-            Log(LogMessage.From(Level.Debug, typeof(T).Name + ": " + msg));
+            Log(LogMessage.From(Level.Debug, typeof(T).Name + ": " + msg, MessagesExpire));
         }
 
         public static void DebugFormat(string format, params object[] args)
         {
             Log(
-                LogMessage.From(Level.Debug, (String.IsNullOrEmpty(format) ? String.Join("\t", args) : String.Format(format, args))));
+                LogMessage.From(Level.Debug, (String.IsNullOrEmpty(format) ? String.Join("\t", args) : String.Format(format, args)), MessagesExpire));
         }
 
         public static void DebugFormat<T>(string format, params object[] args)
         {
             Log(
-                LogMessage.From(Level.Debug, typeof(T).Name + ": " + (String.IsNullOrEmpty(format) ? String.Join("\t", args) : String.Format(format, args))));
+                LogMessage.From(Level.Debug, typeof(T).Name + ": " + (String.IsNullOrEmpty(format) ? String.Join("\t", args) : String.Format(format, args)), MessagesExpire));
         }
 
         public static void Info(object msg)
         {
-            Log(LogMessage.From(Level.Info, msg != null ? msg.ToString() : "null"));
+            Log(LogMessage.From(Level.Info, msg != null ? msg.ToString() : "null", MessagesExpire));
         }
 
         public static void Info<T>(object msg)
         {
-            Log(LogMessage.From(Level.Info, typeof(T).Name + ": " + msg));
+            Log(LogMessage.From(Level.Info, typeof(T).Name + ": " + msg, MessagesExpire));
         }
 
         public static void InfoFormat(string format, params object[] args)
         {
             Log(
-                LogMessage.From(Level.Info, String.IsNullOrEmpty(format) ? String.Join("\t", args) : String.Format(format, args)));
+                LogMessage.From(Level.Info, String.IsNullOrEmpty(format) ? String.Join("\t", args) : String.Format(format, args), MessagesExpire));
         }
 
         public static void InfoFormat<T>(string format, params object[] args)
         {
             Log(
-                LogMessage.From(Level.Info, typeof(T).Name + ": " + (String.IsNullOrEmpty(format) ? String.Join("\t", args) : String.Format(format, args))));
+                LogMessage.From(Level.Info, typeof(T).Name + ": " + (String.IsNullOrEmpty(format) ? String.Join("\t", args) : String.Format(format, args)), MessagesExpire));
         }
 
         public static void Error(object msg)
         {
-            Log(LogMessage.From(Level.Error, msg != null ? msg.ToString() : "null"));
+            Log(LogMessage.From(Level.Error, msg != null ? msg.ToString() : "null", MessagesExpire));
         }
 
         public static void Error<T>(object msg)
         {
-            Log(LogMessage.From(Level.Error, typeof(T).Name + ": " + msg));
+            Log(LogMessage.From(Level.Error, typeof(T).Name + ": " + msg, MessagesExpire));
         }
 
         public static void ErrorFormat(string format, params object[] args)
         {
-            Log(LogMessage.From(Level.Error, String.Format(format, args)));
+            Log(LogMessage.From(Level.Error, String.Format(format, args), MessagesExpire));
         }
 
         public static void ErrorFormat<T>(string format, params object[] args)
         {
-            Log(LogMessage.From(Level.Error, typeof(T).Name + ": " + String.Format(format, args)));
+            Log(LogMessage.From(Level.Error, typeof(T).Name + ": " + String.Format(format, args), MessagesExpire));
         }
 
         public static void Warn(object msg)
         {
-            Log(LogMessage.From(Level.Warning, msg != null ? msg.ToString() : "null"));
+            Log(LogMessage.From(Level.Warning, msg != null ? msg.ToString() : "null", MessagesExpire));
         }
 
         public static void Warn<T>(object msg)
         {
-            Log(LogMessage.From(Level.Warning, typeof(T).Name + ": " + msg));
+            Log(LogMessage.From(Level.Warning, typeof(T).Name + ": " + msg, MessagesExpire));
         }
 
         public static void WarnFormat(string format, params object[] args)
         {
-            Log(LogMessage.From(Level.Warning, String.Format(format, args)));
+            Log(LogMessage.From(Level.Warning, String.Format(format, args), MessagesExpire));
         }
 
         public static void WarnFormat<T>(string format, params object[] args)
         {
-            Log(LogMessage.From(Level.Warning, typeof(T).Name + ": " + String.Format(format, args)));
+            Log(LogMessage.From(Level.Warning, typeof(T).Name + ": " + String.Format(format, args), MessagesExpire));
         }
     }
 }

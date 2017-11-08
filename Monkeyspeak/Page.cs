@@ -1128,6 +1128,30 @@ namespace Monkeyspeak
         }
 
         /// <summary>
+        /// Executes the specified Cause asynchronously.
+        /// </summary>
+        /// <param name="args"></param>
+        /// <param name="id">The id</param>
+        /// <returns></returns>
+        public async Task ExecuteAsync(int id, params object[] args)
+        {
+            await Task.Run(() =>
+            {
+                lock (syncObj)
+                {
+                    for (int j = 0; j <= triggerBlocks.Count - 1; j++)
+                    {
+                        int index;
+                        if ((index = triggerBlocks[j].IndexOfTrigger(TriggerCategory.Cause, id)) != -1)
+                        {
+                            ExecuteBlock(triggerBlocks[j], index, args);
+                        }
+                    }
+                }
+            });
+        }
+
+        /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
         public void Dispose()
