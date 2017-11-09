@@ -290,6 +290,7 @@ namespace MonkeyspeakTests
 
             Console.WriteLine("Trigger Count: " + page.Size);
             page.Execute(0);
+            Logger.Info($"Trigger Count: {page.Size}");
         }
 
         [TestMethod]
@@ -314,13 +315,13 @@ namespace MonkeyspeakTests
             Console.WriteLine("Trigger Count: " + page.Size);
             var timer = Stopwatch.StartNew();
             var pageTask = page.ExecuteAsync(0).ContinueWith(task => Logger.Info(timer.Elapsed));
-            while (!pageTask.IsCompleted ||
-                pageTask.Status == TaskStatus.Running ||
+            while (pageTask.Status == TaskStatus.Running ||
                 pageTask.Status == TaskStatus.WaitingToRun ||
                 pageTask.Status == TaskStatus.WaitingForActivation)
             {
                 Thread.Sleep(100);
             }
+            Logger.Info($"Trigger Count: {page.Size}");
         }
 
         [TestMethod]

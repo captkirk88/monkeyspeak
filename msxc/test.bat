@@ -1,9 +1,8 @@
 @echo off
 REM set errorlevel = 
-msxc.exe test.ms test_run.exe -e
+msxc.exe test.ms -e
 echo ...........
 echo Running....
 echo ...........
-test_run.exe
 echo Exit Code: %errorlevel%
 pause
