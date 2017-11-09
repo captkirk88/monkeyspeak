@@ -496,7 +496,7 @@ namespace Monkeyspeak
                 {
                     if (!(existing is ConstantVariable))
                         existing.Value = var.Value;
-                    return existing.As<T>();
+                    return (T)existing;
                 }
                 else
                 {

@@ -48,7 +48,7 @@ namespace Monkeyspeak.Libraries
             var toAssign = reader.ReadVariable(true);
             double num = reader.ReadNumber();
 
-            toAssign.Value = toAssign.Value.As<double>() + num;
+            toAssign.Value = toAssign.Value.AsDouble() + num;
             return true;
         }
 
@@ -57,7 +57,7 @@ namespace Monkeyspeak.Libraries
             var toAssign = reader.ReadVariable(true);
             double num = reader.ReadNumber();
 
-            toAssign.Value = toAssign.Value.As<double>() / num;
+            toAssign.Value = toAssign.Value.AsDouble() / num;
             return true;
         }
 
@@ -66,7 +66,7 @@ namespace Monkeyspeak.Libraries
             var toAssign = reader.ReadVariable(true);
             double num = reader.ReadNumber();
 
-            toAssign.Value = toAssign.Value.As<double>() * num;
+            toAssign.Value = toAssign.Value.AsDouble() * num;
             return true;
         }
 
@@ -75,7 +75,7 @@ namespace Monkeyspeak.Libraries
             var toAssign = reader.ReadVariable(true);
             double num = reader.ReadNumber();
 
-            toAssign.Value = toAssign.Value.As<double>() - num;
+            toAssign.Value = toAssign.Value.AsDouble() - num;
             return true;
         }
 
@@ -83,28 +83,28 @@ namespace Monkeyspeak.Libraries
         {
             var mainVar = reader.ReadVariable();
             double num = reader.ReadNumber();
-            return mainVar.Value.As<double>() > num;
+            return mainVar.Value.AsDouble() > num;
         }
 
         private bool VariableGreaterThanOrEqual(TriggerReader reader)
         {
             var mainVar = reader.ReadVariable();
             double num = reader.ReadNumber();
-            return mainVar.Value.As<double>() >= num;
+            return mainVar.Value.AsDouble() >= num;
         }
 
         private bool VariableLessThan(TriggerReader reader)
         {
             var mainVar = reader.ReadVariable();
             double num = reader.ReadNumber();
-            return mainVar.Value.As<double>() < num;
+            return mainVar.Value.AsDouble() < num;
         }
 
         private bool VariableLessThanOrEqual(TriggerReader reader)
         {
             var mainVar = reader.ReadVariable();
             double num = reader.ReadNumber();
-            return mainVar.Value.As<double>() <= num;
+            return mainVar.Value.AsDouble() <= num;
         }
     }
 }

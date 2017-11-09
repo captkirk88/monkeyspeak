@@ -91,15 +91,13 @@ namespace MonkeyspeakTests
     (5:252) with table %myTable put {%hello} in it at key {myKey5}.
     (5:252) with table %myTable put {%hello} in it at key {myKey6}.
     (5:252) with table %myTable put {%hello} in it at key {myKey7}.
+    (5:252) with table %myTable put {123} in it at key {123}.
     (6:250) for each entry in table %myTable put it into %entry,
         (5:102) print {%entry} to the console.
         (5:102) print {%i} to the console.
     (6:454) after the loop is done,
-        (5:150) take variable %i and add 1 to it.
-        (5:102) print {I'm done!} to the console.
-        (1:250) and variable %myTable is a table,
-            (5:101) set %myTable[myKey1] to 123
-            (5:102) print {%myTable[myKey1]} to the console.
+        (5:150) take variable %myTable[123] and add 1 to it.
+        (5:102) print {%myTable[123]} to the console.
 
 (0:0) when the script is started,
     (5:101) set %answer to 0

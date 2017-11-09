@@ -161,7 +161,7 @@ namespace Monkeyspeak
         {
             if (args != null && args.Length > index)
             {
-                value = args[index].As<T>();
+                value = (T)args[index];
                 return true;
             }
             value = default(T);
@@ -177,7 +177,7 @@ namespace Monkeyspeak
         public T GetParameter<T>(int index = 0) where T : struct
         {
             if (args != null && args.Length > index)
-                return args[index].As<T>();
+                return (T)args[index];
             return default(T);
         }
 
@@ -228,7 +228,7 @@ namespace Monkeyspeak
                                 else
                                     value = var.Value;
                             }
-                            return value != null ? value.As<string>() : "null";
+                            return value != null ? value.AsString() : "null";
                         }), RegexOptions.CultureInvariant);
                     }
                 }
@@ -428,12 +428,12 @@ namespace Monkeyspeak
             }
             else if (contents.Peek() is VariableExpression)
             {
-                return (double)ReadVariable()?.Value?.As<double>();
+                return (double)ReadVariable()?.Value?.AsDouble();
             }
             else if (contents.Peek() is VariableTableExpression)
             {
                 var table = ReadVariableTable();
-                return table[table.ActiveIndexer].As<double>();
+                return table[table?.ActiveIndexer].AsDouble();
             }
             else throw new TriggerReaderException($"Expected number, got {contents.Peek().GetType().Name} at {contents.Peek().Position}");
         }

@@ -145,54 +145,124 @@ namespace Monkeyspeak
             return new Variable(Name, value, asConstant);
         }
 
+        /// <summary>
+        /// Implements the operator ==.
+        /// </summary>
+        /// <param name="varA">The variable a.</param>
+        /// <param name="varB">The variable b.</param>
+        /// <returns>
+        /// The result of the operator.
+        /// </returns>
         public static bool operator ==(Variable varA, Variable varB)
         {
             return varA.Value == varB.Value;
         }
 
+        /// <summary>
+        /// Implements the operator !=.
+        /// </summary>
+        /// <param name="varA">The variable a.</param>
+        /// <param name="varB">The variable b.</param>
+        /// <returns>
+        /// The result of the operator.
+        /// </returns>
         public static bool operator !=(Variable varA, Variable varB)
         {
             return varA.Value != varB.Value;
         }
 
+        /// <summary>
+        /// Implements the operator +.
+        /// </summary>
+        /// <param name="varA">The variable a.</param>
+        /// <param name="num">The number.</param>
+        /// <returns>
+        /// The result of the operator.
+        /// </returns>
         public static Variable operator +(Variable varA, double num)
         {
-            varA.Value = varA.Value.As<double>() + num;
+            varA.Value = varA.Value.AsDouble() + num;
             return varA;
         }
 
+        /// <summary>
+        /// Implements the operator -.
+        /// </summary>
+        /// <param name="varA">The variable a.</param>
+        /// <param name="num">The number.</param>
+        /// <returns>
+        /// The result of the operator.
+        /// </returns>
         public static Variable operator -(Variable varA, double num)
         {
-            varA.Value = varA.Value.As<double>() - num;
+            varA.Value = varA.Value.AsDouble() - num;
             return varA;
         }
 
+        /// <summary>
+        /// Implements the operator *.
+        /// </summary>
+        /// <param name="varA">The variable a.</param>
+        /// <param name="num">The number.</param>
+        /// <returns>
+        /// The result of the operator.
+        /// </returns>
         public static Variable operator *(Variable varA, double num)
         {
-            varA.Value = varA.Value.As<double>() * num;
+            varA.Value = varA.Value.AsDouble() * num;
             return varA;
         }
 
+        /// <summary>
+        /// Implements the operator /.
+        /// </summary>
+        /// <param name="varA">The variable a.</param>
+        /// <param name="num">The number.</param>
+        /// <returns>
+        /// The result of the operator.
+        /// </returns>
         public static Variable operator /(Variable varA, double num)
         {
-            varA.Value = varA.Value.As<double>() / num;
+            varA.Value = varA.Value.AsDouble() / num;
             return varA;
         }
 
+        /// <summary>
+        /// Implements the operator +.
+        /// </summary>
+        /// <param name="varA">The variable a.</param>
+        /// <param name="str">The string.</param>
+        /// <returns>
+        /// The result of the operator.
+        /// </returns>
         public static Variable operator +(Variable varA, string str)
         {
-            varA.Value = varA.Value.As<string>() + str;
+            varA.Value = varA.Value.AsDouble() + str;
             return varA;
         }
 
+        /// <summary>
+        /// Performs an implicit conversion from <see cref="Variable"/> to <see cref="System.String"/>.
+        /// </summary>
+        /// <param name="var">The variable.</param>
+        /// <returns>
+        /// The result of the conversion.
+        /// </returns>
         public static implicit operator string(Variable var)
         {
-            return var.Value.As<string>();
+            return var.Value.AsString();
         }
 
+        /// <summary>
+        /// Performs an implicit conversion from <see cref="Variable"/> to <see cref="System.Double"/>.
+        /// </summary>
+        /// <param name="var">The variable.</param>
+        /// <returns>
+        /// The result of the conversion.
+        /// </returns>
         public static implicit operator double(Variable var)
         {
-            return var.Value.As<double>();
+            return var.Value.AsDouble();
         }
 
         public override bool Equals(object obj)
@@ -232,7 +302,7 @@ namespace Monkeyspeak
 
         public object Value
         {
-            get { return values.LastOrDefault(); }
+            get { return string.IsNullOrEmpty(ActiveIndexer) ? values.LastOrDefault().Value : this[ActiveIndexer]; }
             set
             {
                 if (!CheckType(value)) throw new TypeNotSupportedException(value.GetType().Name +

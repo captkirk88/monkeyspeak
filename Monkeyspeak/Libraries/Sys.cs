@@ -79,7 +79,7 @@ namespace Monkeyspeak.Libraries
             double jobNumber = 0;
             if (reader.PeekVariable())
             {
-                jobNumber = reader.ReadVariable().Value.As<double>();
+                jobNumber = reader.ReadVariable().Value.AsDouble();
             }
             else if (reader.PeekNumber())
             {
@@ -99,7 +99,7 @@ namespace Monkeyspeak.Libraries
             double jobNumber = 0;
             if (reader.PeekVariable())
             {
-                jobNumber = reader.ReadVariable().Value.As<double>();
+                jobNumber = reader.ReadVariable().Value.AsDouble();
             }
             else if (reader.PeekNumber())
             {
@@ -152,7 +152,7 @@ namespace Monkeyspeak.Libraries
         {
             var var = reader.ReadVariable();
             double num = 0;
-            return reader.ReadNumber() == var.Value.As<double>();
+            return reader.ReadNumber() == var.Value.AsDouble();
         }
 
         private bool IsVariableNotEqualToNumberOrVar(TriggerReader reader)
@@ -167,7 +167,7 @@ namespace Monkeyspeak.Libraries
             if (reader.PeekString())
             {
                 var str = reader.ReadString();
-                return var.Value.As<string>(string.Empty).Equals(str, StringComparison.InvariantCulture);
+                return var.Value.AsString(string.Empty).Equals(str, StringComparison.InvariantCulture);
             }
             return false;
         }
@@ -204,7 +204,7 @@ namespace Monkeyspeak.Libraries
             var var = reader.ReadVariable(true);
             if (reader.PeekVariable<double>())
             {
-                var.Value = reader.ReadVariable().Value.As(0d);
+                var.Value = reader.ReadVariable().Value.AsDouble(0d);
             }
             else if (reader.PeekNumber())
             {

@@ -294,6 +294,10 @@ namespace Monkeyspeak
             {
                 throw new NotSupportedException("Stream does not support forward reading");
             }
+            if (!reader.BaseStream.CanRead)
+            {
+                throw new NotSupportedException("Stream cannot be read from");
+            }
             long oldPos = reader.Position;
             reader.Position = startPosInStream;
 
@@ -315,6 +319,10 @@ namespace Monkeyspeak
             if (!reader.BaseStream.CanSeek)
             {
                 throw new NotSupportedException("Stream does not support seeking");
+            }
+            if (!reader.BaseStream.CanRead)
+            {
+                throw new NotSupportedException("Stream cannot be read from");
             }
             int ahead = -1;
             if (steps > 0)
@@ -345,6 +353,10 @@ namespace Monkeyspeak
             {
                 throw new NotSupportedException("Stream does not support seeking");
             }
+            if (!reader.BaseStream.CanRead)
+            {
+                throw new NotSupportedException("Stream cannot be read from");
+            }
             if (steps > 0)
             {
                 long oldPosition = reader.Position;
@@ -368,6 +380,10 @@ namespace Monkeyspeak
             {
                 throw new NotSupportedException("Stream does not support seeking");
             }
+            if (!reader.BaseStream.CanRead)
+            {
+                throw new NotSupportedException("Stream cannot be read from");
+            }
             int aback = -1;
             long oldPosition = reader.Position;
             // Subtract 1 from the steps so that the Peek method looks at the right value
@@ -382,6 +398,10 @@ namespace Monkeyspeak
 
         public override int Next(int steps = 1)
         {
+            if (!reader.BaseStream.CanRead)
+            {
+                throw new NotSupportedException("Stream cannot be read from");
+            }
             int before = LookBack(1);
             for (int i = 0; i <= steps - 1; i++)
             {
