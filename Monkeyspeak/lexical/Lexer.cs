@@ -52,33 +52,32 @@ namespace Monkeyspeak
                 if (character == -1)
                 {
                     token = CreateToken(TokenType.END_OF_FILE);
+                    yield return token;
                 }
-                else if (c == Engine.Options.BlockCommentBeginSymbol[0])
+                /*else if (c == Engine.Options.BlockCommentBeginSymbol[0])
                 {
-                    bool isBlockComment = true;
-                    for (int i = 0; i <= Engine.Options.BlockCommentBeginSymbol.Length - 1; i++)
+                    if (IsMatch(Engine.Options.BlockCommentBeginSymbol))
                     {
-                        // Ensure it is actually a block comment
-                        if (LookAhead(2 + i) != Engine.Options.BlockCommentBeginSymbol[i])
-                        {
-                            isBlockComment = false;
-                            break;
-                        }
-                    }
-                    if (isBlockComment)
                         SkipBlockComment();
-                }
+                        token = Token.None;
+                        goto FINISH;
+                    }
+                }*/
                 else if (c == lineCommentSym)
                 {
                     SkipLineComment();
+                    token = Token.None;
+                    goto FINISH;
                 }
                 else if (c == stringBeginSym)
                 {
                     token = MatchString();
+                    goto FINISH;
                 }
                 else if (c == varDeclSym)
                 {
                     token = MatchVariable();
+                    goto FINISH;
                 }
                 else
                 {
@@ -160,6 +159,7 @@ namespace Monkeyspeak
                         default: Next(); break;
                     }
                 }
+                FINISH:
                 if (token.Type != TokenType.NONE)
                 {
                     //Logger.Debug<Lexer>(token);
@@ -188,7 +188,12 @@ namespace Monkeyspeak
 
         public bool IsMatch(string str)
         {
-            return str.All(c => IsMatch(c));
+            for (int i = 0; i <= str.Length - 1; i++)
+            {
+                int c = LookAhead(1 + i);
+                if (str[i] != c) return false;
+            }
+            return true;
         }
 
         public bool IsMatch(char c)
@@ -203,10 +208,14 @@ namespace Monkeyspeak
 
         public override void CheckMatch(string str)
         {
-            for (int i = 0; i <= str.Length - 1; i++)
+            var found = LookAheadToString(str.Length);
+            if (found != str)
             {
-                var c = LookAhead(i);
-                CheckMatch(str[i], c);
+                throw new MonkeyspeakException($"Expected '{str}' but got '{found}'");
+            }
+            else
+            {
+                Next(str.Length);
             }
         }
 
@@ -308,7 +317,7 @@ namespace Monkeyspeak
                 throw new NotSupportedException("Stream does not support seeking");
             }
             int ahead = -1;
-            if (steps > 1)
+            if (steps > 0)
             {
                 long oldPosition = reader.Position;
                 // Subtract 1 from the steps so that the Peek method looks at the right value
@@ -323,6 +332,34 @@ namespace Monkeyspeak
                 ahead = reader.Peek();
             }
             return ahead;
+        }
+
+        /// <summary>
+        ///     Peeks ahead in the reader
+        /// </summary>
+        /// <param name="steps"></param>
+        /// <returns>The character number of steps ahead or -1/returns>
+        public string LookAheadToString(int steps)
+        {
+            if (!reader.BaseStream.CanSeek)
+            {
+                throw new NotSupportedException("Stream does not support seeking");
+            }
+            if (steps > 0)
+            {
+                long oldPosition = reader.Position;
+
+                char[] charArray = new char[steps];
+                for (int i = 0; i <= charArray.Length - 1; i++)
+                    charArray[i] = (char)reader.Peek();
+
+                reader.Position = oldPosition;
+                return new string(charArray);
+            }
+            else
+            {
+                return string.Empty;
+            }
         }
 
         public override int LookBack(int steps)
@@ -343,24 +380,27 @@ namespace Monkeyspeak
             return aback;
         }
 
-        public override int Next()
+        public override int Next(int steps = 1)
         {
             int before = LookBack(1);
-            int c = reader.Read();
-            if (c != -1)
+            for (int i = 0; i <= steps - 1; i++)
             {
-                if (c == '\n') //|| (before == '\r' && c == '\n'))
+                int c = reader.Read();
+                if (c != -1)
                 {
-                    lineNo++;
-                    columnNo = 0;
+                    if (c == '\n') //|| (before == '\r' && c == '\n'))
+                    {
+                        lineNo++;
+                        columnNo = 0;
+                    }
+                    else
+                    {
+                        columnNo++;
+                    }
+                    rawPos++;
                 }
-                else
-                {
-                    columnNo++;
-                }
-                rawPos++;
+                currentChar = c;
             }
-            currentChar = c;
             return currentChar;
         }
 
@@ -530,56 +570,22 @@ namespace Monkeyspeak
             return new Token(TokenType.VARIABLE, startPos, length, CurrentSourcePosition);
         }
 
-        private Token ProcessPreprocessors()
-        {
-            long startPos = reader.Position;
-            int length = 0;
-            Next();
-            length++;
-            var sourcePos = CurrentSourcePosition;
-
-            CheckMatch('#');
-            Next();
-            length++;
-            while (true)
-            {
-                if (currentChar == '\n' || currentChar == -1)
-                {
-                    length--;
-                    break;
-                }
-                Next();
-                length++;
-            }
-            return new Token(TokenType.PREPROCESSOR, startPos, length, CurrentSourcePosition);
-        }
-
         private void SkipBlockComment()
         {
             var bcommentBegin = Engine.Options.BlockCommentBeginSymbol;
             var bcommentEnd = Engine.Options.BlockCommentEndSymbol;
 
-            CheckMatch(Engine.Options.BlockCommentBeginSymbol);
-
-            Next();
-            int endCommentMatchConut = 0;
-            while (endCommentMatchConut < bcommentEnd.Length)
+            if (IsMatch(bcommentBegin))
             {
-                endCommentMatchConut = 0;
-                for (int i = 0; i <= bcommentEnd.Length - 1; i++)
+                while (LookAheadToString(bcommentEnd.Length) != bcommentEnd)
                 {
-                    if (LookAhead(i + 1) == bcommentEnd[i])
+                    if (currentChar == -1)
                     {
-                        endCommentMatchConut++;
+                        throw new MonkeyspeakException("Unexpected end of file", CurrentSourcePosition);
                     }
+                    Next(bcommentEnd.Length);
                 }
-                if (currentChar == -1)
-                {
-                    throw new MonkeyspeakException("Unexpected end of file", CurrentSourcePosition);
-                }
-                Next();
             }
-            CheckMatch(Engine.Options.BlockCommentEndSymbol);
         }
 
         private void SkipLineComment()

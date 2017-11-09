@@ -14,6 +14,8 @@ namespace Monkeyspeak.Logging
 {
     public class ConsoleLogOutput : ILogOutput
     {
+        private static readonly DateTime startTime = new DateTime();
+
         public ConsoleLogOutput()
         {
         }
@@ -29,7 +31,7 @@ namespace Monkeyspeak.Logging
               .Append("Thread+" + msg.Thread.ManagedThreadId)
               .Append(' ')
               .Append(msg.TimeStamp.ToString("dd-MMM-yyyy")).Append(' ')
-              .Append((msg.TimeStamp - Process.GetCurrentProcess().StartTime).ToString(@"hh\:mm\:ss"))
+              .Append((msg.TimeStamp - Process.GetCurrentProcess().StartTime).ToString(@"hh\:mm\:ss\:fff"))
               .Append(" - ")
               .Append(text);
             msg.message = sb.ToString();

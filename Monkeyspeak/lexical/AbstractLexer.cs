@@ -36,7 +36,8 @@ namespace Monkeyspeak
         /// <summary>
         /// Advances one character in the reader.
         /// </summary>
-        public abstract int Next();
+        /// <param name="steps">Length of chars to read</param>
+        public abstract int Next(int length = 1);
 
         /// <summary>
         /// Reads the tokens from the reader.  Used by the Parser.

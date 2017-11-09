@@ -144,7 +144,7 @@ namespace Monkeyspeak.Logging
         private static bool _suppressSpam;
         private static TimeSpan _messagesExpire = TimeSpan.FromSeconds(10);
 
-        private static bool singleThreaded;
+        private static bool singleThreaded, initialized;
 
         private static Task logTask;
 
@@ -156,6 +156,7 @@ namespace Monkeyspeak.Logging
         {
             _logOutput = new ConsoleLogOutput();
             AppDomain.CurrentDomain.UnhandledException += (sender, args) => Error(args.ExceptionObject);
+
 #if DEBUG
             _debugEnabled = true;
 #else
@@ -163,7 +164,12 @@ namespace Monkeyspeak.Logging
 #endif
             singleThreaded = true;
 
-            cancelToken = new CancellationTokenSource(100);
+            Initialize();
+        }
+
+        private static void Initialize()
+        {
+            cancelToken = new CancellationTokenSource();
             logTask = new Task(() =>
             {
                 while (true)
@@ -175,22 +181,10 @@ namespace Monkeyspeak.Logging
                         Dump();
                     }
                 }
-            }, cancelToken.Token);
+            }, cancelToken.Token, TaskCreationOptions.LongRunning);
             logTask.Start();
 
-            AppDomain.CurrentDomain.ProcessExit += (sender, e) =>
-            {
-                //Shutdown();
-            };
-        }
-
-        /// <summary>
-        /// Shutdowns this instance.
-        /// </summary>
-        public static void Shutdown()
-        {
-            Dump();
-            cancelToken.Cancel();
+            initialized = true;
         }
 
         public static bool InfoEnabled

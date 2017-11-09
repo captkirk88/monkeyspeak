@@ -141,7 +141,6 @@ namespace MonkeyspeakTests
         [TestCleanup]
         public void Cleanup()
         {
-            Logger.Shutdown();
         }
 
         [TestMethod]
@@ -488,10 +487,12 @@ namespace MonkeyspeakTests
 		(5:102) print {This will NOT be displayed because an error was raised} to the console
 
 (0:0) when the script is started,
-    *Uncommented version
+    * Uncommented version
+    /* block comment
     (1:104) and variable %hello equals {this will be false move on to next condition}
 		(5:100) set %hello to {Hello World}
         (5:102) print {First condition failed!} to the console
+    */
     (1:104) and variable %hello equals {Hello World}
         (5:102) print {Second condition win!} to the console
         (5:101) set %helloNum to 5
@@ -507,8 +508,6 @@ namespace MonkeyspeakTests
             page.RemoveLibrary<Monkeyspeak.Libraries.Debug>();
 
             page.SetTriggerHandler(TriggerCategory.Cause, 0, HandleScriptStartCause);
-
-            foreach (var desc in page.GetTriggerDescriptions()) Logger.Info(desc);
 
             for (int i = 0; i <= 5; i++)
                 page.Execute(0);
