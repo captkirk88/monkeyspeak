@@ -48,6 +48,7 @@ namespace Monkeyspeak
 
                 string value = token.GetValue(lexer);
 
+                //Logger.Debug<Parser>(token);
                 switch (token.Type)
                 {
                     case TokenType.TRIGGER:

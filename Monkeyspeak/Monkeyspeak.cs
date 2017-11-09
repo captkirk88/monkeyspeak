@@ -127,19 +127,16 @@ namespace Monkeyspeak
 
         public Page LoadFromFile(string filePath)
         {
-            using (var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Write))
+            using (var reader = new SStreamReader(filePath))
             {
-                using (var reader = new SStreamReader(stream))
+                Page page = new Page(this);
+                using (var lexer = new Lexer(this, reader))
                 {
-                    Page page = new Page(this);
-                    using (var lexer = new Lexer(this, reader))
-                    {
-                        page.VisitingToken = VisitTokens;
-                        page.GenerateBlocks(lexer);
-                        page.VisitingToken = null;
-                    }
-                    return page;
+                    page.VisitingToken = VisitTokens;
+                    page.GenerateBlocks(lexer);
+                    page.VisitingToken = null;
                 }
+                return page;
             }
         }
 

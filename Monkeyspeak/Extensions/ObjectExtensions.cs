@@ -10,6 +10,36 @@ namespace Monkeyspeak.Extensions
 {
     public static class ObjectExtensions
     {
+        public static long AsInt64(this object obj, long @default = -1L)
+        {
+            if (obj == null) return @default;
+            try
+            {
+                return Convert.ToInt64(obj);
+            }
+            catch (Exception ex) { Logger.Error(ex); return @default; }
+        }
+
+        public static short AsInt16(this object obj, short @default = -1)
+        {
+            if (obj == null) return @default;
+            try
+            {
+                return Convert.ToInt16(obj);
+            }
+            catch (Exception ex) { Logger.Error(ex); return @default; }
+        }
+
+        public static int AsInt32(this object obj, int @default = -1)
+        {
+            if (obj == null) return @default;
+            try
+            {
+                return Convert.ToInt32(obj);
+            }
+            catch (Exception ex) { Logger.Error(ex); return @default; }
+        }
+
         public static double AsDouble(this object obj, double @default = -1d)
         {
             if (obj == null) return @default;

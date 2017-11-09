@@ -52,7 +52,6 @@ namespace Monkeyspeak
                 if (character == -1)
                 {
                     token = CreateToken(TokenType.END_OF_FILE);
-                    yield return token;
                 }
                 /*else if (c == Engine.Options.BlockCommentBeginSymbol[0])
                 {
