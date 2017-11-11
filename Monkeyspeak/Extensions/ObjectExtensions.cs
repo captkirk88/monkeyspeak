@@ -17,7 +17,7 @@ namespace Monkeyspeak.Extensions
             {
                 return Convert.ToInt64(obj);
             }
-            catch (Exception ex) { Logger.Error(ex); return @default; }
+            catch (Exception ex) { return @default; }
         }
 
         public static short AsInt16(this object obj, short @default = -1)
@@ -27,7 +27,7 @@ namespace Monkeyspeak.Extensions
             {
                 return Convert.ToInt16(obj);
             }
-            catch (Exception ex) { Logger.Error(ex); return @default; }
+            catch (Exception ex) { return @default; }
         }
 
         public static int AsInt32(this object obj, int @default = -1)
@@ -37,7 +37,7 @@ namespace Monkeyspeak.Extensions
             {
                 return Convert.ToInt32(obj);
             }
-            catch (Exception ex) { Logger.Error(ex); return @default; }
+            catch (Exception ex) { return @default; }
         }
 
         public static double AsDouble(this object obj, double @default = -1d)
@@ -48,7 +48,7 @@ namespace Monkeyspeak.Extensions
             {
                 return Convert.ToDouble(obj);
             }
-            catch (Exception ex) { Logger.Error(ex); return @default; }
+            catch (Exception ex) { return @default; }
         }
 
         public static string AsString(this object obj, string @default = null)
@@ -59,7 +59,7 @@ namespace Monkeyspeak.Extensions
             {
                 return Convert.ToString(obj);
             }
-            catch (Exception ex) { Logger.Error(ex); return @default; }
+            catch (Exception ex) { return @default; }
         }
     }
 }

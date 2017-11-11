@@ -18,8 +18,42 @@ namespace MonkeyspeakTests
         private string testScript = @"
 *This is a comment
 (0:0) when the script is started,
-		(5:150) take variable %i and add 1 to it.
-		(5:102) print {%i} to the console.
+    (5:250) create a table as %myTable.
+    (5:100) set %hello to {hi}
+    (5:101) set %i to 0
+    (5:252) with table %myTable put {%hello} in it at key {myKey1}.
+    (5:252) with table %myTable put {%hello} in it at key {myKey2}.
+    (5:252) with table %myTable put {%hello} in it at key {myKey3}.
+    (5:252) with table %myTable put {%hello} in it at key {myKey4}.
+    (5:252) with table %myTable put {%hello} in it at key {myKey5}.
+    (5:252) with table %myTable put {%hello} in it at key {myKey6}.
+    (5:252) with table %myTable put {%hello} in it at key {myKey7}.
+    (5:252) with table %myTable put {123} in it at key {123}.
+    (6:250) for each entry in table %myTable put it into %entry,
+        (5:102) print {%entry} to the console.
+        (5:102) print {%i} to the console.
+    (6:454) after the loop is done,
+        (5:150) take variable %myTable[123] and add 1 to it.
+        (5:102) print {%myTable[123]} to the console.
+
+(0:0) when the script is started,
+    (5:101) set %answer to 0
+    (5:101) set %life to 42
+    (6:450) while variable %answer is not %life,
+        (5:150) take variable %answer and add 1 to it.
+        (1:102) and variable %answer equals 21,
+            (5:450) exit the current loop.
+    (6:454) after the loop is done,
+        (5:102) print {We may never know the answer...} to the console.
+
+(0:0) when the script is started,
+        (5:102) print {%i} to the console.
+        (5:102) print {%i} to the console.
+        (5:102) print {%i} to the console.
+        (5:102) print {%i} to the console.
+        (5:102) print {%i} to the console.
+        (5:102) print {%i} to the console.
+        (5:102) print {%i} to the console.
 ";
 
         [TestMethod]
@@ -31,12 +65,12 @@ namespace MonkeyspeakTests
             };
 
             var sb = new StringBuilder(testScript);
-            for (int i = 0; i <= 50000; i++)
+            /*for (int i = 0; i <= 50; i++)
             {
                 sb.AppendLine();
-                sb.AppendLine(UnitTest1.tableScript);
+                sb.AppendLine(testScript);
                 sb.AppendLine();
-            }
+            }*/
             Stopwatch watch = Stopwatch.StartNew();
             var oldPage = engine.LoadFromString(sb.ToString());
             oldPage.SetTriggerHandler(TriggerCategory.Cause, 0, UnitTest1.HandleScriptStartCause);
@@ -56,7 +90,7 @@ namespace MonkeyspeakTests
             page.RemoveLibrary<Monkeyspeak.Libraries.Debug>();
 
             Console.WriteLine("Page Trigger Count: " + page.Size);
-            //page.Execute(0);
+            page.Execute(0);
             page.Dispose();
         }
 
@@ -84,18 +118,13 @@ namespace MonkeyspeakTests
 
             page.LoadAllLibraries();
 
-            var tasks = new Task[1];
-            for (int i = 0; i <= tasks.Length - 1; i++)
-                tasks[i] = Task.Run(async () => await page.ExecuteAsync());
-
+            page.Execute();
             foreach (var var in page.Scope)
             {
                 Logger.Debug(var);
             }
 
-            Task.WaitAll(tasks);
             Console.WriteLine("Page Trigger Count: " + page.Size);
-            // Result is execution is parallel! Awesome!
         }
 
         [TestMethod]

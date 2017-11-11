@@ -1,4 +1,5 @@
-﻿using Monkeyspeak.lexical.Expressions;
+﻿using Monkeyspeak.lexical;
+using Monkeyspeak.lexical.Expressions;
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
@@ -50,10 +51,19 @@ namespace Monkeyspeak
 
         internal List<IExpression> contents;
 
-        public Trigger(TriggerCategory cat, int id)
+        internal Trigger(TriggerCategory cat, int id)
         {
             category = cat;
             this.id = id;
+            SourcePosition = new SourcePosition();
+            contents = new List<IExpression>();
+        }
+
+        internal Trigger(TriggerCategory cat, int id, SourcePosition sourcePos)
+        {
+            category = cat;
+            this.id = id;
+            SourcePosition = sourcePos;
             contents = new List<IExpression>();
         }
 
@@ -87,9 +97,11 @@ namespace Monkeyspeak
             set { contents.AddRange(value); }
         }
 
+        internal SourcePosition SourcePosition { get; set; }
+
         internal Trigger Clone()
         {
-            var clone = new Trigger(category, id)
+            var clone = new Trigger(category, id, SourcePosition)
             {
                 contents = new List<IExpression>(contents)
             };
@@ -163,6 +175,14 @@ namespace Monkeyspeak
         {
             return category.GetHashCode() + id.GetHashCode();
         }
+
+        /// <summary>
+        /// Returns a <see cref="string" /> that represents this instance.
+        /// </summary>
+        /// <returns>
+        /// A <see cref="string" /> that represents this instance.
+        /// </returns>
+        public string ToString(bool includeSourcePos = false) => $"({(int)category}:{id}){(includeSourcePos ? SourcePosition.ToString() : string.Empty)}";
 
         /// <summary>
         /// Returns a <see cref="string" /> that represents this instance.

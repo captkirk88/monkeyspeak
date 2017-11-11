@@ -37,7 +37,7 @@ namespace Monkeyspeak.lexical
                 int triggerCount = reader.ReadInt32();
                 for (int j = 0; j <= triggerCount - 1; j++)
                 {
-                    var trigger = new Trigger((TriggerCategory)reader.ReadInt32(), reader.ReadInt32());
+                    var trigger = new Trigger((TriggerCategory)reader.ReadInt32(), reader.ReadInt32(), sourcePos);
 
                     int triggerContentCount = reader.ReadInt32();
                     if (triggerContentCount > 0)
@@ -68,37 +68,46 @@ namespace Monkeyspeak.lexical
             }
         }
 
-        private IEnumerable<TriggerBlock> ReadVersion1(BinaryReader reader)
+        private IEnumerable<TriggerBlock> ReadVersion7_0(BinaryReader reader)
         {
             var sourcePos = new SourcePosition();
 
             int triggerListCount = reader.ReadInt32();
             for (int i = 0; i <= triggerListCount - 1; i++)
             {
-                var triggerList = new TriggerBlock();
                 int triggerCount = reader.ReadInt32();
+                var triggerList = new TriggerBlock(reader.ReadInt32());
                 for (int j = 0; j <= triggerCount - 1; j++)
                 {
-                    var trigger = new Trigger((TriggerCategory)reader.ReadInt32(), reader.ReadInt32());
+                    var trigger = new Trigger((TriggerCategory)reader.ReadInt32(), reader.ReadInt32(), sourcePos);
 
-                    string description = reader.ReadString(); // no longer used, here for compatibility.
                     int triggerContentCount = reader.ReadInt32();
                     if (triggerContentCount > 0)
                         for (int k = 0; k <= triggerContentCount - 1; k++)
                         {
-                            if (reader.ReadBoolean())
+                            byte type = reader.ReadByte();
+                            switch (type)
                             {
-                                byte type = reader.ReadByte();
-                                if (type == 1) // String
-                                {
+                                case 1:
                                     trigger.contents.Add(new StringExpression(ref sourcePos, reader.ReadString()));
-                                }
+                                    break;
 
-                                if (type == 2) // Double
-                                {
+                                case 2:
                                     trigger.contents.Add(new NumberExpression(ref sourcePos, reader.ReadDouble()));
-                                }
+                                    break;
+
+                                case 3:
+                                    trigger.contents.Add(new VariableExpression(ref sourcePos, reader.ReadString()));
+                                    break;
+
+                                case 4:
+                                    trigger.contents.Add(new VariableTableExpression(ref sourcePos, reader.ReadString(), reader.ReadString()));
+                                    break;
+
+                                default: // for all reserved bytes
+                                    break;
                             }
+                            sourcePos = new SourcePosition(sourcePos.Line + 1, sourcePos.Column, sourcePos.RawPosition);
                         }
                     triggerList.Add(trigger);
                 }
@@ -116,15 +125,15 @@ namespace Monkeyspeak.lexical
                 switch (fileVersion.Major)
                 {
                     case 1:
-                        blocks = ReadVersion1(reader).ToArray();
-                        break;
+                        throw new MonkeyspeakException("Version 1 is a incompatible version.");
 
                     case 6:
                         blocks = ReadVersion6_5(reader).ToArray();
                         break;
 
+                    case 7:
                     default:
-                        blocks = ReadVersion6_5(reader).ToArray();
+                        blocks = ReadVersion7_0(reader).ToArray();
                         break;
                 }
             }
@@ -165,12 +174,19 @@ namespace Monkeyspeak.lexical
                                 writer.Write((byte)2);
                                 writer.Write(((NumberExpression)content).Value);
                             }
-                            else if (content is VariableExpression)
+                            else if (content is VariableExpression && !(content is VariableTableExpression))
                             {
                                 writer.Write((byte)3);
                                 writer.Write(((VariableExpression)content).Value);
                             }
-                            else writer.Write((byte)4); // reserved
+                            else if (content is VariableTableExpression)
+                            {
+                                var tableExpr = (VariableTableExpression)content;
+                                writer.Write((byte)4);
+                                writer.Write(tableExpr.Value);
+                                writer.Write(tableExpr.HasIndex ? tableExpr.Indexer : string.Empty);
+                            }
+                            else writer.Write((byte)5); // reserved
                         }
                     }
                 }

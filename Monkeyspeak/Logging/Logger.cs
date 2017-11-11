@@ -65,7 +65,7 @@ namespace Monkeyspeak.Logging
             curThread = Thread.CurrentThread;
         }
 
-        public static LogMessage From(Level level, string msg, TimeSpan expireDuration)
+        public static LogMessage? From(Level level, string msg, TimeSpan expireDuration)
         {
             LogMessage logMsg = new LogMessage(level, msg, expireDuration);
             var now = DateTime.Now;
@@ -92,7 +92,7 @@ namespace Monkeyspeak.Logging
                 Logger.history.Add(logMsg);
                 return logMsg;
             }
-            return default(LogMessage);
+            return null;
         }
 
         /// <summary>
@@ -162,7 +162,7 @@ namespace Monkeyspeak.Logging
 #else
             _debugEnabled = false; // can be set via property
 #endif
-            singleThreaded = true;
+            singleThreaded = false;
 
             Initialize();
         }
@@ -183,8 +183,6 @@ namespace Monkeyspeak.Logging
                 }
             }, cancelToken.Token, TaskCreationOptions.LongRunning);
             logTask.Start();
-
-            initialized = true;
         }
 
         public static bool InfoEnabled
@@ -252,11 +250,29 @@ namespace Monkeyspeak.Logging
         /// <value>
         ///   <c>true</c> if [single threaded]; otherwise, <c>false</c>.
         /// </value>
-        public static bool SingleThreaded { get => singleThreaded; set => singleThreaded = value; }
-
-        private static void Log(LogMessage msg)
+        public static bool SingleThreaded
         {
-            queue.Enqueue(msg);
+            get
+            {
+                return singleThreaded;
+            }
+            set
+            {
+                singleThreaded = value;
+                if (singleThreaded) cancelToken.Cancel();
+                else
+                {
+                    if (logTask.Status == TaskStatus.Running)
+                        return;
+                    logTask.Start();
+                }
+            }
+        }
+
+        private static void Log(LogMessage? msg)
+        {
+            if (msg == null) return;
+            queue.Enqueue(msg.Value);
             if (singleThreaded)
             {
                 Dump();

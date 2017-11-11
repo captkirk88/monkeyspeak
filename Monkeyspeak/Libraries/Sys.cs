@@ -10,67 +10,67 @@ namespace Monkeyspeak.Libraries
         public override void Initialize(params object[] args)
         {
             // (1:100) and variable % is defined,
-            Add(new Trigger(TriggerCategory.Condition, 100), IsVariableDefined,
+            Add(TriggerCategory.Condition, 100, IsVariableDefined,
                 "and variable % is defined,");
 
             // (1:101) and variable % is not defined,
-            Add(new Trigger(TriggerCategory.Condition, 101), IsVariableNotDefined,
+            Add(TriggerCategory.Condition, 101, IsVariableNotDefined,
                 "and variable % is not defined,");
 
             // (1:102) and variable % equals #,
-            Add(new Trigger(TriggerCategory.Condition, 102), IsVariableEqualToNumberOrVar,
+            Add(TriggerCategory.Condition, 102, IsVariableEqualToNumberOrVar,
                 "and variable % equals #,");
 
             // (1:103) and variable % does not equal #,
-            Add(new Trigger(TriggerCategory.Condition, 103), IsVariableNotEqualToNumberOrVar,
+            Add(TriggerCategory.Condition, 103, IsVariableNotEqualToNumberOrVar,
                 "and variable % does not equal #,");
 
             // (1:104) and variable % equals {...},
-            Add(new Trigger(TriggerCategory.Condition, 104), IsVariableEqualToString,
+            Add(TriggerCategory.Condition, 104, IsVariableEqualToString,
                 "and variable % equals {...},");
 
             // (1:105) and variable % does not equal {...},
-            Add(new Trigger(TriggerCategory.Condition, 105), IsVariableNotEqualToString,
+            Add(TriggerCategory.Condition, 105, IsVariableNotEqualToString,
                 "and variable % does not equal {...},");
 
             // (1:106) and variable % is constant,
-            Add(new Trigger(TriggerCategory.Condition, 106), VariableIsConstant,
+            Add(TriggerCategory.Condition, 106, VariableIsConstant,
                 "and variable % is constant,");
 
             // (1:107) and variable % is not constant,
-            Add(new Trigger(TriggerCategory.Condition, 107), VariableIsNotConstant,
+            Add(TriggerCategory.Condition, 107, VariableIsNotConstant,
                 "and variable % is not constant,");
 
             // (5:100) set variable % to {...}.
-            Add(new Trigger(TriggerCategory.Effect, 100), SetVariableToString,
+            Add(TriggerCategory.Effect, 100, SetVariableToString,
                 "set variable % to {...}.");
 
             // (5:101) set variable % to #.
-            Add(new Trigger(TriggerCategory.Effect, 101), SetVariableToNumberOrVariable,
+            Add(TriggerCategory.Effect, 101, SetVariableToNumberOrVariable,
                 "set variable % to #.");
 
             // (5:102) print {...} to the console.
-            Add(new Trigger(TriggerCategory.Effect, 102), PrintToLog,
+            Add(TriggerCategory.Effect, 102, PrintToLog,
                 "print {...} to the log.");
 
             // (5:103) get the environment variable named {...} and put it into #,
-            Add(new Trigger(TriggerCategory.Effect, 103), GetEnvVariable,
+            Add(TriggerCategory.Effect, 103, GetEnvVariable,
                 "get the environment variable named {...} and put it into %, (ex: PATH)");
 
             Add(TriggerCategory.Effect, 104, RandomValueToVar,
                 "create random number and put it into variable %.");
 
-            Add(new Trigger(TriggerCategory.Effect, 107), DeleteVariable,
+            Add(TriggerCategory.Effect, 107, DeleteVariable,
                 "delete variable %.");
 
             // (5:110) load library from file {...}.
-            Add(new Trigger(TriggerCategory.Effect, 110), LoadLibraryFromFile,
+            Add(TriggerCategory.Effect, 110, LoadLibraryFromFile,
                 "load library from file {...}. (example Monkeyspeak.dll)");
 
-            Add(new Trigger(TriggerCategory.Cause, 100), JobCalled,
+            Add(TriggerCategory.Cause, 100, JobCalled,
                 "when job # is called put arguments into table % (optional),");
 
-            Add(new Trigger(TriggerCategory.Effect, 115), CallJob,
+            Add(TriggerCategory.Effect, 115, CallJob,
                 "call job # with (add strings, variables, numbers here) arguments.");
         }
 

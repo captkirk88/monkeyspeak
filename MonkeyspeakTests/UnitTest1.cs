@@ -207,6 +207,33 @@ namespace MonkeyspeakTests
         }
 
         [TestMethod]
+        public async Task AsyncDemoTest()
+        {
+            var engine = new MonkeyspeakEngine();
+            engine.Options.Debug = true;
+            Page page = await engine.LoadFromStringAsync(testScript);
+
+            page.Error += DebugAllErrors;
+
+            page.LoadAllLibraries();
+            //page.LoadDebugLibrary();
+            page.RemoveLibrary<Monkeyspeak.Libraries.Debug>();
+            page.SetVariable("%testVariable", "Hello WOrld", true);
+
+            page.SetTriggerHandler(TriggerCategory.Cause, 0, HandleScriptStartCause);
+            page.SetTriggerHandler(TriggerCategory.Condition, 666, AlwaysFalseCond);
+
+            // Trigger count created by subscribing to TriggerAdded event and putting triggers into a list.
+            Console.WriteLine("Trigger Count: " + page.Size);
+            Logger.Assert(page.Size > 0, "Page size was 0 = FAIL!");
+            await page.ExecuteAsync();
+            foreach (var variable in page.Scope)
+            {
+                Console.WriteLine(variable.ToString());
+            }
+        }
+
+        [TestMethod]
         public void LexerPrint()
         {
             //using (var stream = new FileStream("testBIG.ms", FileMode.OpenOrCreate))
@@ -294,14 +321,15 @@ namespace MonkeyspeakTests
         }
 
         [TestMethod]
-        public void DurabilityParseFileAsync()
+        public async Task DurabilityParseFileAsync()
         {
             var engine = new MonkeyspeakEngine();
 
             // Set the trigger limit to int.MaxValue to prevent TriggerLimit reached exceptions
             engine.Options.TriggerLimit = int.MaxValue;
 
-            Page page = engine.LoadFromFile("testBIG.ms");
+            string code = File.ReadAllText("testBIG.ms");
+            Page page = await engine.LoadFromStringAsync(code);
 
             page.Debug = true;
 
@@ -314,13 +342,7 @@ namespace MonkeyspeakTests
 
             Console.WriteLine("Trigger Count: " + page.Size);
             var timer = Stopwatch.StartNew();
-            var pageTask = page.ExecuteAsync(0).ContinueWith(task => Logger.Info(timer.Elapsed));
-            while (pageTask.Status == TaskStatus.Running ||
-                pageTask.Status == TaskStatus.WaitingToRun ||
-                pageTask.Status == TaskStatus.WaitingForActivation)
-            {
-                Thread.Sleep(100);
-            }
+            await page.ExecuteAsync(0);
             Logger.Info($"Trigger Count: {page.Size}");
         }
 
@@ -543,7 +565,7 @@ namespace MonkeyspeakTests
     (5:101) set variable %timer to 1.
     (5:300) create timer %timer to go off every 2 second(s) with a start delay of 1 second(s).
     (5:300) create timer 2 to go off every 5 second(s). *don't need delay part here
-    (5:300) create timer 13 to go off every 900 second(s) with a start delay of 0 second(s).
+    (5:300) create timer 13 to go off every 900 second(s) with a start delay of # second(s).
 
 (0:300) when timer 2 goes off,
 (0:300) when timer %timer goes off,

@@ -140,9 +140,6 @@ namespace Monkeyspeak
                             token = CreateToken(TokenType.MOD);
                             break;
 
-                        case '#':
-                            break;
-
                         case '0':
                         case '1':
                         case '2':

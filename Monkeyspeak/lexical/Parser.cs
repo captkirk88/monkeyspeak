@@ -79,7 +79,7 @@ namespace Monkeyspeak
                         var id = value.Substring(value.IndexOf(':') + 1);
                         if (string.IsNullOrWhiteSpace(id)) continue;
                         currentTrigger = new Trigger((TriggerCategory)IntParse(cat),
-                            IntParse(id));
+                            IntParse(id), sourcePos);
                         break;
 
                     case TokenType.VARIABLE:

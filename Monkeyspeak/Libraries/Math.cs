@@ -8,34 +8,34 @@ namespace Monkeyspeak.Libraries
         public override void Initialize(params object[] args)
         {
             // (1:150) and variable % is greater than #,
-            Add(new Trigger(TriggerCategory.Condition, 150), VariableGreaterThan,
+            Add(TriggerCategory.Condition, 150, VariableGreaterThan,
                 "and variable % is greater than #,");
             // (1:151) and variable % is greater than or equal to #,
-            Add(new Trigger(TriggerCategory.Condition, 151), VariableGreaterThanOrEqual,
+            Add(TriggerCategory.Condition, 151, VariableGreaterThanOrEqual,
                 "and variable % is greater than or equal to #,");
 
             // (1:152) and variable % is less than #,
-            Add(new Trigger(TriggerCategory.Condition, 152), VariableLessThan,
+            Add(TriggerCategory.Condition, 152, VariableLessThan,
                 "and variable % is less than #,");
 
             // (1:153) and variable % is less than or equal to #,
-            Add(new Trigger(TriggerCategory.Condition, 153), VariableLessThanOrEqual,
+            Add(TriggerCategory.Condition, 153, VariableLessThanOrEqual,
                 "and variable % is less than or equal to #,");
 
             // (5:150) take variable % and add # to it.
-            Add(new Trigger(TriggerCategory.Effect, 150), AddToVariable,
+            Add(TriggerCategory.Effect, 150, AddToVariable,
                 "take variable % and add # to it.");
 
             // (5:151) take variable % and substract it by #.
-            Add(new Trigger(TriggerCategory.Effect, 151), SubtractFromVariable,
+            Add(TriggerCategory.Effect, 151, SubtractFromVariable,
                 "take variable % and subtract # from it.");
 
             // (5:152) take variable % and multiply it by #.
-            Add(new Trigger(TriggerCategory.Effect, 152), MultiplyByVariable,
+            Add(TriggerCategory.Effect, 152, MultiplyByVariable,
                 "take variable % and multiply it by #.");
 
             // (5:153) take variable % and divide it by #.
-            Add(new Trigger(TriggerCategory.Effect, 153), MultiplyByVariable,
+            Add(TriggerCategory.Effect, 153, MultiplyByVariable,
                 "take variable % and divide it by #.");
         }
 

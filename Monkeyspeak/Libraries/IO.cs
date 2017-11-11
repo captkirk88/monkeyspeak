@@ -20,35 +20,35 @@ namespace Monkeyspeak.Libraries
         public override void Initialize(params object[] args)
         {
             // (1:200) and the file {...} exists,
-            Add(new Trigger(TriggerCategory.Condition, 200), FileExists,
+            Add(TriggerCategory.Condition, 200, FileExists,
                 "and the file {...} exists,");
 
             // (1:201) and the file {...} does not exist,
-            Add(new Trigger(TriggerCategory.Condition, 201), FileNotExists,
+            Add(TriggerCategory.Condition, 201, FileNotExists,
                 "and the file {...} does not exist,");
 
             // (1:202) and the file {...} can be read from,
-            Add(new Trigger(TriggerCategory.Condition, 202), CanReadFile,
+            Add(TriggerCategory.Condition, 202, CanReadFile,
                 "and the file {...} can be read from,");
 
             // (1:203) and the file {...} can be written to,
-            Add(new Trigger(TriggerCategory.Condition, 203), CanWriteFile,
+            Add(TriggerCategory.Condition, 203, CanWriteFile,
                 "and the file {...} can be written to,");
 
             // (5:200) append {...} to file {...}.
-            Add(new Trigger(TriggerCategory.Effect, 200), AppendToFile,
+            Add(TriggerCategory.Effect, 200, AppendToFile,
                 "append {...} to file {...}.");
 
             // (5:201) read from file {...} and put it into variable %.
-            Add(new Trigger(TriggerCategory.Effect, 201), ReadFileIntoVariable,
+            Add(TriggerCategory.Effect, 201, ReadFileIntoVariable,
                 "read from file {...} and put it into variable %.");
 
             // (5:202) delete file {...}.
-            Add(new Trigger(TriggerCategory.Effect, 202), DeleteFile,
+            Add(TriggerCategory.Effect, 202, DeleteFile,
                 "delete file {...}.");
 
             //(5:203) create file {...}.
-            Add(new Trigger(TriggerCategory.Effect, 203), CreateFile,
+            Add(TriggerCategory.Effect, 203, CreateFile,
                 "create file {...}.");
         }
 

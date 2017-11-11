@@ -87,7 +87,11 @@ namespace Monkeyspeak
         /// <returns></returns>
         public async Task<Page> LoadFromStringAsync(string chunk)
         {
-            return await Task.Run(() => LoadFromString(chunk));
+            return await Task.Run(() => LoadFromString(chunk)).ContinueWith(task =>
+            {
+                if (task.Exception != null) throw task.Exception;
+                else return task.Result;
+            }, TaskContinuationOptions.ExecuteSynchronously);
         }
 
         /// <summary>
@@ -97,15 +101,10 @@ namespace Monkeyspeak
         /// <returns></returns>
         public Page LoadFromString(string chunk)
         {
+            if (string.IsNullOrWhiteSpace(chunk)) throw new NullReferenceException("chunk");
             try
             {
-                var stream = new MemoryStream();
-                using (var writer = new StreamWriter(stream, Encoding.UTF8, 1024, true))
-                {
-                    writer.Write(chunk);
-                    writer.Flush();
-                }
-                stream.Seek(0, SeekOrigin.Begin);
+                var stream = new MemoryStream(Encoding.UTF8.GetBytes(chunk));
                 using (var reader = new SStreamReader(stream, Encoding.UTF8))
                 {
                     Page page = new Page(this);
@@ -127,6 +126,7 @@ namespace Monkeyspeak
 
         public Page LoadFromFile(string filePath)
         {
+            if (!File.Exists(filePath)) throw new IOException($"{filePath} does not exist");
             using (var reader = new SStreamReader(filePath))
             {
                 Page page = new Page(this);
@@ -147,7 +147,10 @@ namespace Monkeyspeak
         /// <param name="existingPage"></param>
         public async Task LoadFromStringAsync(Page existingPage, string chunk)
         {
-            await Task.Run(() => LoadFromString(existingPage, chunk));
+            await Task.Run(() => LoadFromString(existingPage, chunk)).ContinueWith(task =>
+            {
+                if (task.Exception != null) throw task.Exception;
+            }, TaskContinuationOptions.ExecuteSynchronously);
         }
 
         /// <summary>
@@ -191,7 +194,11 @@ namespace Monkeyspeak
         /// <returns><see cref="Monkeyspeak.Page"/></returns>
         public async Task<Page> LoadFromStreamAsync(Stream stream)
         {
-            return await Task.Run(() => LoadFromStream(stream));
+            return await Task.Run(() => LoadFromStream(stream)).ContinueWith(task =>
+            {
+                if (task.Exception != null) throw task.Exception;
+                else return task.Result;
+            }, TaskContinuationOptions.ExecuteSynchronously);
         }
 
         /// <summary>
@@ -229,7 +236,10 @@ namespace Monkeyspeak
         /// <param name="existingPage"></param>
         public async Task LoadFromStreamAsync(Page existingPage, Stream stream)
         {
-            await Task.Run(() => LoadFromStream(existingPage, stream));
+            await Task.Run(() => LoadFromStream(existingPage, stream)).ContinueWith(task =>
+            {
+                if (task.Exception != null) throw task.Exception;
+            }, TaskContinuationOptions.ExecuteSynchronously);
         }
 
         /// <summary>
@@ -255,6 +265,57 @@ namespace Monkeyspeak
             {
                 Logger.Debug<MonkeyspeakEngine>(ex);
             }
+        }
+
+        /// <summary>
+        /// Does the string.
+        /// </summary>
+        /// <param name="filePath">The file path.</param>
+        /// <param name="triggerIds">The trigger ids.</param>
+        /// <param name="entryHandler">The entry handler.</param>
+        /// <param name="args">The arguments.</param>
+        /// <returns></returns>
+        public Page DoString(string filePath, int[] triggerIds, TriggerHandler entryHandler = null, params object[] args)
+        {
+            var page = LoadFromFile(filePath);
+            if (entryHandler != null) page.SetTriggerHandler(TriggerCategory.Cause, 0, entryHandler);
+            page.LoadAllLibraries();
+            page.Execute((triggerIds != null && triggerIds.Length > 0 ? triggerIds : new[] { 0 }), args);
+            return page;
+        }
+
+        /// <summary>
+        /// Does the stream.
+        /// </summary>
+        /// <param name="stream">The stream.</param>
+        /// <param name="triggerIds">The trigger ids.</param>
+        /// <param name="entryHandler">The entry handler.</param>
+        /// <param name="args">The arguments.</param>
+        /// <returns></returns>
+        public Page DoStream(Stream stream, int[] triggerIds, TriggerHandler entryHandler = null, params object[] args)
+        {
+            var page = LoadFromStream(stream);
+            if (entryHandler != null) page.SetTriggerHandler(TriggerCategory.Cause, 0, entryHandler);
+            page.LoadAllLibraries();
+            page.Execute((triggerIds != null && triggerIds.Length > 0 ? triggerIds : new[] { 0 }), args);
+            return page;
+        }
+
+        /// <summary>
+        /// Does the file.
+        /// </summary>
+        /// <param name="filePath">The file path.</param>
+        /// <param name="triggerIds">The trigger ids.</param>
+        /// <param name="entryHandler">The entry handler.</param>
+        /// <param name="args">The arguments.</param>
+        /// <returns></returns>
+        public Page DoFile(string filePath, int[] triggerIds, TriggerHandler entryHandler = null, params object[] args)
+        {
+            var page = LoadFromFile(filePath);
+            if (entryHandler != null) page.SetTriggerHandler(TriggerCategory.Cause, 0, entryHandler);
+            page.LoadAllLibraries();
+            page.Execute((triggerIds != null && triggerIds.Length > 0 ? triggerIds : new[] { 0 }), args);
+            return page;
         }
 
         /// <summary>
