@@ -88,7 +88,7 @@ namespace Monkeyspeak.Libraries
         {
             StringBuilder sb = new StringBuilder();
             if (!excludeLibraryName) sb.AppendLine(GetType().Name);
-            sb.Append(trigger);
+            sb.Append(trigger.ToString(true));
             if (descriptions.TryGetValue(trigger, out string value))
             {
                 sb.Append(' ').Append(!excludeDescriptions ? value : string.Empty);

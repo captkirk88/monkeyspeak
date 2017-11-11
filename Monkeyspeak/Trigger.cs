@@ -1,5 +1,5 @@
-﻿using Monkeyspeak.lexical;
-using Monkeyspeak.lexical.Expressions;
+﻿using Monkeyspeak.Lexical;
+using Monkeyspeak.Lexical.Expressions;
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
@@ -182,7 +182,7 @@ namespace Monkeyspeak
         /// <returns>
         /// A <see cref="string" /> that represents this instance.
         /// </returns>
-        public string ToString(bool includeSourcePos = false) => $"({(int)category}:{id}){(includeSourcePos ? SourcePosition.ToString() : string.Empty)}";
+        public string ToString(bool includeSourcePos = false) => $"({(int)category}:{id}) {(includeSourcePos ? SourcePosition.ToString() : string.Empty)}";
 
         /// <summary>
         /// Returns a <see cref="string" /> that represents this instance.

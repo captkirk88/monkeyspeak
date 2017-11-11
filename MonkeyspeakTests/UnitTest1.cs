@@ -539,7 +539,7 @@ namespace MonkeyspeakTests
         {
             MonkeyspeakEngine engine = new MonkeyspeakEngine();
             engine.Options.Debug = true;
-            Page page = engine.LoadFromString("");
+            Page page = engine.LoadFromString(testScript);
 
             page.Error += DebugAllErrors;
 
@@ -639,7 +639,7 @@ namespace MonkeyspeakTests
 
         private void DebugAllErrors(TriggerHandler handler, Monkeyspeak.Trigger trigger, Exception ex)
         {
-            Logger.Error($"{handler.Method.Name} in {trigger}\n{ex}");
+            Logger.Error($"{handler.Method.Name} in {trigger.ToString(true)}\n{ex}");
 #if DEBUG
             throw ex;
 #endif

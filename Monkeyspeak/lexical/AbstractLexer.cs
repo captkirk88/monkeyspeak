@@ -1,4 +1,4 @@
-﻿using Monkeyspeak.lexical;
+﻿using Monkeyspeak.Lexical;
 using System;
 using System.Collections.Generic;
 

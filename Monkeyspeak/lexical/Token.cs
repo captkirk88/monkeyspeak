@@ -1,4 +1,4 @@
-﻿using Monkeyspeak.lexical;
+﻿using Monkeyspeak.Lexical;
 using System.Linq;
 using System.Runtime.InteropServices;
 

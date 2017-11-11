@@ -1,4 +1,4 @@
-﻿namespace Monkeyspeak.lexical.Expressions
+﻿namespace Monkeyspeak.Lexical.Expressions
 {
     public sealed class NumberExpression : Expression<double>
     {

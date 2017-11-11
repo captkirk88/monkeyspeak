@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Monkeyspeak.lexical
+namespace Monkeyspeak.Lexical
 {
     public abstract class AbstractParser
     {

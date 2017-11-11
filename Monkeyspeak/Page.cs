@@ -1,5 +1,5 @@
 ﻿using Monkeyspeak.Extensions;
-using Monkeyspeak.lexical;
+using Monkeyspeak.Lexical;
 using Monkeyspeak.Libraries;
 using Monkeyspeak.Utils;
 using Monkeyspeak.Logging;

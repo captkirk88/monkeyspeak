@@ -1,6 +1,6 @@
 ﻿using Monkeyspeak.Extensions;
-using Monkeyspeak.lexical;
-using Monkeyspeak.lexical.Expressions;
+using Monkeyspeak.Lexical;
+using Monkeyspeak.Lexical.Expressions;
 using Monkeyspeak.Logging;
 using System;
 using System.Collections.Generic;

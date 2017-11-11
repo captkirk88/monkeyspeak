@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Monkeyspeak.lexical.Expressions
+namespace Monkeyspeak.Lexical.Expressions
 {
     public class Expression : IExpression, IComparable<Expression>, IEquatable<Expression>
     {
@@ -38,7 +38,7 @@ namespace Monkeyspeak.lexical.Expressions
 
         public override string ToString()
         {
-            return $"{Value} at {sourcePosition}";
+            return $"{Value} {sourcePosition}";
         }
 
         #endregion Object Overrides
@@ -73,7 +73,7 @@ namespace Monkeyspeak.lexical.Expressions
 
         public override string ToString()
         {
-            return $"{Value} at {Position}";
+            return $"{Value} {Position}";
         }
 
         #endregion Object Overrides

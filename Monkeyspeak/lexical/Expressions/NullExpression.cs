@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Monkeyspeak.lexical.Expressions
+namespace Monkeyspeak.Lexical.Expressions
 {
     public sealed class NullExpression : Expression<object>
     {

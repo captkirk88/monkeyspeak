@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Monkeyspeak.lexical.TokenDefinitions
+namespace Monkeyspeak.Lexical.TokenDefinitions
 {
     public interface ITokenDefinition
     {

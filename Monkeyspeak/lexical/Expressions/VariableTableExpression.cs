@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Monkeyspeak.lexical.Expressions
+namespace Monkeyspeak.Lexical.Expressions
 {
     public sealed class VariableTableExpression : VariableExpression
     {
@@ -15,5 +15,10 @@ namespace Monkeyspeak.lexical.Expressions
 
         public string Indexer { get; private set; }
         public bool HasIndex { get => string.IsNullOrWhiteSpace(Indexer); }
+
+        public override string ToString()
+        {
+            return $"{Value}{(HasIndex ? '[' + Indexer + ']' : string.Empty)} {Position}";
+        }
     }
 }

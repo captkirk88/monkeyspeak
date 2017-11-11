@@ -1,7 +1,7 @@
 ﻿#region Usings
 
 using Monkeyspeak.Extensions;
-using Monkeyspeak.lexical;
+using Monkeyspeak.Lexical;
 using System;
 using System.Collections.Generic;
 using System.Globalization;

@@ -1,5 +1,5 @@
-﻿using Monkeyspeak.lexical;
-using Monkeyspeak.lexical.Expressions;
+﻿using Monkeyspeak.Lexical;
+using Monkeyspeak.Lexical.Expressions;
 using Monkeyspeak.Logging;
 using System;
 using System.Collections.Generic;
@@ -9,7 +9,7 @@ namespace Monkeyspeak
     /// <summary>
     ///
     /// </summary>
-    /// <seealso cref="Monkeyspeak.lexical.AbstractParser" />
+    /// <seealso cref="Monkeyspeak.Lexical.AbstractParser" />
     public sealed class Parser : AbstractParser
     {
         public TokenVisitorHandler VisitToken;
@@ -83,18 +83,18 @@ namespace Monkeyspeak
                         break;
 
                     case TokenType.VARIABLE:
-                        if (currentTrigger == Trigger.Undefined) throw new MonkeyspeakException($"Trigger was null. \nPrevious trigger = {prevTrigger}\nToken = {token}");
+                        if (currentTrigger == Trigger.Undefined) throw new MonkeyspeakException($"Trigger was null. \nPrevious trigger = {prevTrigger.ToString(true)}\nToken = {token}");
                         expr = new VariableExpression(ref sourcePos, value);
                         break;
 
                     case TokenType.TABLE:
-                        if (currentTrigger == Trigger.Undefined) throw new MonkeyspeakException($"Trigger was null. \nPrevious trigger = {prevTrigger}\nToken = {token}");
+                        if (currentTrigger == Trigger.Undefined) throw new MonkeyspeakException($"Trigger was null. \nPrevious trigger = {prevTrigger.ToString(true)}\nToken = {token}");
                         expr = new VariableTableExpression(ref sourcePos, value.Substring(0, value.IndexOf('[')), value.Substring(value.IndexOf('[') + 1).TrimEnd(']'));
                         break;
 
                     case TokenType.STRING_LITERAL:
                         if (value.Length > Engine.Options.StringLengthLimit) throw new Exception("String length limit exceeded.");
-                        if (currentTrigger == Trigger.Undefined) throw new MonkeyspeakException($"Trigger was null. \nPrevious trigger = {prevTrigger}\nToken = {token}");
+                        if (currentTrigger == Trigger.Undefined) throw new MonkeyspeakException($"Trigger was null. \nPrevious trigger = {prevTrigger.ToString(true)}\nToken = {token}");
                         expr = new StringExpression(ref sourcePos, value);
                         break;
 
@@ -102,7 +102,7 @@ namespace Monkeyspeak
                         double val = double.Parse(value, System.Globalization.NumberStyles.AllowDecimalPoint
                             | System.Globalization.NumberStyles.AllowLeadingSign
                             | System.Globalization.NumberStyles.AllowExponent);
-                        if (currentTrigger == Trigger.Undefined) throw new MonkeyspeakException($"Trigger was null. \nPrevious trigger = {prevTrigger}\nToken = {token}");
+                        if (currentTrigger == Trigger.Undefined) throw new MonkeyspeakException($"Trigger was null. \nPrevious trigger = {prevTrigger.ToString(true)}\nToken = {token}");
                         expr = new NumberExpression(ref sourcePos, val);
                         break;
 

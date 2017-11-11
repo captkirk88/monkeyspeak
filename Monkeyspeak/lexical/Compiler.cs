@@ -1,4 +1,4 @@
-﻿using Monkeyspeak.lexical.Expressions;
+﻿using Monkeyspeak.Lexical.Expressions;
 using Monkeyspeak.Logging;
 using System;
 using System.Collections.Generic;
@@ -7,7 +7,7 @@ using System.IO.Compression;
 using System.Linq;
 using System.Text;
 
-namespace Monkeyspeak.lexical
+namespace Monkeyspeak.Lexical
 {
     internal class Compiler
     {

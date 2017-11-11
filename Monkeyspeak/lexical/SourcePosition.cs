@@ -1,6 +1,6 @@
 ﻿using System.Runtime.InteropServices;
 
-namespace Monkeyspeak.lexical
+namespace Monkeyspeak.Lexical
 {
     [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
     public struct SourcePosition
@@ -63,7 +63,7 @@ namespace Monkeyspeak.lexical
 
         public override string ToString()
         {
-            return $"Line {line}, Column {col}";
+            return $"at line {line}, col {col}";
         }
     }
 }

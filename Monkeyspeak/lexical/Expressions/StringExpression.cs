@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
-namespace Monkeyspeak.lexical.Expressions
+namespace Monkeyspeak.Lexical.Expressions
 {
     public sealed class StringExpression : Expression<string>
     {
