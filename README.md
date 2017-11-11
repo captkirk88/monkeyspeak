@@ -9,22 +9,22 @@ Monkeyspeak aims to give the end-user a very easy to use scripting language.
 ### Progress v7.0
 ```diff
 + [Triggers](wiki/Triggers.md) (the core construct of Monkeyspeak)
-  + Causes `(0:0) when something happens,`
-  + Conditions `(1:0) and it really did happen,`
-  + Effects `(5:0) do something about it.`
-  + Flow `(6:0) while it still is happening,`
-+ [Variables](wiki/Variables.md) `%myVariable or %myTable[myKey]`
-  + Double (with -+ and exponent support)
-  + Strings (Unicode)
-  + Tables (Dictionary objects with a configurable limit)
+    + Causes `(0:0) when something happens,
+    + Conditions `(1:0) and it really did happen,
+    + Effects `(5:0) do something about it.
+    + Flow `(6:0) while it still is happening,
++ [Variables](wiki/Variables.md) %myVariable or %myTable[myKey]
+    + Double (with -+ and exponent support)
+    + Strings (Unicode)
+    + Tables (Dictionary objects with a configurable limit)
 - [Core Library](wiki/Libraries.md)
-  ~ Sys (triggers that support core Monkeyspeak tasks like setting variables)
-  ~ Math (very basic math operations + - / *)
-  ~ StringOperations (very basic string operations)
-  ~ IO (basic file operations)
-  ~ Timers (basic timer support with optional delay)
-  ~ Tables (supports the for each trigger)
-  ~ Loops (supports while loop and possibly more in the future)
+    ~ Sys (triggers that support core Monkeyspeak tasks like setting variables)
+    ~ Math (very basic math operations + - / *)
+    ~ StringOperations (very basic string operations)
+    ~ IO (basic file operations)
+    ~ Timers (basic timer support with optional delay)
+    ~ Tables (supports the for each trigger)
+    ~ Loops (supports while loop and possibly more in the future)
 ```
 
 ### Basics
