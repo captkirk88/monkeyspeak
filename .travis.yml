@@ -27,7 +27,9 @@ script:
 
 
 before_deploy:
-    - export GIT_TAG=Monkeyspeak-Build-$TRAVIS_BUILD_NUMBER
+    - export MONTH=$(date +"%m")
+    - export DAY=$(date +"%d")
+    - export GIT_TAG=Monkeyspeak-Build-$MONTH-$DAY
     - git tag $GIT_TAG -m "Generated tag from TravisCI for build $TRAVIS_BUILD_NUMBER"
   
 deploy:
@@ -37,7 +39,7 @@ deploy:
   file_glob: true
   file: 
     - $TRAVIS_BUILD_DIR/Monkeyspeak/bin/Release/*.rar
-    - $TRAVIS_BUILD_DIR/msxc/bin/Release/*.exe
+    - $TRAVIS_BUILD_DIR/msxc/bin/Release/*.rar
   skip_cleanup: true
   on:
     repo: captkirk88/monkeyspeak
