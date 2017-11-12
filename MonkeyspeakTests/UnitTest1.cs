@@ -117,6 +117,19 @@ namespace MonkeyspeakTests
         (5:102) print {%i} to the console.
         (5:102) print {%i} to the console.
         (5:102) print {%i} to the console.
+
+(0:0) when the script is started,
+    (5:250) create a table as %mytable
+    (5:251) with table %mytable put 123 in it at key {123}.
+    (6:250) for each entry in table %mytable put it into %entry,
+        (5:102) print {%entry} to the console.
+        (5:102) print {%entry} to the console.
+        (5:102) print {%entry} to the console.
+        (5:102) print {%entry} to the console.
+    (6:450) while variable %myTable[123] is not 1234,
+        (5:150) take variable %myTable[123] and add 1 to it.
+    (6:454) after the loop is done,
+        (5:102) print {%mytable[123]} to the console.
 ";
 
         public static string tableScriptMini = @"
@@ -158,6 +171,8 @@ namespace MonkeyspeakTests
             {
                 var engine = new MonkeyspeakEngine();
                 engine.Options.Debug = true;
+
+                Logger.Info(tableScript);
                 Page page = engine.LoadFromString(tableScript); // replace with tableScriptMini to see results of that script
 
                 page.Error += DebugAllErrors;
@@ -266,7 +281,7 @@ namespace MonkeyspeakTests
                     {
                         // check trigger's out here.
                         StringBuilder sb = new StringBuilder();
-                        sb.Append(trigger);
+                        sb.Append(trigger.ToString(true));
                         foreach (var expr in trigger.Contents)
                         {
                             sb.Append(' ').Append(expr).Append(" (").Append(expr.GetType().Name).Append(") ");

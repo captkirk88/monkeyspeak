@@ -3,6 +3,7 @@ using Monkeyspeak.Lexical.Expressions;
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
+using System.Text;
 
 namespace Monkeyspeak
 {
@@ -182,7 +183,21 @@ namespace Monkeyspeak
         /// <returns>
         /// A <see cref="string" /> that represents this instance.
         /// </returns>
-        public string ToString(bool includeSourcePos = false) => $"({(int)category}:{id}) {(includeSourcePos ? SourcePosition.ToString() : string.Empty)}";
+        public string ToString(bool includeSourcePos = false, bool includeContents = false)
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.Append($"({(int)category}:{id}) {(includeSourcePos ? SourcePosition.ToString() : string.Empty)}");
+            if (includeContents)
+            {
+                sb.Append(' ');
+                for (int i = 0; i <= contents.Count - 1; i++)
+                {
+                    sb.Append(contents[i]);
+                    if (i != contents.Count) sb.Append(", ");
+                }
+            }
+            return sb.ToString();
+        }
 
         /// <summary>
         /// Returns a <see cref="string" /> that represents this instance.

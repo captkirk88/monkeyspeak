@@ -760,7 +760,7 @@ namespace Monkeyspeak
             {
                 bool canContinue = handler != null ? handler(reader) : false;
                 if (AfterTriggerHandled != null && !AfterTriggerHandled(current)) return;
-                Logger.Debug<Page>($"{GetTriggerDescription(current, true)} returned {canContinue}");
+                Logger.Debug<Page>($"{current.ToString(true, true)} returned {canContinue}");
                 if (reader.CurrentBlockIndex != index)
                 {
                     index = reader.CurrentBlockIndex;

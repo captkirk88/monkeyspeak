@@ -277,7 +277,7 @@ namespace Monkeyspeak
         /// <exception cref="TriggerReaderException"></exception>
         public IVariable ReadVariable(bool addIfNotExist = false)
         {
-            if (contents.Count == 0) throw new TriggerReaderException("Unexpected end of values");
+            if (contents == null || contents.Count == 0) throw new TriggerReaderException("Unexpected end of values");
             if (!(contents.Peek() is VariableExpression)) throw new TriggerReaderException($"Expected variable, got {contents.Peek().GetType().Name} at {contents.Peek().Position}");
             try
             {
@@ -293,12 +293,12 @@ namespace Monkeyspeak
                 {
                     ((VariableTable)var).ActiveIndexer = ((VariableTableExpression)expr).Indexer;
                 }
-                return var;
+                return var ?? Variable.NoValue;
             }
             catch (Exception ex)
             {
                 Logger.Error<TriggerReader>(ex);
-                throw new TriggerReaderException($"No value found at {lastPos}");
+                return Variable.NoValue;
             }
         }
 
@@ -348,7 +348,7 @@ namespace Monkeyspeak
                 catch (Exception ex)
                 {
                     Logger.Error<TriggerReader>(ex);
-                    throw new TriggerReaderException($"No value found at {lastPos}");
+                    return VariableTable.Empty;
                 }
             }
             else if (contents.Peek() is VariableTableExpression)
@@ -368,7 +368,8 @@ namespace Monkeyspeak
                 }
                 catch (Exception ex)
                 {
-                    throw new TriggerReaderException($"No value found at {lastPos}");
+                    Logger.Error<TriggerReader>(ex);
+                    return VariableTable.Empty;
                 }
             }
             else throw new TriggerReaderException($"Expected variable table, got {contents.Peek().GetType().Name} at {contents.Peek().Position}");

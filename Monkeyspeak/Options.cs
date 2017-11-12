@@ -112,13 +112,8 @@ namespace Monkeyspeak
         /// </value>
         public bool Debug
         {
-#if DEBUG
             get => Logger.DebugEnabled;
             set => Logger.DebugEnabled = value;
-#else
-            get => false;
-            set { }
-#endif
         }
     }
 }
