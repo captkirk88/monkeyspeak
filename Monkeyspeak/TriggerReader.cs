@@ -287,7 +287,10 @@ namespace Monkeyspeak
                 var varRef = expr.Value;
                 if (!page.HasVariable(varRef, out var))
                     if (addIfNotExist)
-                        var = page.SetVariable(varRef, null, false);
+                        if (expr is VariableTableExpression)
+                            var = page.SetVariableTable(varRef, false);
+                        else
+                            var = page.SetVariable(varRef, null, false);
 
                 if (expr is VariableTableExpression)
                 {
@@ -343,7 +346,7 @@ namespace Monkeyspeak
                             var = page.SetVariableTable(varRef, false);
                             return var as VariableTable;
                         }
-                    return var is VariableTable ? (VariableTable)var : VariableTable.Empty;
+                    return var.ConvertToTable(page);
                 }
                 catch (Exception ex)
                 {

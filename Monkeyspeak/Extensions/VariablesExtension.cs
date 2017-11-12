@@ -10,9 +10,10 @@ namespace Monkeyspeak.Extensions
     {
         public static VariableTable ConvertToTable(this IVariable var, Page page)
         {
+            if (var is VariableTable) return (VariableTable)var;
             page.RemoveVariable(var);
             var table = page.SetVariableTable(var.Name, var.IsConstant);
-            table.Add("value", var.Value);
+            table.Value = var.Value;
             return table;
         }
     }

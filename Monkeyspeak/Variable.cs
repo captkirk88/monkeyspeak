@@ -310,6 +310,9 @@ namespace Monkeyspeak
 
                 if (value != null && IsConstant)
                     throw new VariableIsConstantException($"Attempt to assign a value to constant '{Name}'");
+
+                if (string.IsNullOrWhiteSpace(ActiveIndexer))
+                    ActiveIndexer = "value";
                 if (value is IVariable)
                     this[ActiveIndexer] = (value as IVariable).Value;
                 else
