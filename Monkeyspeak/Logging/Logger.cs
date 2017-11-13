@@ -259,11 +259,17 @@ namespace Monkeyspeak.Logging
             set
             {
                 singleThreaded = value;
-                if (singleThreaded) cancelToken.Cancel();
+                if (singleThreaded) cancelToken.Cancel(false);
                 else
                 {
-                    if (logTask.Status == TaskStatus.Running)
+                    if (logTask.Status == TaskStatus.Running ||
+                        logTask.Status == TaskStatus.WaitingForActivation ||
+                        logTask.Status == TaskStatus.WaitingToRun ||
+                        !logTask.IsCompleted)
+                    {
+                        logTask.Wait();
                         return;
+                    }
                     logTask.Start();
                 }
             }
