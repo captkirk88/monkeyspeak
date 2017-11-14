@@ -27,8 +27,8 @@ script:
 
 
 before_deploy:
-    - export DATE=$(date + "%m-%H-%M")
-    - export GIT_TAG=Monkeyspeak-$DATE
+    - export DATE=$(date -u "+%Y-%H-%M-%S")
+    - export GIT_TAG=$TRAVIS_BRANCH-$DATE
     - git tag $GIT_TAG -a -m "Generated tag from TravisCI for build $TRAVIS_BUILD_NUMBER"
   
 deploy:
