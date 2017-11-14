@@ -267,7 +267,11 @@ namespace Monkeyspeak.Logging
                         logTask.Status == TaskStatus.WaitingToRun ||
                         !logTask.IsCompleted)
                     {
-                        logTask.Wait();
+                        try
+                        {
+                            logTask.Wait(100);
+                        }
+                        catch { /* fuck me */ }
                         return;
                     }
                     logTask.Start();
