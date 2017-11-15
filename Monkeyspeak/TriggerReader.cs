@@ -157,7 +157,7 @@ namespace Monkeyspeak
         /// <param name="index">The index.</param>
         /// <param name="value">The value.</param>
         /// <returns><c>true</c> on success; <c>false</c> otherwise</returns>
-        public bool TryGetParameter<T>(int index, out T value) where T : struct
+        public bool TryGetParameter<T>(int index, out T value)
         {
             if (args != null && args.Length > index)
             {
@@ -174,7 +174,7 @@ namespace Monkeyspeak
         /// <typeparam name="T"></typeparam>
         /// <param name="index">The index.</param>
         /// <returns></returns>
-        public T GetParameter<T>(int index = 0) where T : struct
+        public T GetParameter<T>(int index = 0)
         {
             if (args != null && args.Length > index)
                 return (T)args[index];
