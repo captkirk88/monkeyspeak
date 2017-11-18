@@ -152,6 +152,10 @@ namespace Monkeyspeak
 
         /// <summary>
         /// Tries the get the parameter at the specified index.
+        ///
+        /// <para>
+        /// See also <seealso cref="GetParameter{T}(int)"/>
+        /// </para>
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="index">The index.</param>
@@ -170,6 +174,10 @@ namespace Monkeyspeak
 
         /// <summary>
         /// Gets the parameter.
+        ///
+        /// <para>
+        /// See also <seealso cref="TryGetParameter{T}(int, out T)"/>
+        /// </para>
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="index">The index.</param>
@@ -179,6 +187,38 @@ namespace Monkeyspeak
             if (args != null && args.Length > index)
                 return (T)args[index];
             return default(T);
+        }
+
+        /// <summary>
+        /// Gets the parameters of a certain type.
+        ///
+        /// <para>
+        /// See also <seealso cref="TryGetParameter{T}(int, out T)"/>
+        /// </para>
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public T[] GetParametersOfType<T>()
+        {
+            if (args != null && args.Length > 0)
+                return args.OfType<T>().ToArray();
+            return new T[0];
+        }
+
+        /// <summary>
+        /// Gets the parameters of a certain type.
+        ///
+        /// <para>
+        /// See also <seealso cref="TryGetParameter{T}(int, out T)"/>
+        /// </para>
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public IEnumerable<object> EnumerateParameters()
+        {
+            if (args != null && args.Length > 0)
+                return args.AsEnumerable();
+            return Enumerable.Empty<object>();
         }
 
         /// <summary>
