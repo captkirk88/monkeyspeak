@@ -4,6 +4,8 @@ Linux/Mono | Windows
 ------------ | ---------
 [![Build Status](https://travis-ci.org/captkirk88/monkeyspeak.svg?branch=master)](https://travis-ci.org/captkirk88/monkeyspeak) | <--- Passes
 
+[![Waffle.io](https://badge.waffle.io/captkirk88/monkeyspeak.svg?columns=inbox,In%20Progress&style=plastic)](https://waffle.io/captkirk88/monkeyspeak) 
+
 Monkeyspeak aims to give the end-user a very easy to use scripting language.  
 
 ### Progress v7.0
