@@ -5,13 +5,20 @@ namespace Monkeyspeak.Libraries
 {
     public class IO : BaseLibrary
     {
-        private string DefaultAuthorizedPath = System.Environment.GetFolderPath(System.Environment.SpecialFolder.Personal);
+        private string DefaultAuthorizedPath;
 
-        public IO() : this(null)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="IO"/> class.
+        /// </summary>
+        public IO() : this(System.Environment.GetFolderPath(System.Environment.SpecialFolder.Personal))
         {
             // satisfies the page.LoadAllLibraries reflection usage.
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="IO"/> class.
+        /// </summary>
+        /// <param name="authorizedPath">The authorized path.</param>
         public IO(string authorizedPath = null)
         {
             if (!string.IsNullOrEmpty(authorizedPath)) DefaultAuthorizedPath = authorizedPath;

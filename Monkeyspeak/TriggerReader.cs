@@ -63,7 +63,7 @@ namespace Monkeyspeak
                 this.currentBlock = new TriggerBlock(currentBlock);
         }
 
-        public bool HasMore { get => contents.Count > 0; }
+        public bool HasMore { get => contents != null && contents.Count > 0; }
 
         /// <summary>
         /// Gets the trigger.

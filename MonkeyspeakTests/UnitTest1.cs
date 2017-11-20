@@ -281,11 +281,7 @@ namespace MonkeyspeakTests
                     {
                         // check trigger's out here.
                         StringBuilder sb = new StringBuilder();
-                        sb.Append(trigger.ToString(true));
-                        foreach (var expr in trigger.Contents)
-                        {
-                            sb.Append(' ').Append(expr).Append(" (").Append(expr.GetType().Name).Append(") ");
-                        }
+                        sb.Append(trigger.ToString(true, true));
                         Logger.Info(sb.ToString());
                     }
                 }
@@ -509,44 +505,6 @@ namespace MonkeyspeakTests
             {
                 Logger.Debug(v);
             }
-        }
-
-        [TestMethod]
-        public void ErrorTriggerTest()
-        {
-            var errorTestScript = @"
-(0:0) when the script starts,
-        (5:1000) test print {...}
-		(5:102) print {This is a test of the error system} to the console
-		(5:105) raise an error {Optional message would go here!}
-        (5:105) raise an error * this works too!
-		(5:102) print {This will NOT be displayed because an error was raised} to the console
-
-(0:0) when the script is started,
-    * Uncommented version
-    /* block comment
-    (1:104) and variable %hello equals {this will be false move on to next condition}
-		(5:100) set %hello to {Hello World}
-        (5:102) print {First condition failed!} to the console
-    */
-    (1:104) and variable %hello equals {Hello World}
-        (5:102) print {Second condition win!} to the console
-        (5:101) set %helloNum to 5
-        (5:102) print {hello = %hello helloNum = %helloNum} to the console
-
-";
-            var engine = new MonkeyspeakEngine();
-            Page page = engine.LoadFromString(errorTestScript);
-
-            page.Error += DebugAllErrors;
-
-            page.LoadAllLibraries();
-            page.RemoveLibrary<Monkeyspeak.Libraries.Debug>();
-
-            page.SetTriggerHandler(TriggerCategory.Cause, 0, HandleScriptStartCause);
-
-            for (int i = 0; i <= 5; i++)
-                page.Execute(0);
         }
 
         [TestMethod]

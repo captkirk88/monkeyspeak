@@ -2,6 +2,7 @@
 using Monkeyspeak.Lexical.Expressions;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 
@@ -178,22 +179,49 @@ namespace Monkeyspeak
         }
 
         /// <summary>
-        /// Returns a <see cref="string" /> that represents this instance.
+        /// Returns a <see cref="System.String" /> that represents this instance.
         /// </summary>
+        /// <param name="includeSourcePos">if set to <c>true</c> [include source position].</param>
+        /// <param name="includeContents">if set to <c>true</c> [include contents].</param>
+        /// <param name="page">The page.</param>
         /// <returns>
-        /// A <see cref="string" /> that represents this instance.
+        /// A <see cref="System.String" /> that represents this instance.
         /// </returns>
-        public string ToString(bool includeSourcePos = false, bool includeContents = false)
+        public string ToString(bool includeSourcePos = false, bool includeContents = false, Page page = null)
         {
             StringBuilder sb = new StringBuilder();
             sb.Append($"({(int)category}:{id}) {(includeSourcePos ? SourcePosition.ToString() : string.Empty)}");
             if (includeContents)
             {
-                sb.Append(' ');
-                for (int i = 0; i <= contents.Count - 1; i++)
+                if (page != null)
                 {
-                    sb.Append(contents[i]);
-                    if (i != contents.Count) sb.Append(", ");
+                    var block = new TriggerBlock();
+                    block.Add(this);
+                    TriggerReader reader = new TriggerReader(page, block)
+                    {
+                        Trigger = this
+                    };
+                    var values = reader.ReadValues().ToArray();
+                    for (int i = 0; i <= values.Length - 1; i++)
+                    {
+                        sb.Append(' ').Append(values[i]);
+#if DEBUG
+                        sb.Append($"({values[i].GetType().Name})");
+#endif
+                        if (i != values.Length - 1) sb.Append(", ");
+                    }
+                }
+                else
+                {
+                    sb.Append(' ');
+                    for (int i = 0; i <= contents.Count - 1; i++)
+                    {
+                        sb.Append(contents[i]);
+#if DEBUG
+                        sb.Append($"({contents[i].GetType().Name})");
+#endif
+                        if (i != contents.Count - 1) sb.Append(", ");
+                    }
                 }
             }
             return sb.ToString();
