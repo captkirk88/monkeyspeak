@@ -384,7 +384,7 @@ namespace Monkeyspeak
                         if (addIfNotExist)
                         {
                             var = page.SetVariableTable(varRef, false);
-                            return var as VariableTable;
+                            return var as VariableTable ?? VariableTable.Empty;
                         }
                     return var.ConvertToTable(page);
                 }
@@ -407,7 +407,7 @@ namespace Monkeyspeak
                             var = page.SetVariableTable(varRef, false);
 
                     if (var is VariableTable && expr.HasIndex) ((VariableTable)var).ActiveIndexer = expr.Indexer;
-                    return var as VariableTable;
+                    return var as VariableTable ?? VariableTable.Empty;
                 }
                 catch (Exception ex)
                 {
