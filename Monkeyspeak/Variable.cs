@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Text;
 using System.Linq;
+using System.Collections;
 
 namespace Monkeyspeak
 {
@@ -273,7 +274,7 @@ namespace Monkeyspeak
 
     [Serializable]
     [CLSCompliant(false)]
-    public sealed class VariableTable : IVariable
+    public sealed class VariableTable : IVariable, IDictionary<string, object>
     {
         public static VariableTable Empty = new VariableTable("null", true, 0);
 
@@ -356,10 +357,13 @@ namespace Monkeyspeak
 
         public bool IsConstant { get; private set; }
 
-        public IReadOnlyDictionary<string, object> Contents
-        {
-            get => new ReadOnlyDictionary<string, object>(values);
-        }
+        public ICollection<string> Keys => values.Keys;
+
+        public ICollection<object> Values => values.Values;
+
+        bool ICollection<KeyValuePair<string, object>>.IsReadOnly => ((IDictionary<string, object>)values).IsReadOnly;
+
+        object IDictionary<string, object>.this[string key] { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
         public VariableTable(string name, bool isConstant = false, int limit = 100)
         {
@@ -451,6 +455,51 @@ namespace Monkeyspeak
         public void Clear()
         {
             values.Clear();
+        }
+
+        public bool ContainsKey(string key)
+        {
+            return values.ContainsKey(key);
+        }
+
+        public bool Remove(string key)
+        {
+            return values.Remove(key);
+        }
+
+        public bool TryGetValue(string key, out object value)
+        {
+            return values.TryGetValue(key, out value);
+        }
+
+        public void Add(KeyValuePair<string, object> item)
+        {
+            Add(item.Key, item.Value);
+        }
+
+        public bool Contains(KeyValuePair<string, object> item)
+        {
+            return values.Contains(item);
+        }
+
+        public void CopyTo(KeyValuePair<string, object>[] array, int arrayIndex)
+        {
+            ((IDictionary<string, object>)values).CopyTo(array, arrayIndex);
+        }
+
+        public bool Remove(KeyValuePair<string, object> item)
+        {
+            return values.Remove(item.Key);
+        }
+
+        public IEnumerator<KeyValuePair<string, object>> GetEnumerator()
+        {
+            return values.GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return values.GetEnumerator();
         }
     }
 }
