@@ -27,9 +27,8 @@ script:
 
 
 before_deploy:
-    - export DATE=$(date "+%j-%M")
- #   - export GIT_TAG=$TRAVIS_BRANCH-$DATE
- #   - git tag $GIT_TAG -m "Generated tag from TravisCI for build $TRAVIS_BUILD_NUMBER"
+    - export GIT_TAG="$TRAVIS_BRANCH-$TRAVIS_COMMIT"
+    - git tag $GIT_TAG -m "Generated tag from TravisCI for build $TRAVIS_COMMIT"
   
 deploy:
   provider: releases
