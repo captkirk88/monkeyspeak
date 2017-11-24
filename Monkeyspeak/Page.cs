@@ -145,12 +145,14 @@ namespace Monkeyspeak
             {
                 var blocksArray = blocks.ToArray();
                 for (int i = blocksArray.Length - 1; i >= 0; i--)
+                {
                     Size += blocksArray[i].Count;
+                    if (Size > engine.Options.TriggerLimit)
+                    {
+                        throw new MonkeyspeakException("Trigger limit exceeded.");
+                    }
+                }
                 triggerBlocks.AddRange(blocksArray);
-            }
-            if (Size > engine.Options.TriggerLimit)
-            {
-                throw new MonkeyspeakException("Trigger limit exceeded.");
             }
         }
 
@@ -218,7 +220,10 @@ namespace Monkeyspeak
         {
             try
             {
-                CompileToStream(new FileStream(filePath, FileMode.Create, FileAccess.Write, FileShare.Read));
+                using (var fileStream = new FileStream(filePath, FileMode.Create, FileAccess.Write, FileShare.None))
+                {
+                    CompileToStream(fileStream);
+                }
             }
             catch (IOException ioex)
             {

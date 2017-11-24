@@ -64,11 +64,11 @@ namespace Monkeyspeak
         {
             get
             {
-                // DO NOT MODIFY ORIGINAL AUTHOR, YOU MAY ADD ADDITIONAL AUTHORS.
+                // DO NOT MODIFY ORIGINAL AUTHOR, YOU MAY ADD ADD CONTRIBUTORS.
                 StringBuilder sb = new StringBuilder();
                 sb.Append("Monkeyspeak").Append(' ').Append(options.Version.ToString(4)).Append(Environment.NewLine);
                 sb.AppendLine("Author: Kirk");
-                //sb.AppendLine("Author: You");
+                //sb.AppendLine("Contributor: You");
                 sb.Append(".NET Framework ").Append(Assembly.GetAssembly(typeof(MonkeyspeakEngine)).ImageRuntimeVersion.ToString());
                 return sb.ToString();
             }
@@ -164,13 +164,7 @@ namespace Monkeyspeak
         {
             try
             {
-                var stream = new MemoryStream();
-                using (var writer = new StreamWriter(stream, Encoding.UTF8, 1024, true))
-                {
-                    writer.Write(chunk);
-                    writer.Flush();
-                }
-                stream.Seek(0, SeekOrigin.Begin);
+                var stream = new MemoryStream(Encoding.UTF8.GetBytes(chunk));
                 using (var reader = new SStreamReader(stream, Encoding.UTF8))
                 {
                     using (var lexer = new Lexer(this, reader))
@@ -268,16 +262,16 @@ namespace Monkeyspeak
         }
 
         /// <summary>
-        /// Does the string.
+        /// Loads and executes the script.
         /// </summary>
-        /// <param name="filePath">The file path.</param>
+        /// <param name="chunk">The script code.</param>
         /// <param name="triggerIds">The trigger ids.</param>
         /// <param name="entryHandler">The entry handler.</param>
         /// <param name="args">The arguments.</param>
         /// <returns></returns>
-        public Page DoString(string filePath, int[] triggerIds, TriggerHandler entryHandler = null, params object[] args)
+        public Page DoString(string chunk, int[] triggerIds, TriggerHandler entryHandler = null, params object[] args)
         {
-            var page = LoadFromFile(filePath);
+            var page = LoadFromString(chunk);
             if (entryHandler != null) page.SetTriggerHandler(TriggerCategory.Cause, 0, entryHandler);
             page.LoadAllLibraries();
             page.Execute((triggerIds != null && triggerIds.Length > 0 ? triggerIds : new[] { 0 }), args);
@@ -285,7 +279,7 @@ namespace Monkeyspeak
         }
 
         /// <summary>
-        /// Does the stream.
+        /// Loads and executes the script.
         /// </summary>
         /// <param name="stream">The stream.</param>
         /// <param name="triggerIds">The trigger ids.</param>
@@ -302,7 +296,7 @@ namespace Monkeyspeak
         }
 
         /// <summary>
-        /// Does the file.
+        /// Loads and executes the script.
         /// </summary>
         /// <param name="filePath">The file path.</param>
         /// <param name="triggerIds">The trigger ids.</param>
@@ -327,7 +321,7 @@ namespace Monkeyspeak
         {
             try
             {
-                using (Stream stream = new FileStream(filePath, FileMode.Open))
+                using (Stream stream = new FileStream(filePath, FileMode.Open, FileAccess.Read))
                 {
                     return LoadCompiledStream(stream);
                 }
@@ -358,26 +352,6 @@ namespace Monkeyspeak
                 Logger.Debug<MonkeyspeakEngine>(ex);
             }
             return new Page(this);
-        }
-
-        /// <summary>
-        /// Compiles a Page to a file
-        /// </summary>
-        /// <param name="page"></param>
-        /// <param name="filePath"></param>
-        public void CompileToFile(Page page, string filePath)
-        {
-            page.CompileToFile(filePath);
-        }
-
-        /// <summary>
-        /// Compiles a Page to a stream
-        /// </summary>
-        /// <param name="page"></param>
-        /// <param name="stream"></param>
-        public void CompileToStream(Page page, Stream stream)
-        {
-            page.CompileToStream(stream);
         }
     }
 }

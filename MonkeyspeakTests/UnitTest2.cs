@@ -59,9 +59,10 @@ namespace MonkeyspeakTests
         [TestMethod]
         public void TestCompileToFile()
         {
+            Logger.SingleThreaded = true;
             var engine = new MonkeyspeakEngine
             {
-                Options = { TriggerLimit = int.MaxValue }
+                Options = { TriggerLimit = int.MaxValue, Debug = false }
             };
 
             var sb = new StringBuilder(testScript);
@@ -73,25 +74,32 @@ namespace MonkeyspeakTests
             }*/
             Stopwatch watch = Stopwatch.StartNew();
             var oldPage = engine.LoadFromString(sb.ToString());
+
             oldPage.SetTriggerHandler(TriggerCategory.Cause, 0, UnitTest1.HandleScriptStartCause);
+
             watch.Stop();
             Console.WriteLine($"Loaded in {watch.ElapsedMilliseconds} ms");
             Console.WriteLine($"Page Trigger Count: {oldPage.Size}");
             watch.Restart();
+
             oldPage.CompileToFile(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), "test.msx"));
+
             watch.Stop();
             Console.WriteLine($"Compiled in {watch.ElapsedMilliseconds} ms");
             watch.Restart();
+
             var page = engine.LoadCompiledFile(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), "test.msx"));
-            page.SetTriggerHandler(TriggerCategory.Cause, 0, UnitTest1.HandleScriptStartCause);
+
             watch.Stop();
             Console.WriteLine($"Loaded compiled in {watch.ElapsedMilliseconds} ms");
+
             page.LoadAllLibraries();
             page.RemoveLibrary<Monkeyspeak.Libraries.Debug>();
-
+            page.SetTriggerHandler(TriggerCategory.Cause, 0, UnitTest1.HandleScriptStartCause);
             Console.WriteLine("Page Trigger Count: " + page.Size);
-            page.Execute(0);
+            page.Execute();
             page.Dispose();
+            oldPage.Dispose();
         }
 
         [TestMethod]

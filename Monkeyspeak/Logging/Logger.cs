@@ -162,7 +162,7 @@ namespace Monkeyspeak.Logging
 #else
             _debugEnabled = false; // can be set via property
 #endif
-            singleThreaded = false;
+            singleThreaded = true;
 
             Initialize();
         }
@@ -182,7 +182,6 @@ namespace Monkeyspeak.Logging
                     }
                 }
             }, cancelToken.Token, TaskCreationOptions.LongRunning);
-            logTask.Start();
         }
 
         public static bool InfoEnabled

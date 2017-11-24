@@ -26,57 +26,15 @@ namespace Monkeyspeak.Lexical
             get { return version; }
         }
 
-        private IEnumerable<TriggerBlock> ReadVersion6_5(BinaryReader reader)
+        private TriggerBlock[] ReadVersion7_0(BinaryReader reader)
         {
             var sourcePos = new SourcePosition();
 
-            int triggerListCount = reader.ReadInt32();
-            for (int i = 0; i <= triggerListCount - 1; i++)
-            {
-                var triggerList = new TriggerBlock();
-                int triggerCount = reader.ReadInt32();
-                for (int j = 0; j <= triggerCount - 1; j++)
-                {
-                    var trigger = new Trigger((TriggerCategory)reader.ReadInt32(), reader.ReadInt32(), sourcePos);
-
-                    int triggerContentCount = reader.ReadInt32();
-                    if (triggerContentCount > 0)
-                        for (int k = triggerContentCount - 1; k >= 0; k--)
-                        {
-                            byte type = reader.ReadByte();
-                            switch (type)
-                            {
-                                case 1:
-                                    trigger.contents.Add(new StringExpression(ref sourcePos, reader.ReadString()));
-                                    break;
-
-                                case 2:
-                                    trigger.contents.Add(new NumberExpression(ref sourcePos, reader.ReadDouble()));
-                                    break;
-
-                                case 3:
-                                    trigger.contents.Add(new VariableExpression(ref sourcePos, reader.ReadString()));
-                                    break;
-
-                                case 4: // reserved
-                                    break;
-                            }
-                        }
-                    triggerList.Add(trigger);
-                }
-                yield return triggerList;
-            }
-        }
-
-        private IEnumerable<TriggerBlock> ReadVersion7_0(BinaryReader reader)
-        {
-            var sourcePos = new SourcePosition();
-
-            int triggerListCount = reader.ReadInt32();
-            for (int i = 0; i <= triggerListCount - 1; i++)
+            TriggerBlock[] blocks = new TriggerBlock[reader.ReadInt32()];
+            for (int i = 0; i <= blocks.Length - 1; i++)
             {
                 int triggerCount = reader.ReadInt32();
-                var triggerList = new TriggerBlock(reader.ReadInt32());
+                var triggerList = new TriggerBlock(triggerCount);
                 for (int j = 0; j <= triggerCount - 1; j++)
                 {
                     var trigger = new Trigger((TriggerCategory)reader.ReadInt32(), reader.ReadInt32(), sourcePos);
@@ -107,19 +65,21 @@ namespace Monkeyspeak.Lexical
                                 default: // for all reserved bytes
                                     break;
                             }
-                            sourcePos = new SourcePosition(sourcePos.Line + 1, sourcePos.Column, sourcePos.RawPosition);
+                            // TODO use above reader.ReadString methods to increase the column size to a better estimated actual column index
+                            sourcePos = new SourcePosition(sourcePos.Line, sourcePos.Column + 1, sourcePos.RawPosition);
                         }
                     triggerList.Add(trigger);
                 }
-                yield return triggerList;
+                blocks[i] = triggerList;
             }
+            return blocks;
         }
 
         public TriggerBlock[] DecompileFromStream(Stream stream)
         {
             TriggerBlock[] blocks = null;
-            using (var decompressed = new DeflateStream(stream, CompressionMode.Decompress))
-            using (var reader = new BinaryReader(decompressed, Encoding.UTF8, true))
+            //using (var decompressed = new DeflateStream(stream, CompressionMode.Decompress))
+            using (var reader = new BinaryReader(stream))
             {
                 var fileVersion = new Version(reader.ReadInt32(), reader.ReadInt32()); // use for versioning comparison
                 switch (fileVersion.Major)
@@ -128,12 +88,9 @@ namespace Monkeyspeak.Lexical
                         throw new MonkeyspeakException("Version 1 is a incompatible version.");
 
                     case 6:
-                        blocks = ReadVersion6_5(reader).ToArray();
-                        break;
-
                     case 7:
                     default:
-                        blocks = ReadVersion7_0(reader).ToArray();
+                        blocks = ReadVersion7_0(reader);
                         break;
                 }
             }
@@ -142,8 +99,8 @@ namespace Monkeyspeak.Lexical
 
         public void CompileToStream(List<TriggerBlock> triggerBlocks, Stream stream)
         {
-            using (var compressed = new DeflateStream(stream, CompressionMode.Compress))
-            using (var writer = new BinaryWriter(compressed, Encoding.UTF8, true))
+            //using (var compressed = new DeflateStream(stream, CompressionMode.Compress))
+            using (var writer = new BinaryWriter(stream))
             {
                 writer.Write(version.Major);
                 writer.Write(version.Minor);
@@ -189,6 +146,7 @@ namespace Monkeyspeak.Lexical
                             else writer.Write((byte)5); // reserved
                         }
                     }
+                    writer.Flush();
                 }
             }
         }
