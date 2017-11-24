@@ -170,7 +170,7 @@ namespace MonkeyspeakTests
             for (int i = 0; i < 1; i++)
             {
                 var engine = new MonkeyspeakEngine();
-                engine.Options.Debug = true;
+                engine.Options.Debug = false;
 
                 Logger.Info(tableScript);
                 Page page = engine.LoadFromString(tableScript); // replace with tableScriptMini to see results of that script
