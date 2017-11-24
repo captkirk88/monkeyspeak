@@ -1,8 +1,61 @@
 ### Libraries
 
 #### Break Down
-Monkeyspeak has a lot of existing Trigges to play with.  See below for a list.
+Monkeyspeak has a lot of existing Triggers to play with.  Basic libraries are already 
+provided, such as Sys, Math, Timers, Tables, StringOperations.  If you want to add your own it 
+is very very simple.  First, you would create a class, then you would inherit BaseLibrary 
+(advanced form is AutoIncrementBaseLibrary that creates the Trigger IDs for you).
 
+```csharp
+    public class MyLibrary : BaseLibrary
+    {
+        public override void Initialize(params object[] args)
+        {
+            // add trigger handlers here
+            Add(TriggerCategory.Cause, 0, EntryPointForScript,
+                "(0:0) entering script here,");
+            Add(TriggerCategory.Effect, 0, FirstHandlerThatPrints,
+                "(5:0) hello!");
+
+            Add(TriggerCategory.Effect, 1, SecondHandlerTakesAString,
+                "(5:1) write {...}.");
+        }
+
+        private bool EntryPointForScript(TriggerReader reader)
+        {
+            return true; // return false stops execution of any triggers below the one that called this method
+        }
+
+        public bool FirstHandlerThatPrints(TriggerReader reader)
+        {
+            Console.WriteLine("Hello!");
+            return true; // return false stops execution of any triggers below the one that called this method
+        }
+
+        public bool SecondHandlerTakesAString(TriggerReader reader)
+        {
+            Console.WriteLine(reader.ReadString());
+            return true; // return false stops execution of any triggers below the one that called this method
+        }
+
+        public override void Unload(Page page)
+        {
+            // this is called by page.Dispose() which is not called automatically
+            // remove any unmanaged and disposable resources here or just due a ending action
+        }
+    }
+```
+Then add it to your page by calling `page.LoadLibrary(new MyLibrary())`, or if you want to load all libraries call `page.LoadAllLibraries()`.
+
+To remove it call.
+```csharp
+page.RemoveLibrary<MyLibrary>();
+// or the non-generic
+page.RemoveLibrary(typeof(MyLibrary));
+```
+
+
+#### Current Default Triggers
 ```
 Loops
 (5:450) exit the current loop.
@@ -13,10 +66,13 @@ Loops
 (6:454) after the loop is done,
 
 Tables
+(1:250) and variable % is a table,
+(1:251) and variable % is not a table,
 (5:250) create a table as %.
 (5:251) with table % put # in it at key {...}.
 (5:252) with table % put {...} in it at key {...}.
 (5:253) with table % get key {...} put it in into variable %.
+(5:254) with table % remove all entries in it.
 (6:250) for each entry in table % put it into %,
 
 Debug
@@ -50,7 +106,7 @@ StringOperations
 (5:403) with {...} get index of {...} and set it to variable %.
 
 Sys
-(0:100) when job # is called,
+(0:100) when job # is called put arguments into table % (optional),
 (1:100) and variable % is defined,
 (1:101) and variable % is not defined,
 (1:102) and variable % equals #,
@@ -61,12 +117,12 @@ Sys
 (1:107) and variable % is not constant,
 (5:100) set variable % to {...}.
 (5:101) set variable % to #.
-(5:102) print {...} to the console.
+(5:102) print {...} to the log.
 (5:103) get the environment variable named {...} and put it into %, (ex: PATH)
 (5:104) create random number and put it into variable %.
 (5:107) delete variable %.
 (5:110) load library from file {...}. (example Monkeyspeak.dll)
-(5:115) call job #.
+(5:115) call job # with (add strings, variables, numbers here) arguments.
 
 Timers
 (0:300) when timer # goes off,
@@ -83,6 +139,7 @@ Timers
 (5:308) get the current day of the month and put it into variable %.
 (5:309) get the current month and put it into variable %.
 (5:310) get the current year and put it into variable %.
+(5:311) start timer #.
 ```
 
 #### Next Up

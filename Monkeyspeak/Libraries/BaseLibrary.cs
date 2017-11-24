@@ -45,6 +45,7 @@ namespace Monkeyspeak.Libraries
         /// <param name="trigger"></param>
         /// <param name="handler"></param>
         /// <param name="description"></param>
+        [Obsolete("Next build will remove this, use Add(TriggerCategory cat, int id) instead", false)]
         public virtual void Add(Trigger trigger, TriggerHandler handler, string description = null)
         {
             if (description != null && !descriptions.ContainsKey(trigger)) descriptions.Add(trigger, description);

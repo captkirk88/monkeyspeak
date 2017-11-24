@@ -20,7 +20,6 @@ namespace MonkeyspeakTests
 (0:0) when the script is started,
     (5:250) create a table as %myTable.
     (5:100) set %hello to {hi}
-    (5:101) set %i to 0
     (5:252) with table %myTable put {%hello} in it at key {myKey1}.
     (5:252) with table %myTable put {%hello} in it at key {myKey2}.
     (5:252) with table %myTable put {%hello} in it at key {myKey3}.
@@ -28,32 +27,26 @@ namespace MonkeyspeakTests
     (5:252) with table %myTable put {%hello} in it at key {myKey5}.
     (5:252) with table %myTable put {%hello} in it at key {myKey6}.
     (5:252) with table %myTable put {%hello} in it at key {myKey7}.
-    (5:252) with table %myTable put {123} in it at key {123}.
     (6:250) for each entry in table %myTable put it into %entry,
         (5:102) print {%entry} to the console.
+        (5:150) take variable %i and add 1 to it.
         (5:102) print {%i} to the console.
     (6:454) after the loop is done,
-        (5:150) take variable %myTable[123] and add 1 to it.
-        (5:102) print {%myTable[123]} to the console.
+        (5:102) print {I'm done!} to the console.
+        (1:108) and variable %myTable is table,
+            (5:101) set %myTable[myKey1] to 123
+            (5:102) print {%myTable[myKey1]} to the console.
 
 (0:0) when the script is started,
     (5:101) set %answer to 0
     (5:101) set %life to 42
+    (5:102) print {The answer to LIFE is...} to the console.
     (6:450) while variable %answer is not %life,
         (5:150) take variable %answer and add 1 to it.
         (1:102) and variable %answer equals 21,
             (5:450) exit the current loop.
     (6:454) after the loop is done,
         (5:102) print {We may never know the answer...} to the console.
-
-(0:0) when the script is started,
-        (5:102) print {%i} to the console.
-        (5:102) print {%i} to the console.
-        (5:102) print {%i} to the console.
-        (5:102) print {%i} to the console.
-        (5:102) print {%i} to the console.
-        (5:102) print {%i} to the console.
-        (5:102) print {%i} to the console.
 ";
 
         [TestMethod]
@@ -75,7 +68,7 @@ namespace MonkeyspeakTests
             Stopwatch watch = Stopwatch.StartNew();
             var oldPage = engine.LoadFromString(sb.ToString());
 
-            oldPage.SetTriggerHandler(TriggerCategory.Cause, 0, UnitTest1.HandleScriptStartCause);
+            oldPage.AddTriggerHandler(TriggerCategory.Cause, 0, UnitTest1.HandleScriptStartCause);
 
             watch.Stop();
             Console.WriteLine($"Loaded in {watch.ElapsedMilliseconds} ms");
@@ -89,13 +82,13 @@ namespace MonkeyspeakTests
             watch.Restart();
 
             var page = engine.LoadCompiledFile(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), "test.msx"));
-
+            page.RemoveLibrary<MyLibrary>();
             watch.Stop();
             Console.WriteLine($"Loaded compiled in {watch.ElapsedMilliseconds} ms");
 
             page.LoadAllLibraries();
             page.RemoveLibrary<Monkeyspeak.Libraries.Debug>();
-            page.SetTriggerHandler(TriggerCategory.Cause, 0, UnitTest1.HandleScriptStartCause);
+            page.AddTriggerHandler(TriggerCategory.Cause, 0, UnitTest1.HandleScriptStartCause);
             Console.WriteLine("Page Trigger Count: " + page.Size);
             page.Execute();
             page.Dispose();
@@ -122,7 +115,7 @@ namespace MonkeyspeakTests
 
             var page = engine.LoadFromString(test);
 
-            page.SetTriggerHandler(TriggerCategory.Cause, 0, UnitTest1.HandleScriptStartCause);
+            page.AddTriggerHandler(TriggerCategory.Cause, 0, UnitTest1.HandleScriptStartCause);
 
             page.LoadAllLibraries();
 
@@ -167,7 +160,7 @@ namespace MonkeyspeakTests
             engine.Options.Debug = false;
             var page = engine.LoadFromString(UnitTest1.tableScript);
 
-            page.SetTriggerHandler(TriggerCategory.Cause, 0, UnitTest1.HandleScriptStartCause);
+            page.AddTriggerHandler(TriggerCategory.Cause, 0, UnitTest1.HandleScriptStartCause);
 
             page.LoadAllLibraries();
 

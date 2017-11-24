@@ -20,6 +20,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MonkeyspeakTests", "Monkeys
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "wiki", "wiki", "{EBF2C0FE-BE42-4EF3-A9F2-7C8E197081A8}"
 	ProjectSection(SolutionItems) = preProject
+		wiki\Compiler.md = wiki\Compiler.md
 		wiki\Libraries.md = wiki\Libraries.md
 		wiki\Strings.md = wiki\Strings.md
 		wiki\Triggers.md = wiki\Triggers.md

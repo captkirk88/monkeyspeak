@@ -70,7 +70,8 @@ Page page = engine.LoadFromString(testScript);
 
 page.LoadAllLibraries();
 
-page.Execute(); // optionally provide the trigger Id of 0 to execute (0:0)
+// optionally provide the trigger Id of 0 to execute (0:0), 1 to execute (0:1), etc.
+page.Execute();
 ```
 Output:
 ```
@@ -101,13 +102,14 @@ Here is a example of using Flow triggers
         (5:102) print {%i} to the console.
     (6:454) after the loop is done,
         (5:102) print {I'm done!} to the console.
-        (1:108) and variable %myTable is table,
+        (1:108) and variable %myTable is a table,
             (5:101) set %myTable[myKey1] to 123
             (5:102) print {%myTable[myKey1]} to the console.
 
 (0:0) when the script is started,
     (5:101) set %answer to 0
     (5:101) set %life to 42
+    (5:102) print {The answer to LIFE is...} to the console.
     (6:450) while variable %answer is not %life,
         (5:150) take variable %answer and add 1 to it.
         (1:102) and variable %answer equals 21,
@@ -115,6 +117,7 @@ Here is a example of using Flow triggers
     (6:454) after the loop is done,
         (5:102) print {We may never know the answer...} to the console.
 ```
+
 The above script creates a table in the first Trigger block, iterates over 
 that table with Flow trigger (6:250) and after it prints "I'm done!" to the 
 console.  The last Trigger block attempts to answer that very important 
@@ -124,11 +127,8 @@ To execute the [Advanced Usage](#advanced-usage) example, it is no different
 than [Basic Usage](#basic-usage)'s execution example.
 
 #### Guides
-
-> :book: [Triggers](wiki/Triggers.md)
-
-> :book: [Variables](wiki/Variables.md)
-
-> :book: [Strings](wiki/Strings.md)
-
-> :book: [Libraries](wiki/Libraries.md)
+1) :book: [Triggers](wiki/Triggers.md)
+2) :book: [Variables](wiki/Variables.md)
+3) :book: [Strings](wiki/Strings.md)
+4) :book: [Libraries](wiki/Libraries.md)
+5) :book: [Compiler](wiki/Compiler.md)

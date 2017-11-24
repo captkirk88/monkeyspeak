@@ -272,7 +272,7 @@ namespace Monkeyspeak
         public Page DoString(string chunk, int[] triggerIds, TriggerHandler entryHandler = null, params object[] args)
         {
             var page = LoadFromString(chunk);
-            if (entryHandler != null) page.SetTriggerHandler(TriggerCategory.Cause, 0, entryHandler);
+            if (entryHandler != null) page.AddTriggerHandler(TriggerCategory.Cause, 0, entryHandler);
             page.LoadAllLibraries();
             page.Execute((triggerIds != null && triggerIds.Length > 0 ? triggerIds : new[] { 0 }), args);
             return page;
@@ -289,7 +289,7 @@ namespace Monkeyspeak
         public Page DoStream(Stream stream, int[] triggerIds, TriggerHandler entryHandler = null, params object[] args)
         {
             var page = LoadFromStream(stream);
-            if (entryHandler != null) page.SetTriggerHandler(TriggerCategory.Cause, 0, entryHandler);
+            if (entryHandler != null) page.AddTriggerHandler(TriggerCategory.Cause, 0, entryHandler);
             page.LoadAllLibraries();
             page.Execute((triggerIds != null && triggerIds.Length > 0 ? triggerIds : new[] { 0 }), args);
             return page;
@@ -306,7 +306,7 @@ namespace Monkeyspeak
         public Page DoFile(string filePath, int[] triggerIds, TriggerHandler entryHandler = null, params object[] args)
         {
             var page = LoadFromFile(filePath);
-            if (entryHandler != null) page.SetTriggerHandler(TriggerCategory.Cause, 0, entryHandler);
+            if (entryHandler != null) page.AddTriggerHandler(TriggerCategory.Cause, 0, entryHandler);
             page.LoadAllLibraries();
             page.Execute((triggerIds != null && triggerIds.Length > 0 ? triggerIds : new[] { 0 }), args);
             return page;
