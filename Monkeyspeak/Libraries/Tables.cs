@@ -16,6 +16,9 @@ namespace Monkeyspeak.Libraries
             Add(TriggerCategory.Flow, ForEntryInTable,
                 "for each entry in table % put it into %,");
 
+            Add(TriggerCategory.Flow, ForKeyValueInTable,
+                "for each key/value pair in table % put them into % and %,");
+
             Add(TriggerCategory.Effect, CreateTable,
                 "create a table as %.");
 
@@ -57,19 +60,33 @@ namespace Monkeyspeak.Libraries
             return var is VariableTable;
         }
 
+        private bool ForKeyValueInTable(TriggerReader reader)
+        {
+            var table = reader.ReadVariableTable();
+            var key = reader.ReadVariable(true);
+            var val = reader.ReadVariable(true);
+            if (!table.Next(out object keyVal))
+            {
+                reader.Page.RemoveVariable(key);
+                reader.Page.RemoveVariable(val);
+                return false;
+            }
+            key.Value = table.ActiveIndexer;
+            val.Value = keyVal;
+            return true;
+        }
+
         private bool ForEntryInTable(TriggerReader reader)
         {
             var table = reader.ReadVariableTable();
             var var = reader.ReadVariable(true);
-            var.Value = table.Next();
-            bool canContinue = true;
-            if (table.CurrentElementIndex > table.Count) canContinue = false;
-            if (!canContinue)
+            if (!table.Next(out object keyVal))
             {
-                table.ResetIndex();
                 reader.Page.RemoveVariable(var);
+                return false;
             }
-            return canContinue;
+            var.Value = keyVal;
+            return true;
         }
 
         private bool GetTableKeyIntoVar(TriggerReader reader)
@@ -86,7 +103,7 @@ namespace Monkeyspeak.Libraries
             var var = reader.ReadVariableTable(true);
             var value = reader.ReadString();
             var key = reader.ReadString();
-            var[key] = value;
+            var.Add(key, value);
             return true;
         }
 
@@ -95,7 +112,7 @@ namespace Monkeyspeak.Libraries
             var var = reader.ReadVariableTable(true);
             var value = reader.ReadNumber();
             var key = reader.ReadString();
-            var[key] = value;
+            var.Add(key, value);
             return true;
         }
 

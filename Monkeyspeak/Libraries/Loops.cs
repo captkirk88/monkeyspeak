@@ -44,12 +44,12 @@ namespace Monkeyspeak.Libraries
             if (!reader.Page.HasVariable("___after_loop", out ConstantVariable counter))
                 counter = reader.Page.SetVariable(new ConstantVariable("___after_loop", 0d));
             else counter.SetValue(counter.Value.AsDouble() + 1d);
-            if (counter.Value.AsDouble() == 1)
+            if (counter.Value.AsDouble() >= 1)
             {
                 canContinue = false;
                 reader.Page.RemoveVariable(counter);
             }
-            canContinue &= reader.CurrentBlock.ContainsTrigger(TriggerCategory.Flow, index: reader.CurrentBlock.IndexOfTrigger(TriggerCategory.Flow));
+            //canContinue &= !reader.CurrentBlock.ContainsTrigger(TriggerCategory.Flow, index: reader.CurrentBlock.IndexOfTrigger(TriggerCategory.Flow));
             return canContinue;
         }
 

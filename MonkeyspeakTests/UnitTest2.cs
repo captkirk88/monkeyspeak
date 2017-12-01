@@ -55,7 +55,7 @@ namespace MonkeyspeakTests
             Logger.SingleThreaded = true;
             var engine = new MonkeyspeakEngine
             {
-                Options = { TriggerLimit = int.MaxValue, Debug = false }
+                Options = { TriggerLimit = int.MaxValue, Debug = true }
             };
 
             var sb = new StringBuilder(testScript);
@@ -67,8 +67,6 @@ namespace MonkeyspeakTests
             }*/
             Stopwatch watch = Stopwatch.StartNew();
             var oldPage = engine.LoadFromString(sb.ToString());
-
-            oldPage.AddTriggerHandler(TriggerCategory.Cause, 0, UnitTest1.HandleScriptStartCause);
 
             watch.Stop();
             Console.WriteLine($"Loaded in {watch.ElapsedMilliseconds} ms");
@@ -87,8 +85,6 @@ namespace MonkeyspeakTests
             Console.WriteLine($"Loaded compiled in {watch.ElapsedMilliseconds} ms");
 
             page.LoadAllLibraries();
-            page.RemoveLibrary<Monkeyspeak.Libraries.Debug>();
-            page.AddTriggerHandler(TriggerCategory.Cause, 0, UnitTest1.HandleScriptStartCause);
             Console.WriteLine("Page Trigger Count: " + page.Size);
             page.Execute();
             page.Dispose();
@@ -159,8 +155,6 @@ namespace MonkeyspeakTests
             };
             engine.Options.Debug = false;
             var page = engine.LoadFromString(UnitTest1.tableScript);
-
-            page.AddTriggerHandler(TriggerCategory.Cause, 0, UnitTest1.HandleScriptStartCause);
 
             page.LoadAllLibraries();
 

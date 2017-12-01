@@ -1,14 +1,38 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.IO;
 
 namespace Monkeyspeak.Lexical.Expressions
 {
+    /// <summary>
+    ///
+    /// </summary>
+    /// <seealso cref="Monkeyspeak.Lexical.Expressions.IExpression" />
+    /// <seealso cref="System.IComparable{Monkeyspeak.Lexical.Expressions.Expression}" />
+    /// <seealso cref="System.IEquatable{Monkeyspeak.Lexical.Expressions.Expression}" />
     public class Expression : IExpression, IComparable<Expression>, IEquatable<Expression>
     {
         private readonly SourcePosition sourcePosition;
+        private object value;
 
-        protected Expression(ref SourcePosition pos)
+        protected Expression()
+        {
+            sourcePosition = new SourcePosition();
+        }
+
+        protected Expression(SourcePosition pos)
         {
             sourcePosition = pos;
+        }
+
+        public virtual T GetValue<T>()
+        {
+            return (T)value;
+        }
+
+        public virtual void SetValue(object value)
+        {
+            this.value = value;
         }
 
         public SourcePosition Position
@@ -16,64 +40,99 @@ namespace Monkeyspeak.Lexical.Expressions
             get { return sourcePosition; }
         }
 
-        public object Value { get; set; }
-
         public int CompareTo(Expression other)
         {
-            return Value.GetHashCode().CompareTo(other.GetHashCode());
+            return GetValue<object>().GetHashCode().CompareTo(other.GetHashCode());
         }
 
         #region Object Overrides
 
         public override bool Equals(object obj)
         {
-            if (obj == null) return Value == null;
-            return obj is Expression && Value.Equals(((Expression)obj).Value);
+            if (obj == null) return false;
+            return obj is Expression && GetValue<object>() != null && GetValue<object>().Equals(((Expression)obj).GetValue<object>());
         }
 
         public bool Equals(Expression other)
         {
-            return Value.Equals(other?.Value);
+            return GetValue<object>().Equals(other?.GetValue<object>());
         }
 
         public override string ToString()
         {
-            return $"{Value} {sourcePosition}";
+            return $"{GetValue<object>()} {sourcePosition}";
+        }
+
+        public virtual bool Apply(Trigger? trigger)
+        {
+            trigger?.contents?.Add(this);
+            return true;
+        }
+
+        public virtual void Write(BinaryWriter writer)
+        {
+        }
+
+        public virtual void Read(BinaryReader reader)
+        {
+        }
+
+        public virtual object Execute(Page page, Queue<IExpression> contents, bool addToPage = false)
+        {
+            throw new NotImplementedException();
         }
 
         #endregion Object Overrides
     }
 
-    public class Expression<T> : Expression, IComparable<Expression<T>>, IEquatable<Expression>, IEquatable<Expression<T>>
+    /// <summary>
+    ///
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <seealso cref="Monkeyspeak.Lexical.Expressions.IExpression" />
+    /// <seealso cref="System.IComparable{Monkeyspeak.Lexical.Expressions.Expression}" />
+    /// <seealso cref="System.IEquatable{Monkeyspeak.Lexical.Expressions.Expression}" />
+    public class Expression<T> : Expression, IComparable<Expression>, IEquatable<Expression>, IEquatable<Expression<T>>
     {
-        public Expression(ref SourcePosition pos, T val) : base(ref pos)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Expression{T}"/> class.
+        /// </summary>
+        /// <param name="pos">The position.</param>
+        /// <param name="val">The value.</param>
+        public Expression() : base()
         {
-            Value = val;
         }
 
-        public new T Value { get; protected set; }
-
-        public int CompareTo(Expression<T> other)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Expression{T}"/> class.
+        /// </summary>
+        /// <param name="pos">The position.</param>
+        /// <param name="val">The value.</param>
+        public Expression(SourcePosition pos, T val) : base(pos)
         {
-            return Value.GetHashCode().CompareTo(other.GetHashCode());
+            SetValue(val);
+        }
+
+        public int CompareTo(Expression other)
+        {
+            return base.CompareTo(other);
         }
 
         #region Object Overrides
 
         public override bool Equals(object obj)
         {
-            return obj is Expression && Value.Equals(((Expression)obj).Value);
+            return base.Equals(obj);
         }
 
         public bool Equals(Expression<T> other)
         {
-            if (other == null) return Value == null;
-            return Value.Equals(other.Value);
+            return base.Equals(other);
         }
 
         public override string ToString()
         {
-            return $"{Value} {Position}";
+            return base.ToString();
         }
 
         #endregion Object Overrides

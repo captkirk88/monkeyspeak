@@ -2,10 +2,13 @@
 
 using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Linq;
+using System.Text;
+using System.Diagnostics;
+using System.Collections.Generic;
+using System.Runtime.CompilerServices;
+using Monkeyspeak.Logging;
 
 #endregion Usings
 
@@ -159,8 +162,10 @@ namespace Monkeyspeak.Logging
 
 #if DEBUG
             _debugEnabled = true;
+            LogCallingMethod = true;
 #else
             _debugEnabled = false; // can be set via property
+            LogCallingMethod = false;
 #endif
             singleThreaded = true;
 
@@ -182,7 +187,10 @@ namespace Monkeyspeak.Logging
                     }
                 }
             }, cancelToken.Token, TaskCreationOptions.LongRunning);
+            if (!singleThreaded) logTask.Start();
         }
+
+        public static bool LogCallingMethod { get; set; }
 
         public static bool InfoEnabled
         {
@@ -258,21 +266,13 @@ namespace Monkeyspeak.Logging
             set
             {
                 singleThreaded = value;
-                if (singleThreaded) cancelToken.Cancel(false);
+                if (singleThreaded) cancelToken.Cancel();
                 else
                 {
-                    if (logTask.Status == TaskStatus.Running ||
-                        logTask.Status == TaskStatus.WaitingForActivation ||
-                        logTask.Status == TaskStatus.WaitingToRun ||
-                        !logTask.IsCompleted)
-                    {
-                        try
-                        {
-                            logTask.Wait(100);
-                        }
-                        catch { /* fuck me */ }
+                    if (logTask.Status == TaskStatus.Running)
                         return;
-                    }
+                    cancelToken.Dispose();
+                    cancelToken = new CancellationTokenSource();
                     logTask.Start();
                 }
             }
@@ -405,88 +405,44 @@ namespace Monkeyspeak.Logging
             return false;
         }
 
-        public static void Debug(object msg)
+        public static void Debug(object msg, [CallerMemberName]string memberName = "")
         {
-            Log(LogMessage.From(Level.Debug, msg != null ? msg.ToString() : "null", MessagesExpire));
+            Log(LogMessage.From(Level.Debug, $"System{(LogCallingMethod && !string.IsNullOrEmpty(memberName) ? $" ({memberName})" : "")}: {(msg != null ? msg.ToString() : "null")}", MessagesExpire));
         }
 
-        public static void Debug<T>(object msg)
+        public static void Debug<T>(object msg, [CallerMemberName]string memberName = "")
         {
-            Log(LogMessage.From(Level.Debug, typeof(T).Name + ": " + msg, MessagesExpire));
+            Log(LogMessage.From(Level.Debug, $"{typeof(T).Name}{(LogCallingMethod && !string.IsNullOrEmpty(memberName) ? $" ({memberName})" : "")}: {msg}", MessagesExpire));
         }
 
-        public static void DebugFormat(string format, params object[] args)
+        public static void Info(object msg, [CallerMemberName]string memberName = "")
         {
-            Log(
-                LogMessage.From(Level.Debug, (String.IsNullOrEmpty(format) ? String.Join("\t", args) : String.Format(format, args)), MessagesExpire));
+            Log(LogMessage.From(Level.Info, $"System{(LogCallingMethod && !string.IsNullOrEmpty(memberName) ? $" ({memberName})" : "")}: {(msg != null ? msg.ToString() : "null")}", MessagesExpire));
         }
 
-        public static void DebugFormat<T>(string format, params object[] args)
+        public static void Info<T>(object msg, [CallerMemberName]string memberName = "")
         {
-            Log(
-                LogMessage.From(Level.Debug, typeof(T).Name + ": " + (String.IsNullOrEmpty(format) ? String.Join("\t", args) : String.Format(format, args)), MessagesExpire));
+            Log(LogMessage.From(Level.Info, $"{typeof(T).Name}{(LogCallingMethod && !string.IsNullOrEmpty(memberName) ? $" ({memberName})" : "")}: {msg}", MessagesExpire));
         }
 
-        public static void Info(object msg)
+        public static void Error(object msg, [CallerMemberName]string memberName = "")
         {
-            Log(LogMessage.From(Level.Info, msg != null ? msg.ToString() : "null", MessagesExpire));
+            Log(LogMessage.From(Level.Error, $"System{(LogCallingMethod && !string.IsNullOrEmpty(memberName) ? $" ({memberName})" : "")}: {(msg != null ? msg.ToString() : "null")}", MessagesExpire));
         }
 
-        public static void Info<T>(object msg)
+        public static void Error<T>(object msg, [CallerMemberName]string memberName = "")
         {
-            Log(LogMessage.From(Level.Info, typeof(T).Name + ": " + msg, MessagesExpire));
+            Log(LogMessage.From(Level.Error, $"{typeof(T).Name}{(LogCallingMethod && !string.IsNullOrEmpty(memberName) ? $" ({memberName})" : "")}: {msg}", MessagesExpire));
         }
 
-        public static void InfoFormat(string format, params object[] args)
+        public static void Warn(object msg, [CallerMemberName]string memberName = "")
         {
-            Log(
-                LogMessage.From(Level.Info, String.IsNullOrEmpty(format) ? String.Join("\t", args) : String.Format(format, args), MessagesExpire));
+            Log(LogMessage.From(Level.Warning, $"System{(LogCallingMethod && !string.IsNullOrEmpty(memberName) ? $" ({memberName})" : "")}: {(msg != null ? msg.ToString() : "null")}", MessagesExpire));
         }
 
-        public static void InfoFormat<T>(string format, params object[] args)
+        public static void Warn<T>(object msg, [CallerMemberName]string memberName = "")
         {
-            Log(
-                LogMessage.From(Level.Info, typeof(T).Name + ": " + (String.IsNullOrEmpty(format) ? String.Join("\t", args) : String.Format(format, args)), MessagesExpire));
-        }
-
-        public static void Error(object msg)
-        {
-            Log(LogMessage.From(Level.Error, msg != null ? msg.ToString() : "null", MessagesExpire));
-        }
-
-        public static void Error<T>(object msg)
-        {
-            Log(LogMessage.From(Level.Error, typeof(T).Name + ": " + msg, MessagesExpire));
-        }
-
-        public static void ErrorFormat(string format, params object[] args)
-        {
-            Log(LogMessage.From(Level.Error, String.Format(format, args), MessagesExpire));
-        }
-
-        public static void ErrorFormat<T>(string format, params object[] args)
-        {
-            Log(LogMessage.From(Level.Error, typeof(T).Name + ": " + String.Format(format, args), MessagesExpire));
-        }
-
-        public static void Warn(object msg)
-        {
-            Log(LogMessage.From(Level.Warning, msg != null ? msg.ToString() : "null", MessagesExpire));
-        }
-
-        public static void Warn<T>(object msg)
-        {
-            Log(LogMessage.From(Level.Warning, typeof(T).Name + ": " + msg, MessagesExpire));
-        }
-
-        public static void WarnFormat(string format, params object[] args)
-        {
-            Log(LogMessage.From(Level.Warning, String.Format(format, args), MessagesExpire));
-        }
-
-        public static void WarnFormat<T>(string format, params object[] args)
-        {
-            Log(LogMessage.From(Level.Warning, typeof(T).Name + ": " + String.Format(format, args), MessagesExpire));
+            Log(LogMessage.From(Level.Warning, $"{typeof(T).Name}{(LogCallingMethod && !string.IsNullOrEmpty(memberName) ? $" ({memberName})" : "")}: {msg}", MessagesExpire));
         }
     }
 }

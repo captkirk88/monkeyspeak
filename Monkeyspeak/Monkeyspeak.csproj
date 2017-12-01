@@ -112,7 +112,9 @@
     <Compile Include="Extensions\StringExtensions.cs" />
     <Compile Include="Extensions\VariablesExtension.cs" />
     <Compile Include="GlobalSuppressions.cs" />
+    <Compile Include="lexical\Expressions\Expressions.cs" />
     <Compile Include="lexical\Expressions\NullExpression.cs" />
+    <Compile Include="lexical\Expressions\TriggerExpression.cs" />
     <Compile Include="lexical\Expressions\VariableTableExpression.cs" />
     <Compile Include="lexical\TokenDefinitions\ITokenDefinition.cs" />
     <Compile Include="lexical\TokenDefinitions\VariableDefinition.cs" />
@@ -140,7 +142,6 @@
     <Compile Include="lexical\AbstractLexer.cs" />
     <Compile Include="lexical\Lexer.cs" />
     <Compile Include="lexical\Parser.cs" />
-    <Compile Include="Libraries\Debug.cs" />
     <Compile Include="Libraries\IO.cs" />
     <Compile Include="Libraries\Math.cs" />
     <Compile Include="Libraries\StringOperations.cs" />
@@ -151,6 +152,7 @@
     <Compile Include="Options.cs" />
     <Compile Include="Page.cs" />
     <Compile Include="lexical\Token.cs" />
+    <Compile Include="Utils\OtherUtils.cs" />
     <Compile Include="Utils\ReflectionHelper.cs" />
     <Compile Include="Trigger.cs" />
     <Compile Include="TriggerBlock.cs" />

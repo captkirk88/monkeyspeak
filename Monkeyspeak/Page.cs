@@ -139,20 +139,37 @@ namespace Monkeyspeak
             parser.VisitToken = null;
         }
 
-        internal void AddBlocks(IEnumerable<TriggerBlock> blocks)
+        internal void AddBlocks(IEnumerable<Trigger> triggers)
         {
             lock (syncObj)
             {
-                var blocksArray = blocks.ToArray();
-                for (int i = blocksArray.Length - 1; i >= 0; i--)
+                Trigger nextTrig = Trigger.Undefined, curTrig = Trigger.Undefined;
+                TriggerBlock block = new TriggerBlock(5);
+                foreach (var trig in triggers)
                 {
-                    Size += blocksArray[i].Count;
+                    curTrig = nextTrig;
+                    nextTrig = trig;
+
+                    if (curTrig != Trigger.Undefined)
+                    {
+                        Size++;
+                        block.Add(curTrig);
+                    }
+
+                    if ((curTrig.Category == TriggerCategory.Effect) &&
+                        nextTrig.Category == TriggerCategory.Cause)
+                    {
+                        triggerBlocks.Add(block);
+                        block = new TriggerBlock(5);
+                    }
+
                     if (Size > engine.Options.TriggerLimit)
                     {
                         throw new MonkeyspeakException("Trigger limit exceeded.");
                     }
                 }
-                triggerBlocks.AddRange(blocksArray);
+                block.Add(nextTrig);
+                triggerBlocks.Add(block);
             }
         }
 
@@ -198,7 +215,7 @@ namespace Monkeyspeak
             }
             catch (Exception ex)
             {
-                throw new MonkeyspeakException("Error reading compiled file.", ex);
+                throw new MonkeyspeakException("Error reading compiled stream.", ex);
             }
         }
 
@@ -226,7 +243,7 @@ namespace Monkeyspeak
             }
             catch (Exception ex)
             {
-                throw new MonkeyspeakException("Error compiling to file.", ex);
+                throw new MonkeyspeakException("Error compiling to stream.", ex);
             }
         }
 
@@ -359,15 +376,6 @@ namespace Monkeyspeak
         public void LoadTimerLibrary(uint timersLimit = 10)
         {
             LoadLibrary(new Libraries.Timers(timersLimit));
-        }
-
-        /// <summary>
-        /// Loads Monkeyspeak Debug Library into this Page
-        /// <para>Used for Debug breakpoint insertion. Won't work without Debugger attached.</para>
-        /// </summary>
-        public void LoadDebugLibrary()
-        {
-            LoadLibrary(new Libraries.Debug());
         }
 
         /// <summary>
@@ -569,7 +577,7 @@ namespace Monkeyspeak
         }
 
         /// <summary>
-        /// Sets the variable table.
+        /// Creates a <seealso cref="VariableTable"/>
         /// </summary>
         /// <param name="name">The name.</param>
         /// <param name="value">The value.</param>
@@ -577,7 +585,7 @@ namespace Monkeyspeak
         /// <returns></returns>
         /// <exception cref="Monkeyspeak.TypeNotSupportedException"></exception>
         /// <exception cref="Exception">Variable limit exceeded, operation failed.</exception>
-        public VariableTable SetVariableTable(string name, bool isConstant)
+        public VariableTable CreateVariableTable(string name, bool isConstant)
         {
             if (name[0] != engine.Options.VariableDeclarationSymbol)
                 name = engine.Options.VariableDeclarationSymbol + name;
@@ -729,6 +737,7 @@ namespace Monkeyspeak
         /// <param name="lib">The library.</param>
         private int RemoveAllTriggerHandlers(BaseLibrary lib)
         {
+            if (lib == null) return 0;
             int countRemoved = 0;
             foreach (var handler in lib.Handlers)
             {
@@ -772,7 +781,7 @@ namespace Monkeyspeak
          * then run 47, then run 48" ... and they're not all at once, in sequence.
          */
 
-        private void ExecuteTrigger(TriggerBlock triggerBlock, ref int index, TriggerReader reader)
+        internal void ExecuteTrigger(TriggerBlock triggerBlock, ref int index, TriggerReader reader)
         {
             var current = triggerBlock[index];
             handlers.TryGetValue(current, out TriggerHandler handler);

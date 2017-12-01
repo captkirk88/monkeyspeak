@@ -165,54 +165,104 @@ namespace Monkeyspeak.Libraries
 
             Add(TriggerCategory.Effect, 311, StartTimer,
                 "start timer #.");
+
+            Add(TriggerCategory.Effect, 312, SetTheTimeZone,
+                "set the time zone to {...}");
+
+            Add(TriggerCategory.Effect, 313, GetUTCTimeZone,
+                "get univeral time zone and put it into variable %");
+
+            Add(TriggerCategory.Effect, 314, GetAllTimeZones,
+                "get the available time zones and put it into table %");
+        }
+
+        private bool GetUTCTimeZone(TriggerReader reader)
+        {
+            var var = reader.ReadVariable(true);
+            var.Value = TimeZoneInfo.Utc.Id;
+            return true;
+        }
+
+        private bool GetAllTimeZones(TriggerReader reader)
+        {
+            var table = reader.ReadVariableTable(true);
+            try
+            {
+                foreach (var tz in TimeZoneInfo.GetSystemTimeZones())
+                    table.Add(tz.DisplayName, tz.Id);
+            }
+            catch (Exception ex)
+            {
+                Logger.Debug<Timers>(ex);
+                reader.Page.RemoveVariable(table);
+                return false;
+            }
+            return true;
+        }
+
+        private TimeZoneInfo timeZone = TimeZoneInfo.Local;
+
+        private bool SetTheTimeZone(TriggerReader reader)
+        {
+            try
+            {
+                timeZone = TimeZoneInfo.FindSystemTimeZoneById(reader.ReadString());
+            }
+            catch (Exception ex)
+            {
+                Logger.Debug<Timers>(ex);
+                timeZone = TimeZoneInfo.Local;
+                return false;
+            }
+            return true;
         }
 
         private bool GetCurrentYearIntoVar(TriggerReader reader)
         {
             var var = reader.ReadVariable(true);
-            var.Value = DateTime.Now.Year.AsDouble();
+            var.Value = TimeZoneInfo.ConvertTime(DateTime.Now, timeZone).Year.AsDouble();
             return true;
         }
 
         private bool GetCurrentMonthIntoVar(TriggerReader reader)
         {
             var var = reader.ReadVariable(true);
-            var.Value = DateTime.Now.Month.AsDouble();
+            var.Value = TimeZoneInfo.ConvertTime(DateTime.Now, timeZone).Month.AsDouble();
             return true;
         }
 
         private bool GetCurrentDayOfMonthIntoVar(TriggerReader reader)
         {
             var var = reader.ReadVariable(true);
-            var.Value = DateTime.Now.Day.AsDouble();
+            var.Value = TimeZoneInfo.ConvertTime(DateTime.Now, timeZone).Day.AsDouble();
             return true;
         }
 
         private bool GetCurrentSecondsIntoVar(TriggerReader reader)
         {
             var var = reader.ReadVariable(true);
-            var.Value = DateTime.Now.TimeOfDay.Seconds.AsDouble();
+            var.Value = TimeZoneInfo.ConvertTime(DateTime.Now, timeZone).TimeOfDay.Seconds.AsDouble();
             return true;
         }
 
         private bool GetCurrentMinutesIntoVar(TriggerReader reader)
         {
             var var = reader.ReadVariable(true);
-            var.Value = DateTime.Now.TimeOfDay.Minutes.AsDouble();
+            var.Value = TimeZoneInfo.ConvertTime(DateTime.Now, timeZone).TimeOfDay.Minutes.AsDouble();
             return true;
         }
 
         private bool GetCurrentHourIntoVar(TriggerReader reader)
         {
             var var = reader.ReadVariable(true);
-            var.Value = DateTime.Now.TimeOfDay.Hours.AsDouble();
+            var.Value = TimeZoneInfo.ConvertTime(DateTime.Now, timeZone).TimeOfDay.Hours.AsDouble();
             return true;
         }
 
         private bool GetCurrentUpTimeIntoVar(TriggerReader reader)
         {
             var var = reader.ReadVariable(true);
-            var.Value = System.Math.Round((DateTime.Now - startTime).TotalSeconds);
+            var.Value = System.Math.Round((TimeZoneInfo.ConvertTime(DateTime.Now, timeZone) - startTime).TotalSeconds);
             return true;
         }
 

@@ -40,7 +40,7 @@ namespace Monkeyspeak
         /// <returns>Index of trigger or -1 if not found</returns>
         public int IndexOfTrigger(TriggerCategory cat, int id = -1, int startIndex = 0)
         {
-            if (startIndex < Count)
+            if (startIndex <= Count - 1)
                 for (int i = startIndex; i <= Count - 1; i++)
                 {
                     Trigger trigger = base[i];
@@ -56,15 +56,16 @@ namespace Monkeyspeak
         public int LastIndexOfTrigger(TriggerCategory cat, int id = -1, int index = 0)
         {
             int lastIndex = -1;
-            for (int i = index; i <= Count - 1; i++)
-            {
-                Trigger trigger = base[i];
-                if (trigger.Category == cat)
+            if (index <= Count - 1)
+                for (int i = index; i <= Count - 1; i++)
                 {
-                    if (id == -1 || trigger.Id == id)
-                        lastIndex = i;
+                    Trigger trigger = base[i];
+                    if (trigger.Category == cat)
+                    {
+                        if (id == -1 || trigger.Id == id)
+                            lastIndex = i;
+                    }
                 }
-            }
             return lastIndex;
         }
 
@@ -73,14 +74,14 @@ namespace Monkeyspeak
         /// </summary>
         /// <param name="cat">The category.</param>
         /// <param name="id">The identifier.</param>
-        /// <param name="index">Index in the block to start from</param>
+        /// <param name="startIndex">Index in the block to start from</param>
         /// <returns>
         ///   <c>true</c> if the block contains the trigger; otherwise, <c>false</c>.
         /// </returns>
-        public bool ContainsTrigger(TriggerCategory cat, int id = -1, int index = 0)
+        public bool ContainsTrigger(TriggerCategory cat, int id = -1, int startIndex = 0)
         {
-            if (index < Count)
-                for (int i = index; i <= Count - 1; i++)
+            if (startIndex <= Count - 1)
+                for (int i = startIndex; i <= Count - 1; i++)
                 {
                     Trigger trigger = base[i];
                     if (trigger.Category == cat)

@@ -6,6 +6,7 @@ namespace Monkeyspeak
 {
     public enum TokenType : byte
     {
+        NONE = 0,
         // Majority of these won't be used but it is nice to have...
 
         COMMENT, ASSIGN,
@@ -18,7 +19,7 @@ namespace Monkeyspeak
         WORD, LITERAL,
 
         // custom
-        TRIGGER, VARIABLE, TABLE, REFERENCE, STRING_LITERAL, NUMBER, PREPROCESSOR, NONE
+        TRIGGER, VARIABLE, TABLE, REFERENCE, STRING_LITERAL, NUMBER, PREPROCESSOR
     }
 
     [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]

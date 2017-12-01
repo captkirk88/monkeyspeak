@@ -43,10 +43,10 @@ namespace Monkeyspeak
             var tokens = new Queue<Token>();
             int character = 0;
             char c = (char)character;
-            Token token = Token.None, lastToken = Token.None;
+            Token token = default(Token), lastToken = default(Token);
             while (character != -1 || token.Type != TokenType.END_OF_FILE)
             {
-                token = Token.None; // needed to clear Token state
+                token = default(Token); // needed to clear Token state
                 character = LookAhead(1);
                 c = (char)character;
                 if (character == -1)
@@ -66,7 +66,7 @@ namespace Monkeyspeak
                 else if (c == lineCommentSym)
                 {
                     SkipLineComment();
-                    token = Token.None;
+                    token = default(Token);
                     goto FINISH;
                 }
                 else if (c == stringBeginSym)

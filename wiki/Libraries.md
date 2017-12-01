@@ -74,10 +74,7 @@ Tables
 (5:253) with table % get key {...} put it in into variable %.
 (5:254) with table % remove all entries in it.
 (6:250) for each entry in table % put it into %,
-
-Debug
-(0:10000) when a debug breakpoint is hit,
-(5:10000) create a debug breakpoint here,
+(6:251) for each key/value pair in table % put them into % and %,
 
 IO
 (1:200) and the file {...} exists,
@@ -140,6 +137,9 @@ Timers
 (5:309) get the current month and put it into variable %.
 (5:310) get the current year and put it into variable %.
 (5:311) start timer #.
+(5:312) set the time zone to {...}
+(5:313) get univeral time zone and put it into variable %
+(5:314) get the available time zones and put it into table %
 ```
 
 #### Next Up

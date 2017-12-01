@@ -193,25 +193,7 @@ namespace Monkeyspeak
             sb.Append($"({(int)category}:{id}) {(includeSourcePos ? SourcePosition.ToString() : string.Empty)}");
             if (includeContents)
             {
-                if (page != null)
-                {
-                    var block = new TriggerBlock();
-                    block.Add(this);
-                    TriggerReader reader = new TriggerReader(page, block)
-                    {
-                        Trigger = this
-                    };
-                    var values = reader.ReadValues().ToArray();
-                    for (int i = 0; i <= values.Length - 1; i++)
-                    {
-                        sb.Append(' ').Append(values[i]);
-#if DEBUG
-                        sb.Append($"({values[i].GetType().Name})");
-#endif
-                        if (i != values.Length - 1) sb.Append(", ");
-                    }
-                }
-                else
+                if (contents != null && contents.Count > 0)
                 {
                     sb.Append(' ');
                     for (int i = 0; i <= contents.Count - 1; i++)

@@ -13,12 +13,12 @@ namespace Monkeyspeak.Lexical.Expressions
         static NullExpression()
         {
             var sourcePos = new SourcePosition();
-            instance = new NullExpression(ref sourcePos);
+            instance = new NullExpression(sourcePos);
         }
 
         public static NullExpression Instance => instance;
 
-        protected NullExpression(ref SourcePosition pos) : base(ref pos, null)
+        protected NullExpression(SourcePosition pos) : base(pos, null)
         {
         }
     }

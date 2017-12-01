@@ -86,7 +86,7 @@ namespace Monkeyspeak
 
         public object Value
         {
-            get { return value ?? "null"; }
+            get { return value; }
             set
             {
                 // removed Value = as it interfered with page.setVariable - Gerolkae
@@ -303,7 +303,7 @@ namespace Monkeyspeak
 
         public object Value
         {
-            get { return string.IsNullOrEmpty(ActiveIndexer) ? values.LastOrDefault().Value : this[ActiveIndexer]; }
+            get { return string.IsNullOrEmpty(ActiveIndexer) ? values.Values.FirstOrDefault() : this[ActiveIndexer]; }
             set
             {
                 if (!CheckType(value)) throw new TypeNotSupportedException(value.GetType().Name +
@@ -345,7 +345,7 @@ namespace Monkeyspeak
             }
         }
 
-        public object this[int index]
+        public KeyValuePair<string, object> this[int index]
         {
             get
             {
@@ -393,16 +393,25 @@ namespace Monkeyspeak
             return values.ContainsKey(index);
         }
 
-        private object At(int index)
+        private KeyValuePair<string, object> At(int index)
         {
-            return values.Values.ElementAtOrDefault(index);
+            return values.ElementAtOrDefault(index);
         }
 
-        public object Next()
+        public bool Next(out object value)
         {
-            var obj = this[CurrentElementIndex];
+            if (CurrentElementIndex > Count - 1)
+            {
+                CurrentElementIndex = 0;
+                ActiveIndexer = null;
+                value = null;
+                return false;
+            }
+            var pair = this[CurrentElementIndex];
             CurrentElementIndex++;
-            return obj;
+            ActiveIndexer = pair.Key;
+            value = pair.Value;
+            return true;
         }
 
         private bool CheckType(object _value)

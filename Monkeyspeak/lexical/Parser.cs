@@ -10,7 +10,7 @@ namespace Monkeyspeak
     ///
     /// </summary>
     /// <seealso cref="Monkeyspeak.Lexical.AbstractParser" />
-    public sealed class Parser : AbstractParser
+    public class Parser : AbstractParser
     {
         public TokenVisitorHandler VisitToken;
 
@@ -23,6 +23,10 @@ namespace Monkeyspeak
         {
         }
 
+        public virtual void VisitExpression(Expression expr)
+        {
+        }
+
         /// <summary>
         /// Parses the specified lexer's tokens.
         /// </summary>
@@ -31,16 +35,19 @@ namespace Monkeyspeak
         /// <exception cref="MonkeyspeakException">
         /// </exception>
         /// <exception cref="Exception">String length limit exceeded.</exception>
-        public override IEnumerable<TriggerBlock> Parse(AbstractLexer lexer)
+        public override IEnumerable<Trigger> Parse(AbstractLexer lexer)
         {
-            var block = new TriggerBlock(10);
-            Trigger currentTrigger = Trigger.Undefined, prevTrigger = Trigger.Undefined;
-            Token token = Token.None, prevToken = Token.None, nextToken = Token.None;
-            Expression expr = null;
+            Trigger currentTrigger = Trigger.Undefined, lastTrigger = Trigger.Undefined;
+            Token token = Token.None, prevToken = default(Token), nextToken = default(Token);
+            IExpression expr = null;
             foreach (var t in lexer.Read())
             {
                 token = t;
-                if (token == Token.None) continue;
+                var tokenType = token.Type;
+
+                if (!Expressions.Instance.ContainsKey(tokenType)) continue;
+
+                if (token == default(Token)) continue;
                 if (VisitToken != null)
                     token = VisitToken(ref token);
 
@@ -49,61 +56,30 @@ namespace Monkeyspeak
                 string value = token.GetValue(lexer);
 
                 //Logger.Debug<Parser>(token);
-                switch (token.Type)
+                switch (tokenType)
                 {
                     case TokenType.TRIGGER:
-                        if (currentTrigger != Trigger.Undefined && currentTrigger.Category != TriggerCategory.Undefined)
-                        {
-                            if (prevTrigger != Trigger.Undefined)
-                            {
-                                if (prevTrigger.Category == TriggerCategory.Effect && currentTrigger.Category == TriggerCategory.Cause)
-                                {
-                                    yield return block;
-                                    prevTrigger = Trigger.Undefined;
-                                    block = new TriggerBlock(10);
-                                }
-
-                                if (expr != null)
-                                {
-                                    currentTrigger.contents.Add(expr);
-                                    expr = null;
-                                }
-                            }
-                            block.Add(currentTrigger);
-                            prevTrigger = currentTrigger;
-                            currentTrigger = Trigger.Undefined;
-                        }
-                        if (string.IsNullOrWhiteSpace(value)) continue;
-                        var cat = value.Substring(0, value.IndexOf(':'));
-                        if (string.IsNullOrWhiteSpace(cat)) continue;
-                        var id = value.Substring(value.IndexOf(':') + 1);
-                        if (string.IsNullOrWhiteSpace(id)) continue;
-                        currentTrigger = new Trigger((TriggerCategory)IntParse(cat),
-                            IntParse(id), sourcePos);
+                        expr = Expressions.Create(tokenType, sourcePos, value);
+                        if (lastTrigger != Trigger.Undefined) yield return lastTrigger;
+                        lastTrigger = currentTrigger;
+                        currentTrigger = expr.GetValue<Trigger>();
                         break;
 
                     case TokenType.VARIABLE:
-                        if (currentTrigger == Trigger.Undefined) throw new MonkeyspeakException($"Trigger was null. \nPrevious trigger = {prevTrigger.ToString(true)}\nToken = {token}");
-                        expr = new VariableExpression(ref sourcePos, value);
-                        break;
-
                     case TokenType.TABLE:
-                        if (currentTrigger == Trigger.Undefined) throw new MonkeyspeakException($"Trigger was null. \nPrevious trigger = {prevTrigger.ToString(true)}\nToken = {token}");
-                        expr = new VariableTableExpression(ref sourcePos, value.Substring(0, value.IndexOf('[')), value.Substring(value.IndexOf('[') + 1).TrimEnd(']'));
+                        expr = Expressions.Create(tokenType, sourcePos, value);
                         break;
 
                     case TokenType.STRING_LITERAL:
-                        if (value.Length > Engine.Options.StringLengthLimit) throw new Exception("String length limit exceeded.");
-                        if (currentTrigger == Trigger.Undefined) throw new MonkeyspeakException($"Trigger was null. \nPrevious trigger = {prevTrigger.ToString(true)}\nToken = {token}");
-                        expr = new StringExpression(ref sourcePos, value);
+                        if (value.Length > Engine.Options.StringLengthLimit) throw new MonkeyspeakException("String length limit exceeded.");
+                        expr = Expressions.Create(tokenType, sourcePos, value);
                         break;
 
                     case TokenType.NUMBER:
                         double val = double.Parse(value, System.Globalization.NumberStyles.AllowDecimalPoint
                             | System.Globalization.NumberStyles.AllowLeadingSign
                             | System.Globalization.NumberStyles.AllowExponent);
-                        if (currentTrigger == Trigger.Undefined) throw new MonkeyspeakException($"Trigger was null. \nPrevious trigger = {prevTrigger.ToString(true)}\nToken = {token}");
-                        expr = new NumberExpression(ref sourcePos, val);
+                        expr = Expressions.Create(tokenType, sourcePos, val);
                         break;
 
                     case TokenType.COMMENT:
@@ -114,43 +90,20 @@ namespace Monkeyspeak
                         break;
 
                     case TokenType.END_OF_FILE:
-                        if (currentTrigger != Trigger.Undefined && currentTrigger.Category != TriggerCategory.Undefined)
-                        {
-                            if (currentTrigger != Trigger.Undefined && expr != null)
-                            {
-                                currentTrigger.contents.Add(expr);
-                                expr = null;
-                            }
-                            block.Add(currentTrigger);
-                            prevTrigger = currentTrigger;
-                            currentTrigger = Trigger.Undefined;
-                            yield return block;
-                        }
                         break;
 
                     default: break;
                 }
-                if (currentTrigger != Trigger.Undefined && expr != null)
+                if (expr != null)
                 {
-                    currentTrigger.contents.Add(expr);
+                    if (currentTrigger != Trigger.Undefined && !(expr.GetValue<object>() is Trigger))
+                        currentTrigger.contents.Add(expr);
                     expr = null;
                 }
             }
-        }
-
-        /// <summary>
-        /// Ints the parse. (I love GhostDoc lol)
-        /// </summary>
-        /// <param name="value">The value.</param>
-        /// <returns></returns>
-        private int IntParse(string value)
-        {
-            int result = 0;
-            for (int i = 0; i < value.Length; i++)
-            {
-                result = 10 * result + (value[i] - 48);
-            }
-            return result;
+            if (currentTrigger != Trigger.Undefined)
+                yield return currentTrigger;
+            currentTrigger = Trigger.Undefined;
         }
     }
 }

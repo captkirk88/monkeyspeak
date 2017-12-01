@@ -13,6 +13,6 @@ namespace Monkeyspeak.Lexical
 
         public string[] PreprocessorDefines { get; set; }
 
-        public abstract IEnumerable<TriggerBlock> Parse(AbstractLexer lexer);
+        public abstract IEnumerable<Trigger> Parse(AbstractLexer lexer);
     }
 }

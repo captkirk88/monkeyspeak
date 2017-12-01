@@ -45,7 +45,6 @@ namespace Monkeyspeak
         private object[] args;
         private Page page;
         private MonkeyspeakEngine engine;
-        private SourcePosition lastPos;
         private Queue<IExpression> contents;
 
         private readonly object syncObject = new object();
@@ -230,55 +229,8 @@ namespace Monkeyspeak
         public string ReadString(bool processVariables = true)
         {
             if (contents.Count == 0) throw new TriggerReaderException("Unexpected end of values");
-            if (!(contents.Peek() is StringExpression)) throw new TriggerReaderException($"Expected string, got {contents.Peek().GetType().Name} at {contents.Peek().Position}");
-            try
-            {
-                var expr = (contents.Dequeue() as StringExpression);
-                lastPos = expr.Position;
-                var str = expr.Value;
-
-                if (str[0] == '@')
-                {
-                    processVariables = false;
-                    str = str.Substring(1);
-                }
-
-                if (processVariables)
-                {
-                    for (int i = page.Scope.Count - 1; i >= 0; i--)
-                    {
-                        var var = page.Scope[i];
-                        object value = null;
-                        // replaced string.replace with Regex because
-                        //  %ListName would replace %ListName2 leaving the 2 at the end
-                        //- Gerolkae
-                        var pattern = var.Name + @"\b(\[[a-zA-Z_0-9]*\]+)?";
-                        str = Regex.Replace(str, pattern, new MatchEvaluator(match =>
-                        {
-                            if (match.Success)
-                            {
-                                string val = match.Value;
-                                if (val.IndexOf('[') != -1 && val.IndexOf(']') != -1)
-                                {
-                                    if (var is VariableTable)
-                                    {
-                                        value = (var as VariableTable)[val.Substring(val.IndexOf('[') + 1).TrimEnd(']')];
-                                    }
-                                }
-                                else
-                                    value = var.Value;
-                            }
-                            return value != null ? value.AsString() : "null";
-                        }), RegexOptions.CultureInvariant);
-                    }
-                }
-                return str;
-            }
-            catch (Exception ex)
-            {
-                Logger.Error<TriggerReader>(ex);
-                throw new TriggerReaderException($"No value found at {lastPos}");
-            }
+            if (contents.Peek().GetType() != Expressions.Instance[TokenType.STRING_LITERAL]) throw new TriggerReaderException($"Expected string, got {contents.Peek().GetType().Name} at {contents.Peek().Position}");
+            return (string)contents.Dequeue().Execute(page, contents, processVariables);
         }
 
         /// <summary>
@@ -288,7 +240,7 @@ namespace Monkeyspeak
         public bool PeekString()
         {
             if (contents.Count == 0) return false;
-            return contents.Peek() is StringExpression;
+            return contents.Peek().GetType() == Expressions.Instance[TokenType.STRING_LITERAL];
         }
 
         /// <summary>
@@ -318,31 +270,9 @@ namespace Monkeyspeak
         public IVariable ReadVariable(bool addIfNotExist = false)
         {
             if (contents == null || contents.Count == 0) throw new TriggerReaderException("Unexpected end of values");
-            if (!(contents.Peek() is VariableExpression)) throw new TriggerReaderException($"Expected variable, got {contents.Peek().GetType().Name} at {contents.Peek().Position}");
-            try
-            {
-                IVariable var;
-                var expr = contents.Dequeue() as VariableExpression;
-                lastPos = expr.Position;
-                var varRef = expr.Value;
-                if (!page.HasVariable(varRef, out var))
-                    if (addIfNotExist)
-                        if (expr is VariableTableExpression)
-                            var = page.SetVariableTable(varRef, false);
-                        else
-                            var = page.SetVariable(varRef, null, false);
-
-                if (expr is VariableTableExpression)
-                {
-                    ((VariableTable)var).ActiveIndexer = ((VariableTableExpression)expr).Indexer;
-                }
-                return var ?? Variable.NoValue;
-            }
-            catch (Exception ex)
-            {
-                Logger.Error<TriggerReader>(ex);
-                return Variable.NoValue;
-            }
+            if (contents.Peek().GetType() != Expressions.Instance[TokenType.VARIABLE] &&
+                contents.Peek().GetType() != Expressions.Instance[TokenType.TABLE]) throw new TriggerReaderException($"Expected variable, got {contents.Peek().GetType().Name} at {contents.Peek().Position}");
+            return (IVariable)contents.Dequeue().Execute(page, contents, addIfNotExist);
         }
 
         /// <summary>
@@ -372,48 +302,13 @@ namespace Monkeyspeak
         {
             if (contents.Count == 0) throw new TriggerReaderException("Unexpected end of values");
 
-            if ((contents.Peek() is VariableExpression))
+            if (contents.Peek().GetType() == Expressions.Instance[TokenType.VARIABLE])
             {
-                try
-                {
-                    var var = Variable.NoValue;
-                    var expr = (contents.Dequeue() as VariableExpression);
-                    lastPos = expr.Position;
-                    string varRef = expr.Value;
-                    if (!page.HasVariable(varRef, out var))
-                        if (addIfNotExist)
-                        {
-                            var = page.SetVariableTable(varRef, false);
-                            return var as VariableTable ?? VariableTable.Empty;
-                        }
-                    return var.ConvertToTable(page);
-                }
-                catch (Exception ex)
-                {
-                    Logger.Error<TriggerReader>(ex);
-                    return VariableTable.Empty;
-                }
+                return ((IVariable)contents.Dequeue().Execute(page, contents, addIfNotExist)).ConvertToTable(page);
             }
-            else if (contents.Peek() is VariableTableExpression)
+            else if (contents.Peek().GetType() == Expressions.Instance[TokenType.TABLE])
             {
-                try
-                {
-                    IVariable var;
-                    var expr = (contents.Dequeue() as VariableTableExpression);
-                    lastPos = expr.Position;
-                    string varRef = expr.Value;
-                    if (!page.HasVariable(varRef, out var))
-                        if (addIfNotExist)
-                            var = page.SetVariableTable(varRef, false);
-
-                    if (var is VariableTable && expr.HasIndex) ((VariableTable)var).ActiveIndexer = expr.Indexer;
-                    return var as VariableTable ?? VariableTable.Empty;
-                }
-                catch (Exception ex)
-                {
-                    Logger.Error<TriggerReader>(ex);
-                    return VariableTable.Empty;
-                }
+                return (VariableTable)contents.Dequeue().Execute(page, contents, addIfNotExist);
             }
             else throw new TriggerReaderException($"Expected variable table, got {contents.Peek().GetType().Name} at {contents.Peek().Position}");
         }
@@ -425,7 +320,7 @@ namespace Monkeyspeak
         public bool PeekVariable()
         {
             if (contents.Count == 0) return false;
-            return contents.Peek() is VariableExpression;
+            return contents.Peek().GetType() == Expressions.Instance[TokenType.VARIABLE];
         }
 
         /// <summary>
@@ -436,8 +331,10 @@ namespace Monkeyspeak
         public bool PeekVariable<T>()
         {
             if (contents.Count == 0) return false;
-            var expr = contents.Peek() as VariableExpression;
-            return expr != null && page.HasVariable(expr.Value, out IVariable var) ? var.Value is T : false;
+            var expr = contents.Peek();
+            if (expr.GetType() == Expressions.Instance[TokenType.VARIABLE])
+                return page.HasVariable(expr.GetValue<string>(), out IVariable var) ? var.Value is T : false;
+            return false;
         }
 
         /// <summary>
@@ -466,15 +363,15 @@ namespace Monkeyspeak
         {
             if (contents.Count == 0) throw new TriggerReaderException("Unexpected end of values");
 
-            if (contents.Peek() is NumberExpression)
+            if (contents.Peek().GetType() == Expressions.Instance[TokenType.NUMBER])
             {
-                return (contents.Dequeue() as NumberExpression).Value;
+                return (double)contents.Dequeue().Execute(page, contents);
             }
-            else if (contents.Peek() is VariableExpression)
+            else if (contents.Peek().GetType() == Expressions.Instance[TokenType.VARIABLE])
             {
                 return (double)ReadVariable()?.Value?.AsDouble();
             }
-            else if (contents.Peek() is VariableTableExpression)
+            else if (contents.Peek().GetType() == Expressions.Instance[TokenType.TABLE])
             {
                 var table = ReadVariableTable();
                 return table[table?.ActiveIndexer].AsDouble();
@@ -489,7 +386,7 @@ namespace Monkeyspeak
         public bool PeekNumber()
         {
             if (contents.Count == 0) return false;
-            return contents.Peek() is NumberExpression;
+            return contents.Peek().GetType() == Expressions.Instance[TokenType.NUMBER] || PeekVariable<double>();
         }
 
         /// <summary>
@@ -523,7 +420,7 @@ namespace Monkeyspeak
                     {
                         num = ReadNumber();
                     }
-                    catch { continue; }
+                    catch (Exception ex) { Logger.Error<TriggerReader>(ex); continue; }
                     yield return num;
                 }
                 else if (PeekString())
@@ -533,7 +430,7 @@ namespace Monkeyspeak
                     {
                         str = ReadString();
                     }
-                    catch { continue; }
+                    catch (Exception ex) { Logger.Error<TriggerReader>(ex); continue; }
                     yield return str;
                 }
                 else if (PeekVariable())
@@ -543,7 +440,7 @@ namespace Monkeyspeak
                     {
                         var = ReadVariable();
                     }
-                    catch { continue; }
+                    catch (Exception ex) { Logger.Error<TriggerReader>(ex); continue; }
                     yield return var;
                 }
             }

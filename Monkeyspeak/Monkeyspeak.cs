@@ -1,4 +1,5 @@
 ﻿using Monkeyspeak.Lexical;
+using Monkeyspeak.Lexical.Expressions;
 using Monkeyspeak.Logging;
 using System;
 using System.Collections.Generic;
@@ -78,6 +79,11 @@ namespace Monkeyspeak
         {
             get { return options; }
             set { options = value; }
+        }
+
+        public void ReplaceExpresson<T>(TokenType tokenType) where T : Expression
+        {
+            Expressions.Instance[tokenType] = typeof(T);
         }
 
         /// <summary>
