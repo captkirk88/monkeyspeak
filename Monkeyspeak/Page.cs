@@ -61,7 +61,7 @@ namespace Monkeyspeak
     /// </summary>
     /// <param name="trigger"></param>
     /// <param name="ex"></param>
-    public delegate void TriggerHandlerErrorEvent(TriggerHandler handler, Trigger trigger, Exception ex);
+    public delegate void TriggerHandlerErrorEvent(Page page, TriggerHandler handler, Trigger trigger, Exception ex);
 
     /// <summary>
     ///
@@ -794,7 +794,7 @@ namespace Monkeyspeak
             {
                 bool canContinue = handler != null ? handler(reader) : false;
                 if (AfterTriggerHandled != null && !AfterTriggerHandled(current)) return;
-                Logger.Debug<Page>($"{current.ToString(true, true, this)} returned {canContinue}");
+                Logger.Debug<Page>($"{GetTriggerDescription(current, true)} returned {canContinue}");
                 if (reader.CurrentBlockIndex != index)
                 {
                     index = reader.CurrentBlockIndex;
@@ -909,7 +909,7 @@ namespace Monkeyspeak
             {
                 index = triggerBlock.Count;
                 if (Error != null)
-                    Error(handlers[current], current, e);
+                    Error(this, handlers[current], current, e);
                 else throw;
             }
         }

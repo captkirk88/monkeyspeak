@@ -36,14 +36,12 @@ namespace Monkeyspeak.Lexical
                 var trigger = new Trigger((TriggerCategory)reader.ReadByte(), reader.ReadInt32(), sourcePos);
 
                 int triggerContentCount = reader.ReadInt32();
-                Logger.Debug<Compiler>($"Trigger {trigger}");
                 for (int k = 0; k <= triggerContentCount - 1; k++)
                 {
                     var tokenType = (TokenType)reader.ReadByte();
                     if (!Expressions.Expressions.Instance.ContainsKey(tokenType))
                         throw new MonkeyspeakException($"Token {tokenType} does not have a expression associated with it");
                     var type = Expressions.Expressions.Instance[tokenType];
-                    Logger.Debug<Compiler>($"Expr Type {type.Name}");
                     var content = (IExpression)Activator.CreateInstance(type);
                     content.Read(reader);
                     trigger.contents.Add(content);

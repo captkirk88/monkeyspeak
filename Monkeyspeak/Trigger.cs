@@ -181,32 +181,14 @@ namespace Monkeyspeak
         /// <summary>
         /// Returns a <see cref="System.String" /> that represents this instance.
         /// </summary>
+        /// <param name="engine">The engine.</param>
         /// <param name="includeSourcePos">if set to <c>true</c> [include source position].</param>
-        /// <param name="includeContents">if set to <c>true</c> [include contents].</param>
-        /// <param name="page">The page.</param>
         /// <returns>
         /// A <see cref="System.String" /> that represents this instance.
         /// </returns>
-        public string ToString(bool includeSourcePos = false, bool includeContents = false, Page page = null)
+        public string ToString(MonkeyspeakEngine engine, bool includeSourcePos = false)
         {
-            StringBuilder sb = new StringBuilder();
-            sb.Append($"({(int)category}:{id}) {(includeSourcePos ? SourcePosition.ToString() : string.Empty)}");
-            if (includeContents)
-            {
-                if (contents != null && contents.Count > 0)
-                {
-                    sb.Append(' ');
-                    for (int i = 0; i <= contents.Count - 1; i++)
-                    {
-                        sb.Append(contents[i]);
-#if DEBUG
-                        sb.Append($"({contents[i].GetType().Name})");
-#endif
-                        if (i != contents.Count - 1) sb.Append(", ");
-                    }
-                }
-            }
-            return sb.ToString();
+            return RebuildToString(engine.Options, includeSourcePos);
         }
 
         /// <summary>
@@ -216,5 +198,39 @@ namespace Monkeyspeak
         /// A <see cref="string" /> that represents this instance.
         /// </returns>
         public override string ToString() => $"({(int)category}:{id})";
+
+        public string RebuildToString(Options options, bool includeSourcePos = false)
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.Append($"({(int)category}:{id})").Append(includeSourcePos ? SourcePosition.ToString() : "");
+            if (contents != null && contents.Count > 0)
+            {
+                sb.Append(' ');
+                for (int i = 0; i <= contents.Count - 1; i++)
+                {
+                    var expr = contents[i];
+                    var tokenType = Expressions.GetTokenTypeFor(contents[i].GetType());
+                    if (tokenType == null) continue;
+                    switch (tokenType)
+                    {
+                        case TokenType.TABLE:
+                        case TokenType.VARIABLE:
+                            sb.Append(expr.GetValue<string>());
+                            break;
+
+                        case TokenType.NUMBER:
+                            sb.Append(expr.GetValue<double>());
+                            break;
+
+                        case TokenType.STRING_LITERAL:
+                            sb.Append(options.StringBeginSymbol).Append(expr.GetValue<string>()).Append(options.StringEndSymbol);
+                            break;
+                    }
+                    if (includeSourcePos) sb.Append(expr.Position);
+                    if (i != contents.Count - 1) sb.Append(' ');
+                }
+            }
+            return sb.ToString();
+        }
     }
 }

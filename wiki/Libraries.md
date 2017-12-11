@@ -41,7 +41,7 @@ is very very simple.  First, you would create a class, then you would inherit Ba
         public override void Unload(Page page)
         {
             // this is called by page.Dispose() which is not called automatically
-            // remove any unmanaged and disposable resources here or just due a ending action
+            // remove any unmanaged and disposable resources here or just do a ending action
         }
     }
 ```

@@ -26,7 +26,7 @@ namespace Monkeyspeak
 
         public object Value
         {
-            get { return value ?? "null"; }
+            get { return value; }
             set
             {
                 throw new VariableIsConstantException($"Attempt to assign a value to constant '{Name}'");

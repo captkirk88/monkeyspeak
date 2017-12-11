@@ -71,5 +71,10 @@ namespace Monkeyspeak.Extensions
                         return new string(chr, 1);
             }
         }
+
+        public static bool IsNullOrBlank(this string str)
+        {
+            return string.IsNullOrEmpty(str) || (str.Length == 1 && str[0] == ' ');
+        }
     }
 }

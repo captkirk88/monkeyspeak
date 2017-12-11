@@ -175,7 +175,7 @@ namespace MonkeyspeakTests
         public void Tables()
         {
             var engine = new MonkeyspeakEngine();
-            engine.Options.Debug = false;
+            engine.Options.Debug = true;
 
             Logger.Info(tableScript);
             Page page = engine.LoadFromString(tableScript); // replace with tableScriptMini to see results of that script
@@ -199,7 +199,7 @@ namespace MonkeyspeakTests
         public void DemoTest()
         {
             var engine = new MonkeyspeakEngine();
-            engine.Options.Debug = true;
+            engine.Options.Debug = false;
             Page page = engine.LoadFromString(testScript);
 
             page.Error += DebugAllErrors;
@@ -274,7 +274,7 @@ namespace MonkeyspeakTests
                 foreach (var trigger in parser.Parse(lexer))
                 {
                     StringBuilder sb = new StringBuilder();
-                    sb.Append(trigger.ToString(true, true));
+                    sb.Append(trigger.ToString(engine, true));
                     Logger.Info(sb.ToString());
                 }
                 parser.VisitToken = null;
@@ -399,9 +399,7 @@ namespace MonkeyspeakTests
             var sb = new StringBuilder();
             for (int i = 0; i < 10000; i++)
             {
-                sb.AppendLine();
-                sb.Append("(5:100) set %hello to {Hello World}.");
-                sb.AppendLine();
+                sb.AppendLine("(5:100) set %hello to {Hello World}.");
             }
 
             Page page = engine.LoadFromString(sb.ToString());
@@ -411,9 +409,7 @@ namespace MonkeyspeakTests
             var sb2 = new StringBuilder();
             for (int i = 0; i < 50000; i++)
             {
-                sb2.AppendLine();
-                sb2.Append("(5:100) set %hello to {Hello World}.");
-                sb2.AppendLine();
+                sb2.AppendLine("(5:100) set %hello to {Hello World}.");
             }
             var tasks = new Task[5];
             for (int i = 0; i <= tasks.Length - 1; i++)
@@ -578,9 +574,9 @@ namespace MonkeyspeakTests
             return false;
         }
 
-        private void DebugAllErrors(TriggerHandler handler, Monkeyspeak.Trigger trigger, Exception ex)
+        private void DebugAllErrors(Page page, TriggerHandler handler, Monkeyspeak.Trigger trigger, Exception ex)
         {
-            Logger.Error($"{handler.Method.Name} in {trigger.ToString(true)}\n{ex}");
+            Logger.Error($"{handler.Method.Name} in {trigger.ToString(page.Engine)}\n{ex}");
         }
 
         public static Token VisitTokens(ref Token token)

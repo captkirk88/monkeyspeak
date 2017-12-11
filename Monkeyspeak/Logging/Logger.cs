@@ -9,6 +9,7 @@ using System.Diagnostics;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using Monkeyspeak.Logging;
+using Monkeyspeak.Extensions;
 
 #endregion Usings
 
@@ -106,7 +107,7 @@ namespace Monkeyspeak.Logging
         /// </returns>
         public override int GetHashCode()
         {
-            return message.GetHashCode();
+            return curThread.ManagedThreadId + message.GetHashCode();
         }
 
         /// <summary>
@@ -138,6 +139,7 @@ namespace Monkeyspeak.Logging
         private static ILogOutput _logOutput;
         internal static readonly ConcurrentList<LogMessage> history = new ConcurrentList<LogMessage>();
         internal static readonly ConcurrentQueue<LogMessage> queue = new ConcurrentQueue<LogMessage>();
+        private static readonly ConcurrentList<Type> disabledTypes = new ConcurrentList<Type>();
         private static LogMessageComparer comparer = new LogMessageComparer();
         private static object syncObj = new object();
         private static bool _infoEnabled = true;
@@ -278,6 +280,27 @@ namespace Monkeyspeak.Logging
             }
         }
 
+        /// <summary>
+        /// Disables logging for the specified type.
+        /// </summary>
+        /// <typeparam name="T">the type</typeparam>
+        public static void Disable<T>()
+        {
+            if (!disabledTypes.Contains(typeof(T)))
+                disabledTypes.Add(typeof(T));
+        }
+
+        private static bool TypeCheck(Type type, out string typeName)
+        {
+            if (disabledTypes.Contains(type))
+            {
+                typeName = null;
+                return false;
+            }
+            typeName = type.Name;
+            return true;
+        }
+
         private static void Log(LogMessage? msg)
         {
             if (msg == null) return;
@@ -407,42 +430,46 @@ namespace Monkeyspeak.Logging
 
         public static void Debug(object msg, [CallerMemberName]string memberName = "")
         {
-            Log(LogMessage.From(Level.Debug, $"System{(LogCallingMethod && !string.IsNullOrEmpty(memberName) ? $" ({memberName})" : "")}: {(msg != null ? msg.ToString() : "null")}", MessagesExpire));
+            Log(LogMessage.From(Level.Debug, $"System{(LogCallingMethod && !memberName.IsNullOrBlank() ? $" ({memberName})" : "")}: {(msg != null ? msg.ToString() : "null")}", MessagesExpire));
         }
 
         public static void Debug<T>(object msg, [CallerMemberName]string memberName = "")
         {
-            Log(LogMessage.From(Level.Debug, $"{typeof(T).Name}{(LogCallingMethod && !string.IsNullOrEmpty(memberName) ? $" ({memberName})" : "")}: {msg}", MessagesExpire));
+            if (TypeCheck(typeof(T), out string typeName))
+                Log(LogMessage.From(Level.Debug, $"{typeName}{(LogCallingMethod && !memberName.IsNullOrBlank() ? $" ({memberName})" : "")}: {msg}", MessagesExpire));
         }
 
         public static void Info(object msg, [CallerMemberName]string memberName = "")
         {
-            Log(LogMessage.From(Level.Info, $"System{(LogCallingMethod && !string.IsNullOrEmpty(memberName) ? $" ({memberName})" : "")}: {(msg != null ? msg.ToString() : "null")}", MessagesExpire));
+            Log(LogMessage.From(Level.Info, $"System{(LogCallingMethod && !memberName.IsNullOrBlank() ? $" ({memberName})" : "")}: {(msg != null ? msg.ToString() : "null")}", MessagesExpire));
         }
 
         public static void Info<T>(object msg, [CallerMemberName]string memberName = "")
         {
-            Log(LogMessage.From(Level.Info, $"{typeof(T).Name}{(LogCallingMethod && !string.IsNullOrEmpty(memberName) ? $" ({memberName})" : "")}: {msg}", MessagesExpire));
+            if (TypeCheck(typeof(T), out string typeName))
+                Log(LogMessage.From(Level.Info, $"{typeName}{(LogCallingMethod && !memberName.IsNullOrBlank() ? $" ({memberName})" : "")}: {msg}", MessagesExpire));
         }
 
         public static void Error(object msg, [CallerMemberName]string memberName = "")
         {
-            Log(LogMessage.From(Level.Error, $"System{(LogCallingMethod && !string.IsNullOrEmpty(memberName) ? $" ({memberName})" : "")}: {(msg != null ? msg.ToString() : "null")}", MessagesExpire));
+            Log(LogMessage.From(Level.Error, $"System{(LogCallingMethod && !memberName.IsNullOrBlank() ? $" ({memberName})" : "")}: {(msg != null ? msg.ToString() : "null")}", MessagesExpire));
         }
 
         public static void Error<T>(object msg, [CallerMemberName]string memberName = "")
         {
-            Log(LogMessage.From(Level.Error, $"{typeof(T).Name}{(LogCallingMethod && !string.IsNullOrEmpty(memberName) ? $" ({memberName})" : "")}: {msg}", MessagesExpire));
+            if (TypeCheck(typeof(T), out string typeName))
+                Log(LogMessage.From(Level.Error, $"{typeName}{(LogCallingMethod && !memberName.IsNullOrBlank() ? $" ({memberName})" : "")}: {msg}", MessagesExpire));
         }
 
         public static void Warn(object msg, [CallerMemberName]string memberName = "")
         {
-            Log(LogMessage.From(Level.Warning, $"System{(LogCallingMethod && !string.IsNullOrEmpty(memberName) ? $" ({memberName})" : "")}: {(msg != null ? msg.ToString() : "null")}", MessagesExpire));
+            Log(LogMessage.From(Level.Warning, $"System{(LogCallingMethod && !memberName.IsNullOrBlank() ? $" ({memberName})" : "")}: {(msg != null ? msg.ToString() : "null")}", MessagesExpire));
         }
 
         public static void Warn<T>(object msg, [CallerMemberName]string memberName = "")
         {
-            Log(LogMessage.From(Level.Warning, $"{typeof(T).Name}{(LogCallingMethod && !string.IsNullOrEmpty(memberName) ? $" ({memberName})" : "")}: {msg}", MessagesExpire));
+            if (TypeCheck(typeof(T), out string typeName))
+                Log(LogMessage.From(Level.Warning, $"{typeName}{(LogCallingMethod && !memberName.IsNullOrBlank() ? $" ({memberName})" : "")}: {msg}", MessagesExpire));
         }
     }
 }
