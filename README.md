@@ -1,4 +1,6 @@
-![Monkeyspeak Hero](https://i.pinimg.com/736x/2f/f0/87/2ff087415a5009984739aa8fde5d5d4a--cartoon-monkeys-monkey-cartoon.jpg)
+
+<img src="https://pbs.twimg.com/media/DBCp3bAXcAAL3WP.jpg" alt="Monkeyspeak Hero" style="width: 200px;" />
+
 # Monkeyspeak
 Linux/Mono | Windows
 ------------ | ---------

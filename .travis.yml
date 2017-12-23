@@ -2,10 +2,7 @@ language: csharp
 solution: Monkeyspeak.sln
 sudo: true
 bundler_args: "--retry 5"
-
-matrix:
-    include:
-        - mono: latest
+mono: latest
 
 #branches:
 #  except:
