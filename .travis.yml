@@ -29,7 +29,7 @@ install:
 
 script:
 - xbuild /p:Configuration=Release Monkeyspeak.sln
-- mono ./testrunner/NUnit.ConsoleRunner.3.7.0/tools/nunit-console.exe ./Monkeyspeak.Tests/bin/Release/Monkeyspeak.Tests.dll
+- mono ./testrunner/NUnit.ConsoleRunner.3.7.0/tools/nunit3-console.exe ./Monkeyspeak.Tests/bin/Release/Monkeyspeak.Tests.dll
 
 
 before_deploy:
