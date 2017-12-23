@@ -24,7 +24,7 @@ before_install:
 - sudo apt-get install rar
 
 install:
-- nuget install NUnit.ConsoleRunner.3.7.0 -Version 3.7.0 -OutputDirectory testrunner
+- nuget install NUnit.ConsoleRunner -Version 3.7.0 -OutputDirectory testrunner
 - nuget restore Monkeyspeak.sln
 
 script:
