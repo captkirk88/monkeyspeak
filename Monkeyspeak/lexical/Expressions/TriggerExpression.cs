@@ -36,16 +36,9 @@ namespace Monkeyspeak.Lexical.Expressions
                 OtherUtils.IntParse(id), pos);
         }
 
-        public override bool Apply(Trigger? prevTrigger)
+        public override void Apply(Trigger? prevTrigger)
         {
-            var currentTrigger = GetValue<Trigger>();
-            if (prevTrigger.HasValue &&
-                prevTrigger.Value.Category == TriggerCategory.Effect || prevTrigger.Value.Category == TriggerCategory.Flow &&
-                currentTrigger.Category == TriggerCategory.Cause)
-            {
-                return false;
-            }
-            return true;
+            // not needed
         }
 
         public override object Execute(Page page, Queue<IExpression> contents, bool addToPage = false)

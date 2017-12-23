@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.27004.2006
+VisualStudioVersion = 15.0.27130.2010
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Monkeyspeak", "Monkeyspeak\Monkeyspeak.csproj", "{925781E6-8B75-471B-887F-616495BBBFDD}"
 EndProject
@@ -16,8 +16,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "msxc", "msxc\msxc.csproj", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Monkeyspeak.Editor", "Monkeyspeak.Editor\Monkeyspeak.Editor.csproj", "{D69B1B69-591D-4286-BE5C-52FB96D256EE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MonkeyspeakTests", "MonkeyspeakTests\MonkeyspeakTests.csproj", "{4BCAEDFC-DD41-4836-A9D1-3A980D2240EB}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "wiki", "wiki", "{EBF2C0FE-BE42-4EF3-A9F2-7C8E197081A8}"
 	ProjectSection(SolutionItems) = preProject
 		wiki\Compiler.md = wiki\Compiler.md
@@ -26,6 +24,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "wiki", "wiki", "{EBF2C0FE-B
 		wiki\Triggers.md = wiki\Triggers.md
 		wiki\Variables.md = wiki\Variables.md
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Monkeyspeak.Tests", "Monkeyspeak.Tests\Monkeyspeak.Tests.csproj", "{8EDF4429-251A-416D-BB68-93F227191BCF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -82,21 +82,22 @@ Global
 		{D69B1B69-591D-4286-BE5C-52FB96D256EE}.Release|x64.ActiveCfg = Release|x64
 		{D69B1B69-591D-4286-BE5C-52FB96D256EE}.Release|x86.ActiveCfg = Release|x86
 		{D69B1B69-591D-4286-BE5C-52FB96D256EE}.Release|x86.Build.0 = Release|x86
-		{4BCAEDFC-DD41-4836-A9D1-3A980D2240EB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{4BCAEDFC-DD41-4836-A9D1-3A980D2240EB}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{4BCAEDFC-DD41-4836-A9D1-3A980D2240EB}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
-		{4BCAEDFC-DD41-4836-A9D1-3A980D2240EB}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
-		{4BCAEDFC-DD41-4836-A9D1-3A980D2240EB}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{4BCAEDFC-DD41-4836-A9D1-3A980D2240EB}.Debug|x64.Build.0 = Debug|Any CPU
-		{4BCAEDFC-DD41-4836-A9D1-3A980D2240EB}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{4BCAEDFC-DD41-4836-A9D1-3A980D2240EB}.Debug|x86.Build.0 = Debug|Any CPU
-		{4BCAEDFC-DD41-4836-A9D1-3A980D2240EB}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{4BCAEDFC-DD41-4836-A9D1-3A980D2240EB}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
-		{4BCAEDFC-DD41-4836-A9D1-3A980D2240EB}.Release|Mixed Platforms.Build.0 = Release|Any CPU
-		{4BCAEDFC-DD41-4836-A9D1-3A980D2240EB}.Release|x64.ActiveCfg = Release|Any CPU
-		{4BCAEDFC-DD41-4836-A9D1-3A980D2240EB}.Release|x64.Build.0 = Release|Any CPU
-		{4BCAEDFC-DD41-4836-A9D1-3A980D2240EB}.Release|x86.ActiveCfg = Release|Any CPU
-		{4BCAEDFC-DD41-4836-A9D1-3A980D2240EB}.Release|x86.Build.0 = Release|Any CPU
+		{8EDF4429-251A-416D-BB68-93F227191BCF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8EDF4429-251A-416D-BB68-93F227191BCF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8EDF4429-251A-416D-BB68-93F227191BCF}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{8EDF4429-251A-416D-BB68-93F227191BCF}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{8EDF4429-251A-416D-BB68-93F227191BCF}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{8EDF4429-251A-416D-BB68-93F227191BCF}.Debug|x64.Build.0 = Debug|Any CPU
+		{8EDF4429-251A-416D-BB68-93F227191BCF}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{8EDF4429-251A-416D-BB68-93F227191BCF}.Debug|x86.Build.0 = Debug|Any CPU
+		{8EDF4429-251A-416D-BB68-93F227191BCF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8EDF4429-251A-416D-BB68-93F227191BCF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8EDF4429-251A-416D-BB68-93F227191BCF}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{8EDF4429-251A-416D-BB68-93F227191BCF}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{8EDF4429-251A-416D-BB68-93F227191BCF}.Release|x64.ActiveCfg = Release|Any CPU
+		{8EDF4429-251A-416D-BB68-93F227191BCF}.Release|x64.Build.0 = Release|Any CPU
+		{8EDF4429-251A-416D-BB68-93F227191BCF}.Release|x86.ActiveCfg = Release|Any CPU
+		{8EDF4429-251A-416D-BB68-93F227191BCF}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

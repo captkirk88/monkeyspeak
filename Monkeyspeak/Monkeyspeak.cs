@@ -43,12 +43,21 @@ namespace Monkeyspeak
             : base(info, context) { }
     }
 
+    /// <summary>
+    /// The core class of Monkeyspeak, can create Pages by loading scripts from files, streams or raw strings.
+    /// </summary>
     public sealed class MonkeyspeakEngine
     {
         public Options options;
 
+        /// <summary>
+        /// Set this to visit tokens during the parse step
+        /// </summary>
         public TokenVisitorHandler VisitTokens;
 
+        /// <summary>
+        /// Occurs when [resetting].
+        /// </summary>
         public event Action<MonkeyspeakEngine> Resetting;
 
         public MonkeyspeakEngine()
@@ -61,6 +70,12 @@ namespace Monkeyspeak
             this.options = options;
         }
 
+        /// <summary>
+        /// Gets the banner.
+        /// </summary>
+        /// <value>
+        /// The banner.
+        /// </value>
         public string Banner
         {
             get
@@ -75,12 +90,23 @@ namespace Monkeyspeak
             }
         }
 
+        /// <summary>
+        /// Gets or sets the options.
+        /// </summary>
+        /// <value>
+        /// The options.
+        /// </value>
         public Options Options
         {
             get { return options; }
             set { options = value; }
         }
 
+        /// <summary>
+        /// Replaces the expresson associated to the <paramref name="tokenType"/> to <typeparamref name="T"/>.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="tokenType">Type of the token.</param>
         public void ReplaceExpresson<T>(TokenType tokenType) where T : Expression
         {
             Expressions.Instance[tokenType] = typeof(T);
@@ -130,9 +156,23 @@ namespace Monkeyspeak
             }
         }
 
+        /// <summary>
+        /// Loads a Monkeyspeak script from a file into a <see cref="Monkeyspeak.Page"/>.
+        /// </summary>
+        /// <param name="filePath">the file path to the script</param>
+        /// <returns></returns>
+        /// <exception cref="System.IO.IOException"></exception>
         public Page LoadFromFile(string filePath)
         {
-            if (!File.Exists(filePath)) throw new IOException($"{filePath} does not exist");
+            if (!File.Exists(filePath))
+            {
+                // small fix for NUnit cases where the path is a temp location, also useful when passing simple file names to this method
+                var path = Path.GetDirectoryName(Uri.UnescapeDataString(new UriBuilder(Assembly.GetExecutingAssembly()?.CodeBase).Path));
+                path = Path.Combine(path, filePath);
+                if (File.Exists(path))
+                    filePath = path;
+                else throw new IOException($"{path} does not exist");
+            }
             using (var reader = new SStreamReader(filePath))
             {
                 Page page = new Page(this);
@@ -144,6 +184,20 @@ namespace Monkeyspeak
                 }
                 return page;
             }
+        }
+
+        /// <summary>
+        /// Loads a Monkeyspeak script from a file into a <see cref="Monkeyspeak.Page"/>.
+        /// </summary>
+        /// <param name="filePath">the file path to the script</param>
+        /// <returns><see cref="Page"/></returns>
+        public async Task<Page> LoadFromFileAsync(string filePath)
+        {
+            return await Task.Run(() => LoadFromFile(filePath)).ContinueWith(task =>
+            {
+                if (task.Exception != null) throw task.Exception;
+                else return task.Result;
+            }, TaskContinuationOptions.ExecuteSynchronously);
         }
 
         /// <summary>
@@ -327,6 +381,9 @@ namespace Monkeyspeak
         {
             try
             {
+                // small fix for NUnit cases where the path is a temp location, also useful when passing simple file names to this method
+                var path = Path.GetDirectoryName(Uri.UnescapeDataString(new UriBuilder(Assembly.GetExecutingAssembly().CodeBase).Path));
+                filePath = Path.Combine(path, filePath);
                 using (Stream stream = new FileStream(filePath, FileMode.Open, FileAccess.Read))
                 {
                     return LoadCompiledStream(stream);

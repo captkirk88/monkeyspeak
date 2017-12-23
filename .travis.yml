@@ -1,9 +1,14 @@
 language: csharp
 solution: Monkeyspeak.sln
-mono: latest
 sudo: true
 bundler_args: "--retry 5"
 
+matrix:
+    include:
+        - dotnet: 1.1.5
+          mono: none
+          env: DOTNETCORE=1  # optional, can be used to take different code paths in your script
+        - mono: latest
 #branches:
 #  except:
 #    - /^*-v[0-9]/
@@ -20,10 +25,12 @@ before_install:
 
 install:
 - nuget restore Monkeyspeak.sln
+- nuget install NUnit.Runners -Version 2.6.4 -OutputDirectory testrunner
+- nuget restore Monkeyspeak.sln
 
 script:
-- xbuild /p:Configuration=Release Monkeyspeak/Monkeyspeak.csproj
-- xbuild /p:Configuration=Release msxc/msxc.csproj
+- xbuild /p:Configuration=Release Monkeyspeak.sln
+- mono ./testrunner/NUnit.Runners.2.6.4/tools/nunit-console.exe ./MOnkeyspeakTests/bin/Release/MyProject.Tests.dll
 
 
 before_deploy:

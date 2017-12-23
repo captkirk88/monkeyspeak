@@ -63,10 +63,9 @@ namespace Monkeyspeak.Lexical.Expressions
             return $"{GetValue<object>()} {sourcePosition}";
         }
 
-        public virtual bool Apply(Trigger? trigger)
+        public virtual void Apply(Trigger? trigger)
         {
             trigger?.contents?.Add(this);
-            return true;
         }
 
         public virtual void Write(BinaryWriter writer)

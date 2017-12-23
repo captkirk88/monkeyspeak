@@ -59,8 +59,14 @@ namespace Monkeyspeak
                 switch (tokenType)
                 {
                     case TokenType.TRIGGER:
+                        if (currentTrigger != Trigger.Undefined)
+                        {
+                            if (expr != null) expr.Apply(currentTrigger);
+                            yield return currentTrigger;
+                            lastTrigger = currentTrigger;
+                            currentTrigger = Trigger.Undefined;
+                        }
                         expr = Expressions.Create(tokenType, sourcePos, value);
-                        if (lastTrigger != Trigger.Undefined) yield return lastTrigger;
                         lastTrigger = currentTrigger;
                         currentTrigger = expr.GetValue<Trigger>();
                         break;
@@ -90,20 +96,30 @@ namespace Monkeyspeak
                         break;
 
                     case TokenType.END_OF_FILE:
+                        if (currentTrigger != Trigger.Undefined)
+                        {
+                            expr.Apply(currentTrigger);
+                            yield return currentTrigger;
+                            lastTrigger = currentTrigger;
+                            currentTrigger = Trigger.Undefined;
+                        }
                         break;
 
                     default: break;
                 }
                 if (expr != null)
                 {
-                    if (currentTrigger != Trigger.Undefined && !(expr.GetValue<object>() is Trigger))
-                        currentTrigger.contents.Add(expr);
+                    if (currentTrigger != Trigger.Undefined)
+                    {
+                        expr.Apply(currentTrigger);
+                    }
                     expr = null;
                 }
             }
             if (currentTrigger != Trigger.Undefined)
+            {
                 yield return currentTrigger;
-            currentTrigger = Trigger.Undefined;
+            }
         }
     }
 }

@@ -30,7 +30,7 @@ namespace Monkeyspeak.Lexical.Expressions
         /// </summary>
         /// <param name="trigger">The trigger.</param>
         /// <returns>[true] if contents were applied, [false] otherwise</returns>
-        bool Apply(Trigger? currentTrigger);
+        void Apply(Trigger? currentTrigger);
 
         object Execute(Page page, Queue<IExpression> contents, bool addToPage = false);
     }

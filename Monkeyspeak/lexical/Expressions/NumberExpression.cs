@@ -23,12 +23,6 @@ namespace Monkeyspeak.Lexical.Expressions
             SetValue(reader.ReadDouble());
         }
 
-        //Optional (defaults to adding this expression to the trigger)
-        public override bool Apply(Trigger? trigger)
-        {
-            return base.Apply(trigger);
-        }
-
         public override object Execute(Page page, Queue<IExpression> contents, bool addToPage = false)
         {
             return GetValue<double>();

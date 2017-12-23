@@ -379,10 +379,11 @@ namespace Monkeyspeak
         }
 
         /// <summary>
-        /// Loads a <see cref="Libraries.BaseLibrary"/> into this Page
+        /// Loads a <see cref="BaseLibrary"/> into this Page
         /// </summary>
         /// <param name="lib"></param>
-        public void LoadLibrary(Libraries.BaseLibrary lib, params object[] args)
+        /// <param name="args">arguments to initialize the library with, if any</param>
+        public void LoadLibrary(BaseLibrary lib, params object[] args)
         {
             foreach (var existing in libraries)
                 if (existing.GetType().Equals(lib.GetType())) return;

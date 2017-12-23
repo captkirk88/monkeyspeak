@@ -14,7 +14,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyDescription("Scripting language that is very user friendly.")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("Monkeyspeak")]
-[assembly: AssemblyCopyright("Copyright ©  2017")]
+[assembly: AssemblyCopyright("Copyright © 2017")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -29,3 +29,5 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyDelaySign(false)]
 [assembly: AssemblyKeyFile("Monkeyspeak.snk")]
 [assembly: AssemblyKeyName("")]
+[assembly: NeutralResourcesLanguage("en")]
+
