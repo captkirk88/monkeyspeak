@@ -24,12 +24,12 @@ before_install:
 - sudo apt-get install rar
 
 install:
-- nuget install NUnit.Runners -Version 2.6.4 -OutputDirectory testrunner
+- nuget install NUnit.ConsoleRunner.3.7.0 -Version 3.7.0 -OutputDirectory testrunner
 - nuget restore Monkeyspeak.sln
 
 script:
 - xbuild /p:Configuration=Release Monkeyspeak.sln
-- mono ./testrunner/NUnit.Runners.2.6.4/tools/nunit-console.exe ./Monkeyspeak.Tests/bin/Release/Monkeyspeak.Tests.dll
+- mono ./testrunner/NUnit.ConsoleRunner.3.7.0/tools/nunit-console.exe ./Monkeyspeak.Tests/bin/Release/Monkeyspeak.Tests.dll
 
 
 before_deploy:
