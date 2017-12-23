@@ -203,8 +203,6 @@ namespace MonkeyspeakTests
             engine.Options.Debug = false;
             Page page = engine.LoadFromString(testScript);
 
-            page.Error += DebugAllErrors;
-
             page.LoadAllLibraries();
             //page.LoadDebugLibrary();
             page.SetVariable("%testVariable", "Hello WOrld", true);
@@ -213,8 +211,10 @@ namespace MonkeyspeakTests
 
             // Trigger count created by subscribing to TriggerAdded event and putting triggers into a list.
             Console.WriteLine("Trigger Count: " + page.Size);
-            Logger.Assert(page.Size > 0, "Page size was 0 = FAIL!");
-            page.Execute();
+            Assert.Greater(page.Size, 0);
+            Assert.Throws<VariableIsConstantException>(() => page.Execute());
+            page.Error += DebugAllErrors;
+            Assert.DoesNotThrow(() => page.Execute());
             foreach (var variable in page.Scope)
             {
                 Console.WriteLine(variable.ToString());
