@@ -283,16 +283,14 @@ namespace Monkeyspeak
         }
 
         /// <summary>
-        /// Removes the triggers.
+        /// Removes the triggers and variables.
         /// </summary>
         public void Clear()
         {
             triggerBlocks.Clear();
-            foreach (var var in Scope)
-            {
-                if (var.Name.Contains("___")) RemoveVariable(var);
-            }
+            scope.Clear();
             Size = 0;
+            Initiate();
         }
 
         /// <summary>
@@ -454,6 +452,11 @@ namespace Monkeyspeak
         {
             foreach (var lib in BaseLibrary.GetAllLibraries())
                 LoadLibrary(lib);
+        }
+
+        public bool RemoveLibrary(BaseLibrary lib)
+        {
+            return RemoveAllTriggerHandlers(libraries.FirstOrDefault(l => l == lib)) > 0;
         }
 
         public bool RemoveLibrary(Type libraryType)

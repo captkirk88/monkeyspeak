@@ -266,6 +266,13 @@ namespace Monkeyspeak
             return var.Value.AsDouble();
         }
 
+        /// <summary>
+        /// Determines whether the specified <see cref="System.Object" />, is equal to this instance.
+        /// </summary>
+        /// <param name="obj">The <see cref="System.Object" /> to compare with this instance.</param>
+        /// <returns>
+        ///   <c>true</c> if the specified <see cref="System.Object" /> is equal to this instance; otherwise, <c>false</c>.
+        /// </returns>
         public override bool Equals(object obj)
         {
             return obj != null && obj is Variable && Equals((Variable)obj);
@@ -299,7 +306,7 @@ namespace Monkeyspeak
         /// </value>
         public string ActiveIndexer { get; set; }
 
-        internal Dictionary<string, object> values;
+        internal IDictionary<string, object> values;
 
         public object Value
         {
@@ -373,6 +380,14 @@ namespace Monkeyspeak
             Limit = limit;
         }
 
+        public VariableTable(string name, IDictionary<string, object> dictionary, bool isConstant = false)
+        {
+            Name = name;
+            values = dictionary;
+            IsConstant = isConstant;
+            Limit = limit;
+        }
+
         public void Add(string key, object value)
         {
             if (values.Count + 1 > Limit) return;
@@ -382,6 +397,22 @@ namespace Monkeyspeak
 
             if (value != null && IsConstant)
                 throw new VariableIsConstantException($"Attempt to assign a value to constant '{Name}'");
+            if (value is IVariable)
+                values[key] = (value as IVariable).Value;
+            else
+                values[key] = value;
+        }
+
+        public void Add(object value)
+        {
+            if (values.Count + 1 > Limit) return;
+
+            if (!CheckType(value)) throw new TypeNotSupportedException(value.GetType().Name +
+            " is not a supported type. Expecting string, double or variable.");
+
+            if (value != null && IsConstant)
+                throw new VariableIsConstantException($"Attempt to assign a value to constant '{Name}'");
+            var key = (values.Count + 1).ToString();
             if (value is IVariable)
                 values[key] = (value as IVariable).Value;
             else
@@ -509,6 +540,13 @@ namespace Monkeyspeak
         IEnumerator IEnumerable.GetEnumerator()
         {
             return values.GetEnumerator();
+        }
+
+        public static VariableTable From(string name, IDictionary<string, object> dict)
+        {
+            var table = new VariableTable(name);
+            foreach (var kv in dict) table.Add(kv);
+            return table;
         }
     }
 }

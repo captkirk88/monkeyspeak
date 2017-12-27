@@ -54,7 +54,6 @@ namespace Monkeyspeak.Libraries
             Add(TriggerCategory.Effect, 102, PrintToLog,
                 "print {...} to the log.");
 
-            // (5:103) get the environment variable named {...} and put it into #,
             Add(TriggerCategory.Effect, 103, GetEnvVariable,
                 "get the environment variable named {...} and put it into %, (ex: PATH)");
 
@@ -64,9 +63,14 @@ namespace Monkeyspeak.Libraries
             Add(TriggerCategory.Effect, 107, DeleteVariable,
                 "delete variable %.");
 
-            // (5:110) load library from file {...}.
             Add(TriggerCategory.Effect, 110, LoadLibraryFromFile,
                 "load library from file {...}. (example Monkeyspeak.dll)");
+
+            Add(TriggerCategory.Effect, 111, UnloadLibrary,
+                "unload library {...}. (example Sys)");
+
+            Add(TriggerCategory.Effect, 112, GetAllLoadedLibrariesIntoTable,
+                "get all loaded libraries and put them into table %.");
 
             Add(TriggerCategory.Cause, 100, JobCalled,
                 "when job # is called put arguments into table % (optional),");
@@ -178,6 +182,24 @@ namespace Monkeyspeak.Libraries
             return !IsVariableEqualToString(reader);
         }
 
+        private bool GetAllLoadedLibrariesIntoTable(TriggerReader reader)
+        {
+            var table = reader.ReadVariableTable(true);
+            foreach (var lib in reader.Page.Libraries)
+            {
+                table.Add(lib.GetType().Name);
+            }
+            return true;
+        }
+
+        private bool UnloadLibrary(TriggerReader reader)
+        {
+            var libName = reader.ReadString();
+            var lib = reader.Page.Libraries.FirstOrDefault(l => l.GetType().Name == libName);
+            reader.Page.RemoveLibrary(lib);
+            return true;
+        }
+
         private bool LoadLibraryFromFile(TriggerReader reader)
         {
             if (!reader.PeekString()) return false;
@@ -185,7 +207,7 @@ namespace Monkeyspeak.Libraries
             return true;
         }
 
-        private bool PrintToLog(TriggerReader reader)
+        public virtual bool PrintToLog(TriggerReader reader)
         {
             string output = reader.ReadString();
             Logger.Info<Sys>(output);

@@ -1,6 +1,7 @@
 language: csharp
 solution: Monkeyspeak.sln
-sudo: true
+sudo: required
+dist: trusty
 bundler_args: "--retry 5"
 mono: latest
 
