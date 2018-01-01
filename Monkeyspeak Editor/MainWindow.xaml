@@ -19,8 +19,9 @@
             <Controls:Badged x:Name="notif_badge" BadgePlacementMode="BottomRight" Badge="{Binding Path=(notifs:NotificationManager.Count)}" AutomationProperties.HelpText="Notification Panel">
                 <Button Click="Notifications_Click" MouseDown="Notifications_MouseDown">
                     <StackPanel>
-                        <iconPacks:PackIconMaterial Kind="CommentOutline" />
-                        <Popup x:Name="notifs_container" IsOpen="False" PopupAnimation="Slide" Focusable="False">
+                        <iconPacks:PackIconModern Kind="NotificationStar" />
+                        <Popup x:Name="notifs_container" IsOpen="False" PopupAnimation="Slide" Focusable="False"
+                            IsVisibleChanged="notifs_container_IsVisibleChanged">
                             <ListView x:Name="notifs_list">
                                 <ListView.ItemContainerStyle>
                                     <Style TargetType="{x:Type ListViewItem}">

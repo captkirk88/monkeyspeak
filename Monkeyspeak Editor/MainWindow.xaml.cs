@@ -11,6 +11,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Threading;
 
 namespace Monkeyspeak.Editor
 {
@@ -28,7 +29,11 @@ namespace Monkeyspeak.Editor
             Logger.LogOutput = new MultiLogOutput(new ConsoleWindowLogOutput(console), new NotificationPanelLogOutput());
             NotificationManager.Added += notif => notif_badge.Badge = NotificationManager.Count;
             NotificationManager.Removed += notif => notif_badge.Badge = NotificationManager.Count;
-            NotificationManager.Added += notif => notifs_list.Items.Add(new NotificationPanel(notif));
+            NotificationManager.Added += notif =>
+            {
+                notifs_list.Items.Add(new NotificationPanel(notif));
+                notifs_list.ScrollIntoView(notifs_list.Items[notifs_list.Items.Count - 1]);
+            };
 
             Closing += MainWindow_Closing;
             Loaded += MainWindow_Loaded;
@@ -98,6 +103,25 @@ namespace Monkeyspeak.Editor
 
         private async void MetroWindow_Loaded(object sender, RoutedEventArgs e)
         {
+        }
+
+        private void notifs_container_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            if (notifs_container.IsVisible)
+            {
+                DispatcherTimer timer = new DispatcherTimer()
+                {
+                    Interval = TimeSpan.FromSeconds(5)
+                };
+
+                timer.Tick += delegate (object s, EventArgs args)
+                {
+                    timer.Stop();
+                    if (notifs_container.IsVisible) notifs_container.Visibility = Visibility.Hidden;
+                };
+
+                timer.Start();
+            }
         }
     }
 }
