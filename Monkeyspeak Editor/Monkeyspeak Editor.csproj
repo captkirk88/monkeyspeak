@@ -98,6 +98,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Utils\ReflectionHelper.cs" />
     <Page Include="Controls\CircularProgressBar.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -163,6 +164,7 @@
     <Compile Include="Notifications\INotification.cs" />
     <Compile Include="Notifications\NotificationManager.cs" />
     <Compile Include="Notifications\StringNotification.cs" />
+    <Compile Include="Plugins\DefaultPluginContainer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -191,6 +193,10 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Monkeyspeak.Editor.Interfaces\Monkeyspeak.Editor.Interfaces.csproj">
+      <Project>{CF6EA88D-BEE4-4DEB-A4D1-CA6D6E263AC6}</Project>
+      <Name>Monkeyspeak.Editor.Interfaces</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Monkeyspeak\Monkeyspeak.csproj">
       <Project>{925781e6-8b75-471b-887f-616495bbbfdd}</Project>
       <Name>Monkeyspeak</Name>

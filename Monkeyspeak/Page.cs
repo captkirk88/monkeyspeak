@@ -354,6 +354,7 @@ namespace Monkeyspeak
         /// Loads Monkeyspeak IO Library into this Page
         /// <para>Used for File Input/Output operations</para>
         /// </summary>
+        /// <param name="authorizedPath">the directory the IO library will use that it can read/write to</param>
         public void LoadIOLibrary(string authorizedPath = null)
         {
             LoadLibrary(new Libraries.IO(authorizedPath));
@@ -371,7 +372,8 @@ namespace Monkeyspeak
         /// <summary>
         /// Loads Monkeyspeak Timer Library into this Page
         /// </summary>
-        public void LoadTimerLibrary(uint timersLimit = 10)
+        /// <param name="timersLimit">the timer limit, if null or 0, defaults to 10</param>
+        public void LoadTimerLibrary(uint? timersLimit = null)
         {
             LoadLibrary(new Libraries.Timers(timersLimit));
         }
@@ -380,7 +382,7 @@ namespace Monkeyspeak
         /// Loads a <see cref="BaseLibrary"/> into this Page
         /// </summary>
         /// <param name="lib"></param>
-        /// <param name="args">arguments to initialize the library with, if any</param>
+        /// <param name="args">Arguments to pass on the library's Initialize method</param>
         public void LoadLibrary(BaseLibrary lib, params object[] args)
         {
             foreach (var existing in libraries)
@@ -401,7 +403,8 @@ namespace Monkeyspeak
         /// Loads trigger handlers from a assembly instance
         /// </summary>
         /// <param name="asm">The assembly instance</param>
-        public void LoadLibraryFromAssembly(Assembly asm)
+        /// <param name="args">Arguments to pass on the library's Initialize method</param>
+        public void LoadLibraryFromAssembly(Assembly asm, params object[] args)
         {
             if (asm == null) return;
 
@@ -411,7 +414,7 @@ namespace Monkeyspeak
                 if (type.IsSubclassOf(subType))
                     try
                     {
-                        LoadLibrary((BaseLibrary)Activator.CreateInstance(type));
+                        LoadLibrary((BaseLibrary)Activator.CreateInstance(type), args);
                     }
                     catch (MissingMemberException mme) { throw; }
                     catch (Exception ex) { }
@@ -422,7 +425,8 @@ namespace Monkeyspeak
         /// Loads trigger handlers from a assembly dll file
         /// </summary>
         /// <param name="assemblyFile">The assembly in the local file system</param>
-        public void LoadLibraryFromAssembly(string assemblyFile)
+        /// <param name="args">Arguments to pass on the library's Initialize method</param>
+        public void LoadLibraryFromAssembly(string assemblyFile, params object[] args)
         {
             Assembly asm;
             if (!File.Exists(assemblyFile))
@@ -438,7 +442,7 @@ namespace Monkeyspeak
                 if (type.BaseType == subType)
                     try
                     {
-                        LoadLibrary((BaseLibrary)Activator.CreateInstance(type));
+                        LoadLibrary((BaseLibrary)Activator.CreateInstance(type), args);
                     }
                     catch (MissingMemberException mme) { throw; }
                     catch (Exception ex) { }
@@ -448,10 +452,11 @@ namespace Monkeyspeak
         /// <summary>
         /// Loads all libraries.
         /// </summary>
-        public void LoadAllLibraries()
+        /// <param name="args">Arguments to pass on the library's Initialize method</param>
+        public void LoadAllLibraries(params object[] args)
         {
             foreach (var lib in BaseLibrary.GetAllLibraries())
-                LoadLibrary(lib);
+                LoadLibrary(lib, args);
         }
 
         public bool RemoveLibrary(BaseLibrary lib)

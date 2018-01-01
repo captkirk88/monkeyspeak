@@ -1,5 +1,7 @@
 ﻿using ICSharpCode.AvalonEdit.Highlighting;
 using Microsoft.Win32;
+using Monkeyspeak.Editor.Interfaces.Plugins;
+using Monkeyspeak.Editor.Plugins;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -22,9 +24,10 @@ namespace Monkeyspeak.Editor.Controls
     /// <summary>
     /// Interaction logic for EditorControl.xaml
     /// </summary>
-    public partial class EditorControl : UserControl
+    public partial class EditorControl : UserControl, IEditor
     {
         public static EditorControl Selected { get; private set; }
+        private static IPluginContainer pluginContainer = new DefaultPluginContainer();
 
         static EditorControl()
         {
@@ -73,14 +76,45 @@ namespace Monkeyspeak.Editor.Controls
             textEditor.Text = string.Join("\n", lines);
         }
 
+        public void AddLine(string text)
+        {
+            text = text.Replace(Environment.NewLine, string.Empty);
+            textEditor.Text += Environment.NewLine + text;
+        }
+
+        public IList<string> Lines
+        {
+            get
+            {
+                var lines = new List<string>(textEditor.Text.Split('\n'));
+                for (int i = lines.Count - 1; i >= 0; i--) lines[i] = lines[i].Replace("\n", string.Empty);
+                return lines;
+            }
+        }
+
+        public int WordCount => textEditor.Text.Length;
+
+        // TODO improve selection to detect variables surrounded by {%var}
+        public string SelectedWord { get => textEditor.Text.Substring(textEditor.SelectionStart, textEditor.Text.IndexOf(" ", textEditor.SelectionStart)); }
+
+        /// <summary>
+        /// Gets the selected line without the ending newline character.
+        /// </summary>
+        /// <value>
+        /// The selected line.
+        /// </value>
+        public string SelectedLine { get => Lines[textEditor.TextArea.Caret.Line]; }
+
         private void highlightingComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
         }
 
         private void openFileClick(object sender, RoutedEventArgs e)
         {
-            OpenFileDialog dlg = new OpenFileDialog();
-            dlg.CheckFileExists = true;
+            OpenFileDialog dlg = new OpenFileDialog
+            {
+                CheckFileExists = true
+            };
             if (dlg.ShowDialog() ?? false)
             {
                 currentFileName = dlg.FileName;
@@ -93,8 +127,10 @@ namespace Monkeyspeak.Editor.Controls
         {
             if (currentFileName == null)
             {
-                SaveFileDialog dlg = new SaveFileDialog();
-                dlg.DefaultExt = ".ms";
+                SaveFileDialog dlg = new SaveFileDialog
+                {
+                    DefaultExt = ".ms"
+                };
                 if (dlg.ShowDialog() ?? false)
                 {
                     currentFileName = dlg.FileName;
@@ -129,12 +165,16 @@ namespace Monkeyspeak.Editor.Controls
 
         private void GotKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
         {
+            if (Selected == this) return;
             Selected = this;
+            pluginContainer.Execute(Selected);
         }
 
         private void GotFocus(object sender, RoutedEventArgs e)
         {
+            if (Selected == this) return;
             Selected = this;
+            pluginContainer.Execute(Selected);
         }
     }
 }
