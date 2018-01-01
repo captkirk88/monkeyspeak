@@ -1,6 +1,8 @@
 ﻿<SyntaxDefinition name="Monkeyspeak" extensions=".ms;.ds" xmlns="http://icsharpcode.net/sharpdevelop/syntaxdefinition/2008">
-  <Color name="Comment" foreground="Green"  fontWeight="bold" exampleText="*comment" />
-  <Color name="String" foreground="Red"  fontWeight="bold" exampleText="{Hello, World!}" />
+  <Color name="Comment" foreground="Green"  fontStyle="italic" exampleText="*comment" />
+  <Color name="Digits" foreground="DarkBlue"  fontWeight="normal" exampleText="1234" />
+  <Color name="String" foreground="DarkOrange"  fontWeight="bold" exampleText="{Hello, World!}" />
+  <Color name="Variables" foreground="Red" fontWeight="normal" exampleText="%myVar" />
 
   <!-- This is the main ruleset. -->
   <RuleSet>
@@ -12,16 +14,22 @@
     <Span color="String">
       <Begin>{</Begin>
       <End>}</End>
+      <RuleSet>
+        <!-- Variables -->
+        <Span color="Variables">
+          <Begin>%</Begin>
+          <End>[a-zA-Z0-9\{\%]+(\[[a-zA-Z0-9\{\}\%]+\])?</End>
+        </Span>
+      </RuleSet>
     </Span>
 
-    <Keywords fontWeight="normal" foreground="Blue">
+    <!--<Keywords fontWeight="normal" foreground="Blue">
       <Word>table</Word>
       <Word>variable</Word>
-      <!-- ... -->
-    </Keywords>
+    </Keywords>-->
 
     <!-- Digits -->
-    <Rule foreground="DarkBlue">
+    <Rule color="Digits">
       \b0[xX][0-9a-fA-F]+  # hex number
       |    \b
       (    \d+(\.[0-9]+)?   #number with optional floating point
@@ -31,8 +39,15 @@
     </Rule>
 
     <!-- Variables -->
-    <Rule foreground="Orange" fontWeight="bold">
+    <Span color="Variables">
       <Begin>%</Begin>
-    </Rule>
+      <End>([a-zA-Z0-9\{\}\%]+\w)*(\[[a-zA-Z0-9\{\}\%]+\])?</End>
+    </Span>
+
+    <!-- Triggers -->
+    <Span foreground="Blue" fontWeight="normal">
+      <Begin>\(</Begin>
+      <End>\)</End>
+    </Span>
   </RuleSet>
 </SyntaxDefinition>

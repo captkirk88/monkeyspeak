@@ -128,6 +128,11 @@ universal question but fails because we may never know the answer...
 To execute the [Advanced Usage](#advanced-usage) example, it is no different 
 than [Basic Usage](#basic-usage)'s execution example.
 
+#### Monkeyspeak Editor
+Yes there is a editor in there.  As of right now it is in early pre-release alpha.
+
+![Monkeyspeak Editor](/images/ms_edit.png)
+
 #### Guides
 1) :book: [Triggers](wiki/Triggers.md)
 2) :book: [Variables](wiki/Variables.md)

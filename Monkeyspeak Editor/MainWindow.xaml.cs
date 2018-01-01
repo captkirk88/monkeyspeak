@@ -59,19 +59,6 @@ namespace Monkeyspeak.Editor
             console.Close();
         }
 
-        private void Settings_Click(object sender, RoutedEventArgs e)
-        {
-            //((App)Application.Current).SetColor(AppColor.Brown);
-            NotificationManager.Add(new StringNotification("Hello World"));
-            this.Dispatcher.Invoke(() =>
-            {
-                for (int i = 0; i <= 100; i++)
-                {
-                    Logger.Info(i);
-                }
-            });
-        }
-
         private void Console_Click(object sender, RoutedEventArgs e)
         {
             if (console.Visibility != Visibility.Visible)
@@ -122,6 +109,11 @@ namespace Monkeyspeak.Editor
 
                 timer.Start();
             }
+        }
+
+        private void githubButton_Click(object sender, RoutedEventArgs e)
+        {
+            System.Diagnostics.Process.Start("https://github.com/captkirk88/monkeyspeak");
         }
     }
 }
