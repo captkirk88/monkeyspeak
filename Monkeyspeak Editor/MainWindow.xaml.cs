@@ -11,6 +11,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Threading;
 
 namespace Monkeyspeak.Editor
 {
@@ -28,7 +29,11 @@ namespace Monkeyspeak.Editor
             Logger.LogOutput = new MultiLogOutput(new ConsoleWindowLogOutput(console), new NotificationPanelLogOutput());
             NotificationManager.Added += notif => notif_badge.Badge = NotificationManager.Count;
             NotificationManager.Removed += notif => notif_badge.Badge = NotificationManager.Count;
-            NotificationManager.Added += notif => notifs_list.Items.Add(new NotificationPanel(notif));
+            NotificationManager.Added += notif =>
+            {
+                notifs_list.Items.Add(new NotificationPanel(notif));
+                notifs_list.ScrollIntoView(notifs_list.Items[notifs_list.Items.Count - 1]);
+            };
 
             Closing += MainWindow_Closing;
             Loaded += MainWindow_Loaded;
@@ -58,15 +63,12 @@ namespace Monkeyspeak.Editor
         {
             //((App)Application.Current).SetColor(AppColor.Brown);
             NotificationManager.Add(new StringNotification("Hello World"));
-            Task.Run(async () =>
+            this.Dispatcher.Invoke(() =>
             {
-                await Task.Run(() =>
+                for (int i = 0; i <= 100; i++)
                 {
-                    Parallel.For(0, 1000, i =>
-                    {
-                        Logger.Info(i);
-                    });
-                });
+                    Logger.Info(i);
+                }
             });
         }
 
@@ -91,32 +93,35 @@ namespace Monkeyspeak.Editor
         {
             if (e.RightButton == System.Windows.Input.MouseButtonState.Pressed)
             {
-                NotificationManager.Clear();
+                this.Dispatcher.Invoke(() =>
+                {
+                    notifs_container.IsOpen = false;
+                    NotificationManager.Clear();
+                });
             }
         }
 
         private async void MetroWindow_Loaded(object sender, RoutedEventArgs e)
         {
-            await this.Dispatcher.InvokeAsync(() =>
+        }
+
+        private void notifs_container_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            if (notifs_container.IsVisible)
             {
-                Options opts = new Options();
-                opts.CanOverrideTriggerHandlers = false;
-                opts.TriggerLimit = 100000;
-                Monkeyspeak.MonkeyspeakEngine engine = new MonkeyspeakEngine(opts);
-                using (var page = new Page(engine))
+                DispatcherTimer timer = new DispatcherTimer()
                 {
-                    page.LoadAllLibraries();
-                    // causes
-                    foreach (var lib in page.Libraries)
-                    {
-                        Logger.Debug(lib.GetType().Name);
-                        foreach (var cause in lib.Handlers.Where(h => h.Key.Category == TriggerCategory.Cause).Select(kv => kv.Key))
-                        {
-                            trigger_causes.Items.Add(new KeyValuePair<string, string>(page.GetTriggerDescription(cause, true), lib.GetType().Name));
-                        }
-                    }
-                }
-            });
+                    Interval = TimeSpan.FromSeconds(5)
+                };
+
+                timer.Tick += delegate (object s, EventArgs args)
+                {
+                    timer.Stop();
+                    if (notifs_container.IsVisible) notifs_container.Visibility = Visibility.Hidden;
+                };
+
+                timer.Start();
+            }
         }
     }
 }

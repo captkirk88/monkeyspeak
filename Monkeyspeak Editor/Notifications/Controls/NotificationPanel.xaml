@@ -13,7 +13,7 @@
                        MinHeight="50"
                        Width="150"
                        Padding="10,10,10,10"
-                       Text="Nothing to see here..." />
+                       Text="{Binding Path=Notification.Content}" />
         <Button x:Name="DismissButton" Content="Dismiss"
                     Width="Auto"
                     Height="Auto"

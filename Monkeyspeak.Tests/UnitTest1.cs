@@ -12,6 +12,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using NUnit;
 using NUnit.Framework;
+using Monkeyspeak.Lexical.Expressions;
+using System.Collections.Generic;
+using Monkeyspeak.Lexical;
 
 namespace MonkeyspeakTests
 
@@ -295,6 +298,57 @@ namespace MonkeyspeakTests
                     Logger.Info(sb.ToString());
                 }
                 parser.VisitToken = null;
+            }
+        }
+
+        [Test]
+        public void ExpressionsReplaceTest()
+        {
+            var testScript = @"
+(0:90) When the bot enters a Dream,
+(0:1) When the bot logs into furcadia,
+(5:6) whisper {Bot active in dream %DREAMNAME} to {%BOTCONTROLLER}.
+
+(0:10) When someone shouts something with {fuck} in it,
+(5:5) whisper {Please do not swear in shouts! Thank you #SA} to the triggering furre.
+";
+            var engine = new MonkeyspeakEngine();
+            Expressions.Instance.Replace<MyFakeStringExpression>(TokenType.STRING_LITERAL);
+            //engine.Options.Debug = true;
+            var stream = new MemoryStream(Encoding.UTF8.GetBytes(testScript));
+            using (Lexer lexer = new Lexer(engine, new SStreamReader(stream)))
+            {
+                Parser parser = new Parser(engine);
+                //parser.VisitToken = VisitTokens;
+                foreach (var trigger in parser.Parse(lexer))
+                {
+                    StringBuilder sb = new StringBuilder();
+                    sb.Append(trigger.ToString(engine, true));
+                    Logger.Info(sb.ToString());
+                }
+                parser.VisitToken = null;
+            }
+        }
+
+        private class MyFakeStringExpression : Expression<string>
+        {
+            public MyFakeStringExpression()
+            {
+            }
+
+            public MyFakeStringExpression(SourcePosition pos, string val) : base(pos, val)
+            {
+                SetValue("LOL!");
+            }
+
+            public override object Execute(Page page, Queue<IExpression> contents, bool addToPage = false)
+            {
+                return "LOL!";
+            }
+
+            public override void Apply(Trigger? trigger)
+            {
+                trigger?.Add(this);
             }
         }
 

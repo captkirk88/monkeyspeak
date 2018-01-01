@@ -10,28 +10,35 @@ namespace Monkeyspeak.Editor.Notifications.Controls
     {
         private INotification notif;
 
+        public INotification Notification { get => notif; set => notif = value; }
+
         public NotificationPanel()
         {
             InitializeComponent();
-            this.Unloaded += NotificationPanel_Unloaded;
+            Unloaded += NotificationPanel_Unloaded;
             NotificationManager.Removed += NotificationManager_Removed;
+            DataContext = this;
         }
 
         public NotificationPanel(INotification notif) : this()
         {
             this.notif = notif;
-            TextBlock.Text = notif.Content.ToString();
         }
 
         private void NotificationPanel_Unloaded(object sender, RoutedEventArgs e)
         {
-            NotificationManager.Removed -= NotificationManager_Removed;
         }
 
         private void NotificationManager_Removed(INotification notif)
         {
-            if (this.notif == notif)
-                ((ListView)this.Parent)?.Items?.Remove(this);
+            this.Dispatcher.Invoke(() =>
+            {
+                if (this.notif == notif)
+                {
+                    ((ListView)this.Parent)?.Items?.Remove(this);
+                    NotificationManager.Removed -= NotificationManager_Removed;
+                }
+            });
         }
 
         private void DismissButton_Click(object sender, RoutedEventArgs e)

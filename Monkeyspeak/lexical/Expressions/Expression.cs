@@ -65,7 +65,7 @@ namespace Monkeyspeak.Lexical.Expressions
 
         public virtual void Apply(Trigger? trigger)
         {
-            trigger?.contents?.Add(this);
+            trigger?.Add(this);
         }
 
         public virtual void Write(BinaryWriter writer)
@@ -109,7 +109,9 @@ namespace Monkeyspeak.Lexical.Expressions
         /// <param name="val">The value.</param>
         public Expression(SourcePosition pos, T val) : base(pos)
         {
+#pragma warning disable CC0067 // Virtual Method Called On Constructor
             SetValue(val);
+#pragma warning restore CC0067 // Virtual Method Called On Constructor
         }
 
         public int CompareTo(Expression other)

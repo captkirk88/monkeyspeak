@@ -31,7 +31,7 @@ namespace Monkeyspeak.Editor.Logging
             var sb = new StringBuilder();
             sb.AppendLine(logMsg.TimeStamp.ToString("hh:mm:fff"));
             sb.AppendLine(logMsg.message);
-            Notifications.NotificationManager.Add(new StringNotification(sb.ToString(), color));
+            NotificationManager.Add(new StringNotification(sb.ToString(), color));
         }
     }
 }
