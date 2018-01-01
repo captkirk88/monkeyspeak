@@ -58,15 +58,12 @@ namespace Monkeyspeak.Editor
         {
             //((App)Application.Current).SetColor(AppColor.Brown);
             NotificationManager.Add(new StringNotification("Hello World"));
-            Task.Run(async () =>
+            this.Dispatcher.Invoke(() =>
             {
-                await Task.Run(() =>
+                for (int i = 0; i <= 100; i++)
                 {
-                    Parallel.For(0, 1000, i =>
-                    {
-                        Logger.Info(i);
-                    });
-                });
+                    Logger.Info(i);
+                }
             });
         }
 
@@ -91,32 +88,16 @@ namespace Monkeyspeak.Editor
         {
             if (e.RightButton == System.Windows.Input.MouseButtonState.Pressed)
             {
-                NotificationManager.Clear();
+                this.Dispatcher.Invoke(() =>
+                {
+                    notifs_container.IsOpen = false;
+                    NotificationManager.Clear();
+                });
             }
         }
 
         private async void MetroWindow_Loaded(object sender, RoutedEventArgs e)
         {
-            await this.Dispatcher.InvokeAsync(() =>
-            {
-                Options opts = new Options();
-                opts.CanOverrideTriggerHandlers = false;
-                opts.TriggerLimit = 100000;
-                Monkeyspeak.MonkeyspeakEngine engine = new MonkeyspeakEngine(opts);
-                using (var page = new Page(engine))
-                {
-                    page.LoadAllLibraries();
-                    // causes
-                    foreach (var lib in page.Libraries)
-                    {
-                        Logger.Debug(lib.GetType().Name);
-                        foreach (var cause in lib.Handlers.Where(h => h.Key.Category == TriggerCategory.Cause).Select(kv => kv.Key))
-                        {
-                            trigger_causes.Items.Add(new KeyValuePair<string, string>(page.GetTriggerDescription(cause, true), lib.GetType().Name));
-                        }
-                    }
-                }
-            });
         }
     }
 }

@@ -1,11 +1,12 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 
 namespace Monkeyspeak.Editor.Notifications
 {
     public static class NotificationManager
     {
-        private static List<INotification> notifs = new List<INotification>(10);
+        private static ConcurrentQueue<INotification> notifs = new ConcurrentQueue<INotification>();
 
         public static event Action<INotification> Added, Removed;
 
@@ -13,25 +14,25 @@ namespace Monkeyspeak.Editor.Notifications
 
         public static void Add(INotification notif)
         {
-            notifs.Add(notif);
+            notifs.Enqueue(notif);
             Added?.Invoke(notif);
         }
 
         public static void Remove(INotification notif)
         {
-            if (notifs.Remove(notif))
-                Removed?.Invoke(notif);
+            if (notifs.TryDequeue(out INotification existing))
+                Removed?.Invoke(existing);
         }
+
+        public static IReadOnlyCollection<INotification> All => notifs;
 
         public static void Clear()
         {
-            for (int i = 0; i <= notifs.Count - 1; i++)
+            while (notifs.Count > 0)
             {
-                var notif = notifs[i];
-                notifs.RemoveAt(i);
-                Removed?.Invoke(notif);
+                if (notifs.TryDequeue(out INotification notif))
+                    Removed?.Invoke(notif);
             }
-            notifs.TrimExcess();
         }
     }
 }

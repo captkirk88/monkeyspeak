@@ -49,49 +49,23 @@
             <RowDefinition Height="100" />
         </Grid.RowDefinitions>
         <Controls:MetroAnimatedTabControl x:Name="docs" Width="Auto" Height="Auto" Padding="10,10,10,10">
-            <Controls:MetroTabItem Header="(new)" Controls:ControlsHelper.HeaderFontSize="14" Width="Auto" Height="Auto" CloseButtonEnabled="True" CloseButtonMargin="0,10,10,10" />
+            <Controls:MetroTabItem Header="(new)" Controls:ControlsHelper.HeaderFontSize="14" Width="Auto" Height="Auto" CloseButtonEnabled="True" CloseButtonMargin="0,10,10,10">
+                <ctr:EditorControl />
+            </Controls:MetroTabItem>
         </Controls:MetroAnimatedTabControl>
         <GridSplitter Grid.Row="1" Width="Auto" HorizontalAlignment="Stretch" Background="Gray" />
         <Controls:MetroAnimatedTabControl Width="Auto" Height="Auto" Grid.Row="2" Controls:VisibilityHelper.IsVisible="{Binding ElementName=loader, Path=IsLoading}">
             <Controls:MetroTabItem Header="Causes" Controls:ControlsHelper.HeaderFontSize="12"  Width="Auto" Height="Auto" CloseButtonEnabled="False">
-                <ListView x:Name="trigger_causes" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-                    <ListView.View>
-                        <GridView>
-                            <GridViewColumn Header="Trigger Description" Width="Auto" />
-                            <GridViewColumn Header="Library" Width="Auto" />
-                        </GridView>
-                    </ListView.View>
-                </ListView>
+                <ctr:TriggerList TriggerCategory="Cause" />
             </Controls:MetroTabItem>
             <Controls:MetroTabItem Header="Conditions" Controls:ControlsHelper.HeaderFontSize="12"  Width="Auto" Height="Auto" CloseButtonEnabled="False">
-                <ListView x:Name="trigger_conditions" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-                    <ListView.View>
-                        <GridView>
-                            <GridViewColumn Header="Trigger Description" />
-                            <GridViewColumn Header="Library" />
-                        </GridView>
-                    </ListView.View>
-                </ListView>
+                <ctr:TriggerList TriggerCategory="Condition" />
             </Controls:MetroTabItem>
             <Controls:MetroTabItem Header="Effects" Controls:ControlsHelper.HeaderFontSize="12"  Width="Auto" Height="Auto" CloseButtonEnabled="False">
-                <ListView x:Name="trigger_effects" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-                    <ListView.View>
-                        <GridView>
-                            <GridViewColumn Header="Trigger Description" />
-                            <GridViewColumn Header="Library" />
-                        </GridView>
-                    </ListView.View>
-                </ListView>
+                <ctr:TriggerList TriggerCategory="Effect" />
             </Controls:MetroTabItem>
             <Controls:MetroTabItem Header="Flows" Controls:ControlsHelper.HeaderFontSize="12"  Width="Auto" Height="Auto" CloseButtonEnabled="False">
-                <ListView x:Name="trigger_flows" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-                    <ListView.View>
-                        <GridView>
-                            <GridViewColumn Header="Trigger Description" />
-                            <GridViewColumn Header="Library" />
-                        </GridView>
-                    </ListView.View>
-                </ListView>
+                <ctr:TriggerList TriggerCategory="Flow" />
             </Controls:MetroTabItem>
         </Controls:MetroAnimatedTabControl>
     </Grid>

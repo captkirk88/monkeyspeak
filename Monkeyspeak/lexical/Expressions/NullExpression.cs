@@ -18,7 +18,11 @@ namespace Monkeyspeak.Lexical.Expressions
 
         public static NullExpression Instance => instance;
 
-        protected NullExpression(SourcePosition pos) : base(pos, null)
+        public NullExpression(SourcePosition pos) : base(pos, null)
+        {
+        }
+
+        public NullExpression(SourcePosition pos, object value) : base(pos, null)
         {
         }
     }

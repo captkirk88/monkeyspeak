@@ -101,7 +101,25 @@ namespace Monkeyspeak
 
         internal SourcePosition SourcePosition { get; set; }
 
-        internal Trigger Clone()
+        public void Add(IExpression expr)
+        {
+            contents.Add(expr);
+        }
+
+        public void Remove(IExpression expr)
+        {
+            for (int i = contents.Count - 1; i >= 0; i--)
+            {
+                var existing = contents[i];
+                if (existing == expr)
+                {
+                    contents.RemoveAt(i);
+                    break;
+                }
+            }
+        }
+
+        public Trigger Clone()
         {
             var clone = new Trigger(category, id, SourcePosition)
             {

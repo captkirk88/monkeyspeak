@@ -14,8 +14,10 @@ using Monkeyspeak.Logging;
 
 namespace Monkeyspeak.Lexical.Expressions
 {
-    internal class Expressions : Dictionary<TokenType, Type>
+    public sealed class Expressions : Dictionary<TokenType, Type>
     {
+        #region Statics
+
         public static readonly Expressions Instance = new Expressions()
         {
             {TokenType.NUMBER, typeof(NumberExpression) },
@@ -43,7 +45,7 @@ namespace Monkeyspeak.Lexical.Expressions
             return tokenType;
         }
 
-        public static IExpression Create<T>(TokenType tokenType, SourcePosition pos, T value)
+        internal static IExpression Create<T>(TokenType tokenType, SourcePosition pos, T value)
         {
             var exprType = Instance[tokenType];
             if (typeCache.ContainsKey(exprType))
@@ -60,7 +62,7 @@ namespace Monkeyspeak.Lexical.Expressions
             //return (IExpression)Activator.CreateInstance(Instance[tokenType], pos, value);
         }
 
-        public static IExpression Create(TokenType tokenType, SourcePosition pos, object value)
+        internal static IExpression Create(TokenType tokenType, SourcePosition pos, object value)
         {
             var exprType = Instance[tokenType];
             if (typeCache.ContainsKey(exprType))
@@ -75,6 +77,13 @@ namespace Monkeyspeak.Lexical.Expressions
             }
 
             //return (IExpression)Activator.CreateInstance(Instance[tokenType], pos, value);
+        }
+
+        #endregion Statics
+
+        public void Replace<T>(TokenType type) where T : IExpression
+        {
+            this[type] = typeof(T);
         }
     }
 }
