@@ -131,7 +131,7 @@ than [Basic Usage](#basic-usage)'s execution example.
 #### Monkeyspeak Editor
 Yes there is a editor in there.  As of right now it is in early pre-release alpha.
 
-![Monkeyspeak Editor](/ms_edit.png)
+![Monkeyspeak Editor](/images/ms_edit.png)
 
 #### Guides
 1) :book: [Triggers](wiki/Triggers.md)
