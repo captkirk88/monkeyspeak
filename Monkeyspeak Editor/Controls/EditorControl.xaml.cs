@@ -24,6 +24,8 @@ namespace Monkeyspeak.Editor.Controls
     /// </summary>
     public partial class EditorControl : UserControl
     {
+        public static EditorControl Selected { get; private set; }
+
         static EditorControl()
         {
             // load up monkeyspeak syntax higlighting
@@ -52,6 +54,23 @@ namespace Monkeyspeak.Editor.Controls
             DataContext = this;
             //textEditor.SyntaxHighlighting = HighlightingManager.Instance.GetDefinitionByExtension(".ms");
             textEditor.ShowLineNumbers = true;
+        }
+
+        public int CaretLine
+        {
+            get => textEditor.TextArea.Caret.Line;
+        }
+
+        public void InsertLine(int line, string text)
+        {
+            text = text.Replace(Environment.NewLine, string.Empty);
+            var lines = new List<string>(textEditor.Text.Split('\n'));
+            if (line > lines.Count)
+                lines.Add(text);
+            else
+                lines.Insert(line, text);
+            for (int i = lines.Count - 1; i >= 0; i--) lines[i] = lines[i].Replace("\n", string.Empty);
+            textEditor.Text = string.Join("\n", lines);
         }
 
         private void highlightingComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -106,6 +125,16 @@ namespace Monkeyspeak.Editor.Controls
                     propertyGrid.SelectedObject = textEditor.Options;
                     break;
             }
+        }
+
+        private void GotKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
+        {
+            Selected = this;
+        }
+
+        private void GotFocus(object sender, RoutedEventArgs e)
+        {
+            Selected = this;
         }
     }
 }

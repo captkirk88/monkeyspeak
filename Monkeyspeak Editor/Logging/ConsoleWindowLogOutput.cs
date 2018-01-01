@@ -38,7 +38,7 @@ namespace Monkeyspeak.Editor.Logging
                     color = Colors.Silver;
                     break;
             }
-            console.WriteLine(logMsg.message, color);
+            console.Dispatcher.Invoke(() => console.WriteLine(logMsg.message, color));
         }
     }
 }

@@ -44,19 +44,19 @@ namespace Monkeyspeak.Utils
             }
         }
 
-        public static IEnumerable<Type> GetAllTypesWithBaseClass<T>(Assembly asm) where T : class
+        public static IEnumerable<Type> GetAllTypesWithBaseClass<T>(Assembly asm)
         {
             var desiredType = typeof(T);
             foreach (var type in asm.GetTypes())
             {
-                if (!type.IsAbstract && type.IsSubclassOf(desiredType))
+                if (!type.IsAbstract && desiredType.IsAssignableFrom(type))
                     yield return type;
             }
         }
 
         public static bool HasNoArgConstructor(Type type)
         {
-            return type.GetConstructors().Any(cnstr => cnstr.GetParameters().Length == 0);
+            return type.GetConstructors().FirstOrDefault(cnstr => cnstr.GetParameters().Length == 0) != null; // faster than Any, never use Any
         }
 
         public static bool TryLoad(string assemblyFile, out Assembly asm)
