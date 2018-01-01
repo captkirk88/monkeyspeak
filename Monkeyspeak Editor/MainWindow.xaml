@@ -1,0 +1,53 @@
+﻿<Controls:MetroWindow x:Class="Monkeyspeak.Editor.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Monkeyspeak.Editor"
+        xmlns:notifs="clr-namespace:Monkeyspeak.Editor.Notifications"
+        xmlns:ctr="clr-namespace:Monkeyspeak.Editor.Controls"
+        xmlns:eo="http://schemas.essentialobjects.com/wpf/"
+        xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
+        mc:Ignorable="d"
+        Loaded="MetroWindow_Loaded"
+        Title="Monkeyspeak Editor" Height="350" Width="525" ShowIconOnTitleBar="True">
+    <Controls:MetroWindow.RightWindowCommands>
+        <Controls:WindowCommands>
+            <Button Content="Settings" Click="Settings_Click" />
+            <Button Content="Console" Click="Console_Click" />
+            <Controls:Badged x:Name="notif_badge" BadgePlacementMode="BottomRight" Badge="{Binding Path=(notifs:NotificationManager.Count)}">
+                <Button Click="Notifications_Click">
+                    <StackPanel>
+                        <iconPacks:PackIconMaterial Kind="CommentOutline" />
+                        <Popup x:Name="notifs_container" IsOpen="False">
+                        </Popup>
+                    </StackPanel>
+                </Button>
+            </Controls:Badged>
+        </Controls:WindowCommands>
+    </Controls:MetroWindow.RightWindowCommands>
+
+    <Grid Width="Auto" Height="Auto" RenderTransformOrigin="0.496,0.496">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="5" />
+            <RowDefinition Height="50" />
+        </Grid.RowDefinitions>
+        <Controls:MetroAnimatedTabControl x:Name="docs" Width="Auto" Height="Auto" Padding="10,10,10,10">
+            <Controls:MetroTabItem Header="(new)" Controls:ControlsHelper.HeaderFontSize="12" Width="Auto" Height="Auto" CloseButtonEnabled="True" CloseButtonMargin="10">
+            </Controls:MetroTabItem>
+        </Controls:MetroAnimatedTabControl>
+        <GridSplitter Grid.Row="1" Width="5" HorizontalAlignment="Stretch" />
+        <Controls:MetroAnimatedTabControl x:Name="triggers" Width="Auto" Height="Auto" Grid.Row="2">
+            <Controls:MetroTabItem Header="Causes" Controls:ControlsHelper.HeaderFontSize="12"  Width="Auto" Height="Auto" CloseButtonEnabled="False">
+            </Controls:MetroTabItem>
+            <Controls:MetroTabItem Header="Conditions" Controls:ControlsHelper.HeaderFontSize="12"  Width="Auto" Height="Auto" CloseButtonEnabled="False">
+            </Controls:MetroTabItem>
+            <Controls:MetroTabItem Header="Effects" Controls:ControlsHelper.HeaderFontSize="12"  Width="Auto" Height="Auto" CloseButtonEnabled="False">
+            </Controls:MetroTabItem>
+            <Controls:MetroTabItem Header="Flow" Controls:ControlsHelper.HeaderFontSize="12"  Width="Auto" Height="Auto" CloseButtonEnabled="False">
+            </Controls:MetroTabItem>
+        </Controls:MetroAnimatedTabControl>
+    </Grid>
+</Controls:MetroWindow>

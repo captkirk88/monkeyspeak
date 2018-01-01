@@ -30,7 +30,7 @@ namespace Monkeyspeak.Logging
               .Append(']')
               .Append("Thread+" + msg.Thread.ManagedThreadId)
               .Append(' ')
-              .Append(msg.TimeStamp.ToString("dd-MMM-yyyy")).Append(' ')
+              //.Append(msg.TimeStamp.ToString("dd-MMM-yyyy")).Append(' ')
               .Append((msg.TimeStamp - Process.GetCurrentProcess().StartTime).ToString(@"hh\:mm\:ss\:fff"))
               .Append(" - ")
               .Append(text);
