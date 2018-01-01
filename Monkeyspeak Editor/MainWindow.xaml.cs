@@ -5,6 +5,8 @@ using Monkeyspeak.Editor.Notifications;
 using Monkeyspeak.Editor.Notifications.Controls;
 using Monkeyspeak.Logging;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -82,10 +84,7 @@ namespace Monkeyspeak.Editor
 
         private void Notifications_Click(object sender, RoutedEventArgs e)
         {
-            if (NotificationManager.Count > 0)
-                notifs_container.IsOpen = !notifs_container.IsOpen;
-            else
-                if (notifs_container.IsOpen) notifs_container.IsOpen = false;
+            notifs_container.IsOpen = !notifs_container.IsOpen;
         }
 
         private void Notifications_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
@@ -96,8 +95,28 @@ namespace Monkeyspeak.Editor
             }
         }
 
-        private void MetroWindow_Loaded(object sender, RoutedEventArgs e)
+        private async void MetroWindow_Loaded(object sender, RoutedEventArgs e)
         {
+            await this.Dispatcher.InvokeAsync(() =>
+            {
+                Options opts = new Options();
+                opts.CanOverrideTriggerHandlers = false;
+                opts.TriggerLimit = 100000;
+                Monkeyspeak.MonkeyspeakEngine engine = new MonkeyspeakEngine(opts);
+                using (var page = new Page(engine))
+                {
+                    page.LoadAllLibraries();
+                    // causes
+                    foreach (var lib in page.Libraries)
+                    {
+                        Logger.Debug(lib.GetType().Name);
+                        foreach (var cause in lib.Handlers.Where(h => h.Key.Category == TriggerCategory.Cause).Select(kv => kv.Key))
+                        {
+                            trigger_causes.Items.Add(new KeyValuePair<string, string>(page.GetTriggerDescription(cause, true), lib.GetType().Name));
+                        }
+                    }
+                }
+            });
         }
     }
 }

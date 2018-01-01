@@ -5,7 +5,7 @@ namespace Monkeyspeak.Editor.Notifications
 {
     public static class NotificationManager
     {
-        private static List<INotification> notifs = new List<INotification>();
+        private static List<INotification> notifs = new List<INotification>(10);
 
         public static event Action<INotification> Added, Removed;
 
@@ -19,8 +19,8 @@ namespace Monkeyspeak.Editor.Notifications
 
         public static void Remove(INotification notif)
         {
-            notifs.Remove(notif);
-            Removed?.Invoke(notif);
+            if (notifs.Remove(notif))
+                Removed?.Invoke(notif);
         }
 
         public static void Clear()
@@ -31,6 +31,7 @@ namespace Monkeyspeak.Editor.Notifications
                 notifs.RemoveAt(i);
                 Removed?.Invoke(notif);
             }
+            notifs.TrimExcess();
         }
     }
 }

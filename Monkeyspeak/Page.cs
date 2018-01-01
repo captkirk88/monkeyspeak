@@ -114,7 +114,7 @@ namespace Monkeyspeak
         /// </summary>
         public event TriggerHandledEventHandler AfterTriggerHandled;
 
-        internal Page(MonkeyspeakEngine engine)
+        public Page(MonkeyspeakEngine engine)
         {
             this.engine = engine;
             parser = new Parser(engine);

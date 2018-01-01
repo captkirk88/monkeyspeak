@@ -140,6 +140,8 @@ namespace Monkeyspeak.Libraries
             }
             else if (Assembly.GetExecutingAssembly() != null)
             {
+                foreach (string asmFile in Directory.GetFiles(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "*.dll"))
+                    foreach (var lib in GetLibrariesFromAssembly(Assembly.LoadFile(asmFile))) yield return lib;
                 foreach (var asmName in Assembly.GetExecutingAssembly().GetReferencedAssemblies())
                 {
                     var asm = Assembly.Load(asmName);
