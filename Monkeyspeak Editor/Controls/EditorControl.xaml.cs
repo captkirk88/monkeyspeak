@@ -105,6 +105,17 @@ namespace Monkeyspeak.Editor.Controls
         /// </value>
         public string SelectedLine { get => Lines[textEditor.TextArea.Caret.Line]; }
 
+        /// <summary>
+        /// Sets the text color by navigating to the specified line and setting the color between the start and end position.
+        /// </summary>
+        /// <param name="line">The line.</param>
+        /// <param name="start">The start.</param>
+        /// <param name="end">The end.</param>
+        public void SetTextColor(int line, int start, int end)
+        {
+            throw new NotImplementedException();
+        }
+
         private void highlightingComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
         }
