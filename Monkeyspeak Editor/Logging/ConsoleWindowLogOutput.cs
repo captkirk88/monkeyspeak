@@ -22,23 +22,26 @@ namespace Monkeyspeak.Editor.Logging
         public override void Log(LogMessage logMsg)
         {
             if (logMsg.message == null) return;
-            logMsg = BuildMessage(ref logMsg);
-            Color color = Colors.White;
-            switch (logMsg.Level)
+            console.Dispatcher.Invoke(() =>
             {
-                case Level.Error:
-                    color = Colors.Red;
-                    break;
+                logMsg = BuildMessage(ref logMsg);
+                Color color = Colors.White;
+                switch (logMsg.Level)
+                {
+                    case Level.Error:
+                        color = Colors.Red;
+                        break;
 
-                case Level.Warning:
-                    color = Colors.Yellow;
-                    break;
+                    case Level.Warning:
+                        color = Colors.Yellow;
+                        break;
 
-                case Level.Debug:
-                    color = Colors.Silver;
-                    break;
-            }
-            console.Dispatcher.Invoke(() => console.WriteLine(logMsg.message, color));
+                    case Level.Debug:
+                        color = Colors.Silver;
+                        break;
+                }
+                console.WriteLine(logMsg.message, color);
+            });
         }
     }
 }

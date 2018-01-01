@@ -1,5 +1,6 @@
 ﻿using ICSharpCode.AvalonEdit.Highlighting;
 using Microsoft.Win32;
+using Monkeyspeak.Editor.HelperClasses;
 using Monkeyspeak.Editor.Interfaces.Plugins;
 using Monkeyspeak.Editor.Plugins;
 using System;
@@ -59,6 +60,8 @@ namespace Monkeyspeak.Editor.Controls
             textEditor.ShowLineNumbers = true;
         }
 
+        public string HighlighterLanguage => textEditor.SyntaxHighlighting.Name;
+
         public int CaretLine
         {
             get => textEditor.TextArea.Caret.Line;
@@ -111,9 +114,10 @@ namespace Monkeyspeak.Editor.Controls
         /// <param name="line">The line.</param>
         /// <param name="start">The start.</param>
         /// <param name="end">The end.</param>
-        public void SetTextColor(int line, int start, int end)
+        /// <param name="color">Text color to set</param>
+        public void SetTextColor(Color color, int line, int start, int end)
         {
-            throw new NotImplementedException();
+            textEditor.TextArea.TextView.LineTransformers.Add(new WordColorizer(color, line, start, end));
         }
 
         private void highlightingComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)

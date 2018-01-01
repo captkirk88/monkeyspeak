@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Media;
 
 namespace Monkeyspeak.Editor
 {
@@ -11,6 +12,14 @@ namespace Monkeyspeak.Editor
     /// </summary>
     public interface IEditor
     {
+        /// <summary>
+        /// Gets the syntax highlighter language.
+        /// </summary>
+        /// <value>
+        /// The syntax highlighter language.
+        /// </value>
+        string HighlighterLanguage { get; }
+
         /// <summary>
         /// Gets the caret line, requires editor to have focus or 0.
         /// </summary>
@@ -70,6 +79,6 @@ namespace Monkeyspeak.Editor
         /// <param name="line">The line.</param>
         /// <param name="start">The start.</param>
         /// <param name="end">The end.</param>
-        void SetTextColor(int line, int start, int end);
+        void SetTextColor(Color color, int line, int start, int end);
     }
 }

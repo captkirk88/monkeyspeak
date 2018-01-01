@@ -98,6 +98,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="HelperClasses\WordColorizer.cs" />
     <Compile Include="Utils\ReflectionHelper.cs" />
     <Page Include="Controls\CircularProgressBar.xaml">
       <Generator>MSBuild:Compile</Generator>
