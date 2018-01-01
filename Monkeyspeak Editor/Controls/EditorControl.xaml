@@ -63,7 +63,7 @@
 				ItemsSource="{Binding Source={x:Static avalonEdit:HighlightingManager.Instance}, Path=HighlightingDefinitions}"
 				SelectionChanged="highlightingComboBox_SelectionChanged" />
         </ToolBar>
-        <Grid>
+        <Grid GotKeyboardFocus="GotKeyboardFocus" GotFocus="GotFocus">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="1*" />
                 <ColumnDefinition Width="100" />

@@ -88,7 +88,6 @@ namespace Monkeyspeak.Libraries
         }
     }
 
-    // Changed from Internal to public in order to expose DestroyTimers() - Gerolkae
     public class Timers : AutoIncrementBaseLibrary
     {
         private static DateTime startTime = DateTime.Now;
@@ -101,18 +100,21 @@ namespace Monkeyspeak.Libraries
 
         public override int BaseId => 300;
 
+        /// <summary>
+        /// Default Timer Library.
+        /// </summary>
         public Timers() : this(10)
         {
             // needed for reflection based loading of libraries
         }
 
         /// <summary>
-        /// Default Timer Library.  Call static method Timers.DestroyTimers() when your application closes.
+        /// Default Timer Library.
         /// </summary>
-        public Timers(uint timersLimit = 10)
+        public Timers(uint? timersLimit = null)
         {
-            if (timersLimit == 0) timersLimit = 1;
-            this.timersLimit = timersLimit;
+            if (timersLimit == 0) timersLimit = 10;
+            this.timersLimit = timersLimit.GetValueOrDefault(10);
         }
 
         public override void Initialize(params object[] args)

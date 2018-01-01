@@ -115,5 +115,13 @@ namespace Monkeyspeak.Editor
         {
             System.Diagnostics.Process.Start("https://github.com/captkirk88/monkeyspeak");
         }
+
+        private void TriggerList_SelectionChanged(KeyValuePair<string, string> kv)
+        {
+            if (Controls.EditorControl.Selected != null)
+            {
+                Controls.EditorControl.Selected.InsertLine(Controls.EditorControl.Selected.CaretLine, kv.Key);
+            }
+        }
     }
 }

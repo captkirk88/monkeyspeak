@@ -25,7 +25,7 @@ namespace MonkeyspeakTests
         {
             // add trigger handlers here
             Add(TriggerCategory.Cause, 0, EntryPointForScript,
-                "(0:0) when the script starts,");
+                "when the script starts,");
         }
 
         private bool EntryPointForScript(TriggerReader reader)
