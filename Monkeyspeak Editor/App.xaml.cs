@@ -72,5 +72,10 @@ namespace Monkeyspeak.Editor
         private void Application_Startup(object sender, StartupEventArgs e)
         {
         }
+
+        private void Application_DispatcherUnhandledException(object sender, System.Windows.Threading.DispatcherUnhandledExceptionEventArgs e)
+        {
+            Logger.Error($"{sender.GetType().Name}: {e.Exception}");
+        }
     }
 }

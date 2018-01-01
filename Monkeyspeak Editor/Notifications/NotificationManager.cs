@@ -25,11 +25,12 @@ namespace Monkeyspeak.Editor.Notifications
 
         public static void Clear()
         {
-            notifs.RemoveAll(notif =>
+            for (int i = 0; i <= notifs.Count - 1; i++)
             {
+                var notif = notifs[i];
+                notifs.RemoveAt(i);
                 Removed?.Invoke(notif);
-                return true;
-            });
+            }
         }
     }
 }
