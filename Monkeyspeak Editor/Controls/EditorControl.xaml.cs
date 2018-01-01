@@ -51,6 +51,7 @@ namespace Monkeyspeak.Editor.Controls
             InitializeComponent();
             DataContext = this;
             //textEditor.SyntaxHighlighting = HighlightingManager.Instance.GetDefinitionByExtension(".ms");
+            textEditor.ShowLineNumbers = true;
         }
 
         private void highlightingComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -71,10 +72,40 @@ namespace Monkeyspeak.Editor.Controls
 
         private void saveFileClick(object sender, RoutedEventArgs e)
         {
+            if (currentFileName == null)
+            {
+                SaveFileDialog dlg = new SaveFileDialog();
+                dlg.DefaultExt = ".ms";
+                if (dlg.ShowDialog() ?? false)
+                {
+                    currentFileName = dlg.FileName;
+                }
+                else
+                {
+                    return;
+                }
+            }
+            textEditor.Save(currentFileName);
         }
 
         private void propertyGridComboBoxSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            if (propertyGrid == null)
+                return;
+            switch (propertyGridComboBox.SelectedIndex)
+            {
+                case 0:
+                    propertyGrid.SelectedObject = textEditor;
+                    break;
+
+                case 1:
+                    propertyGrid.SelectedObject = textEditor.TextArea;
+                    break;
+
+                case 2:
+                    propertyGrid.SelectedObject = textEditor.Options;
+                    break;
+            }
         }
     }
 }

@@ -14,7 +14,6 @@
 
     <Controls:MetroWindow.RightWindowCommands>
         <Controls:WindowCommands>
-            <Button Content="Settings" Click="Settings_Click" />
             <Button Content="Console" Click="Console_Click" />
             <Controls:Badged x:Name="notif_badge" BadgePlacementMode="BottomRight" Badge="{Binding Path=(notifs:NotificationManager.Count)}" AutomationProperties.HelpText="Notification Panel">
                 <Button Click="Notifications_Click" MouseDown="Notifications_MouseDown">
@@ -40,6 +39,9 @@
                     </StackPanel>
                 </Button>
             </Controls:Badged>
+            <Button Click="githubButton_Click">
+                <iconPacks:PackIconFontAwesome Kind="GithubBrands" />
+            </Button>
         </Controls:WindowCommands>
     </Controls:MetroWindow.RightWindowCommands>
 
