@@ -40,7 +40,6 @@ deploy:
   file: 
     - $TRAVIS_BUILD_DIR/Monkeyspeak/bin/Release/*.rar
     - $TRAVIS_BUILD_DIR/msxc/bin/Release/*.rar
-    - $TRAVIS_BUILD_DIR/Monkeyspeak Editor/bin/Release/*.rar
   skip_cleanup: true
   on:
     repo: captkirk88/monkeyspeak
