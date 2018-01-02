@@ -17,6 +17,8 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
+using System.Linq;
+
 namespace Monkeyspeak.Editor.Controls
 {
     /// <summary>
@@ -38,7 +40,9 @@ namespace Monkeyspeak.Editor.Controls
 
         public void Add(Page page, Trigger trigger, BaseLibrary lib)
         {
-            TriggerDescriptions.Add(new KeyValuePair<string, string>(page.GetTriggerDescription(trigger, true), lib.GetType().Name));
+            var pair = new KeyValuePair<string, string>(page.GetTriggerDescription(trigger, true), lib.GetType().Name);
+            if (!TriggerDescriptions.Contains(pair))
+                TriggerDescriptions.Add(pair);
         }
 
         public TriggerCategory TriggerCategory { get; set; }
