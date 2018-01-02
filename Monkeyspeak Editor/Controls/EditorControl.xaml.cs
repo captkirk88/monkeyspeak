@@ -193,15 +193,12 @@ namespace Monkeyspeak.Editor.Controls
             {
                 var result = await DialogManager.ShowMessageAsync((MetroWindow)Application.Current.MainWindow,
                     "Save?",
-                    "Changes were detected.  Would you like to save before closing?", MessageDialogStyle.AffirmativeAndNegative);
+                    "Changes were detected.  Would you like to save before closing?", MessageDialogStyle.AffirmativeAndNegative,
+                    new MetroDialogSettings { AffirmativeButtonText = "Yes", NegativeButtonText = "Nah" });
                 if (result == MessageDialogResult.Affirmative) Save();
             }
 
-            await Dispatcher.InvokeAsync(() =>
-            {
-                Editors.Instance.Remove(this);
-                if (Editors.Instance.IsEmpty) Editors.Instance.Add();
-            });
+            Editors.Instance.Remove(this);
         }
 
         private void highlightingComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)

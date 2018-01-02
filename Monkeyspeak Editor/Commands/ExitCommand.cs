@@ -19,9 +19,10 @@ namespace Monkeyspeak.Editor.Commands
 
         public async void Execute(object parameter)
         {
-            foreach (var editor in Editors.Instance.All)
-                await editor.CloseAsync();
-            await Task.Run(() => Application.Current.Shutdown());
+            var editors = Editors.Instance.All.ToArray();
+            for (int i = editors.Length - 1; i >= 0; i--)
+                await editors[i].CloseAsync();
+            Application.Current.Shutdown();
         }
     }
 }

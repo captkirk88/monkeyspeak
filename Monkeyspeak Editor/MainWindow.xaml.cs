@@ -65,7 +65,6 @@ namespace Monkeyspeak.Editor
             Editors.Instance.Add();
 
             Logger.Error("TEST");
-            Closing += MainWindow_Closing;
             Loaded += MainWindow_Loaded;
         }
 
@@ -77,9 +76,11 @@ namespace Monkeyspeak.Editor
             plugins.Initialize();
         }
 
-        private void MainWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        private void MetroWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
+            e.Cancel = true;
             console.Close();
+            new ExitCommand().Execute(null);
         }
 
         private void Console_Click(object sender, RoutedEventArgs e)
