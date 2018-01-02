@@ -16,9 +16,11 @@
                        Width="Auto" Height="Auto"
                        Controls:TabControlHelper.Transition="LeftReplace"
                        CloseButtonEnabled="False">
+
     <Controls:MetroTabItem.CommandBindings>
         <CommandBinding Command="Undo" Executed="CommandBinding_Executed" />
     </Controls:MetroTabItem.CommandBindings>
+
     <Controls:MetroTabItem.Header>
         <StackPanel Orientation="Horizontal">
             <!-- Change Indicator -->
@@ -103,12 +105,14 @@
 				ItemsSource="{Binding Source={x:Static avalonEdit:HighlightingManager.Instance}, Path=HighlightingDefinitions}"
 				SelectionChanged="highlightingComboBox_SelectionChanged" />
         </ToolBar>
-        <Grid GotKeyboardFocus="GotKeyboardFocus" GotFocus="GotFocus">
+        <Grid GotKeyboardFocus="GotKeyboardFocus" GotFocus="GotFocus" Width="Auto">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="1*" />
-                <ColumnDefinition Width="100" />
+                <ColumnDefinition Width="150"
+                        MinWidth="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type DockPanel}}, Path=MinWidth}"
+                        MaxWidth="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type DockPanel}}, Path=MaxWidth}" />
             </Grid.ColumnDefinitions>
-            <avalonEdit:TextEditor Grid.Row="1"
+            <avalonEdit:TextEditor
 				Name="textEditor"
 				FontFamily="Consolas"
 				FontSize="10pt"
@@ -125,8 +129,9 @@
                     </ContextMenu>
                 </avalonEdit:TextEditor.ContextMenu>
             </avalonEdit:TextEditor>
-            <GridSplitter Grid.Row="1" Width="8" VerticalAlignment="Stretch" Background="{DynamicResource AccentColorBrush}" />
-            <DockPanel Grid.Column="1" Margin="4 0 0 0">
+            <GridSplitter Grid.Row="1" Width="5" VerticalAlignment="Stretch" Background="{DynamicResource AccentColorBrush}"
+                          Style="{DynamicResource CustomGridSplitterStyle}" ShowsPreview="True" />
+            <DockPanel Grid.Column="2" Margin="4 0 0 0">
                 <ComboBox Name="propertyGridComboBox" DockPanel.Dock="Top"
 				          SelectedIndex="3" SelectionChanged="propertyGridComboBoxSelectionChanged"
                           Foreground="Black">

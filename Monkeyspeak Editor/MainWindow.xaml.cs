@@ -60,6 +60,11 @@ namespace Monkeyspeak.Editor
                 style_chooser.Items.Add(col);
             }
 
+            foreach (var theme in Enum.GetNames(typeof(AppTheme)))
+            {
+                theme_chooser.Items.Add(theme);
+            }
+
             plugins = new DefaultPluginContainer();
 
             Editors.Instance.Add();
@@ -136,6 +141,14 @@ namespace Monkeyspeak.Editor
             if (Enum.TryParse(style_chooser.SelectedItem.ToString(), out AppColor col))
             {
                 SetColor(col);
+            }
+        }
+
+        private void theme_chooser_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (Enum.TryParse(theme_chooser.SelectedItem.ToString(), out AppTheme theme))
+            {
+                SetTheme(theme);
             }
         }
 

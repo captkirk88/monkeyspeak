@@ -14,6 +14,33 @@
         Closing="MetroWindow_Closing"
         Title="Monkeyspeak Editor" Height="600" Width="800" ShowIconOnTitleBar="True">
 
+    <Controls:MetroWindow.Resources>
+        <Style x:Key="GridSplitterPreviewStyle">
+            <Setter Property="Control.Template">
+                <Setter.Value>
+                    <ControlTemplate>
+                        <Rectangle Fill="#80000000" />
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="CustomGridSplitterStyle" TargetType="{x:Type GridSplitter}">
+            <Setter Property="Background"
+                    Value="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" />
+            <Setter Property="PreviewStyle" Value="{StaticResource GridSplitterPreviewStyle}" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type GridSplitter}">
+                        <Border BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                Background="{TemplateBinding Background}"
+                                CornerRadius="5">
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Controls:MetroWindow.Resources>
     <Controls:MetroWindow.InputBindings>
         <KeyBinding Key="N" Modifiers="Ctrl" Command="{x:Static commands:MonkeyspeakCommands.New}" />
         <KeyBinding Key="S" Modifiers="Ctrl" Command="{x:Static commands:MonkeyspeakCommands.Save}" />
@@ -45,8 +72,11 @@
 
     <Controls:MetroWindow.RightWindowCommands>
         <Controls:WindowCommands>
-            <Controls:SplitButton x:Name="style_chooser" Width="Auto" SelectionChanged="style_chooser_SelectionChanged" SelectedItem="Brown" />
-            <Button Content="Console" Click="Console_Click" />
+            <Controls:SplitButton x:Name="theme_chooser" Width="Auto" SelectionChanged="theme_chooser_SelectionChanged" SelectedItem="Light"
+                                  ToolTip="Select a Theme Light/Dark" />
+            <Controls:SplitButton x:Name="style_chooser" Width="Auto" SelectionChanged="style_chooser_SelectionChanged" SelectedItem="Brown"
+                                  ToolTip="Select a color" />
+            <Button Content="Console" Click="Console_Click" ToolTip="Displays a console window" />
             <Controls:Badged x:Name="notif_badge" BadgePlacementMode="BottomRight" Badge="{Binding Path=notifs:NotificationManager.Count}">
                 <Controls:Badged.ToolTip>
                     <TextBlock>
@@ -91,7 +121,9 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="*" />
             <RowDefinition Height="5" />
-            <RowDefinition Height="100" />
+            <RowDefinition Height="175"
+                           MinHeight="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Grid}}, Path=MinHeight}"
+                           MaxHeight="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Grid}}, Path=ActualHeight}" />
         </Grid.RowDefinitions>
         <Controls:MetroAnimatedTabControl x:Name="docs" Width="Auto" Height="Auto" Padding="10,10,10,10">
             <Controls:MetroAnimatedTabControl.ItemTemplate>
@@ -100,7 +132,8 @@
                 </DataTemplate>
             </Controls:MetroAnimatedTabControl.ItemTemplate>
         </Controls:MetroAnimatedTabControl>
-        <GridSplitter Grid.Row="1" Width="Auto" HorizontalAlignment="Stretch" Background="{DynamicResource AccentColorBrush}" />
+        <GridSplitter Grid.Row="1" Width="Auto" HorizontalAlignment="Stretch" ResizeDirection="Rows" Background="{DynamicResource AccentColorBrush}"
+                      Style="{StaticResource CustomGridSplitterStyle}" ShowsPreview="True" />
         <Controls:MetroAnimatedTabControl Width="Auto" Height="Auto" Grid.Row="2">
             <Controls:MetroTabItem Header="Causes" Controls:ControlsHelper.HeaderFontSize="18"  Width="Auto" Height="Auto" CloseButtonEnabled="False">
                 <ctr:TriggerList TriggerCategory="Cause" TriggerSelected="TriggerList_SelectionChanged" />
