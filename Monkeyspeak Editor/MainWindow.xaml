@@ -54,6 +54,11 @@
             </Controls:Badged>
             <Button Click="githubButton_Click">
                 <iconPacks:PackIconFontAwesome Kind="GithubBrands" />
+                <Button.ToolTip>
+                    <TextBlock TextWrapping="Wrap">
+                        Navigates to the Github page where this editor is hosted
+                    </TextBlock>
+                </Button.ToolTip>
             </Button>
         </Controls:WindowCommands>
     </Controls:MetroWindow.RightWindowCommands>
