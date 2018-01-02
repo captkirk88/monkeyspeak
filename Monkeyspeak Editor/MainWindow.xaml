@@ -125,16 +125,23 @@
                            MinHeight="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Grid}}, Path=MinHeight}"
                            MaxHeight="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Grid}}, Path=ActualHeight}" />
         </Grid.RowDefinitions>
-        <Controls:MetroAnimatedTabControl x:Name="docs" Width="Auto" Height="Auto" Padding="10,10,10,10">
-            <Controls:MetroAnimatedTabControl.ItemTemplate>
+        <Controls:MetroAnimatedSingleRowTabControl x:Name="docs" Width="Auto" Height="Auto" Padding="10,10,10,10"
+                                    Controls:TabControlHelper.IsUnderlined="True"
+                                    Controls:TabControlHelper.Underlined="SelectedTabItem"
+                                    Controls:TabControlHelper.UnderlineSelectedBrush="{DynamicResource AccentColorBrush}">
+            <Controls:MetroAnimatedSingleRowTabControl.ItemTemplate>
                 <DataTemplate>
                     <TextBlock Text="{Binding Title}" />
                 </DataTemplate>
-            </Controls:MetroAnimatedTabControl.ItemTemplate>
-        </Controls:MetroAnimatedTabControl>
+            </Controls:MetroAnimatedSingleRowTabControl.ItemTemplate>
+        </Controls:MetroAnimatedSingleRowTabControl>
         <GridSplitter Grid.Row="1" Width="Auto" HorizontalAlignment="Stretch" ResizeDirection="Rows" Background="{DynamicResource AccentColorBrush}"
                       Style="{StaticResource CustomGridSplitterStyle}" ShowsPreview="True" />
-        <Controls:MetroAnimatedTabControl Width="Auto" Height="Auto" Grid.Row="2">
+        <Controls:MetroAnimatedSingleRowTabControl  Width="Auto" Height="Auto" Grid.Row="2"
+                                          Controls:TabControlHelper.IsUnderlined="True"
+                                          Controls:TabControlHelper.Underlined="SelectedTabItem"
+                                          Controls:TabControlHelper.UnderlineSelectedBrush="{DynamicResource AccentColorBrush}"
+                                          SelectionChanged="MetroAnimatedTabControl_SelectionChanged">
             <Controls:MetroTabItem Header="Causes" Controls:ControlsHelper.HeaderFontSize="18"  Width="Auto" Height="Auto" CloseButtonEnabled="False">
                 <ctr:TriggerList TriggerCategory="Cause" TriggerSelected="TriggerList_SelectionChanged" />
             </Controls:MetroTabItem>
@@ -147,6 +154,6 @@
             <Controls:MetroTabItem Header="Flows" Controls:ControlsHelper.HeaderFontSize="18"  Width="Auto" Height="Auto" CloseButtonEnabled="False">
                 <ctr:TriggerList TriggerCategory="Flow" TriggerSelected="TriggerList_SelectionChanged" />
             </Controls:MetroTabItem>
-        </Controls:MetroAnimatedTabControl>
+        </Controls:MetroAnimatedSingleRowTabControl>
     </Grid>
 </Controls:MetroWindow>

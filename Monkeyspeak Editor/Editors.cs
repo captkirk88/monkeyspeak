@@ -37,7 +37,7 @@ namespace Monkeyspeak.Editor
             OnPropertyChanged("All");
         }
 
-        public EditorControl Selected { get; private set; }
+        public EditorControl Selected { get; set; }
 
         public ObservableCollection<EditorControl> All { get => s_all; set => SetField(ref s_all, value); }
 
@@ -49,8 +49,8 @@ namespace Monkeyspeak.Editor
         {
             if (string.IsNullOrEmpty(title)) title = $"new {(docCount == 0 ? "" : docCount.ToString())}";
             var editor = new EditorControl { Title = title };
-            editor.GotKeyboardFocus += (sender, args) => Selected = (EditorControl)sender;
-            editor.GotFocus += (sender, args) => Selected = (EditorControl)sender;
+            //editor.GotKeyboardFocus += (sender, args) => Selected = (EditorControl)sender;
+            //editor.GotFocus += (sender, args) => Selected = (EditorControl)sender;
             All.Add(editor);
             docCount++;
             Added?.Invoke(editor);

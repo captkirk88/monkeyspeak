@@ -15,7 +15,8 @@
             d:DesignHeight="600" d:DesignWidth="600"
                        Width="Auto" Height="Auto"
                        Controls:TabControlHelper.Transition="LeftReplace"
-                       CloseButtonEnabled="False">
+                       CloseButtonEnabled="False"
+                       GotFocus="OnGotFocus" LostFocus="OnLostFocus">
 
     <Controls:MetroTabItem.CommandBindings>
         <CommandBinding Command="Undo" Executed="CommandBinding_Executed" />
@@ -39,7 +40,7 @@
                     VerticalAlignment="Center"
                     Width="14px" Height="14px"
                     Command="{x:Static commands:MonkeyspeakCommands.Close}"
-                    ToolTip="Close the selected document">
+                    ToolTip="Close the selected document, if it is the last document, exits the application.">
                 <ip:PackIconMaterial Kind="Close" VerticalAlignment="Center" HorizontalAlignment="Center"
                                      Foreground="{DynamicResource AccentColorBrush}" />
             </Button>
@@ -105,7 +106,7 @@
 				ItemsSource="{Binding Source={x:Static avalonEdit:HighlightingManager.Instance}, Path=HighlightingDefinitions}"
 				SelectionChanged="highlightingComboBox_SelectionChanged" />
         </ToolBar>
-        <Grid GotKeyboardFocus="GotKeyboardFocus" GotFocus="GotFocus" Width="Auto">
+        <Grid GotKeyboardFocus="GotKeyboardFocus" Width="Auto">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="1*" />
                 <ColumnDefinition Width="150"

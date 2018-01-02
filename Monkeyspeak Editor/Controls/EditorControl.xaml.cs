@@ -31,7 +31,7 @@ namespace Monkeyspeak.Editor.Controls
     /// </summary>
     public partial class EditorControl : MetroTabItem, IEditor, INotifyPropertyChanged
     {
-        public static EditorControl Selected { get; private set; }
+        public static EditorControl Current { get => Editors.Instance.Selected; set => Editors.Instance.Selected = value; }
         private static IPluginContainer pluginContainer = new DefaultPluginContainer();
 
         static EditorControl()
@@ -120,6 +120,14 @@ namespace Monkeyspeak.Editor.Controls
         /// The selected line.
         /// </value>
         public string SelectedLine { get => Lines[textEditor.TextArea.Caret.Line]; }
+
+        /// <summary>
+        /// Gets a value indicating whether this instance is the active editor, the one with the editor open.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if this instance is active editor; otherwise, <c>false</c>.
+        /// </value>
+        public bool IsActiveEditor { get => Current == this; }
 
         public string CurrentFileName
         {
@@ -249,16 +257,21 @@ namespace Monkeyspeak.Editor.Controls
 
         private void GotKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
         {
-            if (Selected == this) return;
-            Selected = this;
-            pluginContainer.Execute(Selected);
+            if (Current == this) return;
+            Current = this;
+            pluginContainer.Execute(Current);
         }
 
-        private void GotFocus(object sender, RoutedEventArgs e)
+        private void OnGotFocus(object sender, RoutedEventArgs e)
         {
-            if (Selected == this) return;
-            Selected = this;
-            pluginContainer.Execute(Selected);
+            if (Current == this) return;
+            Current = this;
+            pluginContainer.Execute(Current);
+        }
+
+        private void OnLostFocus(object sender, RoutedEventArgs e)
+        {
+            Current = null;
         }
 
         private void textEditor_TextChanged(object sender, EventArgs e)

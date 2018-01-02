@@ -152,6 +152,15 @@ namespace Monkeyspeak.Editor
             }
         }
 
+        private void MetroAnimatedTabControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            Dispatcher.InvokeAsync(() =>
+            {
+                var selectedEditor = ((EditorControl)((MetroAnimatedTabControl)sender).SelectedItem);
+                Editors.Instance.Selected = selectedEditor;
+            });
+        }
+
         public void SetColor(AppColor color)
         {
             this.Dispatcher.Invoke(() =>
