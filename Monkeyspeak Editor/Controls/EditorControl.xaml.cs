@@ -78,7 +78,7 @@ namespace Monkeyspeak.Editor.Controls
             get => textEditor.TextArea.Caret.Line;
         }
 
-        public bool HasChanges { get => _hasChanges; private set => SetField(ref _hasChanges, value); }
+        public bool HasChanges { get => _hasChanges; set => SetField(ref _hasChanges, value); }
 
         public void InsertLine(int line, string text)
         {
@@ -123,7 +123,8 @@ namespace Monkeyspeak.Editor.Controls
 
         public string CurrentFileName
         {
-            get => currentFileName; set
+            get => currentFileName;
+            set
             {
                 currentFileName = value;
                 Title = System.IO.Path.GetFileNameWithoutExtension(currentFileName);
@@ -148,7 +149,9 @@ namespace Monkeyspeak.Editor.Controls
             {
                 SaveFileDialog dlg = new SaveFileDialog
                 {
-                    DefaultExt = ".ms"
+                    DefaultExt = ".ms",
+                    AddExtension = true,
+                    Filter = "Monkeyspeak Script |*.ms|All files (*.*)|*.*"
                 };
                 if (dlg.ShowDialog() ?? false)
                 {
@@ -163,20 +166,57 @@ namespace Monkeyspeak.Editor.Controls
             HasChanges = false;
         }
 
+        public void SaveAs(string fileName)
+        {
+            SaveFileDialog dlg = new SaveFileDialog
+            {
+                DefaultExt = ".ms",
+                AddExtension = true,
+                FileName = fileName,
+                Filter = "Monkeyspeak Script |*.ms|All files (*.*)|*.*"
+            };
+            if (dlg.ShowDialog() ?? false)
+            {
+                CurrentFileName = dlg.FileName;
+            }
+            else
+            {
+                return;
+            }
+            textEditor.Save(CurrentFileName);
+            HasChanges = false;
+        }
+
+        public async Task CloseAsync()
+        {
+            if (HasChanges)
+            {
+                var result = await DialogManager.ShowMessageAsync((MetroWindow)Application.Current.MainWindow,
+                    "Save?",
+                    "Changes were detected.  Would you like to save before closing?", MessageDialogStyle.AffirmativeAndNegative);
+                if (result == MessageDialogResult.Affirmative) Save();
+            }
+
+            await Dispatcher.InvokeAsync(() =>
+            {
+                Editors.Instance.Remove(this);
+                if (Editors.Instance.IsEmpty) Editors.Instance.Add();
+            });
+        }
+
         private void highlightingComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
         }
 
-        private void newFileClick(object sender, RoutedEventArgs e)
-        {
-            Editors.Instance.Add();
-        }
-
-        private void openFileClick(object sender, RoutedEventArgs e)
+        public void Open()
         {
             OpenFileDialog dlg = new OpenFileDialog
             {
-                CheckFileExists = true
+                CheckFileExists = true,
+                CheckPathExists = true,
+                RestoreDirectory = false, // opens dialog at last location used
+                DefaultExt = ".ms",
+                Filter = "Monkeyspeak Script |*.ms|All files (*.*)|*.*"
             };
             if (dlg.ShowDialog() ?? false)
             {
@@ -184,11 +224,6 @@ namespace Monkeyspeak.Editor.Controls
                 textEditor.Load(CurrentFileName);
                 textEditor.SyntaxHighlighting = HighlightingManager.Instance.GetDefinitionByExtension(System.IO.Path.GetExtension(CurrentFileName));
             }
-        }
-
-        private void saveFileClick(object sender, RoutedEventArgs e)
-        {
-            Save();
         }
 
         private void propertyGridComboBoxSelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -234,23 +269,6 @@ namespace Monkeyspeak.Editor.Controls
             HasChanges = true;
         }
 
-        private async void closeFileClick(object sender, RoutedEventArgs e)
-        {
-            if (HasChanges)
-            {
-                var result = await DialogManager.ShowMessageAsync((MetroWindow)Application.Current.MainWindow,
-                    "Save?",
-                    "Changes were detected.  Would you like to save before closing?", MessageDialogStyle.AffirmativeAndNegative);
-                if (result == MessageDialogResult.Affirmative) Save();
-            }
-
-            await Dispatcher.InvokeAsync(() =>
-            {
-                Editors.Instance.Remove(this);
-                if (Editors.Instance.IsEmpty) Editors.Instance.Add();
-            });
-        }
-
         protected bool SetField<T>(ref T field, T value, [CallerMemberName] string propertyName = null)
         {
             if (EqualityComparer<T>.Default.Equals(field, value)) return false;
@@ -262,6 +280,14 @@ namespace Monkeyspeak.Editor.Controls
         protected virtual void OnPropertyChanged(string propertyName)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        private void CommandBinding_Executed(object sender, ExecutedRoutedEventArgs e)
+        {
+            if (e.Command == ApplicationCommands.Undo)
+            {
+                // TODO remove save changes prompt if under eliminated those changes
+            }
         }
     }
 }

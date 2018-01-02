@@ -6,42 +6,65 @@
             xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
             xmlns:xc="http://schemas.xceed.com/wpf/xaml/toolkit"
             xmlns:local="clr-namespace:Monkeyspeak.Editor"
+            xmlns:ctr="clr-namespace:Monkeyspeak.Editor.Controls"
             xmlns:notifs="clr-namespace:Monkeyspeak.Editor.Notifications"
+            xmlns:commands="clr-namespace:Monkeyspeak.Editor.Commands"
             xmlns:ip="http://metro.mahapps.com/winfx/xaml/iconpacks"
             xmlns:avalonEdit="http://icsharpcode.net/sharpdevelop/avalonedit"
             mc:Ignorable="d"
             d:DesignHeight="600" d:DesignWidth="600"
                        Width="Auto" Height="Auto"
-                       Controls:TabControlHelper.Transition="Right"
-                       CloseButtonEnabled="False" CloseButtonMargin="0,10,10,10">
+                       Controls:TabControlHelper.Transition="LeftReplace"
+                       CloseButtonEnabled="False">
+    <Controls:MetroTabItem.CommandBindings>
+        <CommandBinding Command="Undo" Executed="CommandBinding_Executed" />
+    </Controls:MetroTabItem.CommandBindings>
     <Controls:MetroTabItem.Header>
         <StackPanel Orientation="Horizontal">
+            <!-- Change Indicator -->
+            <TextBlock Text="*" FontSize="18" FontWeight="Bold"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    Controls:VisibilityHelper.IsVisible="{Binding HasChanges}" />
+            <!-- Title  -->
             <TextBlock Text="{Binding Title}" FontSize="18"
                     HorizontalAlignment="Center"
-                    VerticalAlignment="Center" />
-            <Button HorizontalAlignment="Center"
+                    VerticalAlignment="Center">
+            </TextBlock>
+            <!-- Close button -->
+            <Button  BorderThickness="0" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}"
+                    HorizontalAlignment="Center"
                     VerticalAlignment="Center"
-                    Click="closeFileClick"
+                    Width="14px" Height="14px"
+                    Command="{x:Static commands:MonkeyspeakCommands.Close}"
                     ToolTip="Close the selected document">
-                <ip:PackIconMaterial Kind="Close" />
+                <ip:PackIconMaterial Kind="Close" VerticalAlignment="Center" HorizontalAlignment="Center"
+                                     Foreground="{DynamicResource AccentColorBrush}" />
             </Button>
+            <StackPanel.ToolTip>
+                <StackPanel>
+                    <Label Content="{Binding CurrentFileName}" />
+                </StackPanel>
+            </StackPanel.ToolTip>
         </StackPanel>
     </Controls:MetroTabItem.Header>
+
     <Controls:MetroTabItem.ContextMenu>
         <ContextMenu>
-            <MenuItem Header="Save" Click="saveFileClick" />
-            <MenuItem Header="New" Click="newFileClick" />
-            <MenuItem Header="Open" Click="openFileClick" />
-            <MenuItem Header="Close" Click="closeFileClick" />
+            <MenuItem Header="SaveAll" Command="{x:Static commands:MonkeyspeakCommands.SaveAll}" />
+            <MenuItem Header="Save" Command="{x:Static commands:MonkeyspeakCommands.Save}" />
+            <MenuItem Header="New" Command="{x:Static commands:MonkeyspeakCommands.New}" />
+            <MenuItem Header="Open" Command="{x:Static commands:MonkeyspeakCommands.Open}" />
+            <MenuItem Header="Close" Command="{x:Static commands:MonkeyspeakCommands.Close}" />
         </ContextMenu>
     </Controls:MetroTabItem.ContextMenu>
     <DockPanel>
         <ToolBar DockPanel.Dock="Top">
-            <Button Click="saveFileClick" ToolTip="{Binding RelativeSource={RelativeSource Self}, Path=Command}"
+            <Button Command="{x:Static commands:MonkeyspeakCommands.Save}" ToolTip="{Binding RelativeSource={RelativeSource Self}, Path=Command}"
                     IsEnabled="{Binding HasChanges}">
                 <ip:PackIconMaterial Kind="ContentSave" />
             </Button>
-            <Button Click="saveFileClick" ToolTip="Save All"
+            <Button Command="{x:Static commands:MonkeyspeakCommands.SaveAll}" ToolTip="Save all documents"
                     IsEnabled="{Binding Path=Editors.Instance.AnyHasChanges}">
                 <ip:PackIconMaterial Kind="ContentSaveAll" />
             </Button>
@@ -85,14 +108,24 @@
                 <ColumnDefinition Width="1*" />
                 <ColumnDefinition Width="100" />
             </Grid.ColumnDefinitions>
-            <avalonEdit:TextEditor
+            <avalonEdit:TextEditor Grid.Row="1"
 				Name="textEditor"
 				FontFamily="Consolas"
 				FontSize="10pt"
 				SyntaxHighlighting="Monkeyspeak"
                 Background="White" TextChanged="textEditor_TextChanged">
+                <avalonEdit:TextEditor.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem Command="Cut" />
+                        <MenuItem Command="Copy" />
+                        <MenuItem Command="Paste" />
+                        <Separator />
+                        <MenuItem Header="Save" Command="{x:Static commands:MonkeyspeakCommands.Save}" />
+                        <MenuItem Header="Close" Command="{x:Static commands:MonkeyspeakCommands.Close}" />
+                    </ContextMenu>
+                </avalonEdit:TextEditor.ContextMenu>
             </avalonEdit:TextEditor>
-            <GridSplitter Grid.Column="1" Width="4" HorizontalAlignment="Left" />
+            <GridSplitter Grid.Row="1" Width="8" VerticalAlignment="Stretch" Background="{DynamicResource AccentColorBrush}" />
             <DockPanel Grid.Column="1" Margin="4 0 0 0">
                 <ComboBox Name="propertyGridComboBox" DockPanel.Dock="Top"
 				          SelectedIndex="3" SelectionChanged="propertyGridComboBoxSelectionChanged"

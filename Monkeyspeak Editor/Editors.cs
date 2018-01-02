@@ -8,6 +8,8 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Input;
+using System.Windows.Threading;
 
 namespace Monkeyspeak.Editor
 {
@@ -15,6 +17,7 @@ namespace Monkeyspeak.Editor
     {
         public static Editors Instance = new Editors();
         private ObservableCollection<EditorControl> s_all;
+        private int docCount = 0;
 
         public event Action<EditorControl> Added;
 
@@ -26,7 +29,6 @@ namespace Monkeyspeak.Editor
         {
             s_all = new ObservableCollection<EditorControl>();
             s_all.CollectionChanged += S_all_CollectionChanged;
-            Add();
         }
 
         private void S_all_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
@@ -34,18 +36,24 @@ namespace Monkeyspeak.Editor
             OnPropertyChanged("All");
         }
 
+        public EditorControl Selected { get; private set; }
+
         public ObservableCollection<EditorControl> All { get => s_all; set => SetField(ref s_all, value); }
 
         public bool IsEmpty => s_all.Count == 0;
 
         public bool AnyHasChanges => s_all.Any(editor => editor.HasChanges);
 
-        public void Add(string title = null)
+        public EditorControl Add(string title = null)
         {
-            if (string.IsNullOrEmpty(title)) title = $"new {s_all.Count}";
-            var @new = new EditorControl { Title = title };
-            All.Add(@new);
-            Added?.Invoke(@new);
+            if (string.IsNullOrEmpty(title)) title = $"new {(docCount == 0 ? "" : docCount.ToString())}";
+            var editor = new EditorControl { Title = title };
+            editor.GotKeyboardFocus += (sender, args) => Selected = (EditorControl)sender;
+            editor.GotFocus += (sender, args) => Selected = (EditorControl)sender;
+            All.Add(editor);
+            docCount++;
+            Added?.Invoke(editor);
+            return editor;
         }
 
         public void Remove(EditorControl control)
@@ -54,7 +62,6 @@ namespace Monkeyspeak.Editor
             {
                 Removed?.Invoke(control);
             }
-            if (s_all.Count == 0) Add();
         }
 
         protected bool SetField<T>(ref T field, T value, [CallerMemberName] string propertyName = null)

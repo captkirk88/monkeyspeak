@@ -1,6 +1,7 @@
 ﻿using MahApps.Metro;
 using MahApps.Metro.Controls;
 using MahApps.Metro.Controls.Dialogs;
+using Monkeyspeak.Editor.Commands;
 using Monkeyspeak.Editor.Controls;
 using Monkeyspeak.Editor.Interfaces.Plugins;
 using Monkeyspeak.Editor.Logging;
@@ -15,6 +16,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Threading;
 
 namespace Monkeyspeak.Editor
@@ -35,15 +37,19 @@ namespace Monkeyspeak.Editor
             Logger.LogOutput = new MultiLogOutput(new ConsoleWindowLogOutput(console),
                 new NotificationPanelLogOutput(Level.Error));
 
-            NotificationManager.Added += notif => this.Dispatcher.Invoke(() => notif_badge.Badge = NotificationManager.Count);
-            NotificationManager.Removed += notif => this.Dispatcher.Invoke(() => notif_badge.Badge = NotificationManager.Count);
             NotificationManager.Added += notif =>
             {
+                this.Dispatcher.Invoke(() => notif_badge.Badge = NotificationManager.Count);
                 this.Dispatcher.Invoke(() =>
                 {
                     notifs_list.Items.Add(new NotificationPanel(notif));
                     notifs_list.ScrollIntoView(notifs_list.Items[notifs_list.Items.Count - 1]);
                 });
+            };
+            NotificationManager.Removed += notif =>
+            {
+                this.Dispatcher.Invoke(() => notif_badge.Badge = NotificationManager.Count);
+                if (NotificationManager.Count == 0) notifs_flyout.IsOpen = false;
             };
 
             Editors.Instance.Added += editor => this.Dispatcher.Invoke(() => docs.Items.Add(editor));
@@ -90,12 +96,14 @@ namespace Monkeyspeak.Editor
 
         private void Notifications_Click(object sender, RoutedEventArgs e)
         {
-            notifs_flyout.IsOpen = !notifs_flyout.IsOpen;
+            if (NotificationManager.Count > 0)
+                notifs_flyout.IsOpen = true;
+            else notifs_flyout.IsOpen = false;
         }
 
-        private void Notifications_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        private void Notifications_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            if (e.RightButton == System.Windows.Input.MouseButtonState.Pressed)
+            if (e.RightButton == MouseButtonState.Pressed)
             {
                 this.Dispatcher.Invoke(() =>
                 {
@@ -105,25 +113,21 @@ namespace Monkeyspeak.Editor
             }
         }
 
-        private async void MetroWindow_Loaded(object sender, RoutedEventArgs e)
+        private void notifs_flyout_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
         }
 
-        private void notifs_flyout_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
+        private void TriggerList_SelectionChanged(Tuple<string, string> kv)
         {
+            if (Editors.Instance.Selected != null)
+            {
+                Editors.Instance.Selected.InsertLine(Editors.Instance.Selected.CaretLine, kv.Item1);
+            }
         }
 
         private void githubButton_Click(object sender, RoutedEventArgs e)
         {
             System.Diagnostics.Process.Start("https://github.com/captkirk88/monkeyspeak");
-        }
-
-        private void TriggerList_SelectionChanged(Tuple<string, string> kv)
-        {
-            if (Controls.EditorControl.Selected != null)
-            {
-                Controls.EditorControl.Selected.InsertLine(Controls.EditorControl.Selected.CaretLine, kv.Item1);
-            }
         }
 
         private void style_chooser_SelectionChanged(object sender, SelectionChangedEventArgs e)
