@@ -24,36 +24,16 @@ namespace Monkeyspeak.Editor.Controls
     /// </summary>
     public partial class TriggerList : UserControl
     {
-        public event Action<KeyValuePair<string, string>> SelectionChanged;
+        private static MonkeyspeakEngine engine = null;
+        private static Page page = null;
+
+        public event Action<KeyValuePair<string, string>> TriggerSelected;
 
         public TriggerList()
         {
             InitializeComponent();
             TriggerDescriptions = new ObservableCollection<KeyValuePair<string, string>>();
             this.DataContext = this;
-
-            this.Dispatcher.InvokeAsync(() =>
-            {
-                var opts = new Options
-                {
-                    CanOverrideTriggerHandlers = false,
-                    TriggerLimit = 100000
-                };
-                var engine = new MonkeyspeakEngine(opts);
-                using (var page = new Page(engine))
-                {
-                    page.LoadAllLibraries();
-                    // causes
-                    foreach (var lib in page.Libraries)
-                    {
-                        Logger.Debug(lib.GetType().Name);
-                        foreach (var cause in lib.Handlers.Where(h => h.Key.Category == this.TriggerCategory).Select(kv => kv.Key))
-                        {
-                            Add(page, cause, lib);
-                        }
-                    }
-                }
-            });
         }
 
         public void Add(Page page, Trigger trigger, BaseLibrary lib)
@@ -67,8 +47,34 @@ namespace Monkeyspeak.Editor.Controls
         private void Content_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
             var item = (KeyValuePair<string, string>)Content.SelectedItem;
-            SelectionChanged?.Invoke(item);
+            TriggerSelected?.Invoke(item);
             Logger.Debug<TriggerList>(item);
+        }
+
+        private void UserControl_Loaded(object sender, RoutedEventArgs e)
+        {
+            if (engine == null)
+            {
+                var opts = new Options
+                {
+                    CanOverrideTriggerHandlers = false,
+                    TriggerLimit = 100000
+                };
+                engine = new MonkeyspeakEngine(opts);
+                page = new Page(engine);
+                page.LoadAllLibraries();
+            }
+
+            this.Dispatcher.Invoke(() =>
+            {
+                foreach (var lib in page.Libraries)
+                {
+                    foreach (var trigger in lib.Handlers.Where(h => h.Key.Category == this.TriggerCategory).Select(kv => kv.Key))
+                    {
+                        Add(page, trigger, lib);
+                    }
+                }
+            });
         }
     }
 }

@@ -6,14 +6,16 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="clr-namespace:Monkeyspeak.Editor.Controls"
              mc:Ignorable="d"
+             Loaded="UserControl_Loaded"
              d:DesignHeight="300" d:DesignWidth="300">
     <ListView x:Name="Content" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+              Grid.IsSharedSizeScope="True"
               ItemsSource="{Binding TriggerDescriptions}"
               MouseDoubleClick="Content_MouseDoubleClick">
         <ListView.View>
             <GridView>
-                <GridViewColumn Header="Trigger Description" DisplayMemberBinding="{Binding Key}" />
-                <GridViewColumn Header="Library" DisplayMemberBinding="{Binding Value}" />
+                <GridViewColumn Header="Triggers" DisplayMemberBinding="{Binding Key}" />
+                <GridViewColumn Header="Libraries" DisplayMemberBinding="{Binding Value}" />
             </GridView>
         </ListView.View>
     </ListView>

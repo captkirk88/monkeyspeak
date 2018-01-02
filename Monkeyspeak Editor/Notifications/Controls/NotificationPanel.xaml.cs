@@ -1,5 +1,7 @@
-﻿using System.Windows;
+﻿using MahApps.Metro;
+using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media;
 
 namespace Monkeyspeak.Editor.Notifications.Controls
 {
@@ -25,6 +27,10 @@ namespace Monkeyspeak.Editor.Notifications.Controls
             this.notif = notif;
         }
 
+        private void UserControl_Loaded(object sender, RoutedEventArgs e)
+        {
+        }
+
         private void NotificationPanel_Unloaded(object sender, RoutedEventArgs e)
         {
         }
@@ -44,6 +50,10 @@ namespace Monkeyspeak.Editor.Notifications.Controls
         private void DismissButton_Click(object sender, RoutedEventArgs e)
         {
             NotificationManager.Remove(notif);
+        }
+
+        private void ContentContainer_Loaded(object sender, RoutedEventArgs e)
+        {
         }
     }
 }

@@ -10,7 +10,7 @@ using System.Windows.Media;
 
 namespace Monkeyspeak.Editor.Logging
 {
-    internal class ConsoleWindowLogOutput : ConsoleLogOutput
+    public class ConsoleWindowLogOutput : ConsoleLogOutput
     {
         private readonly ConsoleWindow console;
 

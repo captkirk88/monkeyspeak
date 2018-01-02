@@ -12,31 +12,44 @@
         Loaded="MetroWindow_Loaded"
         Title="Monkeyspeak Editor" Height="600" Width="800" ShowIconOnTitleBar="True">
 
+    <Controls:MetroWindow.Flyouts>
+        <Controls:FlyoutsControl Width="Auto">
+            <Controls:Flyout x:Name="notifs_flyout" Position="Right" TitleVisibility="Hidden"
+                             IsVisibleChanged="notifs_flyout_IsVisibleChanged"
+                             Width="Auto">
+                <ListView x:Name="notifs_list" Width="Auto">
+                    <ListView.ItemContainerStyle>
+                        <Style TargetType="{x:Type ListViewItem}">
+                            <Setter Property="Background" Value="Transparent" />
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="{x:Type ListViewItem}">
+                                        <ContentPresenter />
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </ListView.ItemContainerStyle>
+                </ListView>
+            </Controls:Flyout>
+        </Controls:FlyoutsControl>
+    </Controls:MetroWindow.Flyouts>
+
     <Controls:MetroWindow.RightWindowCommands>
         <Controls:WindowCommands>
+            <Controls:SplitButton x:Name="style_chooser" Width="Auto" SelectionChanged="style_chooser_SelectionChanged" SelectedItem="Brown" />
             <Button Content="Console" Click="Console_Click" />
-            <Controls:Badged x:Name="notif_badge" BadgePlacementMode="BottomRight" Badge="{Binding Path=(notifs:NotificationManager.Count)}" AutomationProperties.HelpText="Notification Panel">
+            <Controls:Badged x:Name="notif_badge" BadgePlacementMode="BottomRight" Badge="{Binding Path=notifs:NotificationManager.Count}"
+                             AutomationProperties.HelpText="Notification Panel">
+                <Controls:Badged.ToolTip>
+                    <TextBlock>
+                        Notifications
+                        <LineBreak />
+                        Right click to clear all notifications
+                    </TextBlock>
+                </Controls:Badged.ToolTip>
                 <Button Click="Notifications_Click" MouseDown="Notifications_MouseDown">
-                    <StackPanel>
-                        <iconPacks:PackIconModern Kind="NotificationStar" />
-                        <Popup x:Name="notifs_container" IsOpen="False" PopupAnimation="Slide" Focusable="False"
-                            IsVisibleChanged="notifs_container_IsVisibleChanged">
-                            <ListView x:Name="notifs_list">
-                                <ListView.ItemContainerStyle>
-                                    <Style TargetType="{x:Type ListViewItem}">
-                                        <Setter Property="Background" Value="Transparent" />
-                                        <Setter Property="Template">
-                                            <Setter.Value>
-                                                <ControlTemplate TargetType="{x:Type ListViewItem}">
-                                                    <ContentPresenter />
-                                                </ControlTemplate>
-                                            </Setter.Value>
-                                        </Setter>
-                                    </Style>
-                                </ListView.ItemContainerStyle>
-                            </ListView>
-                        </Popup>
-                    </StackPanel>
+                    <iconPacks:PackIconModern Kind="Notification" />
                 </Button>
             </Controls:Badged>
             <Button Click="githubButton_Click">
@@ -51,24 +64,27 @@
             <RowDefinition Height="5" />
             <RowDefinition Height="100" />
         </Grid.RowDefinitions>
-        <Controls:MetroAnimatedTabControl x:Name="docs" Width="Auto" Height="Auto" Padding="10,10,10,10">
-            <Controls:MetroTabItem Header="(new)" Controls:ControlsHelper.HeaderFontSize="18" Width="Auto" Height="Auto" CloseButtonEnabled="True" CloseButtonMargin="0,10,10,10">
-                <ctr:EditorControl />
-            </Controls:MetroTabItem>
+        <Controls:MetroAnimatedTabControl x:Name="docs" Width="Auto" Height="Auto" Padding="10,10,10,10"
+                                          ItemsSource="{Binding Source={x:Static local:Editors.All}}">
+            <Controls:MetroAnimatedTabControl.ItemTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding Title}" />
+                </DataTemplate>
+            </Controls:MetroAnimatedTabControl.ItemTemplate>
         </Controls:MetroAnimatedTabControl>
         <GridSplitter Grid.Row="1" Width="Auto" HorizontalAlignment="Stretch" Background="Gray" />
-        <Controls:MetroAnimatedTabControl Width="Auto" Height="Auto" Grid.Row="2" Controls:VisibilityHelper.IsVisible="{Binding ElementName=loader, Path=IsLoading}">
+        <Controls:MetroAnimatedTabControl Width="Auto" Height="Auto" Grid.Row="2">
             <Controls:MetroTabItem Header="Causes" Controls:ControlsHelper.HeaderFontSize="18"  Width="Auto" Height="Auto" CloseButtonEnabled="False">
-                <ctr:TriggerList TriggerCategory="Cause" SelectionChanged="TriggerList_SelectionChanged" />
+                <ctr:TriggerList TriggerCategory="Cause" TriggerSelected="TriggerList_SelectionChanged" />
             </Controls:MetroTabItem>
             <Controls:MetroTabItem Header="Conditions" Controls:ControlsHelper.HeaderFontSize="18"  Width="Auto" Height="Auto" CloseButtonEnabled="False">
-                <ctr:TriggerList TriggerCategory="Condition" SelectionChanged="TriggerList_SelectionChanged" />
+                <ctr:TriggerList TriggerCategory="Condition" TriggerSelected="TriggerList_SelectionChanged" />
             </Controls:MetroTabItem>
             <Controls:MetroTabItem Header="Effects" Controls:ControlsHelper.HeaderFontSize="18"  Width="Auto" Height="Auto" CloseButtonEnabled="False">
-                <ctr:TriggerList TriggerCategory="Effect" SelectionChanged="TriggerList_SelectionChanged" />
+                <ctr:TriggerList TriggerCategory="Effect" TriggerSelected="TriggerList_SelectionChanged" />
             </Controls:MetroTabItem>
             <Controls:MetroTabItem Header="Flows" Controls:ControlsHelper.HeaderFontSize="18"  Width="Auto" Height="Auto" CloseButtonEnabled="False">
-                <ctr:TriggerList TriggerCategory="Flow" SelectionChanged="TriggerList_SelectionChanged" />
+                <ctr:TriggerList TriggerCategory="Flow" TriggerSelected="TriggerList_SelectionChanged" />
             </Controls:MetroTabItem>
         </Controls:MetroAnimatedTabControl>
     </Grid>

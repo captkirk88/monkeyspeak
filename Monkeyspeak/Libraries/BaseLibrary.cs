@@ -131,34 +131,37 @@ namespace Monkeyspeak.Libraries
 
         public static IEnumerable<BaseLibrary> GetAllLibraries()
         {
-            if (Assembly.GetEntryAssembly() != null)
+            foreach (string asmFile in Directory.EnumerateFiles(Path.GetFullPath(AppDomain.CurrentDomain.BaseDirectory), "*.dll"))
             {
-                // this detects the path from where the current EXE is being executed
-                foreach (string asmFile in Directory.EnumerateFiles(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "*.dll"))
-                {
-                    Logger.Debug<BaseLibrary>($"{asmFile}");
-                    if (ReflectionHelper.TryLoad(asmFile, out Assembly asm))
-                        foreach (var lib in GetLibrariesFromAssembly(asm)) yield return lib;
-                }
-                foreach (var asmName in Assembly.GetEntryAssembly().GetReferencedAssemblies())
-                {
-                    var asm = Assembly.Load(asmName);
-                    foreach (var lib in GetLibrariesFromAssembly(asm)) yield return lib;
-                }
+                if (ReflectionHelper.TryLoad(asmFile, out Assembly asm))
+                    foreach (var lib in GetLibrariesFromAssembly(asm))
+                    {
+                        yield return lib;
+                    }
             }
-            else if (Assembly.GetExecutingAssembly() != null)
+
+            if (Assembly.GetExecutingAssembly() != null)
             {
                 // this detects the path from where the current CODE is being executed
-                foreach (string asmFile in Directory.EnumerateFiles(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "*.dll"))
-                {
-                    Logger.Debug<BaseLibrary>($"{asmFile}");
-                    if (ReflectionHelper.TryLoad(asmFile, out Assembly asm))
-                        foreach (var lib in GetLibrariesFromAssembly(asm)) yield return lib;
-                }
                 foreach (var asmName in Assembly.GetExecutingAssembly().GetReferencedAssemblies())
                 {
                     var asm = Assembly.Load(asmName);
-                    foreach (var lib in GetLibrariesFromAssembly(asm)) yield return lib;
+                    foreach (var lib in GetLibrariesFromAssembly(asm))
+                    {
+                        yield return lib;
+                    }
+                }
+            }
+            else if (Assembly.GetEntryAssembly() != null)
+            {
+                // this detects the path from where the current CODE is being executed
+                foreach (var asmName in Assembly.GetEntryAssembly().GetReferencedAssemblies())
+                {
+                    var asm = Assembly.Load(asmName);
+                    foreach (var lib in GetLibrariesFromAssembly(asm))
+                    {
+                        yield return lib;
+                    }
                 }
             }
             foreach (var asm in AppDomain.CurrentDomain.GetAssemblies())
@@ -166,7 +169,10 @@ namespace Monkeyspeak.Libraries
                 // avoid all the Microsoft and System assemblies.  All assesmblies it is looking for should be in the local path
                 if (asm.GlobalAssemblyCache) continue;
 
-                foreach (var lib in GetLibrariesFromAssembly(asm)) yield return lib;
+                foreach (var lib in GetLibrariesFromAssembly(asm))
+                {
+                    yield return lib;
+                }
             }
         }
 
@@ -182,7 +188,27 @@ namespace Monkeyspeak.Libraries
             {
                 if (ReflectionHelper.HasNoArgConstructor(type))
                     yield return (BaseLibrary)Activator.CreateInstance(type);
+                else Logger.Debug<BaseLibrary>($"{type.Name} does not have a no-arg constructor");
             }
+        }
+    }
+
+    internal class BaseLibraryComparator : IEqualityComparer<BaseLibrary>
+    {
+        public bool Equals(BaseLibrary x, BaseLibrary y)
+        {
+            if (x == null)
+                return y == null;
+
+            if (y == null)
+                return false;
+
+            return x.GetType() == y.GetType();
+        }
+
+        public int GetHashCode(BaseLibrary obj)
+        {
+            return obj.GetHashCode();
         }
     }
 }
