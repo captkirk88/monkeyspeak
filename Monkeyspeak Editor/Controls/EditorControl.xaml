@@ -11,27 +11,49 @@
             xmlns:avalonEdit="http://icsharpcode.net/sharpdevelop/avalonedit"
             mc:Ignorable="d"
             d:DesignHeight="600" d:DesignWidth="600"
-                       Header="{Binding Title}"
-                       x:Name="tab" Width="Auto" Height="Auto"
+                       Width="Auto" Height="Auto"
                        Controls:TabControlHelper.Transition="Right"
-                       Controls:ControlsHelper.HeaderFontSize="18"
-                       CloseButtonEnabled="True">
+                       CloseButtonEnabled="True" CloseButtonMargin="0,10,10,10" Unloaded="Editor_Closed">
+    <Controls:MetroTabItem.Header>
+        <StackPanel Orientation="Horizontal">
+            <TextBlock Text="{Binding Title}" FontSize="18"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center" />
+            <Button Controls:VisibilityHelper.IsVisible="{Binding HasChanges}"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    Command="Save"
+                    Click="saveFileClick"
+                    ToolTip="{Binding RelativeSource={RelativeSource Self}, Path=Command}">
+                <ip:PackIconMaterial Kind="ContentSave" />
+            </Button>
+            <Button Controls:VisibilityHelper.IsVisible="{Binding HasChanges}"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    Command="Close"
+                    Click="Editor_Closed"
+                    ToolTip="{Binding RelativeSource={RelativeSource Self}, Path=Command}">
+                <ip:PackIconMaterial Kind="Close" />
+            </Button>
+        </StackPanel>
+    </Controls:MetroTabItem.Header>
+    <Controls:MetroTabItem.ContextMenu>
+        <ContextMenu>
+            <MenuItem Header="Save" Click="saveFileClick" />
+            <MenuItem Header="New" Click="newFileClick" />
+            <MenuItem Header="Open" Click="openFileClick" />
+            <MenuItem Header="Close" Click="Editor_Closed" />
+        </ContextMenu>
+    </Controls:MetroTabItem.ContextMenu>
     <DockPanel>
         <ToolBar DockPanel.Dock="Top">
-            <ToolBar.Resources>
-                <Style TargetType="{x:Type Image}">
-                    <Style.Triggers>
-                        <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType={x:Type ButtonBase}, AncestorLevel=1}, Path=IsEnabled}" Value="False">
-                            <Setter Property="Opacity" Value="0.30" />
-                        </DataTrigger>
-                    </Style.Triggers>
-                </Style>
-            </ToolBar.Resources>
-            <Button Command="Open" Click="openFileClick" ToolTip="{Binding RelativeSource={RelativeSource Self}, Path=Command}">
-                <ip:PackIconModern Kind="FolderOpen" />
+            <Button Click="saveFileClick" ToolTip="{Binding RelativeSource={RelativeSource Self}, Path=Command}"
+                    IsEnabled="{Binding HasChanges}">
+                <ip:PackIconMaterial Kind="ContentSave" />
             </Button>
-            <Button Command="Save" Click="saveFileClick" ToolTip="{Binding RelativeSource={RelativeSource Self}, Path=Command}">
-                <ip:PackIconModern Kind="Save" />
+            <Button Click="saveFileClick" ToolTip="Save All"
+                    IsEnabled="{Binding Path=Editors.Instance.AnyHasChanges}">
+                <ip:PackIconMaterial Kind="ContentSaveAll" />
             </Button>
             <Separator />
             <Button Command="Cut" ToolTip="{Binding RelativeSource={RelativeSource Self}, Path=Command}">
@@ -78,12 +100,12 @@
 				FontFamily="Consolas"
 				FontSize="10pt"
 				SyntaxHighlighting="Monkeyspeak"
-                Background="White">
+                Background="White" TextChanged="textEditor_TextChanged">
             </avalonEdit:TextEditor>
             <GridSplitter Grid.Column="1" Width="4" HorizontalAlignment="Left" />
             <DockPanel Grid.Column="1" Margin="4 0 0 0">
                 <ComboBox Name="propertyGridComboBox" DockPanel.Dock="Top"
-				          SelectedIndex="2" SelectionChanged="propertyGridComboBoxSelectionChanged"
+				          SelectedIndex="3" SelectionChanged="propertyGridComboBoxSelectionChanged"
                           Foreground="Black">
                     <ComboBoxItem>TextEditor</ComboBoxItem>
                     <ComboBoxItem>TextArea</ComboBoxItem>

@@ -11,36 +11,58 @@ using System.Threading.Tasks;
 
 namespace Monkeyspeak.Editor
 {
-    public static class Editors
+    public class Editors : INotifyPropertyChanged
     {
-        private static List<EditorControl> s_all;
+        public static Editors Instance = new Editors();
+        private List<EditorControl> s_all;
 
-        public static event Action<EditorControl> Added;
+        public event Action<EditorControl> Added;
 
-        public static event Action<EditorControl> Removed;
+        public event Action<EditorControl> Removed;
 
-        static Editors()
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        public Editors()
         {
             s_all = new List<EditorControl>();
             Add();
         }
 
-        public static IReadOnlyCollection<EditorControl> All { get => s_all; }
+        public List<EditorControl> All { get => s_all; set => SetField(ref s_all, value); }
 
-        public static void Add(string title = null)
+        public bool IsEmpty => s_all.Count == 0;
+
+        public bool AnyHasChanges => s_all.Any(editor => editor.HasChanges);
+
+        public void Add(string title = null)
         {
             if (string.IsNullOrEmpty(title)) title = $"new {s_all.Count}";
             var @new = new EditorControl { Title = title };
-            s_all.Add(@new);
+            All.Add(@new);
             Added?.Invoke(@new);
         }
 
-        public static void Remove(EditorControl control)
+        public void Remove(EditorControl control)
         {
-            s_all.Remove(control);
-            Removed?.Invoke(control);
-
+            if (All.Remove(control))
+            {
+                Removed?.Invoke(control);
+                s_all.TrimExcess();
+            }
             if (s_all.Count == 0) Add();
+        }
+
+        protected bool SetField<T>(ref T field, T value, [CallerMemberName] string propertyName = null)
+        {
+            if (EqualityComparer<T>.Default.Equals(field, value)) return false;
+            field = value;
+            OnPropertyChanged(propertyName);
+            return true;
+        }
+
+        protected virtual void OnPropertyChanged(string propertyName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }

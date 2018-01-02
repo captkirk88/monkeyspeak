@@ -3,6 +3,8 @@
   <Color name="Digits" foreground="DarkBlue"  fontWeight="normal" exampleText="1234" />
   <Color name="String" foreground="DarkOrange"  fontWeight="bold" exampleText="{Hello, World!}" />
   <Color name="Variables" foreground="Red" fontWeight="normal" exampleText="%myVar" />
+  <Color name="Triggers" foreground="Black" fontWeight="bold" exampleText="(0:0)" />
+  <Color name="NumberSymbol" foreground="Blue" fontWeight="bold" exampleText="#" />
 
   <!-- This is the main ruleset. -->
   <RuleSet>
@@ -23,10 +25,10 @@
       </RuleSet>
     </Span>
 
-    <!--<Keywords fontWeight="normal" foreground="Blue">
-      <Word>table</Word>
-      <Word>variable</Word>
-    </Keywords>-->
+    <Keywords fontWeight="bold" foreground="Blue">
+      <Word>#</Word>
+      <Word>@</Word>
+    </Keywords>
 
     <!-- Digits -->
     <Rule color="Digits">
@@ -41,11 +43,11 @@
     <!-- Variables -->
     <Span color="Variables">
       <Begin>%</Begin>
-      <End>([a-zA-Z0-9\{\}\%]+\w)*(\[[a-zA-Z0-9\{\}\%]+\])?</End>
+      <End>([a-zA-Z0-9@\{\}\%]+\w)*(\[[a-zA-Z0-9@\{\}\%]+\])?</End>
     </Span>
 
     <!-- Triggers -->
-    <Span foreground="Blue" fontWeight="normal">
+    <Span color="Triggers">
       <Begin>\(</Begin>
       <End>\)</End>
     </Span>

@@ -35,7 +35,7 @@ namespace Monkeyspeak.Editor.Controls
         {
             // load up monkeyspeak syntax higlighting
             IHighlightingDefinition monkeyspeakHighlighting;
-            using (Stream s = typeof(MainWindow).Assembly.GetManifestResourceStream("Monkeyspeak.Editor.MonkeyspeakSyntax.xshd"))
+            using (Stream s = typeof(MainWindow).Assembly.GetManifestResourceStream("Monkeyspeak.Editor.MonkeyspeakSyntax_default.xshd"))
             {
                 if (s == null)
                     return;
@@ -70,6 +70,8 @@ namespace Monkeyspeak.Editor.Controls
         {
             get => textEditor.TextArea.Caret.Line;
         }
+
+        public bool HasChanges { get; private set; }
 
         public void InsertLine(int line, string text)
         {
@@ -112,6 +114,15 @@ namespace Monkeyspeak.Editor.Controls
         /// </value>
         public string SelectedLine { get => Lines[textEditor.TextArea.Caret.Line]; }
 
+        public string CurrentFileName
+        {
+            get => currentFileName; set
+            {
+                currentFileName = value;
+                Title = System.IO.Path.GetFileNameWithoutExtension(currentFileName);
+            }
+        }
+
         /// <summary>
         /// Sets the text color by navigating to the specified line and setting the color between the start and end position.
         /// </summary>
@@ -128,6 +139,11 @@ namespace Monkeyspeak.Editor.Controls
         {
         }
 
+        private void newFileClick(object sender, RoutedEventArgs e)
+        {
+            Editors.Instance.Add();
+        }
+
         private void openFileClick(object sender, RoutedEventArgs e)
         {
             OpenFileDialog dlg = new OpenFileDialog
@@ -136,15 +152,15 @@ namespace Monkeyspeak.Editor.Controls
             };
             if (dlg.ShowDialog() ?? false)
             {
-                currentFileName = dlg.FileName;
-                textEditor.Load(currentFileName);
-                textEditor.SyntaxHighlighting = HighlightingManager.Instance.GetDefinitionByExtension(System.IO.Path.GetExtension(currentFileName));
+                CurrentFileName = dlg.FileName;
+                textEditor.Load(CurrentFileName);
+                textEditor.SyntaxHighlighting = HighlightingManager.Instance.GetDefinitionByExtension(System.IO.Path.GetExtension(CurrentFileName));
             }
         }
 
         private void saveFileClick(object sender, RoutedEventArgs e)
         {
-            if (currentFileName == null)
+            if (CurrentFileName == null)
             {
                 SaveFileDialog dlg = new SaveFileDialog
                 {
@@ -152,14 +168,15 @@ namespace Monkeyspeak.Editor.Controls
                 };
                 if (dlg.ShowDialog() ?? false)
                 {
-                    currentFileName = dlg.FileName;
+                    CurrentFileName = dlg.FileName;
                 }
                 else
                 {
                     return;
                 }
             }
-            textEditor.Save(currentFileName);
+            textEditor.Save(CurrentFileName);
+            HasChanges = false;
         }
 
         private void propertyGridComboBoxSelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -198,6 +215,19 @@ namespace Monkeyspeak.Editor.Controls
             if (Selected == this) return;
             Selected = this;
             pluginContainer.Execute(Selected);
+        }
+
+        private void textEditor_TextChanged(object sender, EventArgs e)
+        {
+            HasChanges = true;
+        }
+
+        private void Editor_Closed(object sender, RoutedEventArgs e)
+        {
+            Dispatcher.Invoke(() =>
+            {
+                if (Editors.Instance.IsEmpty) Editors.Instance.Add();
+            });
         }
     }
 }

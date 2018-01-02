@@ -2,9 +2,11 @@
 using MahApps.Metro.Controls;
 using MahApps.Metro.Controls.Dialogs;
 using Monkeyspeak.Editor.Controls;
+using Monkeyspeak.Editor.Interfaces.Plugins;
 using Monkeyspeak.Editor.Logging;
 using Monkeyspeak.Editor.Notifications;
 using Monkeyspeak.Editor.Notifications.Controls;
+using Monkeyspeak.Editor.Plugins;
 using Monkeyspeak.Logging;
 using System;
 using System.Collections.Generic;
@@ -23,6 +25,7 @@ namespace Monkeyspeak.Editor
     public partial class MainWindow : MetroWindow
     {
         private ConsoleWindow console;
+        private IPluginContainer plugins;
 
         public MainWindow()
         {
@@ -43,13 +46,17 @@ namespace Monkeyspeak.Editor
                 });
             };
 
-            Editors.Added += editor => this.Dispatcher.Invoke(() => docs.Items.Add(editor));
-            Editors.Removed += editor => this.Dispatcher.Invoke(() => docs.Items.Remove(editor));
+            Editors.Instance.Added += editor => this.Dispatcher.Invoke(() => docs.Items.Add(editor));
+            Editors.Instance.Removed += editor => this.Dispatcher.Invoke(() => docs.Items.Remove(editor));
 
             foreach (var col in Enum.GetNames(typeof(AppColor)))
             {
                 style_chooser.Items.Add(col);
             }
+
+            plugins = new DefaultPluginContainer();
+
+            Editors.Instance.Add();
 
             Logger.Error("TEST");
             Closing += MainWindow_Closing;
@@ -60,6 +67,8 @@ namespace Monkeyspeak.Editor
         {
             notifs_flyout.AutoCloseInterval = 3000;
             notifs_flyout.IsAutoCloseEnabled = false;
+
+            plugins.Initialize();
         }
 
         private void MainWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
@@ -109,11 +118,11 @@ namespace Monkeyspeak.Editor
             System.Diagnostics.Process.Start("https://github.com/captkirk88/monkeyspeak");
         }
 
-        private void TriggerList_SelectionChanged(KeyValuePair<string, string> kv)
+        private void TriggerList_SelectionChanged(Tuple<string, string> kv)
         {
             if (Controls.EditorControl.Selected != null)
             {
-                Controls.EditorControl.Selected.InsertLine(Controls.EditorControl.Selected.CaretLine, kv.Key);
+                Controls.EditorControl.Selected.InsertLine(Controls.EditorControl.Selected.CaretLine, kv.Item1);
             }
         }
 

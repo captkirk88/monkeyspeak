@@ -71,9 +71,14 @@ namespace Monkeyspeak.Libraries
             else throw new UnauthorizedAccessException($"Override of existing Trigger {trigger}'s handler with handler in {handler.Method}.");
         }
 
-        public virtual bool Contains(Trigger trigger)
+        public virtual bool Contains(TriggerCategory cat, int id)
         {
-            return descriptions.ContainsKey(trigger);
+            foreach (var desc in descriptions)
+            {
+                if (desc.Key.Category == cat && desc.Key.Id == id)
+                    return true;
+            }
+            return false;
         }
 
         /// <summary>

@@ -320,7 +320,7 @@ namespace Monkeyspeak
             if (trigger == null) return "(#:#)";
             lock (syncObj)
             {
-                return libraries.FirstOrDefault(lib => lib.Contains(trigger))?.ToString(trigger, excludeLibraryName) ?? trigger.ToString();
+                return libraries.FirstOrDefault(lib => lib.Contains(trigger.Category, trigger.Id))?.ToString(trigger, excludeLibraryName) ?? trigger.ToString();
             }
         }
 

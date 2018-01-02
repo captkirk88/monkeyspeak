@@ -69,8 +69,7 @@
             <RowDefinition Height="5" />
             <RowDefinition Height="100" />
         </Grid.RowDefinitions>
-        <Controls:MetroAnimatedTabControl x:Name="docs" Width="Auto" Height="Auto" Padding="10,10,10,10"
-                                          ItemsSource="{Binding Source={x:Static local:Editors.All}}">
+        <Controls:MetroAnimatedTabControl x:Name="docs" Width="Auto" Height="Auto" Padding="10,10,10,10">
             <Controls:MetroAnimatedTabControl.ItemTemplate>
                 <DataTemplate>
                     <TextBlock Text="{Binding Title}" />
