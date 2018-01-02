@@ -14,7 +14,7 @@ namespace Monkeyspeak.Editor
     public class Editors : INotifyPropertyChanged
     {
         public static Editors Instance = new Editors();
-        private List<EditorControl> s_all;
+        private ObservableCollection<EditorControl> s_all;
 
         public event Action<EditorControl> Added;
 
@@ -24,11 +24,17 @@ namespace Monkeyspeak.Editor
 
         public Editors()
         {
-            s_all = new List<EditorControl>();
+            s_all = new ObservableCollection<EditorControl>();
+            s_all.CollectionChanged += S_all_CollectionChanged;
             Add();
         }
 
-        public List<EditorControl> All { get => s_all; set => SetField(ref s_all, value); }
+        private void S_all_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+            OnPropertyChanged("All");
+        }
+
+        public ObservableCollection<EditorControl> All { get => s_all; set => SetField(ref s_all, value); }
 
         public bool IsEmpty => s_all.Count == 0;
 
@@ -47,7 +53,6 @@ namespace Monkeyspeak.Editor
             if (All.Remove(control))
             {
                 Removed?.Invoke(control);
-                s_all.TrimExcess();
             }
             if (s_all.Count == 0) Add();
         }

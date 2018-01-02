@@ -13,26 +13,16 @@
             d:DesignHeight="600" d:DesignWidth="600"
                        Width="Auto" Height="Auto"
                        Controls:TabControlHelper.Transition="Right"
-                       CloseButtonEnabled="True" CloseButtonMargin="0,10,10,10" Unloaded="Editor_Closed">
+                       CloseButtonEnabled="False" CloseButtonMargin="0,10,10,10">
     <Controls:MetroTabItem.Header>
         <StackPanel Orientation="Horizontal">
             <TextBlock Text="{Binding Title}" FontSize="18"
                     HorizontalAlignment="Center"
                     VerticalAlignment="Center" />
-            <Button Controls:VisibilityHelper.IsVisible="{Binding HasChanges}"
-                    HorizontalAlignment="Center"
+            <Button HorizontalAlignment="Center"
                     VerticalAlignment="Center"
-                    Command="Save"
-                    Click="saveFileClick"
-                    ToolTip="{Binding RelativeSource={RelativeSource Self}, Path=Command}">
-                <ip:PackIconMaterial Kind="ContentSave" />
-            </Button>
-            <Button Controls:VisibilityHelper.IsVisible="{Binding HasChanges}"
-                    HorizontalAlignment="Center"
-                    VerticalAlignment="Center"
-                    Command="Close"
-                    Click="Editor_Closed"
-                    ToolTip="{Binding RelativeSource={RelativeSource Self}, Path=Command}">
+                    Click="closeFileClick"
+                    ToolTip="Close the selected document">
                 <ip:PackIconMaterial Kind="Close" />
             </Button>
         </StackPanel>
@@ -42,7 +32,7 @@
             <MenuItem Header="Save" Click="saveFileClick" />
             <MenuItem Header="New" Click="newFileClick" />
             <MenuItem Header="Open" Click="openFileClick" />
-            <MenuItem Header="Close" Click="Editor_Closed" />
+            <MenuItem Header="Close" Click="closeFileClick" />
         </ContextMenu>
     </Controls:MetroTabItem.ContextMenu>
     <DockPanel>

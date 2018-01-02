@@ -1,13 +1,16 @@
 ﻿using ICSharpCode.AvalonEdit.Highlighting;
 using MahApps.Metro.Controls;
+using MahApps.Metro.Controls.Dialogs;
 using Microsoft.Win32;
 using Monkeyspeak.Editor.HelperClasses;
 using Monkeyspeak.Editor.Interfaces.Plugins;
 using Monkeyspeak.Editor.Plugins;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -26,7 +29,7 @@ namespace Monkeyspeak.Editor.Controls
     /// <summary>
     /// Interaction logic for EditorControl.xaml
     /// </summary>
-    public partial class EditorControl : MetroTabItem, IEditor
+    public partial class EditorControl : MetroTabItem, IEditor, INotifyPropertyChanged
     {
         public static EditorControl Selected { get; private set; }
         private static IPluginContainer pluginContainer = new DefaultPluginContainer();
@@ -52,6 +55,10 @@ namespace Monkeyspeak.Editor.Controls
         }
 
         private string currentFileName;
+        private string _title;
+        private bool _hasChanges;
+
+        public event PropertyChangedEventHandler PropertyChanged;
 
         public EditorControl()
         {
@@ -63,7 +70,7 @@ namespace Monkeyspeak.Editor.Controls
             Title = "New";
         }
 
-        public string Title { get; set; }
+        public string Title { get => _title; set => SetField(ref _title, value); }
         public string HighlighterLanguage => textEditor.SyntaxHighlighting.Name;
 
         public int CaretLine
@@ -71,7 +78,7 @@ namespace Monkeyspeak.Editor.Controls
             get => textEditor.TextArea.Caret.Line;
         }
 
-        public bool HasChanges { get; private set; }
+        public bool HasChanges { get => _hasChanges; private set => SetField(ref _hasChanges, value); }
 
         public void InsertLine(int line, string text)
         {
@@ -135,6 +142,27 @@ namespace Monkeyspeak.Editor.Controls
             textEditor.TextArea.TextView.LineTransformers.Add(new WordColorizer(color, line, start, end));
         }
 
+        public void Save()
+        {
+            if (CurrentFileName == null)
+            {
+                SaveFileDialog dlg = new SaveFileDialog
+                {
+                    DefaultExt = ".ms"
+                };
+                if (dlg.ShowDialog() ?? false)
+                {
+                    CurrentFileName = dlg.FileName;
+                }
+                else
+                {
+                    return;
+                }
+            }
+            textEditor.Save(CurrentFileName);
+            HasChanges = false;
+        }
+
         private void highlightingComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
         }
@@ -160,23 +188,7 @@ namespace Monkeyspeak.Editor.Controls
 
         private void saveFileClick(object sender, RoutedEventArgs e)
         {
-            if (CurrentFileName == null)
-            {
-                SaveFileDialog dlg = new SaveFileDialog
-                {
-                    DefaultExt = ".ms"
-                };
-                if (dlg.ShowDialog() ?? false)
-                {
-                    CurrentFileName = dlg.FileName;
-                }
-                else
-                {
-                    return;
-                }
-            }
-            textEditor.Save(CurrentFileName);
-            HasChanges = false;
+            Save();
         }
 
         private void propertyGridComboBoxSelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -222,12 +234,34 @@ namespace Monkeyspeak.Editor.Controls
             HasChanges = true;
         }
 
-        private void Editor_Closed(object sender, RoutedEventArgs e)
+        private async void closeFileClick(object sender, RoutedEventArgs e)
         {
-            Dispatcher.Invoke(() =>
+            if (HasChanges)
             {
+                var result = await DialogManager.ShowMessageAsync((MetroWindow)Application.Current.MainWindow,
+                    "Save?",
+                    "Changes were detected.  Would you like to save before closing?", MessageDialogStyle.AffirmativeAndNegative);
+                if (result == MessageDialogResult.Affirmative) Save();
+            }
+
+            await Dispatcher.InvokeAsync(() =>
+            {
+                Editors.Instance.Remove(this);
                 if (Editors.Instance.IsEmpty) Editors.Instance.Add();
             });
+        }
+
+        protected bool SetField<T>(ref T field, T value, [CallerMemberName] string propertyName = null)
+        {
+            if (EqualityComparer<T>.Default.Equals(field, value)) return false;
+            field = value;
+            OnPropertyChanged(propertyName);
+            return true;
+        }
+
+        protected virtual void OnPropertyChanged(string propertyName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }
