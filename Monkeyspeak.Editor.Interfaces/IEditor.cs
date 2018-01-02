@@ -29,6 +29,14 @@ namespace Monkeyspeak.Editor
         int CaretLine { get; }
 
         /// <summary>
+        /// Gets a value indicating whether the editor has changes.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if the editor has changes; otherwise, <c>false</c>.
+        /// </value>
+        bool HasChanges { get; }
+
+        /// <summary>
         /// Gets the lines.
         /// </summary>
         /// <value>

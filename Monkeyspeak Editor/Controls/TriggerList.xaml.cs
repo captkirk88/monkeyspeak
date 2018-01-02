@@ -19,6 +19,8 @@ using System.Windows.Shapes;
 
 using System.Linq;
 
+using System.ComponentModel;
+
 namespace Monkeyspeak.Editor.Controls
 {
     /// <summary>
@@ -29,30 +31,34 @@ namespace Monkeyspeak.Editor.Controls
         private static MonkeyspeakEngine engine = null;
         private static Page page = null;
 
-        public event Action<KeyValuePair<string, string>> TriggerSelected;
+        public event Action<Tuple<string, string>> TriggerSelected;
 
         public TriggerList()
         {
             InitializeComponent();
-            TriggerDescriptions = new ObservableCollection<KeyValuePair<string, string>>();
+            TriggerDescriptions = new ObservableCollection<Tuple<string, string>>();
             this.DataContext = this;
+            trigger_view.ItemsSource = TriggerDescriptions;
         }
 
         public void Add(Page page, Trigger trigger, BaseLibrary lib)
         {
-            var pair = new KeyValuePair<string, string>(page.GetTriggerDescription(trigger, true), lib.GetType().Name);
+            var pair = new Tuple<string, string>(page.GetTriggerDescription(trigger, true), lib.GetType().Name);
             if (!TriggerDescriptions.Contains(pair))
                 TriggerDescriptions.Add(pair);
         }
 
         public TriggerCategory TriggerCategory { get; set; }
-        public ObservableCollection<KeyValuePair<string, string>> TriggerDescriptions { get; set; }
+        public ObservableCollection<Tuple<string, string>> TriggerDescriptions { get; set; }
 
         private void Content_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
-            var item = (KeyValuePair<string, string>)Content.SelectedItem;
-            TriggerSelected?.Invoke(item);
-            Logger.Debug<TriggerList>(item);
+            var item = trigger_view?.SelectedItem as Tuple<string, string>;
+            if (item != null)
+            {
+                TriggerSelected?.Invoke(item);
+                Logger.Debug<TriggerList>(item);
+            }
         }
 
         private void UserControl_Loaded(object sender, RoutedEventArgs e)

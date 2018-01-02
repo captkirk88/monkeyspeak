@@ -1,13 +1,16 @@
 ﻿using ICSharpCode.AvalonEdit.Highlighting;
 using MahApps.Metro.Controls;
+using MahApps.Metro.Controls.Dialogs;
 using Microsoft.Win32;
 using Monkeyspeak.Editor.HelperClasses;
 using Monkeyspeak.Editor.Interfaces.Plugins;
 using Monkeyspeak.Editor.Plugins;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -26,7 +29,7 @@ namespace Monkeyspeak.Editor.Controls
     /// <summary>
     /// Interaction logic for EditorControl.xaml
     /// </summary>
-    public partial class EditorControl : MetroTabItem, IEditor
+    public partial class EditorControl : MetroTabItem, IEditor, INotifyPropertyChanged
     {
         public static EditorControl Selected { get; private set; }
         private static IPluginContainer pluginContainer = new DefaultPluginContainer();
@@ -35,7 +38,7 @@ namespace Monkeyspeak.Editor.Controls
         {
             // load up monkeyspeak syntax higlighting
             IHighlightingDefinition monkeyspeakHighlighting;
-            using (Stream s = typeof(MainWindow).Assembly.GetManifestResourceStream("Monkeyspeak.Editor.MonkeyspeakSyntax.xshd"))
+            using (Stream s = typeof(MainWindow).Assembly.GetManifestResourceStream("Monkeyspeak.Editor.MonkeyspeakSyntax_default.xshd"))
             {
                 if (s == null)
                     return;
@@ -52,6 +55,10 @@ namespace Monkeyspeak.Editor.Controls
         }
 
         private string currentFileName;
+        private string _title;
+        private bool _hasChanges;
+
+        public event PropertyChangedEventHandler PropertyChanged;
 
         public EditorControl()
         {
@@ -63,13 +70,15 @@ namespace Monkeyspeak.Editor.Controls
             Title = "New";
         }
 
-        public string Title { get; set; }
+        public string Title { get => _title; set => SetField(ref _title, value); }
         public string HighlighterLanguage => textEditor.SyntaxHighlighting.Name;
 
         public int CaretLine
         {
             get => textEditor.TextArea.Caret.Line;
         }
+
+        public bool HasChanges { get => _hasChanges; set => SetField(ref _hasChanges, value); }
 
         public void InsertLine(int line, string text)
         {
@@ -112,6 +121,16 @@ namespace Monkeyspeak.Editor.Controls
         /// </value>
         public string SelectedLine { get => Lines[textEditor.TextArea.Caret.Line]; }
 
+        public string CurrentFileName
+        {
+            get => currentFileName;
+            set
+            {
+                currentFileName = value;
+                Title = System.IO.Path.GetFileNameWithoutExtension(currentFileName);
+            }
+        }
+
         /// <summary>
         /// Sets the text color by navigating to the specified line and setting the color between the start and end position.
         /// </summary>
@@ -124,42 +143,84 @@ namespace Monkeyspeak.Editor.Controls
             textEditor.TextArea.TextView.LineTransformers.Add(new WordColorizer(color, line, start, end));
         }
 
-        private void highlightingComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        public void Save()
         {
-        }
-
-        private void openFileClick(object sender, RoutedEventArgs e)
-        {
-            OpenFileDialog dlg = new OpenFileDialog
-            {
-                CheckFileExists = true
-            };
-            if (dlg.ShowDialog() ?? false)
-            {
-                currentFileName = dlg.FileName;
-                textEditor.Load(currentFileName);
-                textEditor.SyntaxHighlighting = HighlightingManager.Instance.GetDefinitionByExtension(System.IO.Path.GetExtension(currentFileName));
-            }
-        }
-
-        private void saveFileClick(object sender, RoutedEventArgs e)
-        {
-            if (currentFileName == null)
+            if (CurrentFileName == null)
             {
                 SaveFileDialog dlg = new SaveFileDialog
                 {
-                    DefaultExt = ".ms"
+                    DefaultExt = ".ms",
+                    AddExtension = true,
+                    Filter = "Monkeyspeak Script |*.ms|All files (*.*)|*.*"
                 };
                 if (dlg.ShowDialog() ?? false)
                 {
-                    currentFileName = dlg.FileName;
+                    CurrentFileName = dlg.FileName;
                 }
                 else
                 {
                     return;
                 }
             }
-            textEditor.Save(currentFileName);
+            textEditor.Save(CurrentFileName);
+            HasChanges = false;
+        }
+
+        public void SaveAs(string fileName)
+        {
+            SaveFileDialog dlg = new SaveFileDialog
+            {
+                DefaultExt = ".ms",
+                AddExtension = true,
+                FileName = fileName,
+                Filter = "Monkeyspeak Script |*.ms|All files (*.*)|*.*"
+            };
+            if (dlg.ShowDialog() ?? false)
+            {
+                CurrentFileName = dlg.FileName;
+            }
+            else
+            {
+                return;
+            }
+            textEditor.Save(CurrentFileName);
+            HasChanges = false;
+        }
+
+        public async Task CloseAsync()
+        {
+            if (HasChanges)
+            {
+                var result = await DialogManager.ShowMessageAsync((MetroWindow)Application.Current.MainWindow,
+                    "Save?",
+                    "Changes were detected.  Would you like to save before closing?", MessageDialogStyle.AffirmativeAndNegative,
+                    new MetroDialogSettings { AffirmativeButtonText = "Yes", NegativeButtonText = "Nah" });
+                if (result == MessageDialogResult.Affirmative) Save();
+            }
+
+            Editors.Instance.Remove(this);
+        }
+
+        private void highlightingComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+        }
+
+        public void Open()
+        {
+            OpenFileDialog dlg = new OpenFileDialog
+            {
+                CheckFileExists = true,
+                CheckPathExists = true,
+                RestoreDirectory = false, // opens dialog at last location used
+                DefaultExt = ".ms",
+                Filter = "Monkeyspeak Script |*.ms|All files (*.*)|*.*"
+            };
+            if (dlg.ShowDialog() ?? false)
+            {
+                CurrentFileName = dlg.FileName;
+                textEditor.Load(CurrentFileName);
+                textEditor.SyntaxHighlighting = HighlightingManager.Instance.GetDefinitionByExtension(System.IO.Path.GetExtension(CurrentFileName));
+            }
         }
 
         private void propertyGridComboBoxSelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -198,6 +259,32 @@ namespace Monkeyspeak.Editor.Controls
             if (Selected == this) return;
             Selected = this;
             pluginContainer.Execute(Selected);
+        }
+
+        private void textEditor_TextChanged(object sender, EventArgs e)
+        {
+            HasChanges = true;
+        }
+
+        protected bool SetField<T>(ref T field, T value, [CallerMemberName] string propertyName = null)
+        {
+            if (EqualityComparer<T>.Default.Equals(field, value)) return false;
+            field = value;
+            OnPropertyChanged(propertyName);
+            return true;
+        }
+
+        protected virtual void OnPropertyChanged(string propertyName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        private void CommandBinding_Executed(object sender, ExecutedRoutedEventArgs e)
+        {
+            if (e.Command == ApplicationCommands.Undo)
+            {
+                // TODO remove save changes prompt if under eliminated those changes
+            }
         }
     }
 }

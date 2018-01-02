@@ -18,12 +18,13 @@ namespace Monkeyspeak.Editor.Plugins
 
         public void Initialize()
         {
-            plugins.AddRange(GetAllPlugins());
-            foreach (var plugin in plugins)
+            foreach (var plugin in GetAllPlugins())
             {
+                plugins.Add(plugin);
                 try
                 {
                     plugin.Initialize();
+                    Logger.Debug<DefaultPluginContainer>($"Added plugin {plugin.Name}");
                 }
                 catch (Exception ex)
                 {
@@ -38,7 +39,8 @@ namespace Monkeyspeak.Editor.Plugins
             {
                 try
                 {
-                    plugin.Execute(editor);
+                    if (plugin.Enabled)
+                        plugin.Execute(editor);
                 }
                 catch (Exception ex)
                 {
@@ -64,39 +66,8 @@ namespace Monkeyspeak.Editor.Plugins
 
         private static IEnumerable<IPlugin> GetAllPlugins()
         {
-            if (Assembly.GetEntryAssembly() != null)
+            foreach (var asm in ReflectionHelper.GetAllAssemblies())
             {
-                // this detects the path from where the current EXE is being executed
-                foreach (string asmFile in Directory.EnumerateFiles(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "*.dll"))
-                {
-                    if (ReflectionHelper.TryLoad(asmFile, out Assembly asm))
-                        foreach (var plugin in GetPluginsFromAssembly(asm)) yield return plugin;
-                }
-                foreach (var asmName in Assembly.GetEntryAssembly().GetReferencedAssemblies())
-                {
-                    var asm = Assembly.Load(asmName);
-                    foreach (var plugin in GetPluginsFromAssembly(asm)) yield return plugin;
-                }
-            }
-            else if (Assembly.GetExecutingAssembly() != null)
-            {
-                // this detects the path from where the current CODE is being executed
-                foreach (string asmFile in Directory.EnumerateFiles(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "*.dll"))
-                {
-                    if (ReflectionHelper.TryLoad(asmFile, out Assembly asm))
-                        foreach (var plugin in GetPluginsFromAssembly(asm)) yield return plugin;
-                }
-                foreach (var asmName in Assembly.GetExecutingAssembly().GetReferencedAssemblies())
-                {
-                    var asm = Assembly.Load(asmName);
-                    foreach (var plugin in GetPluginsFromAssembly(asm)) yield return plugin;
-                }
-            }
-            foreach (var asm in AppDomain.CurrentDomain.GetAssemblies())
-            {
-                // avoid all the Microsoft and System assemblies.  All assesmblies it is looking for should be in the local path
-                if (asm.GlobalAssemblyCache) continue;
-
                 foreach (var plugin in GetPluginsFromAssembly(asm)) yield return plugin;
             }
         }
@@ -104,9 +75,9 @@ namespace Monkeyspeak.Editor.Plugins
         private static IEnumerable<IPlugin> GetPluginsFromAssembly(Assembly asm)
         {
             if (asm == null) yield break;
-
-            foreach (var type in ReflectionHelper.GetAllTypesWithBaseClass<IPlugin>(asm))
+            foreach (var type in ReflectionHelper.GetAllTypesWithInterface<IPlugin>(asm))
             {
+                Logger.Debug<DefaultPluginContainer>($"Found plugin {type.Name}");
                 if (ReflectionHelper.HasNoArgConstructor(type))
                     yield return (IPlugin)Activator.CreateInstance(type);
             }

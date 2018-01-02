@@ -1,4 +1,5 @@
-﻿using Monkeyspeak.Logging;
+﻿using Monkeyspeak.Extensions;
+using Monkeyspeak.Logging;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -69,6 +70,57 @@ namespace Monkeyspeak.Utils
                 if (!type.IsAbstract && GetAllBaseTypes(type).Contains(desiredType))
                     yield return type;
             }
+        }
+
+        public static IEnumerable<Type> GetAllTypesWithInterface<T>(Assembly asm)
+        {
+            var desiredType = typeof(T);
+            if (!desiredType.IsInterface) yield break;
+            Type[] types = null;
+            try
+            {
+                types = asm.GetTypes();
+            }
+            catch { yield break; }
+            foreach (var type in asm.GetTypes())
+            {
+                if (!type.IsAbstract && type.GetInterfaces().Contains(desiredType))
+                    yield return type;
+            }
+        }
+
+        public static IEnumerable<Assembly> GetAllAssemblies()
+        {
+            var all = new List<Assembly>();
+            foreach (string asmFile in Directory.EnumerateFiles(Path.GetFullPath(AppDomain.CurrentDomain.BaseDirectory), "*.dll"))
+            {
+                all.AddIfUnique(Assembly.LoadFile(asmFile));
+            }
+
+            if (Assembly.GetExecutingAssembly() != null)
+            {
+                // this detects the path from where the current CODE is being executed
+                foreach (var asmName in Assembly.GetExecutingAssembly().GetReferencedAssemblies())
+                {
+                    all.AddIfUnique(Assembly.Load(asmName));
+                }
+            }
+            else if (Assembly.GetEntryAssembly() != null)
+            {
+                // this detects the path from where the current CODE is being executed
+                foreach (var asmName in Assembly.GetEntryAssembly().GetReferencedAssemblies())
+                {
+                    all.AddIfUnique(Assembly.Load(asmName));
+                }
+            }
+            foreach (var asm in AppDomain.CurrentDomain.GetAssemblies())
+            {
+                // avoid all the Microsoft and System assemblies.  All assesmblies it is looking for should be in the local path
+                if (asm.GlobalAssemblyCache) continue;
+
+                all.AddIfUnique(asm);
+            }
+            return all;
         }
 
         public static bool HasNoArgConstructor(Type type)

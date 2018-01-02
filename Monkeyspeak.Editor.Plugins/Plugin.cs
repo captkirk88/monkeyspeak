@@ -4,6 +4,11 @@ namespace Monkeyspeak.Editor.Plugins
 {
     public abstract class Plugin : IPlugin
     {
+        protected Plugin()
+        {
+            Enabled = true;
+        }
+
         /// <summary>
         /// Gets the name.
         /// </summary>
