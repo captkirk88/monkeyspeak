@@ -20,5 +20,17 @@ namespace Monkeyspeak.Editor.Logging
         {
             foreach (var output in outputs) output.Log(logMsg);
         }
+
+        public IEnumerable<ILogOutput> Outputs => outputs;
+
+        public void Add(ILogOutput output)
+        {
+            outputs.Add(output);
+        }
+
+        public void Remove(ILogOutput output)
+        {
+            outputs.Remove(output);
+        }
     }
 }

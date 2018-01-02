@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Monkeyspeak.Logging;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -6,7 +7,7 @@ using System.Reflection;
 
 namespace Monkeyspeak.Utils
 {
-    internal class ReflectionHelper
+    public class ReflectionHelper
     {
         public static Type[] GetAllTypesWithAttributeInMembers<T>(Assembly assembly) where T : Attribute
         {
@@ -44,12 +45,28 @@ namespace Monkeyspeak.Utils
             }
         }
 
+        public static IEnumerable<Type> GetAllBaseTypes(Type type)
+        {
+            var baseType = type;
+            while (baseType != typeof(Object))
+            {
+                baseType = baseType.BaseType;
+                yield return baseType;
+            }
+        }
+
         public static IEnumerable<Type> GetAllTypesWithBaseClass<T>(Assembly asm)
         {
             var desiredType = typeof(T);
+            Type[] types = null;
+            try
+            {
+                types = asm.GetTypes();
+            }
+            catch { yield break; }
             foreach (var type in asm.GetTypes())
             {
-                if (!type.IsAbstract && desiredType.IsAssignableFrom(type))
+                if (!type.IsAbstract && GetAllBaseTypes(type).Contains(desiredType))
                     yield return type;
             }
         }
@@ -73,11 +90,7 @@ namespace Monkeyspeak.Utils
 #endif
             {
                 asm = null;
-#if DEBUG
-                throw ex;
-#else
                 return false;
-#endif
             }
         }
     }

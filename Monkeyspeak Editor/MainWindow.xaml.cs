@@ -1,5 +1,7 @@
-﻿using MahApps.Metro.Controls;
+﻿using MahApps.Metro;
+using MahApps.Metro.Controls;
 using MahApps.Metro.Controls.Dialogs;
+using Monkeyspeak.Editor.Controls;
 using Monkeyspeak.Editor.Logging;
 using Monkeyspeak.Editor.Notifications;
 using Monkeyspeak.Editor.Notifications.Controls;
@@ -25,33 +27,39 @@ namespace Monkeyspeak.Editor
         public MainWindow()
         {
             InitializeComponent();
+            //Logger.SuppressSpam = true;
             console = new ConsoleWindow();
-            Logger.LogOutput = new MultiLogOutput(new ConsoleWindowLogOutput(console), new NotificationPanelLogOutput());
-            NotificationManager.Added += notif => notif_badge.Badge = NotificationManager.Count;
-            NotificationManager.Removed += notif => notif_badge.Badge = NotificationManager.Count;
+            Logger.LogOutput = new MultiLogOutput(new ConsoleWindowLogOutput(console),
+                new NotificationPanelLogOutput(Level.Error));
+
+            NotificationManager.Added += notif => this.Dispatcher.Invoke(() => notif_badge.Badge = NotificationManager.Count);
+            NotificationManager.Removed += notif => this.Dispatcher.Invoke(() => notif_badge.Badge = NotificationManager.Count);
             NotificationManager.Added += notif =>
             {
-                notifs_list.Items.Add(new NotificationPanel(notif));
-                notifs_list.ScrollIntoView(notifs_list.Items[notifs_list.Items.Count - 1]);
+                this.Dispatcher.Invoke(() =>
+                {
+                    notifs_list.Items.Add(new NotificationPanel(notif));
+                    notifs_list.ScrollIntoView(notifs_list.Items[notifs_list.Items.Count - 1]);
+                });
             };
 
+            Editors.Added += editor => this.Dispatcher.Invoke(() => docs.Items.Add(editor));
+            Editors.Removed += editor => this.Dispatcher.Invoke(() => docs.Items.Remove(editor));
+
+            foreach (var col in Enum.GetNames(typeof(AppColor)))
+            {
+                style_chooser.Items.Add(col);
+            }
+
+            Logger.Error("TEST");
             Closing += MainWindow_Closing;
             Loaded += MainWindow_Loaded;
         }
 
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
-            Task.Run(async () =>
-            {
-                await Task.Delay(1000);
-                await Task.Run(() =>
-                {
-                    for (int i = 0; i <= 1000; i++)
-                    {
-                        Logger.Info(i);
-                    }
-                });
-            });
+            notifs_flyout.AutoCloseInterval = 3000;
+            notifs_flyout.IsAutoCloseEnabled = false;
         }
 
         private void MainWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
@@ -73,7 +81,7 @@ namespace Monkeyspeak.Editor
 
         private void Notifications_Click(object sender, RoutedEventArgs e)
         {
-            notifs_container.IsOpen = !notifs_container.IsOpen;
+            notifs_flyout.IsOpen = !notifs_flyout.IsOpen;
         }
 
         private void Notifications_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
@@ -82,7 +90,7 @@ namespace Monkeyspeak.Editor
             {
                 this.Dispatcher.Invoke(() =>
                 {
-                    notifs_container.IsOpen = false;
+                    notifs_flyout.IsOpen = false;
                     NotificationManager.Clear();
                 });
             }
@@ -92,23 +100,8 @@ namespace Monkeyspeak.Editor
         {
         }
 
-        private void notifs_container_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
+        private void notifs_flyout_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
-            if (notifs_container.IsVisible)
-            {
-                DispatcherTimer timer = new DispatcherTimer()
-                {
-                    Interval = TimeSpan.FromSeconds(5)
-                };
-
-                timer.Tick += delegate (object s, EventArgs args)
-                {
-                    timer.Stop();
-                    if (notifs_container.IsVisible) notifs_container.Visibility = Visibility.Hidden;
-                };
-
-                timer.Start();
-            }
         }
 
         private void githubButton_Click(object sender, RoutedEventArgs e)
@@ -122,6 +115,51 @@ namespace Monkeyspeak.Editor
             {
                 Controls.EditorControl.Selected.InsertLine(Controls.EditorControl.Selected.CaretLine, kv.Key);
             }
+        }
+
+        private void style_chooser_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (Enum.TryParse(style_chooser.SelectedItem.ToString(), out AppColor col))
+            {
+                SetColor(col);
+            }
+        }
+
+        public void SetColor(AppColor color)
+        {
+            this.Dispatcher.Invoke(() =>
+            {
+                Tuple<MahApps.Metro.AppTheme, Accent> appStyle = ThemeManager.DetectAppStyle(Application.Current);
+                ThemeManager.ChangeAppStyle(Application.Current.Resources,
+                                        ThemeManager.GetAccent(Enum.GetName(typeof(AppColor), color)),
+                                        appStyle.Item1);
+            });
+        }
+
+        public AppColor GetColor()
+        {
+            Tuple<MahApps.Metro.AppTheme, Accent> appStyle = ThemeManager.DetectAppStyle(Application.Current);
+            if (Enum.TryParse(appStyle.Item2.Name, out AppColor color))
+                return color;
+            else return AppColor.Brown;
+        }
+
+        public void SetTheme(AppTheme accent)
+        {
+            this.Dispatcher.Invoke(() =>
+            {
+                Tuple<MahApps.Metro.AppTheme, Accent> appStyle = ThemeManager.DetectAppStyle(Application.Current);
+                ThemeManager.ChangeAppStyle(Application.Current.Resources,
+                                        appStyle.Item2,
+                                        ThemeManager.GetAppTheme($"Base{Enum.GetName(typeof(AppTheme), accent)}"));
+            });
+        }
+
+        public AppTheme GetTheme()
+        {
+            Tuple<MahApps.Metro.AppTheme, Accent> appStyle = ThemeManager.DetectAppStyle(Application.Current);
+            Enum.TryParse(appStyle.Item1.Name.Replace("Base", ""), out AppTheme theme);
+            return theme;
         }
     }
 }

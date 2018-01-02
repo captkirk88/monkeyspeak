@@ -23,7 +23,7 @@ namespace Monkeyspeak.Editor.Plugins
             {
                 try
                 {
-                    plugin.Initialize(this);
+                    plugin.Initialize();
                 }
                 catch (Exception ex)
                 {

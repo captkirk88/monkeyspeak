@@ -1,6 +1,8 @@
 ﻿using MahApps.Metro.Controls;
 using Monkeyspeak.Editor.Logging;
 using Monkeyspeak.Logging;
+using System;
+using System.ComponentModel;
 using System.Windows.Documents;
 using System.Windows.Media;
 
@@ -20,6 +22,14 @@ namespace Monkeyspeak.Editor
             console.Document = new FlowDocument(paragraph);
 
             Logger.LogOutput = new ConsoleWindowLogOutput(this);
+        }
+
+        protected override void OnClosing(CancelEventArgs e)
+        {
+            base.OnClosing(e);
+
+            e.Cancel = true;
+            Hide();
         }
 
         public void Write(string output, Color color)

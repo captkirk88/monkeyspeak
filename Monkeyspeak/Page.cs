@@ -388,14 +388,22 @@ namespace Monkeyspeak
             foreach (var existing in libraries)
                 if (existing.GetType().Equals(lib.GetType())) return;
 
-            lib.Initialize(args);
-            lock (syncObj)
+            try
             {
-                foreach (var kv in lib.Handlers)
+                lib.Initialize(args);
+                lock (syncObj)
                 {
-                    AddTriggerHandler(kv.Key, kv.Value);
+                    foreach (var kv in lib.Handlers)
+                    {
+                        AddTriggerHandler(kv.Key, kv.Value);
+                    }
+                    libraries.Add(lib);
                 }
-                libraries.Add(lib);
+                Logger.Debug<Page>($"Added library {lib.GetType().Name}");
+            }
+            catch (Exception ex)
+            {
+                Logger.Error<Page>($"Failed to initialize {lib.GetType().Name}");
             }
         }
 
@@ -455,7 +463,7 @@ namespace Monkeyspeak
         /// <param name="args">Arguments to pass on the library's Initialize method</param>
         public void LoadAllLibraries(params object[] args)
         {
-            foreach (var lib in BaseLibrary.GetAllLibraries())
+            foreach (var lib in BaseLibrary.GetAllLibraries().Distinct(new BaseLibraryComparator()))
                 LoadLibrary(lib, args);
         }
 

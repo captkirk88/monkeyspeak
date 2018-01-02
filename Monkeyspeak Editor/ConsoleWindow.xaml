@@ -6,7 +6,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Monkeyspeak.Editor"
         mc:Ignorable="d"
-        Title="Console" Height="350" Width="525" ShowIconOnTitleBar="True" ShowCloseButton="False">
+        Title="Console" Height="350" Width="525" ShowIconOnTitleBar="True" ShowCloseButton="True">
     <Grid>
         <ScrollViewer x:Name="scroll">
             <RichTextBox x:Name="console" Background="Black" IsReadOnly="True" FontFamily="Terminal" />

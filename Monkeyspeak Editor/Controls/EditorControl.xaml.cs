@@ -1,4 +1,5 @@
 ﻿using ICSharpCode.AvalonEdit.Highlighting;
+using MahApps.Metro.Controls;
 using Microsoft.Win32;
 using Monkeyspeak.Editor.HelperClasses;
 using Monkeyspeak.Editor.Interfaces.Plugins;
@@ -25,7 +26,7 @@ namespace Monkeyspeak.Editor.Controls
     /// <summary>
     /// Interaction logic for EditorControl.xaml
     /// </summary>
-    public partial class EditorControl : UserControl, IEditor
+    public partial class EditorControl : MetroTabItem, IEditor
     {
         public static EditorControl Selected { get; private set; }
         private static IPluginContainer pluginContainer = new DefaultPluginContainer();
@@ -57,9 +58,12 @@ namespace Monkeyspeak.Editor.Controls
             InitializeComponent();
             DataContext = this;
             //textEditor.SyntaxHighlighting = HighlightingManager.Instance.GetDefinitionByExtension(".ms");
+            Visibility = Visibility.Visible;
             textEditor.ShowLineNumbers = true;
+            Title = "New";
         }
 
+        public string Title { get; set; }
         public string HighlighterLanguage => textEditor.SyntaxHighlighting.Name;
 
         public int CaretLine
@@ -174,6 +178,10 @@ namespace Monkeyspeak.Editor.Controls
 
                 case 2:
                     propertyGrid.SelectedObject = textEditor.Options;
+                    break;
+
+                case 3:
+                    propertyGrid.SelectedObject = pluginContainer.Plugins.ToArray();
                     break;
             }
         }

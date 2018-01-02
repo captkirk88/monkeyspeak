@@ -6,14 +6,16 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="clr-namespace:Monkeyspeak.Editor"
              mc:Ignorable="d"
+             Loaded="UserControl_Loaded"
              d:DesignHeight="100" d:DesignWidth="150">
     <StackPanel x:Name="Container" Width="Auto" MaxHeight="400" Height="Auto">
-        <TextBlock x:Name="TextBlock" VerticalAlignment="Top" HorizontalAlignment="Left"
+        <Controls:ContentControlEx x:Name="ContentContainer" VerticalAlignment="Top" HorizontalAlignment="Left"
                        Height="Auto"
                        MinHeight="50"
                        Width="150"
                        Padding="10,10,10,10"
-                       Text="{Binding Path=Notification.Content}" />
+                       Loaded="ContentContainer_Loaded"
+                       Content="{Binding Path=Notification.Content}" />
         <Button x:Name="DismissButton" Content="Dismiss"
                     Width="Auto"
                     Height="Auto"

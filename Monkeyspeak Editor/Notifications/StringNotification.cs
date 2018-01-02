@@ -3,24 +3,38 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Controls;
 using System.Windows.Media;
 
 namespace Monkeyspeak.Editor.Notifications
 {
     internal class StringNotification : INotification
     {
-        private readonly string content;
+        private readonly TextBlock content;
         private Color foreground = Colors.White, background = Colors.Black;
 
         public StringNotification(string content)
         {
-            this.content = content;
+            this.content = new TextBlock
+            {
+                Text = content,
+                Foreground = new SolidColorBrush(this.foreground),
+                Background = new SolidColorBrush(this.background)
+            };
         }
 
         public StringNotification(string content, Color foreground, Color background = default(Color))
         {
-            this.content = content;
-            this.foreground = foreground;
+            this.content = new TextBlock
+            {
+                Text = content,
+                Foreground = foreground != default(Color) ? new SolidColorBrush(foreground) : new SolidColorBrush(this.foreground),
+                Background = background != default(Color) ? new SolidColorBrush(background) : new SolidColorBrush(this.background),
+                Width = double.NaN,
+                Height = double.NaN
+            };
+            if (foreground != default(Color))
+                this.foreground = foreground;
             if (background != default(Color))
                 this.background = background;
         }
