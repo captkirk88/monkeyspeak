@@ -29,7 +29,7 @@ namespace Monkeyspeak.Logging
         public void Log(LogMessage logMsg)
         {
             if (logMsg.Level != level) return;
-            using (FileStream stream = new FileStream(filePath, FileMode.Append, FileAccess.Write, FileShare.None, 4096))
+            using (FileStream stream = new FileStream(filePath, FileMode.Append, FileAccess.Write, FileShare.Write, 4096))
             using (StreamWriter writer = new StreamWriter(stream))
             {
                 writer.WriteLine(logMsg.message);

@@ -1,4 +1,6 @@
-﻿using System;
+﻿using MahApps.Metro;
+using Monkeyspeak.Editor.Interfaces.Notifications;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,7 +10,7 @@ using System.Windows.Media;
 
 namespace Monkeyspeak.Editor.Notifications
 {
-    public class NotificationWithIcon : BaseNotification
+    public class NotificationWithIcon : INotification
     {
         public enum IconKind
         {
@@ -21,7 +23,25 @@ namespace Monkeyspeak.Editor.Notifications
         private readonly string message;
         private StackPanel content;
 
-        public override object Content => content;
+        public object Content => content;
+
+        public Color ForegroundColor
+        {
+            get
+            {
+                var theme = ThemeManager.DetectAppStyle().Item1;
+                if (theme.Name == "Dark")
+                    return Colors.White;
+                else if (theme.Name == "Light")
+                    return Colors.Black;
+                return Colors.Green;
+            }
+        }
+
+        public Color BackgroundColor
+        {
+            get;
+        }
 
         public NotificationWithIcon(IconKind kind, string message)
         {

@@ -1,4 +1,5 @@
-﻿using Monkeyspeak.Editor.Interfaces.Plugins;
+﻿using Monkeyspeak.Editor.Interfaces.Notifications;
+using Monkeyspeak.Editor.Interfaces.Plugins;
 
 namespace Monkeyspeak.Editor.Plugins
 {
@@ -24,6 +25,13 @@ namespace Monkeyspeak.Editor.Plugins
         ///   <c>true</c> if enabled; otherwise, <c>false</c>.
         /// </value>
         public virtual bool Enabled { get; set; }
+
+        protected INotificationManager NotificationManager { get; }
+
+        public void AddNotification(INotification notif)
+        {
+            NotificationManager.AddNotification(notif);
+        }
 
         /// <summary>
         /// Executes on the current Editor that has focus.

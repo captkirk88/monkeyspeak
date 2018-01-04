@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Media;
 
 namespace Monkeyspeak.Editor.Logging
@@ -47,7 +48,10 @@ namespace Monkeyspeak.Editor.Logging
             var sb = new StringBuilder();
             sb.AppendLine(logMsg.TimeStamp.ToString("hh:mm:fff"));
             sb.AppendLine(logMsg.message);
-            NotificationManager.Add(new NotificationWithIcon(icon, sb.ToString()));
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                NotificationManager.Instance.AddNotification(new NotificationWithIcon(icon, sb.ToString()));
+            });
         }
     }
 }

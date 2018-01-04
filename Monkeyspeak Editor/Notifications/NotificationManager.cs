@@ -1,32 +1,35 @@
-﻿using System;
+﻿using Monkeyspeak.Editor.Interfaces.Notifications;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 
 namespace Monkeyspeak.Editor.Notifications
 {
-    public static class NotificationManager
+    public class NotificationManager : INotificationManager
     {
-        private static ConcurrentQueue<INotification> notifs = new ConcurrentQueue<INotification>();
+        public static NotificationManager Instance = new NotificationManager();
 
-        public static event Action<INotification> Added, Removed;
+        private ConcurrentQueue<INotification> notifs = new ConcurrentQueue<INotification>();
 
-        public static int Count => notifs.Count;
+        public event Action<INotification> Added, Removed;
 
-        public static void Add(INotification notif)
+        public int Count => notifs.Count;
+
+        public void AddNotification(INotification notif)
         {
             notifs.Enqueue(notif);
             Added?.Invoke(notif);
         }
 
-        public static void Remove(INotification notif)
+        public void RemoveNotification(INotification notif)
         {
             if (notifs.TryDequeue(out INotification existing))
                 Removed?.Invoke(existing);
         }
 
-        public static IReadOnlyCollection<INotification> All => notifs;
+        public IReadOnlyCollection<INotification> All => notifs;
 
-        public static void Clear()
+        public void Clear()
         {
             while (notifs.Count > 0)
             {

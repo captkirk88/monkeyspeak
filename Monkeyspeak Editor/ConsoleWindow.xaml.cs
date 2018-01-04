@@ -20,6 +20,7 @@ namespace Monkeyspeak.Editor
             InitializeComponent();
             this.paragraph = new Paragraph();
             console.Document = new FlowDocument(paragraph);
+            DataContext = this;
         }
 
         protected override void OnClosing(CancelEventArgs e)
@@ -41,7 +42,6 @@ namespace Monkeyspeak.Editor
             });
             //paragraph.Inlines.Add(new LineBreak());
             scroll.ScrollToEnd();
-            DataContext = this;
         }
 
         public void WriteLine(string output, Color color)

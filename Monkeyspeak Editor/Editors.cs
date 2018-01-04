@@ -45,10 +45,15 @@ namespace Monkeyspeak.Editor
 
         public bool AnyHasChanges => s_all.Any(editor => editor.HasChanges);
 
-        public EditorControl Add(string title = null)
+        public EditorControl Add(string filePath = null)
         {
-            if (string.IsNullOrEmpty(title)) title = $"new {(docCount == 0 ? "" : docCount.ToString())}";
-            var editor = new EditorControl { Title = title };
+            var editor = new EditorControl();
+            if (!string.IsNullOrEmpty(filePath))
+            {
+                editor.CurrentFilePath = filePath;
+                editor.Open();
+            }
+            else editor.Title = $"new {(docCount == 0 ? "" : docCount.ToString())}";
             //editor.GotKeyboardFocus += (sender, args) => Selected = (EditorControl)sender;
             //editor.GotFocus += (sender, args) => Selected = (EditorControl)sender;
             All.Add(editor);

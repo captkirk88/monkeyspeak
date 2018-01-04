@@ -36,19 +36,19 @@ namespace Monkeyspeak.Editor
             console = new ConsoleWindow();
             ((MultiLogOutput)Logger.LogOutput).Add(new NotificationPanelLogOutput(Level.Error), new ConsoleWindowLogOutput(console));
 
-            NotificationManager.Added += notif =>
+            NotificationManager.Instance.Added += notif =>
             {
-                this.Dispatcher.Invoke(() => notif_badge.Badge = NotificationManager.Count);
+                this.Dispatcher.Invoke(() => notif_badge.Badge = NotificationManager.Instance.Count);
                 this.Dispatcher.Invoke(() =>
                 {
                     notifs_list.Items.Add(new NotificationPanel(notif));
                     notifs_list.ScrollIntoView(notifs_list.Items[notifs_list.Items.Count - 1]);
                 });
             };
-            NotificationManager.Removed += notif =>
+            NotificationManager.Instance.Removed += notif =>
             {
-                this.Dispatcher.Invoke(() => notif_badge.Badge = NotificationManager.Count);
-                if (NotificationManager.Count == 0) notifs_flyout.IsOpen = false;
+                this.Dispatcher.Invoke(() => notif_badge.Badge = NotificationManager.Instance.Count);
+                if (NotificationManager.Instance.Count == 0) notifs_flyout.IsOpen = false;
             };
 
             Editors.Instance.Added += editor => this.Dispatcher.Invoke(() => docs.Items.Add(editor));
@@ -66,16 +66,22 @@ namespace Monkeyspeak.Editor
 
             plugins = new DefaultPluginContainer();
 
-            Editors.Instance.Add();
-
-            Logger.Error("TEST");
             Loaded += MainWindow_Loaded;
+        }
+
+        public MainWindow(string filePath) : this()
+        {
+            if (string.IsNullOrEmpty(filePath))
+                Editors.Instance.Add(filePath);
         }
 
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
             notifs_flyout.AutoCloseInterval = 3000;
             notifs_flyout.IsAutoCloseEnabled = false;
+
+            if (Editors.Instance.IsEmpty)
+                Editors.Instance.Add();
 
             plugins.Initialize();
         }
@@ -101,7 +107,7 @@ namespace Monkeyspeak.Editor
 
         private void Notifications_Click(object sender, RoutedEventArgs e)
         {
-            if (NotificationManager.Count > 0)
+            if (NotificationManager.Instance.Count > 0)
                 notifs_flyout.IsOpen = true;
             else notifs_flyout.IsOpen = false;
         }
@@ -113,7 +119,7 @@ namespace Monkeyspeak.Editor
                 this.Dispatcher.Invoke(() =>
                 {
                     notifs_flyout.IsOpen = false;
-                    NotificationManager.Clear();
+                    NotificationManager.Instance.Clear();
                 });
             }
         }

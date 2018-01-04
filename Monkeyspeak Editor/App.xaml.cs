@@ -46,15 +46,29 @@ namespace Monkeyspeak.Editor
     /// </summary>
     public partial class App : Application
     {
+        private App()
+        {
+            InitializeComponent();
+            Logger.LogOutput = new MultiLogOutput(new FileLogger());
+        }
+
         private void Application_Startup(object sender, StartupEventArgs e)
         {
             Current.ShutdownMode = ShutdownMode.OnMainWindowClose;
-            Logger.LogOutput = new MultiLogOutput(new FileLogger());
         }
 
         private void Application_DispatcherUnhandledException(object sender, System.Windows.Threading.DispatcherUnhandledExceptionEventArgs e)
         {
             Logger.Error<App>(e.Exception);
+        }
+
+        [STAThread]
+        public static void Main(string[] args)
+        {
+            var filePath = args.Length > 0 ? args[0] : null;
+            var app = new App();
+            var window = new MainWindow(filePath);
+            app.Run(window);
         }
     }
 }
