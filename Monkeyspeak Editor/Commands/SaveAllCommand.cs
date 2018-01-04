@@ -19,7 +19,7 @@ namespace Monkeyspeak.Editor.Commands
         public void Execute(object parameter)
         {
             foreach (var editor in Editors.Instance.All)
-                editor.Save();
+                if (editor.HasChanges) editor.Save();
         }
     }
 }

@@ -1047,7 +1047,7 @@ namespace Monkeyspeak
         }
 
         /// <summary>
-        /// Executes the asynchronous.
+        /// Executes the specified <paramref name="cat"/> with specified <paramref name="ids"/> asynchronously.
         /// </summary>
         /// <param name="cancellationToken">cancellation token to end the executing task</param>
         /// <param name="ids">The ids.</param>
@@ -1076,7 +1076,7 @@ namespace Monkeyspeak
         }
 
         /// <summary>
-        /// Executes the asynchronous.
+        /// Executes the specified Cause Executes with specified <paramref name="ids"/> asynchronously.
         /// </summary>
         /// <param name="ids">The ids.</param>
         /// <param name="args">todo: describe args parameter on ExecuteAsync</param>

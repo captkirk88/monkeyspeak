@@ -25,24 +25,6 @@ namespace Monkeyspeak.Editor.Notifications
 
         public object Content => content;
 
-        public Color ForegroundColor
-        {
-            get
-            {
-                var theme = ThemeManager.DetectAppStyle().Item1;
-                if (theme.Name == "Dark")
-                    return Colors.White;
-                else if (theme.Name == "Light")
-                    return Colors.Black;
-                return Colors.Green;
-            }
-        }
-
-        public Color BackgroundColor
-        {
-            get;
-        }
-
         public NotificationWithIcon(IconKind kind, string message)
         {
             this.message = message;

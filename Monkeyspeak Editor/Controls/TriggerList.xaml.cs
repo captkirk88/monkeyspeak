@@ -31,9 +31,10 @@ namespace Monkeyspeak.Editor.Controls
         private static MonkeyspeakEngine engine = null;
         private static Page page = null;
 
-        public event Action<Tuple<string, string>> TriggerSelected;
+        public event Action<string, string> TriggerSelected;
 
         public TriggerList()
+
         {
             InitializeComponent();
             TriggerDescriptions = new ObservableCollection<Tuple<string, string>>();
@@ -53,11 +54,10 @@ namespace Monkeyspeak.Editor.Controls
 
         private void Content_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
-            var item = trigger_view?.SelectedItem as Tuple<string, string>;
+            var item = trigger_view.SelectedItem as Tuple<string, string>;
             if (item != null)
             {
-                TriggerSelected?.Invoke(item);
-                Logger.Debug<TriggerList>(item);
+                TriggerSelected?.Invoke(item.Item1, item.Item2);
             }
         }
 

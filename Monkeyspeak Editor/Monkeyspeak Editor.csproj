@@ -157,6 +157,7 @@
     </Compile>
     <Compile Include="Notifications\NotificationManager.cs" />
     <Compile Include="Notifications\StringNotification.cs" />
+    <Compile Include="Notifications\WelcomeNotification.cs" />
     <Compile Include="Plugins\DefaultPluginContainer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>

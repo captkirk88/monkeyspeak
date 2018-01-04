@@ -19,6 +19,7 @@ namespace Monkeyspeak.Editor.Notifications
             this.content = new TextBlock
             {
                 Text = content,
+                TextWrapping = System.Windows.TextWrapping.WrapWithOverflow,
                 Foreground = new SolidColorBrush(this.foreground),
                 Background = new SolidColorBrush(this.background)
             };
@@ -29,6 +30,7 @@ namespace Monkeyspeak.Editor.Notifications
             this.content = new TextBlock
             {
                 Text = content,
+                TextWrapping = System.Windows.TextWrapping.WrapWithOverflow,
                 Foreground = foreground != default(Color) ? new SolidColorBrush(foreground) : new SolidColorBrush(this.foreground),
                 Background = background != default(Color) ? new SolidColorBrush(background) : new SolidColorBrush(this.background),
                 Width = double.NaN,
@@ -41,9 +43,5 @@ namespace Monkeyspeak.Editor.Notifications
         }
 
         public object Content => content;
-
-        public Color ForegroundColor { get => foreground; set => foreground = value; }
-
-        public Color BackgroundColor { get => background; set => background = value; }
     }
 }

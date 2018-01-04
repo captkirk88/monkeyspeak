@@ -67,7 +67,10 @@ namespace Monkeyspeak.Editor.Controls
         {
             InitializeComponent();
             DataContext = this;
+
             //textEditor.SyntaxHighlighting = HighlightingManager.Instance.GetDefinitionByExtension(".ms");
+            textEditor.TextChanged += (sender, args) => HasChanges = true;
+
             Visibility = Visibility.Visible;
             textEditor.ShowLineNumbers = true;
             Title = "New";
@@ -142,9 +145,10 @@ namespace Monkeyspeak.Editor.Controls
 
         public void InsertLine(int line, string text)
         {
-            text = text.Replace(Environment.NewLine, string.Empty);
+            line = line - 1;
+            text = text.Replace("\n", string.Empty);
             var lines = new List<string>(textEditor.Text.Split('\n'));
-            if (line > lines.Count)
+            if (line >= lines.Count)
                 lines.Add(text);
             else
                 lines.Insert(line, text);
@@ -155,7 +159,7 @@ namespace Monkeyspeak.Editor.Controls
         public void AddLine(string text)
         {
             text = text.Replace(Environment.NewLine, string.Empty);
-            textEditor.Text += Environment.NewLine + text;
+            textEditor.AppendText(Environment.NewLine + text);
         }
 
         public IList<string> Lines
@@ -233,7 +237,7 @@ namespace Monkeyspeak.Editor.Controls
                         HighlightingManager.Instance.GetDefinitionByExtension(System.IO.Path.GetExtension(CurrentFilePath)) ??
                         HighlightingManager.Instance.GetDefinition("Monkeyspeak");
             }
-            return opened.GetValueOrDefault(false);
+            return opened ?? false;
         }
 
         public void Save()
@@ -245,6 +249,7 @@ namespace Monkeyspeak.Editor.Controls
                 {
                     DefaultExt = ".ms",
                     AddExtension = true,
+                    RestoreDirectory = false,
                     Filter = "Monkeyspeak Script |*.ms|All files (*.*)|*.*"
                 };
                 if (dlg.ShowDialog() ?? false)
@@ -344,16 +349,12 @@ namespace Monkeyspeak.Editor.Controls
         {
             if (Current == this) return;
             Current = this;
+            textEditor.Focus();
             pluginContainer.Execute(Current);
         }
 
         private void OnLostFocus(object sender, RoutedEventArgs e)
         {
-        }
-
-        private void textEditor_TextChanged(object sender, EventArgs e)
-        {
-            HasChanges = true;
         }
 
         protected bool SetField<T>(ref T field, T value, [CallerMemberName] string propertyName = null)

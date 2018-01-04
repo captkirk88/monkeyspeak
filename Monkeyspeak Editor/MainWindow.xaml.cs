@@ -86,11 +86,14 @@ namespace Monkeyspeak.Editor
 
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
+            e.Handled = true;
             notifs_flyout.AutoCloseInterval = 3000;
             notifs_flyout.IsAutoCloseEnabled = false;
 
             if (Editors.Instance.IsEmpty)
                 new NewEditorCommand().Execute(null);
+
+            NotificationManager.Instance.AddNotification(new WelcomeNotification());
             plugins.Initialize();
         }
 
@@ -103,6 +106,7 @@ namespace Monkeyspeak.Editor
 
         private void Console_Click(object sender, RoutedEventArgs e)
         {
+            // TODO create console.Toggle() method
             if (console.Visibility != Visibility.Visible)
             {
                 console.Show();
@@ -136,11 +140,11 @@ namespace Monkeyspeak.Editor
         {
         }
 
-        private void TriggerList_SelectionChanged(Tuple<string, string> kv)
+        private void TriggerList_SelectionChanged(string trigger, string lib)
         {
             if (Editors.Instance.Selected != null)
             {
-                Editors.Instance.Selected.InsertLine(Editors.Instance.Selected.CaretLine, kv.Item1);
+                Editors.Instance.Selected.InsertLine(Editors.Instance.Selected.CaretLine, trigger);
             }
         }
 

@@ -118,7 +118,7 @@
 				FontFamily="Consolas"
 				FontSize="10pt"
 				SyntaxHighlighting="Monkeyspeak"
-                Background="White" TextChanged="textEditor_TextChanged">
+                Background="White">
                 <avalonEdit:TextEditor.ContextMenu>
                     <ContextMenu>
                         <MenuItem Command="Cut" />
