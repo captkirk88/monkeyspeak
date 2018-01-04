@@ -60,6 +60,11 @@ namespace Monkeyspeak.Editor
                 style_chooser.Items.Add(col);
             }
 
+            foreach (var theme in Enum.GetNames(typeof(AppTheme)))
+            {
+                theme_chooser.Items.Add(theme);
+            }
+
             plugins = new DefaultPluginContainer();
 
             Editors.Instance.Add();
@@ -137,6 +142,23 @@ namespace Monkeyspeak.Editor
             {
                 SetColor(col);
             }
+        }
+
+        private void theme_chooser_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (Enum.TryParse(theme_chooser.SelectedItem.ToString(), out AppTheme theme))
+            {
+                SetTheme(theme);
+            }
+        }
+
+        private void MetroAnimatedTabControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            Dispatcher.InvokeAsync(() =>
+            {
+                var selectedEditor = ((EditorControl)((MetroAnimatedTabControl)sender).SelectedItem);
+                Editors.Instance.Selected = selectedEditor;
+            });
         }
 
         public void SetColor(AppColor color)

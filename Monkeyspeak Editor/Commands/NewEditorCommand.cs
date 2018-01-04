@@ -21,7 +21,7 @@ namespace Monkeyspeak.Editor.Commands
         public void Execute(object parameter)
         {
             var editor = Editors.Instance.Add();
-            Application.Current.Dispatcher.Invoke(() => ((MahApps.Metro.Controls.MetroAnimatedTabControl)editor.Parent).SelectedItem = editor);
+            Application.Current.Dispatcher.Invoke(() => ((MahApps.Metro.Controls.MetroAnimatedSingleRowTabControl)editor.Parent).SelectedItem = editor);
         }
     }
 }

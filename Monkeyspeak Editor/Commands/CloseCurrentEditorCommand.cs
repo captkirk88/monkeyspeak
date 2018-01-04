@@ -23,8 +23,7 @@ namespace Monkeyspeak.Editor.Commands
             await Editors.Instance.Selected?.CloseAsync();
             if (Editors.Instance.IsEmpty)
             {
-                var editor = Editors.Instance.Add();
-                await Application.Current.Dispatcher.InvokeAsync(() => ((MahApps.Metro.Controls.MetroAnimatedTabControl)editor.Parent).SelectedItem = editor);
+                Application.Current.Shutdown();
             }
         }
     }

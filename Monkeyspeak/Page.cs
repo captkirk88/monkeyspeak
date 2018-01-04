@@ -1023,12 +1023,12 @@ namespace Monkeyspeak
         /// <summary>
         /// Executes the asynchronous.
         /// </summary>
-        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <param name="cancellationToken">cancellation token to end the executing task</param>
         /// <param name="id"></param>
         /// <param name="args"></param>
         /// <param name="cat"><see cref="TriggerCategory"/></param>
         /// <returns></returns>
-        public async Task ExecuteAsync(CancellationToken cancellationToken, TriggerCategory cat = TriggerCategory.Cause, int id = 0, params object[] args)
+        public async Task ExecuteAsync(TriggerCategory cat = TriggerCategory.Cause, int id = 0, CancellationToken cancellationToken = default(CancellationToken), params object[] args)
         {
             await Task.Run(() =>
             {
@@ -1043,24 +1043,23 @@ namespace Monkeyspeak
                         }
                     }
                 }
-            }, cancellationToken);
+            }, cancellationToken != default(CancellationToken) ? cancellationToken : CancellationToken.None);
         }
 
         /// <summary>
         /// Executes the asynchronous.
         /// </summary>
-        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <param name="cancellationToken">cancellation token to end the executing task</param>
         /// <param name="ids">The ids.</param>
         /// <param name="args">todo: describe args parameter on ExecuteAsync</param>
         /// <param name="cat"><see cref="TriggerCategory"/></param>
         /// <returns></returns>
-        public async Task ExecuteAsync(CancellationToken cancellationToken, TriggerCategory cat, int[] ids, params object[] args)
+        public async Task ExecuteAsync(TriggerCategory cat, IEnumerable<int> ids, CancellationToken cancellationToken = default(CancellationToken), params object[] args)
         {
-            await Task.Run(() =>
+            foreach (var id in ids)
             {
-                for (int i = 0; i <= ids.Length - 1; i++)
+                await Task.Run(() =>
                 {
-                    int id = ids[i];
                     lock (syncObj)
                     {
                         for (int j = 0; j <= triggerBlocks.Count - 1; j++)
@@ -1072,25 +1071,24 @@ namespace Monkeyspeak
                             }
                         }
                     }
-                }
-            }, cancellationToken);
+                }, cancellationToken != default(CancellationToken) ? cancellationToken : CancellationToken.None);
+            }
         }
 
         /// <summary>
         /// Executes the asynchronous.
         /// </summary>
-        /// <param name="cancellationToken">The cancellation token.</param>
         /// <param name="ids">The ids.</param>
         /// <param name="args">todo: describe args parameter on ExecuteAsync</param>
         /// <param name="cat"><see cref="TriggerCategory"/></param>
+        /// <param name="cancellationToken">cancellation token to end the executing task</param>
         /// <returns></returns>
-        public async Task ExecuteAsync(CancellationToken cancellationToken, int[] ids, params object[] args)
+        public async Task ExecuteAsync(IEnumerable<int> ids, CancellationToken cancellationToken = default(CancellationToken), params object[] args)
         {
-            await Task.Run(() =>
+            foreach (var id in ids)
             {
-                for (int i = 0; i <= ids.Length - 1; i++)
+                await Task.Run(() =>
                 {
-                    int id = ids[i];
                     lock (syncObj)
                     {
                         for (int j = 0; j <= triggerBlocks.Count - 1; j++)
@@ -1102,90 +1100,8 @@ namespace Monkeyspeak
                             }
                         }
                     }
-                }
-            }, cancellationToken);
-        }
-
-        /// <summary>
-        /// Executes the specified Cause asynchronously.
-        /// </summary>
-        /// <param name="id">The id.</param>
-        /// <param name="cat"><see cref="TriggerCategory"/></param>
-        /// <param name="args"></param>
-        /// <returns></returns>
-        public async Task ExecuteAsync(TriggerCategory cat = TriggerCategory.Cause, int id = 0, params object[] args)
-        {
-            await Task.Run(() =>
-            {
-                lock (syncObj)
-                {
-                    for (int j = 0; j <= triggerBlocks.Count - 1; j++)
-                    {
-                        int index;
-                        if ((index = triggerBlocks[j].IndexOfTrigger(cat, id)) != -1)
-                        {
-                            ExecuteBlock(triggerBlocks[j], index, args);
-                        }
-                    }
-                }
-            });
-        }
-
-        /// <summary>
-        /// Executes the specified Cause asynchronously.
-        /// </summary>
-        /// <param name="ids">The ids.</param>
-        /// <param name="args"></param>
-        /// <param name="cat"><see cref="TriggerCategory"/></param>
-        /// <returns></returns>
-        public async Task ExecuteAsync(TriggerCategory cat, int[] ids, params object[] args)
-        {
-            await Task.Run(() =>
-            {
-                for (int i = 0; i <= ids.Length - 1; i++)
-                {
-                    int id = ids[i];
-                    lock (syncObj)
-                    {
-                        for (int j = 0; j <= triggerBlocks.Count - 1; j++)
-                        {
-                            int index;
-                            if ((index = triggerBlocks[j].IndexOfTrigger(cat, id)) != -1)
-                            {
-                                ExecuteBlock(triggerBlocks[j], index, args);
-                            }
-                        }
-                    }
-                }
-            });
-        }
-
-        /// <summary>
-        /// Executes the specified Cause asynchronously.
-        /// </summary>
-        /// <param name="ids">The ids.</param>
-        /// <param name="args"></param>
-        /// <returns></returns>
-        public async Task ExecuteAsync(int[] ids, params object[] args)
-        {
-            await Task.Run(() =>
-            {
-                for (int i = 0; i <= ids.Length - 1; i++)
-                {
-                    int id = ids[i];
-                    lock (syncObj)
-                    {
-                        for (int j = 0; j <= triggerBlocks.Count - 1; j++)
-                        {
-                            int index;
-                            if ((index = triggerBlocks[j].IndexOfTrigger(TriggerCategory.Cause, id)) != -1)
-                            {
-                                ExecuteBlock(triggerBlocks[j], index, args);
-                            }
-                        }
-                    }
-                }
-            });
+                }, cancellationToken != default(CancellationToken) ? cancellationToken : CancellationToken.None);
+            }
         }
 
         /// <summary>
@@ -1193,8 +1109,9 @@ namespace Monkeyspeak
         /// </summary>
         /// <param name="args"></param>
         /// <param name="id">The id</param>
+        /// <param name="cancellationToken">cancellation token to end the executing task</param>
         /// <returns></returns>
-        public async Task ExecuteAsync(int id, params object[] args)
+        public async Task ExecuteAsync(int id, CancellationToken cancellationToken = default(CancellationToken), params object[] args)
         {
             await Task.Run(() =>
             {
@@ -1209,7 +1126,7 @@ namespace Monkeyspeak
                         }
                     }
                 }
-            });
+            }, cancellationToken != default(CancellationToken) ? cancellationToken : CancellationToken.None);
         }
 
         /// <summary>

@@ -22,7 +22,7 @@ namespace Monkeyspeak.Editor.Commands
         {
             var editor = Editors.Instance.Add();
             editor.Open();
-            Application.Current.Dispatcher.Invoke(() => ((MahApps.Metro.Controls.MetroAnimatedTabControl)editor.Parent).SelectedItem = editor);
+            Application.Current.Dispatcher.Invoke(() => ((MahApps.Metro.Controls.MetroAnimatedSingleRowTabControl)editor.Parent).SelectedItem = editor);
             editor.HasChanges = false;
         }
     }
