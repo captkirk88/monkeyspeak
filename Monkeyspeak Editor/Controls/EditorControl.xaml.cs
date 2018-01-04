@@ -271,7 +271,6 @@ namespace Monkeyspeak.Editor.Controls
 
         private void OnLostFocus(object sender, RoutedEventArgs e)
         {
-            Current = null;
         }
 
         private void textEditor_TextChanged(object sender, EventArgs e)
