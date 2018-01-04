@@ -1,5 +1,6 @@
 ﻿using MahApps.Metro;
 using MahApps.Metro.Controls.Dialogs;
+using Monkeyspeak.Editor.Logging;
 using Monkeyspeak.Logging;
 using System;
 using System.Collections.Generic;
@@ -48,6 +49,12 @@ namespace Monkeyspeak.Editor
         private void Application_Startup(object sender, StartupEventArgs e)
         {
             Current.ShutdownMode = ShutdownMode.OnMainWindowClose;
+            Logger.LogOutput = new MultiLogOutput(new FileLogger());
+        }
+
+        private void Application_DispatcherUnhandledException(object sender, System.Windows.Threading.DispatcherUnhandledExceptionEventArgs e)
+        {
+            Logger.Error<App>(e.Exception);
         }
     }
 }

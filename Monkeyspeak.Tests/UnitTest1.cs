@@ -203,7 +203,8 @@ namespace MonkeyspeakTests
         public void DemoTest()
         {
             var engine = new MonkeyspeakEngine();
-            engine.Options.Debug = false;
+            engine.Options.Debug = true;
+            Logger.LogOutput = new FileLogger();
             Page page = engine.LoadFromString(testScript);
 
             page.LoadAllLibraries();

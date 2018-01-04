@@ -34,8 +34,7 @@ namespace Monkeyspeak.Editor
             InitializeComponent();
             //Logger.SuppressSpam = true;
             console = new ConsoleWindow();
-            Logger.LogOutput = new MultiLogOutput(new ConsoleWindowLogOutput(console),
-                new NotificationPanelLogOutput(Level.Error));
+            ((MultiLogOutput)Logger.LogOutput).Add(new NotificationPanelLogOutput(Level.Error), new ConsoleWindowLogOutput(console));
 
             NotificationManager.Added += notif =>
             {

@@ -151,7 +151,8 @@ namespace MonkeyspeakTests
             {
                 Options = { TriggerLimit = int.MaxValue }
             };
-            engine.Options.Debug = false;
+            engine.Options.Debug = true;
+            Logger.LogOutput = new FileLogger();
             var page = engine.LoadFromString(UnitTest1.tableScript);
 
             page.LoadAllLibraries();

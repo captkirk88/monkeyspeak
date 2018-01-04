@@ -23,9 +23,9 @@ namespace Monkeyspeak.Editor.Logging
 
         public IEnumerable<ILogOutput> Outputs => outputs;
 
-        public void Add(ILogOutput output)
+        public void Add(params ILogOutput[] outputs)
         {
-            outputs.Add(output);
+            this.outputs.AddRange(outputs);
         }
 
         public void Remove(ILogOutput output)

@@ -20,8 +20,6 @@ namespace Monkeyspeak.Editor
             InitializeComponent();
             this.paragraph = new Paragraph();
             console.Document = new FlowDocument(paragraph);
-
-            Logger.LogOutput = new ConsoleWindowLogOutput(this);
         }
 
         protected override void OnClosing(CancelEventArgs e)
