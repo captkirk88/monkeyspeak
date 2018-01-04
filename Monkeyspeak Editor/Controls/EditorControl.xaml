@@ -46,7 +46,7 @@
             </Button>
             <StackPanel.ToolTip>
                 <StackPanel>
-                    <Label Content="{Binding CurrentFileName}" />
+                    <Label Content="{Binding CurrentFilePath}" />
                 </StackPanel>
             </StackPanel.ToolTip>
         </StackPanel>

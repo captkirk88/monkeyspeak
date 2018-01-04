@@ -5,6 +5,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -45,16 +46,26 @@ namespace Monkeyspeak.Editor
 
         public bool AnyHasChanges => s_all.Any(editor => editor.HasChanges);
 
-        public EditorControl Add(string title = null)
+        public EditorControl Add(string filePath = null)
         {
-            if (string.IsNullOrEmpty(title)) title = $"new {(docCount == 0 ? "" : docCount.ToString())}";
-            var editor = new EditorControl { Title = title };
+            var editor = new EditorControl();
+            if (!string.IsNullOrEmpty(filePath) && File.Exists(filePath))
+            {
+                editor.CurrentFilePath = filePath;
+                editor.Open();
+            }
+            else editor.Title = $"new {(docCount == 0 ? "" : docCount.ToString())}";
             //editor.GotKeyboardFocus += (sender, args) => Selected = (EditorControl)sender;
             //editor.GotFocus += (sender, args) => Selected = (EditorControl)sender;
             All.Add(editor);
             docCount++;
             Added?.Invoke(editor);
             return editor;
+        }
+
+        public void ForceUpdateAll()
+        {
+            foreach (var editor in All) Added?.Invoke(editor);
         }
 
         public void Remove(EditorControl control)

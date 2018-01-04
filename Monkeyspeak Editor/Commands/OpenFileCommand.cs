@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -21,8 +22,17 @@ namespace Monkeyspeak.Editor.Commands
         public void Execute(object parameter)
         {
             var editor = Editors.Instance.Add();
-            editor.Open();
-            Application.Current.Dispatcher.Invoke(() => ((MahApps.Metro.Controls.MetroAnimatedSingleRowTabControl)editor.Parent).SelectedItem = editor);
+            var filePath = parameter as string;
+            if (!string.IsNullOrEmpty(filePath) && File.Exists(filePath))
+            {
+                editor.CurrentFilePath = filePath;
+                editor.Reload();
+            }
+            else
+            {
+                editor.Open();
+            }
+            //Application.Current.Dispatcher.Invoke(() => ((MahApps.Metro.Controls.MetroAnimatedSingleRowTabControl)editor.Parent).SelectedItem = editor);
             editor.HasChanges = false;
         }
     }

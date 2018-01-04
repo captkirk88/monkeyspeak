@@ -1,4 +1,5 @@
-﻿using Monkeyspeak.Editor.Interfaces.Plugins;
+﻿using Monkeyspeak.Editor.Interfaces.Notifications;
+using Monkeyspeak.Editor.Interfaces.Plugins;
 
 namespace Monkeyspeak.Editor.Interfaces.Plugins
 {
@@ -11,6 +12,8 @@ namespace Monkeyspeak.Editor.Interfaces.Plugins
         /// </summary>
         /// <param name="editor">The editor.</param>
         void Execute(IEditor editor);
+
+        void AddNotification(INotification notif);
 
         /// <summary>
         /// Unloads this instance.

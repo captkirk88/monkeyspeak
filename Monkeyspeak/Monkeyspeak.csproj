@@ -125,6 +125,7 @@
     <Compile Include="Libraries\Loops.cs" />
     <Compile Include="Libraries\Tables.cs" />
     <Compile Include="Logging\ConcurrentList.cs" />
+    <Compile Include="Logging\FileLogger.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -154,6 +155,7 @@
     <Compile Include="Options.cs" />
     <Compile Include="Page.cs" />
     <Compile Include="lexical\Token.cs" />
+    <Compile Include="Utils\IOPermissions.cs" />
     <Compile Include="Utils\OtherUtils.cs" />
     <Compile Include="Utils\ReflectionHelper.cs" />
     <Compile Include="Trigger.cs" />

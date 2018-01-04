@@ -1,4 +1,5 @@
 ﻿using MahApps.Metro;
+using Monkeyspeak.Editor.Interfaces.Notifications;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -18,7 +19,7 @@ namespace Monkeyspeak.Editor.Notifications.Controls
         {
             InitializeComponent();
             Unloaded += NotificationPanel_Unloaded;
-            NotificationManager.Removed += NotificationManager_Removed;
+            NotificationManager.Instance.Removed += NotificationManager_Removed;
             DataContext = this;
         }
 
@@ -42,14 +43,14 @@ namespace Monkeyspeak.Editor.Notifications.Controls
                 if (this.notif == notif)
                 {
                     ((ListView)this.Parent)?.Items?.Remove(this);
-                    NotificationManager.Removed -= NotificationManager_Removed;
+                    NotificationManager.Instance.Removed -= NotificationManager_Removed;
                 }
             });
         }
 
         private void DismissButton_Click(object sender, RoutedEventArgs e)
         {
-            NotificationManager.Remove(notif);
+            NotificationManager.Instance.RemoveNotification(notif);
         }
 
         private void ContentContainer_Loaded(object sender, RoutedEventArgs e)

@@ -77,7 +77,7 @@
             <Controls:SplitButton x:Name="style_chooser" Width="Auto" SelectionChanged="style_chooser_SelectionChanged" SelectedItem="Brown"
                                   ToolTip="Select a color" />
             <Button Content="Console" Click="Console_Click" ToolTip="Displays a console window" />
-            <Controls:Badged x:Name="notif_badge" BadgePlacementMode="BottomRight" Badge="{Binding Path=notifs:NotificationManager.Count}">
+            <Controls:Badged x:Name="notif_badge" BadgePlacementMode="BottomRight" Badge="">
                 <Controls:Badged.ToolTip>
                     <TextBlock>
                         Notifications

@@ -1,5 +1,6 @@
 ﻿using MahApps.Metro;
 using MahApps.Metro.Controls.Dialogs;
+using Monkeyspeak.Editor.Logging;
 using Monkeyspeak.Logging;
 using System;
 using System.Collections.Generic;
@@ -45,9 +46,29 @@ namespace Monkeyspeak.Editor
     /// </summary>
     public partial class App : Application
     {
+        private App()
+        {
+            InitializeComponent();
+            Logger.LogOutput = new MultiLogOutput(new FileLogger(), new FileLogger(Level.Debug));
+        }
+
         private void Application_Startup(object sender, StartupEventArgs e)
         {
             Current.ShutdownMode = ShutdownMode.OnMainWindowClose;
+            MainWindow = new MainWindow(e.Args);
+            MainWindow.Show();
+        }
+
+        private void Application_DispatcherUnhandledException(object sender, System.Windows.Threading.DispatcherUnhandledExceptionEventArgs e)
+        {
+            Logger.Error<App>(e.Exception);
+        }
+
+        [STAThread]
+        public static void Main()
+        {
+            var app = new App();
+            app.Run();
         }
     }
 }

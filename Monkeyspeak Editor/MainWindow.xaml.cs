@@ -29,30 +29,37 @@ namespace Monkeyspeak.Editor
         private ConsoleWindow console;
         private IPluginContainer plugins;
 
-        public MainWindow()
+        public MainWindow(params string[] files)
         {
             InitializeComponent();
             //Logger.SuppressSpam = true;
             console = new ConsoleWindow();
-            Logger.LogOutput = new MultiLogOutput(new ConsoleWindowLogOutput(console),
-                new NotificationPanelLogOutput(Level.Error));
+            ((MultiLogOutput)Logger.LogOutput).Add(new NotificationPanelLogOutput(Level.Error), new ConsoleWindowLogOutput(console));
 
-            NotificationManager.Added += notif =>
+            NotificationManager.Instance.Added += notif =>
             {
-                this.Dispatcher.Invoke(() => notif_badge.Badge = NotificationManager.Count);
+                this.Dispatcher.Invoke(() => notif_badge.Badge = NotificationManager.Instance.Count);
                 this.Dispatcher.Invoke(() =>
                 {
                     notifs_list.Items.Add(new NotificationPanel(notif));
                     notifs_list.ScrollIntoView(notifs_list.Items[notifs_list.Items.Count - 1]);
                 });
             };
-            NotificationManager.Removed += notif =>
+            NotificationManager.Instance.Removed += notif =>
             {
-                this.Dispatcher.Invoke(() => notif_badge.Badge = NotificationManager.Count);
-                if (NotificationManager.Count == 0) notifs_flyout.IsOpen = false;
+                this.Dispatcher.Invoke(() => notif_badge.Badge = NotificationManager.Instance.Count);
+                if (NotificationManager.Instance.Count == 0)
+                {
+                    notifs_flyout.IsOpen = false;
+                    notif_badge.Badge = "";
+                }
             };
 
-            Editors.Instance.Added += editor => this.Dispatcher.Invoke(() => docs.Items.Add(editor));
+            Editors.Instance.Added += editor => this.Dispatcher.Invoke(() =>
+            {
+                if (!docs.Items.Contains(editor)) docs.Items.Add(editor);
+                ((MetroAnimatedSingleRowTabControl)editor.Parent).SelectedItem = editor;
+            });
             Editors.Instance.Removed += editor => this.Dispatcher.Invoke(() => docs.Items.Remove(editor));
 
             foreach (var col in Enum.GetNames(typeof(AppColor)))
@@ -67,10 +74,14 @@ namespace Monkeyspeak.Editor
 
             plugins = new DefaultPluginContainer();
 
-            Editors.Instance.Add();
-
-            Logger.Error("TEST");
             Loaded += MainWindow_Loaded;
+
+            if (files != null && files.Length > 0)
+                foreach (var file in files)
+                {
+                    if (!string.IsNullOrEmpty(file))
+                        new OpenFileCommand().Execute(file);
+                }
         }
 
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)
@@ -78,6 +89,8 @@ namespace Monkeyspeak.Editor
             notifs_flyout.AutoCloseInterval = 3000;
             notifs_flyout.IsAutoCloseEnabled = false;
 
+            if (Editors.Instance.IsEmpty)
+                new NewEditorCommand().Execute(null);
             plugins.Initialize();
         }
 
@@ -102,7 +115,7 @@ namespace Monkeyspeak.Editor
 
         private void Notifications_Click(object sender, RoutedEventArgs e)
         {
-            if (NotificationManager.Count > 0)
+            if (NotificationManager.Instance.Count > 0)
                 notifs_flyout.IsOpen = true;
             else notifs_flyout.IsOpen = false;
         }
@@ -114,7 +127,7 @@ namespace Monkeyspeak.Editor
                 this.Dispatcher.Invoke(() =>
                 {
                     notifs_flyout.IsOpen = false;
-                    NotificationManager.Clear();
+                    NotificationManager.Instance.Clear();
                 });
             }
         }

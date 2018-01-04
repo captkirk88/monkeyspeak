@@ -5,6 +5,7 @@ using Microsoft.Win32;
 using Monkeyspeak.Editor.HelperClasses;
 using Monkeyspeak.Editor.Interfaces.Plugins;
 using Monkeyspeak.Editor.Plugins;
+using Monkeyspeak.Logging;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -54,9 +55,11 @@ namespace Monkeyspeak.Editor.Controls
             }
         }
 
-        private string currentFileName;
+        private string currentFilePath;
         private string _title;
         private bool _hasChanges;
+
+        private FileSystemWatcher fileWatcher;
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -68,6 +71,63 @@ namespace Monkeyspeak.Editor.Controls
             Visibility = Visibility.Visible;
             textEditor.ShowLineNumbers = true;
             Title = "New";
+
+            fileWatcher = new FileSystemWatcher
+            {
+                NotifyFilter = NotifyFilters.FileName | NotifyFilters.LastWrite | NotifyFilters.LastAccess,
+            };
+            fileWatcher.Changed += FileWatcher_Raised;
+            fileWatcher.Renamed += FileWatcher_Raised;
+            fileWatcher.Deleted += FileWatcher_Raised;
+        }
+
+        private void FileWatcher_Raised(object sender, FileSystemEventArgs e)
+        {
+            if (sender == this) return;
+            if (e.FullPath != CurrentFilePath && e.ChangeType != WatcherChangeTypes.Renamed) return;
+            var result = MessageDialogResult.Negative;
+            switch (e.ChangeType)
+            {
+                case WatcherChangeTypes.Changed:
+                    fileWatcher.EnableRaisingEvents = false;
+                    Dispatcher.Invoke(async () =>
+                    {
+                        result = await DialogManager.ShowMessageAsync(Application.Current.MainWindow as MetroWindow,
+                                        "File Changed", $"The file {CurrentFilePath} was changed from a outside source, would you like to...?", MessageDialogStyle.AffirmativeAndNegativeAndSingleAuxiliary,
+                                        new MetroDialogSettings { AffirmativeButtonText = "Load Changes", NegativeButtonText = "Ignore Current/Future Changes", FirstAuxiliaryButtonText = "Save As" });
+
+                        if (result == MessageDialogResult.Affirmative)
+                        {
+                            Reload();
+                        }
+                        else if (result == MessageDialogResult.FirstAuxiliary)
+                        {
+                            SaveAs();
+                        }
+                    }).Wait();
+                    break;
+
+                case WatcherChangeTypes.Renamed:
+                    fileWatcher.EnableRaisingEvents = false;
+                    CurrentFilePath = e.FullPath;
+                    break;
+
+                case WatcherChangeTypes.Deleted:
+                    fileWatcher.EnableRaisingEvents = false;
+                    Dispatcher.Invoke(async () =>
+                    {
+                        result = await DialogManager.ShowMessageAsync(Application.Current.MainWindow as MetroWindow,
+                        "File Deleted", $"The file {CurrentFilePath} was deleted from a outside source, would you like to...?  The editor will remain open regardless of your choice so that you don't lose changes.", MessageDialogStyle.AffirmativeAndNegative,
+                        new MetroDialogSettings { AffirmativeButtonText = "Save Changes", NegativeButtonText = "Ignore This" });
+
+                        if (result == MessageDialogResult.Affirmative)
+                        {
+                            Save();
+                        }
+                    }).Wait();
+                    break;
+            }
+            fileWatcher.EnableRaisingEvents = true;
         }
 
         public string Title { get => _title; set => SetField(ref _title, value); }
@@ -129,13 +189,16 @@ namespace Monkeyspeak.Editor.Controls
         /// </value>
         public bool IsActiveEditor { get => Current == this; }
 
-        public string CurrentFileName
+        public string CurrentFilePath
         {
-            get => currentFileName;
+            get => currentFilePath;
             set
             {
-                currentFileName = value;
-                Title = System.IO.Path.GetFileNameWithoutExtension(currentFileName);
+                currentFilePath = value;
+                Title = System.IO.Path.GetFileNameWithoutExtension(currentFilePath);
+                fileWatcher.Path = System.IO.Path.GetDirectoryName(currentFilePath);
+                fileWatcher.Filter = System.IO.Path.GetFileName(currentFilePath);
+                fileWatcher.EnableRaisingEvents = true;
             }
         }
 
@@ -151,69 +214,7 @@ namespace Monkeyspeak.Editor.Controls
             textEditor.TextArea.TextView.LineTransformers.Add(new WordColorizer(color, line, start, end));
         }
 
-        public void Save()
-        {
-            if (CurrentFileName == null)
-            {
-                SaveFileDialog dlg = new SaveFileDialog
-                {
-                    DefaultExt = ".ms",
-                    AddExtension = true,
-                    Filter = "Monkeyspeak Script |*.ms|All files (*.*)|*.*"
-                };
-                if (dlg.ShowDialog() ?? false)
-                {
-                    CurrentFileName = dlg.FileName;
-                }
-                else
-                {
-                    return;
-                }
-            }
-            textEditor.Save(CurrentFileName);
-            HasChanges = false;
-        }
-
-        public void SaveAs(string fileName)
-        {
-            SaveFileDialog dlg = new SaveFileDialog
-            {
-                DefaultExt = ".ms",
-                AddExtension = true,
-                FileName = fileName,
-                Filter = "Monkeyspeak Script |*.ms|All files (*.*)|*.*"
-            };
-            if (dlg.ShowDialog() ?? false)
-            {
-                CurrentFileName = dlg.FileName;
-            }
-            else
-            {
-                return;
-            }
-            textEditor.Save(CurrentFileName);
-            HasChanges = false;
-        }
-
-        public async Task CloseAsync()
-        {
-            if (HasChanges)
-            {
-                var result = await DialogManager.ShowMessageAsync((MetroWindow)Application.Current.MainWindow,
-                    "Save?",
-                    "Changes were detected.  Would you like to save before closing?", MessageDialogStyle.AffirmativeAndNegative,
-                    new MetroDialogSettings { AffirmativeButtonText = "Yes", NegativeButtonText = "Nah" });
-                if (result == MessageDialogResult.Affirmative) Save();
-            }
-
-            Editors.Instance.Remove(this);
-        }
-
-        private void highlightingComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-        }
-
-        public void Open()
+        public bool Open()
         {
             OpenFileDialog dlg = new OpenFileDialog
             {
@@ -223,12 +224,89 @@ namespace Monkeyspeak.Editor.Controls
                 DefaultExt = ".ms",
                 Filter = "Monkeyspeak Script |*.ms|All files (*.*)|*.*"
             };
+            var opened = dlg.ShowDialog();
+            if (opened ?? false)
+            {
+                CurrentFilePath = dlg.FileName;
+                textEditor.Load(CurrentFilePath);
+                textEditor.SyntaxHighlighting =
+                        HighlightingManager.Instance.GetDefinitionByExtension(System.IO.Path.GetExtension(CurrentFilePath)) ??
+                        HighlightingManager.Instance.GetDefinition("Monkeyspeak");
+            }
+            return opened.GetValueOrDefault(false);
+        }
+
+        public void Save()
+        {
+            fileWatcher.EnableRaisingEvents = false;
+            if (CurrentFilePath == null)
+            {
+                SaveFileDialog dlg = new SaveFileDialog
+                {
+                    DefaultExt = ".ms",
+                    AddExtension = true,
+                    Filter = "Monkeyspeak Script |*.ms|All files (*.*)|*.*"
+                };
+                if (dlg.ShowDialog() ?? false)
+                {
+                    CurrentFilePath = dlg.FileName;
+                }
+                else
+                {
+                    return;
+                }
+            }
+            textEditor.Save(CurrentFilePath);
+            HasChanges = false;
+            fileWatcher.EnableRaisingEvents = true;
+        }
+
+        public void SaveAs(string fileName = null)
+        {
+            SaveFileDialog dlg = new SaveFileDialog
+            {
+                DefaultExt = ".ms",
+                AddExtension = true,
+                FileName = fileName ?? System.IO.Path.GetFileName(CurrentFilePath),
+                Filter = "Monkeyspeak Script |*.ms|All files (*.*)|*.*"
+            };
             if (dlg.ShowDialog() ?? false)
             {
-                CurrentFileName = dlg.FileName;
-                textEditor.Load(CurrentFileName);
-                textEditor.SyntaxHighlighting = HighlightingManager.Instance.GetDefinitionByExtension(System.IO.Path.GetExtension(CurrentFileName));
+                CurrentFilePath = dlg.FileName;
             }
+            else
+            {
+                return;
+            }
+            textEditor.Save(CurrentFilePath);
+            HasChanges = false;
+        }
+
+        public void Reload()
+        {
+            textEditor.Load(CurrentFilePath);
+            Save();
+            textEditor.SyntaxHighlighting =
+                HighlightingManager.Instance.GetDefinitionByExtension(System.IO.Path.GetExtension(CurrentFilePath)) ??
+                HighlightingManager.Instance.GetDefinition("Monkeyspeak");
+        }
+
+        public async Task CloseAsync()
+        {
+            if (HasChanges)
+            {
+                var result = await DialogManager.ShowMessageAsync((MetroWindow)Application.Current.MainWindow,
+                    "Save?",
+                    "Changes were detected.  Would you like to save before closing?", MessageDialogStyle.AffirmativeAndNegative,
+                    new MetroDialogSettings { AffirmativeButtonText = "Save", NegativeButtonText = "Nah" });
+                if (result == MessageDialogResult.Affirmative) Save();
+            }
+
+            Editors.Instance.Remove(this);
+        }
+
+        private void highlightingComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
         }
 
         private void propertyGridComboBoxSelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -271,7 +349,6 @@ namespace Monkeyspeak.Editor.Controls
 
         private void OnLostFocus(object sender, RoutedEventArgs e)
         {
-            Current = null;
         }
 
         private void textEditor_TextChanged(object sender, EventArgs e)

@@ -94,10 +94,10 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <ApplicationDefinition Include="App.xaml">
+    <Page Include="App.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
-    </ApplicationDefinition>
+    </Page>
     <Compile Include="Commands\CloseCurrentEditorCommand.cs" />
     <Compile Include="Commands\ExitCommand.cs" />
     <Compile Include="Commands\MonkeyspeakCommands.cs" />
@@ -155,8 +155,6 @@
     <Compile Include="Notifications\Controls\NotificationPanel.xaml.cs">
       <DependentUpon>NotificationPanel.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Notifications\BaseNotification.cs" />
-    <Compile Include="Notifications\INotification.cs" />
     <Compile Include="Notifications\NotificationManager.cs" />
     <Compile Include="Notifications\StringNotification.cs" />
     <Compile Include="Plugins\DefaultPluginContainer.cs" />
