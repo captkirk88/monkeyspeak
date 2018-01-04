@@ -16,7 +16,7 @@ namespace Monkeyspeak.Logging
 
         public FileLogger(Level level = Level.Error)
         {
-            filePath = $"{Path.Combine(Assembly.GetExecutingAssembly()?.Location, Assembly.GetExecutingAssembly()?.GetName().Name)}.{level}.log";
+            filePath = Path.Combine(Assembly.GetExecutingAssembly()?.Location, $"{Assembly.GetExecutingAssembly()?.GetName().Name}.{level}.log");
             if (!IOPermissions.HasAccess(filePath))
             {
                 filePath = Path.Combine(Path.GetFullPath(Environment.GetFolderPath(Environment.SpecialFolder.Personal)), Path.GetFileName(filePath));

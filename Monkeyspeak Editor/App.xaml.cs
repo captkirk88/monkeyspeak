@@ -49,12 +49,14 @@ namespace Monkeyspeak.Editor
         private App()
         {
             InitializeComponent();
-            Logger.LogOutput = new MultiLogOutput(new FileLogger());
+            Logger.LogOutput = new MultiLogOutput(new FileLogger(), new FileLogger(Level.Debug));
         }
 
         private void Application_Startup(object sender, StartupEventArgs e)
         {
             Current.ShutdownMode = ShutdownMode.OnMainWindowClose;
+            MainWindow = new MainWindow(e.Args);
+            MainWindow.Show();
         }
 
         private void Application_DispatcherUnhandledException(object sender, System.Windows.Threading.DispatcherUnhandledExceptionEventArgs e)
@@ -63,12 +65,10 @@ namespace Monkeyspeak.Editor
         }
 
         [STAThread]
-        public static void Main(string[] args)
+        public static void Main()
         {
-            var filePath = args.Length > 0 ? args[0] : null;
             var app = new App();
-            var window = new MainWindow(filePath);
-            app.Run(window);
+            app.Run();
         }
     }
 }

@@ -29,7 +29,7 @@ namespace Monkeyspeak.Editor
         private ConsoleWindow console;
         private IPluginContainer plugins;
 
-        public MainWindow()
+        public MainWindow(params string[] files)
         {
             InitializeComponent();
             //Logger.SuppressSpam = true;
@@ -48,10 +48,18 @@ namespace Monkeyspeak.Editor
             NotificationManager.Instance.Removed += notif =>
             {
                 this.Dispatcher.Invoke(() => notif_badge.Badge = NotificationManager.Instance.Count);
-                if (NotificationManager.Instance.Count == 0) notifs_flyout.IsOpen = false;
+                if (NotificationManager.Instance.Count == 0)
+                {
+                    notifs_flyout.IsOpen = false;
+                    notif_badge.Badge = "";
+                }
             };
 
-            Editors.Instance.Added += editor => this.Dispatcher.Invoke(() => docs.Items.Add(editor));
+            Editors.Instance.Added += editor => this.Dispatcher.Invoke(() =>
+            {
+                if (!docs.Items.Contains(editor)) docs.Items.Add(editor);
+                ((MetroAnimatedSingleRowTabControl)editor.Parent).SelectedItem = editor;
+            });
             Editors.Instance.Removed += editor => this.Dispatcher.Invoke(() => docs.Items.Remove(editor));
 
             foreach (var col in Enum.GetNames(typeof(AppColor)))
@@ -67,12 +75,13 @@ namespace Monkeyspeak.Editor
             plugins = new DefaultPluginContainer();
 
             Loaded += MainWindow_Loaded;
-        }
 
-        public MainWindow(string filePath) : this()
-        {
-            if (string.IsNullOrEmpty(filePath))
-                Editors.Instance.Add(filePath);
+            if (files != null && files.Length > 0)
+                foreach (var file in files)
+                {
+                    if (!string.IsNullOrEmpty(file))
+                        new OpenFileCommand().Execute(file);
+                }
         }
 
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)
@@ -81,8 +90,7 @@ namespace Monkeyspeak.Editor
             notifs_flyout.IsAutoCloseEnabled = false;
 
             if (Editors.Instance.IsEmpty)
-                Editors.Instance.Add();
-
+                new NewEditorCommand().Execute(null);
             plugins.Initialize();
         }
 

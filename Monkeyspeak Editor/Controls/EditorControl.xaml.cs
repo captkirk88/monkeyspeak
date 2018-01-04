@@ -214,7 +214,7 @@ namespace Monkeyspeak.Editor.Controls
             textEditor.TextArea.TextView.LineTransformers.Add(new WordColorizer(color, line, start, end));
         }
 
-        public void Open()
+        public bool Open()
         {
             OpenFileDialog dlg = new OpenFileDialog
             {
@@ -224,12 +224,16 @@ namespace Monkeyspeak.Editor.Controls
                 DefaultExt = ".ms",
                 Filter = "Monkeyspeak Script |*.ms|All files (*.*)|*.*"
             };
-            if (dlg.ShowDialog() ?? false)
+            var opened = dlg.ShowDialog();
+            if (opened ?? false)
             {
                 CurrentFilePath = dlg.FileName;
                 textEditor.Load(CurrentFilePath);
-                textEditor.SyntaxHighlighting = HighlightingManager.Instance.GetDefinitionByExtension(System.IO.Path.GetExtension(CurrentFilePath));
+                textEditor.SyntaxHighlighting =
+                        HighlightingManager.Instance.GetDefinitionByExtension(System.IO.Path.GetExtension(CurrentFilePath)) ??
+                        HighlightingManager.Instance.GetDefinition("Monkeyspeak");
             }
+            return opened.GetValueOrDefault(false);
         }
 
         public void Save()
@@ -282,7 +286,9 @@ namespace Monkeyspeak.Editor.Controls
         {
             textEditor.Load(CurrentFilePath);
             Save();
-            textEditor.SyntaxHighlighting = HighlightingManager.Instance.GetDefinitionByExtension(System.IO.Path.GetExtension(CurrentFilePath));
+            textEditor.SyntaxHighlighting =
+                HighlightingManager.Instance.GetDefinitionByExtension(System.IO.Path.GetExtension(CurrentFilePath)) ??
+                HighlightingManager.Instance.GetDefinition("Monkeyspeak");
         }
 
         public async Task CloseAsync()
@@ -292,7 +298,7 @@ namespace Monkeyspeak.Editor.Controls
                 var result = await DialogManager.ShowMessageAsync((MetroWindow)Application.Current.MainWindow,
                     "Save?",
                     "Changes were detected.  Would you like to save before closing?", MessageDialogStyle.AffirmativeAndNegative,
-                    new MetroDialogSettings { AffirmativeButtonText = "Yes", NegativeButtonText = "Nah" });
+                    new MetroDialogSettings { AffirmativeButtonText = "Save", NegativeButtonText = "Nah" });
                 if (result == MessageDialogResult.Affirmative) Save();
             }
 

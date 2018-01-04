@@ -5,6 +5,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -48,7 +49,7 @@ namespace Monkeyspeak.Editor
         public EditorControl Add(string filePath = null)
         {
             var editor = new EditorControl();
-            if (!string.IsNullOrEmpty(filePath))
+            if (!string.IsNullOrEmpty(filePath) && File.Exists(filePath))
             {
                 editor.CurrentFilePath = filePath;
                 editor.Open();
@@ -60,6 +61,11 @@ namespace Monkeyspeak.Editor
             docCount++;
             Added?.Invoke(editor);
             return editor;
+        }
+
+        public void ForceUpdateAll()
+        {
+            foreach (var editor in All) Added?.Invoke(editor);
         }
 
         public void Remove(EditorControl control)
