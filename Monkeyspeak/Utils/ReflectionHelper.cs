@@ -56,18 +56,31 @@ namespace Monkeyspeak.Utils
             }
         }
 
+        public static IEnumerable<Type> GetAllInterfaces(Type type)
+        {
+            Type[] interfaces = type.GetInterfaces();
+            foreach (var interf in interfaces.SelectMany(i => i.GetInterfaces())) yield return interf;
+
+            foreach (var baseType in GetAllBaseTypes(type))
+            {
+                interfaces = baseType.GetInterfaces();
+                foreach (var interf in interfaces.SelectMany(i => i.GetInterfaces())) yield return interf;
+            }
+        }
+
         public static IEnumerable<Type> GetAllTypesWithBaseClass<T>(Assembly asm)
         {
             var desiredType = typeof(T);
-            Type[] types = null;
+            var types = new Type[0];
             try
             {
-                types = asm.GetTypes();
+                types = asm.GetExportedTypes();
             }
-            catch { yield break; }
-            foreach (var type in asm.GetTypes())
+            catch (Exception ex)
+            { yield break; }
+            foreach (var type in types)
             {
-                if (!type.IsAbstract && GetAllBaseTypes(type).Contains(desiredType))
+                if (!type.IsAbstract && !type.IsInterface && GetAllBaseTypes(type).Contains(desiredType))
                     yield return type;
             }
         }
@@ -76,23 +89,27 @@ namespace Monkeyspeak.Utils
         {
             var desiredType = typeof(T);
             if (!desiredType.IsInterface) yield break;
-            Type[] types = null;
+            var types = new Type[0];
             try
             {
-                types = asm.GetTypes();
+                types = asm.GetExportedTypes();
             }
-            catch { yield break; }
-            foreach (var type in asm.GetTypes())
+            catch (Exception ex)
+            { yield break; }
+            foreach (var type in types)
             {
-                if (!type.IsAbstract && type.GetInterfaces().Contains(desiredType))
+                if (!type.IsAbstract && !type.IsInterface && desiredType.IsAssignableFrom(type))
+                {
+                    Logger.Debug<ReflectionHelper>($"{type.FullName}");
                     yield return type;
+                }
             }
         }
 
         public static IEnumerable<Assembly> GetAllAssemblies()
         {
             var all = new List<Assembly>();
-            foreach (string asmFile in Directory.EnumerateFiles(Path.GetFullPath(AppDomain.CurrentDomain.BaseDirectory), "*.dll"))
+            foreach (string asmFile in Directory.GetFiles(Path.GetFullPath(AppDomain.CurrentDomain.BaseDirectory), "*.dll"))
             {
                 all.AddIfUnique(Assembly.LoadFile(asmFile));
             }
@@ -125,7 +142,7 @@ namespace Monkeyspeak.Utils
 
         public static bool HasNoArgConstructor(Type type)
         {
-            return type.GetConstructors().FirstOrDefault(cnstr => cnstr.GetParameters().Length == 0) != null; // faster than Any, never use Any
+            return type.GetConstructors().FirstOrDefault(cnstr => cnstr.GetParameters().Length == 0) != null;
         }
 
         public static bool TryLoad(string assemblyFile, out Assembly asm)

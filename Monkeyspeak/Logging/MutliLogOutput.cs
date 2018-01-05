@@ -5,8 +5,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Monkeyspeak.Editor.Logging
+namespace Monkeyspeak.Logging
 {
+    /// <summary>
+    /// Multi log output
+    /// </summary>
+    /// <seealso cref="Monkeyspeak.Logging.ILogOutput" />
     public class MultiLogOutput : ILogOutput
     {
         private List<ILogOutput> outputs;

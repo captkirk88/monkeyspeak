@@ -136,44 +136,8 @@ namespace Monkeyspeak.Libraries
 
         public static IEnumerable<BaseLibrary> GetAllLibraries()
         {
-            foreach (string asmFile in Directory.EnumerateFiles(Path.GetFullPath(AppDomain.CurrentDomain.BaseDirectory), "*.dll"))
+            foreach (var asm in ReflectionHelper.GetAllAssemblies())
             {
-                if (ReflectionHelper.TryLoad(asmFile, out Assembly asm))
-                    foreach (var lib in GetLibrariesFromAssembly(asm))
-                    {
-                        yield return lib;
-                    }
-            }
-
-            if (Assembly.GetExecutingAssembly() != null)
-            {
-                // this detects the path from where the current CODE is being executed
-                foreach (var asmName in Assembly.GetExecutingAssembly().GetReferencedAssemblies())
-                {
-                    var asm = Assembly.Load(asmName);
-                    foreach (var lib in GetLibrariesFromAssembly(asm))
-                    {
-                        yield return lib;
-                    }
-                }
-            }
-            else if (Assembly.GetEntryAssembly() != null)
-            {
-                // this detects the path from where the current CODE is being executed
-                foreach (var asmName in Assembly.GetEntryAssembly().GetReferencedAssemblies())
-                {
-                    var asm = Assembly.Load(asmName);
-                    foreach (var lib in GetLibrariesFromAssembly(asm))
-                    {
-                        yield return lib;
-                    }
-                }
-            }
-            foreach (var asm in AppDomain.CurrentDomain.GetAssemblies())
-            {
-                // avoid all the Microsoft and System assemblies.  All assesmblies it is looking for should be in the local path
-                if (asm.GlobalAssemblyCache) continue;
-
                 foreach (var lib in GetLibrariesFromAssembly(asm))
                 {
                     yield return lib;

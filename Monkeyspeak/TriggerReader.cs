@@ -197,11 +197,11 @@ namespace Monkeyspeak
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public IEnumerable<T> GetParametersOfType<T>()
+        public T[] GetParametersOfType<T>()
         {
             if (args != null && args.Length > 0)
-                return args.OfType<T>();
-            return Enumerable.Empty<T>();
+                return args.OfType<T>().ToArray();
+            return new T[0];
         }
 
         /// <summary>

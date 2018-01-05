@@ -212,7 +212,8 @@ namespace MonkeyspeakTests
         {
             var engine = new MonkeyspeakEngine();
             engine.Options.Debug = true;
-            Page page = engine.LoadFromString(testGerolkaeTemplate);
+            Logger.LogOutput = new MultiLogOutput(new FileLogger(Level.Debug), new FileLogger(), new FileLogger(Level.Info));
+            Page page = engine.LoadFromString(testScript);
 
             page.LoadAllLibraries();
             //page.LoadDebugLibrary();
@@ -225,13 +226,14 @@ namespace MonkeyspeakTests
             //Assert.Greater(page.Size, 0);
             //Assert.Throws<VariableIsConstantException>(() => page.Execute());
             page.Error += DebugAllErrors;
-            CancellationTokenSource cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromMilliseconds(500));
-            await page.ExecuteAsync(new int[] { 0, 0, 0 }, cancellationTokenSource.Token);
+            Logger.Debug("Creating cancellation token");
+            //CancellationTokenSource cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromMilliseconds(500));
+            await page.ExecuteAsync(new int[] { 0, 0, 0 });
             foreach (var variable in page.Scope)
             {
                 Console.WriteLine(variable.ToString());
             }
-            cancellationTokenSource.Dispose();
+            //cancellationTokenSource.Dispose();
         }
 
         [Test]
