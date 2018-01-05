@@ -231,6 +231,10 @@ cd $(TargetDir)
 rar a -r -x*.tmp -x*.rar -x*.tt "$(TargetDir)$(TargetName)_$(ConfigurationName)_$(PlatformName)_Binaries.rar" *.*
 </PostBuildEvent>
   </PropertyGroup>
+  <PropertyGroup>
+    <PostBuildEvent>
+    </PostBuildEvent>
+  </PropertyGroup>
   <!--   <ProjectExtensions>
     <VisualStudio>
       <UserProperties BuildVersion_BuildVersioningStyle="None.None.Increment.MonthAndDayStamp" />
