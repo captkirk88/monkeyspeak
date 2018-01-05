@@ -197,27 +197,11 @@ namespace Monkeyspeak
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public T[] GetParametersOfType<T>()
+        public IEnumerable<T> GetParametersOfType<T>()
         {
             if (args != null && args.Length > 0)
-                return args.OfType<T>().ToArray();
-            return new T[0];
-        }
-
-        /// <summary>
-        /// Gets the parameters of a certain type.
-        ///
-        /// <para>
-        /// See also <seealso cref="TryGetParameter{T}(int, out T)"/>
-        /// </para>
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
-        public IEnumerable<object> EnumerateParameters()
-        {
-            if (args != null && args.Length > 0)
-                return args.AsEnumerable();
-            return Enumerable.Empty<object>();
+                return args.OfType<T>();
+            return Enumerable.Empty<T>();
         }
 
         /// <summary>

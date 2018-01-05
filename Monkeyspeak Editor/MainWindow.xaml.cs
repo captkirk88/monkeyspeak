@@ -144,7 +144,9 @@ namespace Monkeyspeak.Editor
         {
             if (Editors.Instance.Selected != null)
             {
-                Editors.Instance.Selected.InsertLine(Editors.Instance.Selected.CaretLine, trigger);
+                if (Editors.Instance.Selected.CaretLine > 0)
+                    Editors.Instance.Selected.InsertAtCaretLine(trigger);
+                else Editors.Instance.Selected.AddLine(trigger);
             }
         }
 

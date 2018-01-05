@@ -32,7 +32,6 @@ namespace Monkeyspeak.Editor.Controls
     /// </summary>
     public partial class EditorControl : MetroTabItem, IEditor, INotifyPropertyChanged
     {
-        public static EditorControl Current { get => Editors.Instance.Selected; set => Editors.Instance.Selected = value; }
         private static IPluginContainer pluginContainer = new DefaultPluginContainer();
 
         static EditorControl()
@@ -70,10 +69,17 @@ namespace Monkeyspeak.Editor.Controls
 
             //textEditor.SyntaxHighlighting = HighlightingManager.Instance.GetDefinitionByExtension(".ms");
             textEditor.TextChanged += (sender, args) => HasChanges = true;
+            textEditor.TextArea.Caret.PositionChanged += (sender, args) =>
+            textEditor.Options.AllowScrollBelowDocument = true;
+            textEditor.Options.HighlightCurrentLine = true;
+            textEditor.Options.EnableImeSupport = true;
+            textEditor.Options.EnableHyperlinks = true;
+            textEditor.Options.CutCopyWholeLine = true;
+            textEditor.ShowLineNumbers = true;
 
             Visibility = Visibility.Visible;
-            textEditor.ShowLineNumbers = true;
-            Title = "New";
+
+            Title = "new";
 
             fileWatcher = new FileSystemWatcher
             {
@@ -82,6 +88,9 @@ namespace Monkeyspeak.Editor.Controls
             fileWatcher.Changed += FileWatcher_Raised;
             fileWatcher.Renamed += FileWatcher_Raised;
             fileWatcher.Deleted += FileWatcher_Raised;
+
+            // set this as the active editor since it was new
+            Editors.Instance.Selected = this;
         }
 
         private void FileWatcher_Raised(object sender, FileSystemEventArgs e)
@@ -143,15 +152,17 @@ namespace Monkeyspeak.Editor.Controls
 
         public bool HasChanges { get => _hasChanges; set => SetField(ref _hasChanges, value); }
 
-        public void InsertLine(int line, string text)
+        public void InsertAtCaretLine(string text)
         {
-            line = line - 1;
+            var line = CaretLine - 1; // caret line is not 0 based, initial value is 1
             text = text.Replace("\n", string.Empty);
             var lines = new List<string>(textEditor.Text.Split('\n'));
-            if (line >= lines.Count)
-                lines.Add(text);
+            if (line < lines.Count)
+                if (string.IsNullOrWhiteSpace(lines[line]) || lines[line][0] == '\n')
+                    lines[line] = text;
+                else lines.Insert(line, text);
             else
-                lines.Insert(line, text);
+                lines.Add(text);
             for (int i = lines.Count - 1; i >= 0; i--) lines[i] = lines[i].Replace("\n", string.Empty);
             textEditor.Text = string.Join("\n", lines);
         }
@@ -191,7 +202,7 @@ namespace Monkeyspeak.Editor.Controls
         /// <value>
         ///   <c>true</c> if this instance is active editor; otherwise, <c>false</c>.
         /// </value>
-        public bool IsActiveEditor { get => Current == this; }
+        public bool IsActiveEditor { get => Editors.Instance.Selected == this; }
 
         public string CurrentFilePath
         {
@@ -340,17 +351,17 @@ namespace Monkeyspeak.Editor.Controls
 
         private void GotKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
         {
-            if (Current == this) return;
-            Current = this;
-            pluginContainer.Execute(Current);
+            if (Editors.Instance.Selected == this) return;
+            Editors.Instance.Selected = this;
+            pluginContainer.Execute(this);
         }
 
         private void OnGotFocus(object sender, RoutedEventArgs e)
         {
-            if (Current == this) return;
-            Current = this;
+            if (Editors.Instance.Selected == this) return;
+            Editors.Instance.Selected = this;
             textEditor.Focus();
-            pluginContainer.Execute(Current);
+            pluginContainer.Execute(this);
         }
 
         private void OnLostFocus(object sender, RoutedEventArgs e)

@@ -931,7 +931,13 @@ namespace Monkeyspeak
             }
         }
 
-        public void ExecuteBlock(TriggerBlock triggerBlock, int causeIndex = 0, params object[] args)
+        /// <summary>
+        /// Executes the <seealso cref="TriggerBlock"/>.
+        /// </summary>
+        /// <param name="triggerBlock">The trigger block.</param>
+        /// <param name="triggerIndex">Index of the trigger.</param>
+        /// <param name="args">The arguments.</param>
+        public void ExecuteBlock(TriggerBlock triggerBlock, int triggerIndex, params object[] args)
         {
             var reader = new TriggerReader(this, triggerBlock)
             {
@@ -941,9 +947,10 @@ namespace Monkeyspeak
             Logger.Debug<Page>($"Block: {triggerBlock.ToString(',')}");
 
             int j = 0;
-            for (j = causeIndex; j <= triggerBlock.Count - 1; j++)
+            for (j = triggerIndex; j <= triggerBlock.Count - 1; j++)
             {
                 ExecuteTrigger(triggerBlock, ref j, reader);
+                // if j is -1 is used for flow triggers to break out of them, I know, a hack but it works
                 if (j == -1) break;
             }
         }
