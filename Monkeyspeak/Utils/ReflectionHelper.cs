@@ -46,6 +46,29 @@ namespace Monkeyspeak.Utils
             }
         }
 
+        public static IEnumerable<Type> GetParentTypes(Type type)
+        {
+            // is there any base type?
+            if ((type == null) || (type.BaseType == null) || type.IsAbstract)
+            {
+                yield break;
+            }
+
+            // return all implemented or inherited interfaces
+            foreach (var i in type.GetInterfaces())
+            {
+                yield return i;
+            }
+
+            // return all inherited types
+            var currentBaseType = type.BaseType;
+            while (currentBaseType != null)
+            {
+                yield return currentBaseType;
+                currentBaseType = currentBaseType.BaseType;
+            }
+        }
+
         public static IEnumerable<Type> GetAllBaseTypes(Type type)
         {
             var baseType = type;
@@ -80,7 +103,7 @@ namespace Monkeyspeak.Utils
             { yield break; }
             foreach (var type in types)
             {
-                if (!type.IsAbstract && !type.IsInterface && GetAllBaseTypes(type).Contains(desiredType))
+                if (GetParentTypes(type).Contains(desiredType))
                     yield return type;
             }
         }
@@ -97,13 +120,8 @@ namespace Monkeyspeak.Utils
             catch (Exception ex)
             { yield break; }
             foreach (var type in types)
-            {
-                if (!type.IsAbstract && !type.IsInterface && desiredType.IsAssignableFrom(type))
-                {
-                    Logger.Debug<ReflectionHelper>($"{type.FullName}");
+                if (GetParentTypes(type).Contains(desiredType))
                     yield return type;
-                }
-            }
         }
 
         public static IEnumerable<Assembly> GetAllAssemblies()

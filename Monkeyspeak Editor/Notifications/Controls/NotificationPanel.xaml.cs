@@ -1,7 +1,10 @@
 ﻿using MahApps.Metro;
+using MahApps.Metro.Controls;
+using MahApps.Metro.Controls.Dialogs;
 using Monkeyspeak.Editor.Interfaces.Notifications;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Markup;
 using System.Windows.Media;
 
 namespace Monkeyspeak.Editor.Notifications.Controls
@@ -42,7 +45,9 @@ namespace Monkeyspeak.Editor.Notifications.Controls
             {
                 if (this.notif == notif)
                 {
-                    ((ListView)this.Parent)?.Items?.Remove(this);
+                    var listView = Parent as ListView;
+                    if (listView != null)
+                        listView.Items.Remove(this);
                     NotificationManager.Instance.Removed -= NotificationManager_Removed;
                 }
             });
@@ -50,11 +55,19 @@ namespace Monkeyspeak.Editor.Notifications.Controls
 
         private void DismissButton_Click(object sender, RoutedEventArgs e)
         {
-            NotificationManager.Instance.RemoveNotification(notif);
+            Dispatcher.Invoke(() => NotificationManager.Instance.RemoveNotification(notif));
         }
 
         private void ContentContainer_Loaded(object sender, RoutedEventArgs e)
         {
+        }
+
+        private async void OnMouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            return;
+            var stackPanel = new StackPanel();
+            var content = XamlReader.Parse(XamlWriter.Save(ContentContainer.Content));
+            var contentElement = content as UIElement ?? new TextBlock { Text = content.ToString() };
         }
     }
 }

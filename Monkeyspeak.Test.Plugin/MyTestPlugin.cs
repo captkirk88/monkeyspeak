@@ -1,4 +1,6 @@
-﻿using Monkeyspeak.Editor.Interfaces.Plugins;
+﻿using Monkeyspeak.Editor;
+using Monkeyspeak.Editor.Interfaces.Plugins;
+using Monkeyspeak.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,18 +16,21 @@ namespace Monkeyspeak.Test.Plugin
     /// <seealso cref="Monkeyspeak.Editor.Plugins.Plugin" />
     public class MyTestPlugin : Editor.Plugins.Plugin
     {
-        public override void Execute(Editor.IEditor editor)
-        {
-            if (editor.HighlighterLanguage == "Monkeyspeak")
-            {
-                var selectedWord = editor.SelectedWord;
-                var selectedLine = editor.SelectedLine;
-                editor.SetTextColor(Colors.Red, editor.CaretLine, selectedLine.IndexOf(selectedWord), selectedLine.IndexOf(selectedWord) + selectedWord.Length);
-            }
-        }
-
         public override void Initialize()
         {
+        }
+
+        public override void OnEditorSelectionChanged(IEditor editor)
+        {
+            var selectedWord = editor.SelectedWord;
+            var selectedLine = editor.SelectedLine;
+            Logger.Debug<MyTestPlugin>($"Line: {editor.CaretLine - 1}, Start: {selectedLine.IndexOf(selectedWord)}, End: {selectedLine.IndexOf(selectedWord) + selectedWord.Length}");
+            editor.SetTextColor(Colors.Red, editor.CaretLine - 1, selectedLine.IndexOf(selectedWord), selectedLine.IndexOf(selectedWord) + selectedWord.Length);
+        }
+
+        public override void OnEditorTextChanged(IEditor editor)
+        {
+            throw new NotImplementedException();
         }
 
         public override void Unload()

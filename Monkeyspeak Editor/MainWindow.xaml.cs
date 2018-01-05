@@ -42,12 +42,17 @@ namespace Monkeyspeak.Editor
                 this.Dispatcher.Invoke(() =>
                 {
                     notifs_list.Items.Add(new NotificationPanel(notif));
-                    notifs_list.ScrollIntoView(notifs_list.Items[notifs_list.Items.Count - 1]);
+                    notifs_flyout_scroll.ScrollToBottom();
                 });
             };
             NotificationManager.Instance.Removed += notif =>
             {
-                this.Dispatcher.Invoke(() => notif_badge.Badge = NotificationManager.Instance.Count);
+                this.Dispatcher.Invoke(() =>
+                {
+                    notif_badge.Badge = NotificationManager.Instance.Count;
+                    notifs_list.Items.Remove(notif);
+                });
+
                 if (NotificationManager.Instance.Count == 0)
                 {
                     notifs_flyout.IsOpen = false;

@@ -1,4 +1,6 @@
-﻿using System;
+﻿using MahApps.Metro.Controls;
+using MahApps.Metro.Controls.Dialogs;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -19,6 +21,11 @@ namespace Monkeyspeak.Editor.Commands
 
         public async void Execute(object parameter)
         {
+            var window = (MetroWindow)Application.Current.MainWindow;
+            var dialog = await DialogManager.GetCurrentDialogAsync<BaseMetroDialog>(window);
+            if (dialog != null)
+                await DialogManager.HideMetroDialogAsync(window, dialog);
+
             var editors = Editors.Instance.All.ToArray();
             for (int i = editors.Length - 1; i >= 0; i--)
                 await editors[i].CloseAsync();

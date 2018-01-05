@@ -7,16 +7,17 @@
              xmlns:local="clr-namespace:Monkeyspeak.Editor"
              mc:Ignorable="d"
              Loaded="UserControl_Loaded"
+              MouseDoubleClick="OnMouseDoubleClick"
              d:DesignHeight="100" d:DesignWidth="150">
-    <StackPanel x:Name="Container" Width="Auto" MaxHeight="400" Height="Auto">
+    <StackPanel x:Name="Container" MaxWidth ="200" Width="Auto" MaxHeight="400" Height="Auto">
         <Controls:ContentControlEx x:Name="ContentContainer" VerticalAlignment="Top" HorizontalAlignment="Left"
                        Height="Auto"
-                       MinHeight="50"
-                       Width="150"
+                       MaxHeight="150"
+                       Width="Auto"
                        Padding="10,10,10,10"
                        Loaded="ContentContainer_Loaded"
                        Content="{Binding Path=Notification.Content}" />
-        <Button x:Name="DismissButton" Content="Dismiss"
+        <Button Name="DismissButton"
                     Width="Auto"
                     Height="Auto"
                     VerticalAlignment="Bottom"
@@ -24,6 +25,8 @@
                     Padding="1,1,1,1"
                     BorderBrush="Blue"
                     BorderThickness="1"
-                    Click="DismissButton_Click" />
+                    Click="DismissButton_Click">
+            <TextBlock HorizontalAlignment="Center">DISMISS</TextBlock>
+        </Button>
     </StackPanel>
 </UserControl>

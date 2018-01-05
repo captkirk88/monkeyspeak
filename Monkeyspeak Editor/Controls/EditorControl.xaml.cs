@@ -68,7 +68,23 @@ namespace Monkeyspeak.Editor.Controls
             DataContext = this;
 
             //textEditor.SyntaxHighlighting = HighlightingManager.Instance.GetDefinitionByExtension(".ms");
-            textEditor.TextChanged += (sender, args) => HasChanges = true;
+            textEditor.TextChanged += (sender, args) =>
+            {
+                HasChanges = true;
+                foreach (var plugin in pluginContainer.Plugins) plugin.OnEditorTextChanged(this);
+            };
+            textEditor.TextArea.SelectionChanged += (sender, args) =>
+            {
+                SelectedLine = Lines[textEditor.TextArea.Caret.Line - 1];
+                Logger.Debug<EditorControl>($"SelectedLine: {SelectedLine}");
+                var start = SelectedLine.IndexOf(textEditor.SelectedText);
+                Logger.Debug<EditorControl>($"Start: {start}");
+                var indexOf = SelectedLine.IndexOfAny(new char[] { ' ', '-', '{', '}' }, start);
+                Logger.Debug<EditorControl>($"Index of Space: {indexOf}");
+                SelectedWord = SelectedLine.Substring(start, indexOf != -1 ? indexOf : textEditor.SelectionLength > 0 ? textEditor.SelectionLength - start : SelectedLine.Length - start);
+                Logger.Debug<EditorControl>($"Word: {SelectedWord}");
+                foreach (var plugin in pluginContainer.Plugins) plugin.OnEditorSelectionChanged(this);
+            };
             textEditor.TextArea.Caret.PositionChanged += (sender, args) =>
             textEditor.Options.AllowScrollBelowDocument = true;
             textEditor.Options.HighlightCurrentLine = true;
@@ -106,7 +122,7 @@ namespace Monkeyspeak.Editor.Controls
                     {
                         result = await DialogManager.ShowMessageAsync(Application.Current.MainWindow as MetroWindow,
                                         "File Changed", $"The file {CurrentFilePath} was changed from a outside source, would you like to...?", MessageDialogStyle.AffirmativeAndNegativeAndSingleAuxiliary,
-                                        new MetroDialogSettings { AffirmativeButtonText = "Load Changes", NegativeButtonText = "Ignore Current/Future Changes", FirstAuxiliaryButtonText = "Save As" });
+                                        new MetroDialogSettings { DefaultButtonFocus = MessageDialogResult.Affirmative, AffirmativeButtonText = "Load Changes", NegativeButtonText = "Ignore Current/Future Changes", FirstAuxiliaryButtonText = "Save As" });
 
                         if (result == MessageDialogResult.Affirmative)
                         {
@@ -130,7 +146,7 @@ namespace Monkeyspeak.Editor.Controls
                     {
                         result = await DialogManager.ShowMessageAsync(Application.Current.MainWindow as MetroWindow,
                         "File Deleted", $"The file {CurrentFilePath} was deleted from a outside source, would you like to...?  The editor will remain open regardless of your choice so that you don't lose changes.", MessageDialogStyle.AffirmativeAndNegative,
-                        new MetroDialogSettings { AffirmativeButtonText = "Save Changes", NegativeButtonText = "Ignore This" });
+                        new MetroDialogSettings { DefaultButtonFocus = MessageDialogResult.Affirmative, AffirmativeButtonText = "Save Changes", NegativeButtonText = "Ignore This" });
 
                         if (result == MessageDialogResult.Affirmative)
                         {
@@ -185,8 +201,7 @@ namespace Monkeyspeak.Editor.Controls
 
         public int WordCount => textEditor.Text.Length;
 
-        // TODO improve selection to detect variables surrounded by {%var}
-        public string SelectedWord { get => textEditor.Text.Substring(textEditor.SelectionStart, textEditor.Text.IndexOf(" ", textEditor.SelectionStart)); }
+        public string SelectedWord { get; private set; }
 
         /// <summary>
         /// Gets the selected line without the ending newline character.
@@ -194,7 +209,7 @@ namespace Monkeyspeak.Editor.Controls
         /// <value>
         /// The selected line.
         /// </value>
-        public string SelectedLine { get => Lines[textEditor.TextArea.Caret.Line]; }
+        public string SelectedLine { get; private set; }
 
         /// <summary>
         /// Gets a value indicating whether this instance is the active editor, the one with the editor open.
@@ -313,9 +328,10 @@ namespace Monkeyspeak.Editor.Controls
             {
                 var result = await DialogManager.ShowMessageAsync((MetroWindow)Application.Current.MainWindow,
                     "Save?",
-                    "Changes were detected.  Would you like to save before closing?", MessageDialogStyle.AffirmativeAndNegative,
-                    new MetroDialogSettings { AffirmativeButtonText = "Save", NegativeButtonText = "Nah" });
+                    "Changes were detected.  Would you like to save before closing?", MessageDialogStyle.AffirmativeAndNegativeAndSingleAuxiliary,
+                    new MetroDialogSettings { AffirmativeButtonText = "Save", NegativeButtonText = "Nah", FirstAuxiliaryButtonText = "Cancel" });
                 if (result == MessageDialogResult.Affirmative) Save();
+                else if (result == MessageDialogResult.FirstAuxiliary) return;
             }
 
             Editors.Instance.Remove(this);
@@ -353,7 +369,6 @@ namespace Monkeyspeak.Editor.Controls
         {
             if (Editors.Instance.Selected == this) return;
             Editors.Instance.Selected = this;
-            pluginContainer.Execute(this);
         }
 
         private void OnGotFocus(object sender, RoutedEventArgs e)
@@ -361,7 +376,6 @@ namespace Monkeyspeak.Editor.Controls
             if (Editors.Instance.Selected == this) return;
             Editors.Instance.Selected = this;
             textEditor.Focus();
-            pluginContainer.Execute(this);
         }
 
         private void OnLostFocus(object sender, RoutedEventArgs e)
@@ -386,6 +400,16 @@ namespace Monkeyspeak.Editor.Controls
             if (e.Command == ApplicationCommands.Undo)
             {
                 // TODO remove save changes prompt if under eliminated those changes
+            }
+        }
+
+        private void OnMouseButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            if (e.ClickCount == 1)
+            {
+                if (Editors.Instance.Selected == this) return;
+                Editors.Instance.Selected = this;
+                Focus();
             }
         }
     }

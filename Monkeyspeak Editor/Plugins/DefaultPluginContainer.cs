@@ -14,7 +14,7 @@ namespace Monkeyspeak.Editor.Plugins
     internal class DefaultPluginContainer : IPluginContainer
     {
         private List<IPlugin> plugins = new List<IPlugin>();
-        public ICollection<IPlugin> Plugins { get => plugins; }
+        public ICollection<IPlugin> Plugins { get => plugins.Where(plugin => plugin.Enabled).ToArray(); }
 
         public void Initialize()
         {
@@ -25,22 +25,6 @@ namespace Monkeyspeak.Editor.Plugins
                 {
                     plugin.Initialize();
                     Logger.Debug<DefaultPluginContainer>($"Added plugin {plugin.Name}");
-                }
-                catch (Exception ex)
-                {
-                    Logger.Error<DefaultPluginContainer>(ex);
-                }
-            }
-        }
-
-        public void Execute(IEditor editor)
-        {
-            foreach (var plugin in plugins)
-            {
-                try
-                {
-                    if (plugin.Enabled)
-                        plugin.Execute(editor);
                 }
                 catch (Exception ex)
                 {

@@ -6,8 +6,6 @@ namespace Monkeyspeak.Editor.Interfaces.Plugins
     {
         void Initialize();
 
-        void Execute(IEditor editor);
-
         void Unload();
 
         ICollection<IPlugin> Plugins { get; }

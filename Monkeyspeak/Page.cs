@@ -789,7 +789,7 @@ namespace Monkeyspeak
             var current = triggerBlock[index];
             handlers.TryGetValue(current, out TriggerHandler handler);
 
-            if (handler == null) Logger.Debug<Page>($"No handler found for {current}");
+            if (handler == null) Logger.Error<Page>($"No handler found for {current}");
 
             reader.Trigger = current;
             reader.CurrentBlockIndex = index;
@@ -929,8 +929,6 @@ namespace Monkeyspeak
             {
                 Parameters = args
             };
-
-            Logger.Debug<Page>($"Block: {triggerBlock.ToString(',')}");
 
             int j = 0;
             for (j = triggerIndex; j <= triggerBlock.Count - 1; j++)

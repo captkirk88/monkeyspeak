@@ -53,6 +53,10 @@
       <Project>{3429d7ee-1715-4ff4-a686-2614e255d8f7}</Project>
       <Name>Monkeyspeak.Editor.Plugins</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Monkeyspeak\Monkeyspeak.csproj">
+      <Project>{925781E6-8B75-471B-887F-616495BBBFDD}</Project>
+      <Name>Monkeyspeak</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

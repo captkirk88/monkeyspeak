@@ -223,17 +223,14 @@ namespace MonkeyspeakTests
 
             // Trigger count created by subscribing to TriggerAdded event and putting triggers into a list.
             Console.WriteLine("Trigger Count: " + page.Size);
-            //Assert.Greater(page.Size, 0);
-            //Assert.Throws<VariableIsConstantException>(() => page.Execute());
+            Assert.Greater(page.Size, 0);
             page.Error += DebugAllErrors;
             Logger.Debug("Creating cancellation token");
-            //CancellationTokenSource cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromMilliseconds(500));
-            await page.ExecuteAsync(new int[] { 0, 0, 0 });
+            page.Execute();
             foreach (var variable in page.Scope)
             {
                 Console.WriteLine(variable.ToString());
             }
-            //cancellationTokenSource.Dispose();
         }
 
         [Test]

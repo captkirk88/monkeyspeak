@@ -8,11 +8,21 @@ namespace Monkeyspeak.Editor.Interfaces.Plugins
         void Initialize();
 
         /// <summary>
-        /// Executes on the current Editor that has focus.
+        /// Called when [editor text changed].
         /// </summary>
         /// <param name="editor">The editor.</param>
-        void Execute(IEditor editor);
+        void OnEditorTextChanged(IEditor editor);
 
+        /// <summary>
+        /// Called when [editor selection changed].
+        /// </summary>
+        /// <param name="editor">The editor.</param>
+        void OnEditorSelectionChanged(IEditor editor);
+
+        /// <summary>
+        /// Adds the notification to the notification panel.
+        /// </summary>
+        /// <param name="notif">The notif.</param>
         void AddNotification(INotification notif);
 
         /// <summary>
