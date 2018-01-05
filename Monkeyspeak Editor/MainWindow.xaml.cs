@@ -42,12 +42,17 @@ namespace Monkeyspeak.Editor
                 this.Dispatcher.Invoke(() =>
                 {
                     notifs_list.Items.Add(new NotificationPanel(notif));
-                    notifs_list.ScrollIntoView(notifs_list.Items[notifs_list.Items.Count - 1]);
+                    notifs_flyout_scroll.ScrollToBottom();
                 });
             };
             NotificationManager.Instance.Removed += notif =>
             {
-                this.Dispatcher.Invoke(() => notif_badge.Badge = NotificationManager.Instance.Count);
+                this.Dispatcher.Invoke(() =>
+                {
+                    notif_badge.Badge = NotificationManager.Instance.Count;
+                    notifs_list.Items.Remove(notif);
+                });
+
                 if (NotificationManager.Instance.Count == 0)
                 {
                     notifs_flyout.IsOpen = false;
@@ -86,11 +91,14 @@ namespace Monkeyspeak.Editor
 
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
+            e.Handled = true;
             notifs_flyout.AutoCloseInterval = 3000;
             notifs_flyout.IsAutoCloseEnabled = false;
 
             if (Editors.Instance.IsEmpty)
                 new NewEditorCommand().Execute(null);
+
+            NotificationManager.Instance.AddNotification(new WelcomeNotification());
             plugins.Initialize();
         }
 
@@ -103,6 +111,7 @@ namespace Monkeyspeak.Editor
 
         private void Console_Click(object sender, RoutedEventArgs e)
         {
+            // TODO create console.Toggle() method
             if (console.Visibility != Visibility.Visible)
             {
                 console.Show();
@@ -136,11 +145,13 @@ namespace Monkeyspeak.Editor
         {
         }
 
-        private void TriggerList_SelectionChanged(Tuple<string, string> kv)
+        private void TriggerList_SelectionChanged(string trigger, string lib)
         {
             if (Editors.Instance.Selected != null)
             {
-                Editors.Instance.Selected.InsertLine(Editors.Instance.Selected.CaretLine, kv.Item1);
+                if (Editors.Instance.Selected.CaretLine > 0)
+                    Editors.Instance.Selected.InsertAtCaretLine(trigger);
+                else Editors.Instance.Selected.AddLine(trigger);
             }
         }
 

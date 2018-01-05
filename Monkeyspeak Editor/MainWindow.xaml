@@ -52,23 +52,43 @@
             <Controls:Flyout x:Name="notifs_flyout" Position="Right" TitleVisibility="Hidden"
                              IsVisibleChanged="notifs_flyout_IsVisibleChanged"
                              Width="Auto">
-                <ListView x:Name="notifs_list" Width="Auto">
-                    <ListView.ItemContainerStyle>
-                        <Style TargetType="{x:Type ListViewItem}">
-                            <Setter Property="Background" Value="Transparent" />
-                            <Setter Property="Template">
-                                <Setter.Value>
-                                    <ControlTemplate TargetType="{x:Type ListViewItem}">
-                                        <ContentPresenter />
-                                    </ControlTemplate>
-                                </Setter.Value>
-                            </Setter>
-                        </Style>
-                    </ListView.ItemContainerStyle>
-                </ListView>
+                <ScrollViewer x:Name="notifs_flyout_scroll" Width="Auto">
+                    <ListView x:Name="notifs_list" Width="Auto">
+                        <ListView.ItemContainerStyle>
+                            <Style TargetType="{x:Type ListViewItem}">
+                                <Setter Property="Background" Value="Transparent" />
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="{x:Type ListViewItem}">
+                                            <ContentPresenter />
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                            </Style>
+                        </ListView.ItemContainerStyle>
+                    </ListView>
+                </ScrollViewer>
             </Controls:Flyout>
         </Controls:FlyoutsControl>
     </Controls:MetroWindow.Flyouts>
+
+    <Controls:MetroWindow.LeftWindowCommands>
+        <Controls:WindowCommands>
+            <Button Background="Transparent"
+                    BorderBrush="Transparent"
+                    BorderThickness="0">
+                <TextBlock Text="M" FontFamily="Arial" FontWeight="ExtraBold" />
+                <Button.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem Header="Restore" />
+                        <MenuItem Header="Minimize" />
+                        <Separator />
+                        <MenuItem Header="Exit" Command="{x:Static commands:MonkeyspeakCommands.Exit}" />
+                    </ContextMenu>
+                </Button.ContextMenu>
+            </Button>
+        </Controls:WindowCommands>
+    </Controls:MetroWindow.LeftWindowCommands>
 
     <Controls:MetroWindow.RightWindowCommands>
         <Controls:WindowCommands>
@@ -99,23 +119,6 @@
             </Button>
         </Controls:WindowCommands>
     </Controls:MetroWindow.RightWindowCommands>
-
-    <Controls:MetroWindow.LeftWindowCommands>
-        <Controls:WindowCommands>
-            <Button Background="Transparent"
-                    BorderBrush="Transparent"
-                    BorderThickness="0">
-                <TextBlock Text="M" FontFamily="Arial" FontWeight="ExtraBold" />
-                <Button.ContextMenu>
-                    <ContextMenu>
-                        <MenuItem Header="Restore" />
-                        <MenuItem Header="Close" Command="{x:Static commands:MonkeyspeakCommands.Close}" />
-                        <MenuItem Header="Exit" Command="{x:Static commands:MonkeyspeakCommands.Exit}" />
-                    </ContextMenu>
-                </Button.ContextMenu>
-            </Button>
-        </Controls:WindowCommands>
-    </Controls:MetroWindow.LeftWindowCommands>
 
     <Grid Width="Auto" Height="Auto">
         <Grid.RowDefinitions>

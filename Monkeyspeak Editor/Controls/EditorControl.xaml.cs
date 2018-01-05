@@ -32,7 +32,6 @@ namespace Monkeyspeak.Editor.Controls
     /// </summary>
     public partial class EditorControl : MetroTabItem, IEditor, INotifyPropertyChanged
     {
-        public static EditorControl Current { get => Editors.Instance.Selected; set => Editors.Instance.Selected = value; }
         private static IPluginContainer pluginContainer = new DefaultPluginContainer();
 
         static EditorControl()
@@ -67,10 +66,36 @@ namespace Monkeyspeak.Editor.Controls
         {
             InitializeComponent();
             DataContext = this;
+
             //textEditor.SyntaxHighlighting = HighlightingManager.Instance.GetDefinitionByExtension(".ms");
-            Visibility = Visibility.Visible;
+            textEditor.TextChanged += (sender, args) =>
+            {
+                HasChanges = true;
+                foreach (var plugin in pluginContainer.Plugins) plugin.OnEditorTextChanged(this);
+            };
+            textEditor.TextArea.SelectionChanged += (sender, args) =>
+            {
+                SelectedLine = Lines[textEditor.TextArea.Caret.Line - 1];
+                Logger.Debug<EditorControl>($"SelectedLine: {SelectedLine}");
+                var start = SelectedLine.IndexOf(textEditor.SelectedText);
+                Logger.Debug<EditorControl>($"Start: {start}");
+                var indexOf = SelectedLine.IndexOfAny(new char[] { ' ', '-', '{', '}' }, start);
+                Logger.Debug<EditorControl>($"Index of Space: {indexOf}");
+                SelectedWord = SelectedLine.Substring(start, indexOf != -1 ? indexOf : textEditor.SelectionLength > 0 ? textEditor.SelectionLength - start : SelectedLine.Length - start);
+                Logger.Debug<EditorControl>($"Word: {SelectedWord}");
+                foreach (var plugin in pluginContainer.Plugins) plugin.OnEditorSelectionChanged(this);
+            };
+            textEditor.TextArea.Caret.PositionChanged += (sender, args) =>
+            textEditor.Options.AllowScrollBelowDocument = true;
+            textEditor.Options.HighlightCurrentLine = true;
+            textEditor.Options.EnableImeSupport = true;
+            textEditor.Options.EnableHyperlinks = true;
+            textEditor.Options.CutCopyWholeLine = true;
             textEditor.ShowLineNumbers = true;
-            Title = "New";
+
+            Visibility = Visibility.Visible;
+
+            Title = "new";
 
             fileWatcher = new FileSystemWatcher
             {
@@ -79,6 +104,9 @@ namespace Monkeyspeak.Editor.Controls
             fileWatcher.Changed += FileWatcher_Raised;
             fileWatcher.Renamed += FileWatcher_Raised;
             fileWatcher.Deleted += FileWatcher_Raised;
+
+            // set this as the active editor since it was new
+            Editors.Instance.Selected = this;
         }
 
         private void FileWatcher_Raised(object sender, FileSystemEventArgs e)
@@ -94,7 +122,7 @@ namespace Monkeyspeak.Editor.Controls
                     {
                         result = await DialogManager.ShowMessageAsync(Application.Current.MainWindow as MetroWindow,
                                         "File Changed", $"The file {CurrentFilePath} was changed from a outside source, would you like to...?", MessageDialogStyle.AffirmativeAndNegativeAndSingleAuxiliary,
-                                        new MetroDialogSettings { AffirmativeButtonText = "Load Changes", NegativeButtonText = "Ignore Current/Future Changes", FirstAuxiliaryButtonText = "Save As" });
+                                        new MetroDialogSettings { DefaultButtonFocus = MessageDialogResult.Affirmative, AffirmativeButtonText = "Load Changes", NegativeButtonText = "Ignore Current/Future Changes", FirstAuxiliaryButtonText = "Save As" });
 
                         if (result == MessageDialogResult.Affirmative)
                         {
@@ -118,7 +146,7 @@ namespace Monkeyspeak.Editor.Controls
                     {
                         result = await DialogManager.ShowMessageAsync(Application.Current.MainWindow as MetroWindow,
                         "File Deleted", $"The file {CurrentFilePath} was deleted from a outside source, would you like to...?  The editor will remain open regardless of your choice so that you don't lose changes.", MessageDialogStyle.AffirmativeAndNegative,
-                        new MetroDialogSettings { AffirmativeButtonText = "Save Changes", NegativeButtonText = "Ignore This" });
+                        new MetroDialogSettings { DefaultButtonFocus = MessageDialogResult.Affirmative, AffirmativeButtonText = "Save Changes", NegativeButtonText = "Ignore This" });
 
                         if (result == MessageDialogResult.Affirmative)
                         {
@@ -140,14 +168,17 @@ namespace Monkeyspeak.Editor.Controls
 
         public bool HasChanges { get => _hasChanges; set => SetField(ref _hasChanges, value); }
 
-        public void InsertLine(int line, string text)
+        public void InsertAtCaretLine(string text)
         {
-            text = text.Replace(Environment.NewLine, string.Empty);
+            var line = CaretLine - 1; // caret line is not 0 based, initial value is 1
+            text = text.Replace("\n", string.Empty);
             var lines = new List<string>(textEditor.Text.Split('\n'));
-            if (line > lines.Count)
-                lines.Add(text);
+            if (line < lines.Count)
+                if (string.IsNullOrWhiteSpace(lines[line]) || lines[line][0] == '\n')
+                    lines[line] = text;
+                else lines.Insert(line, text);
             else
-                lines.Insert(line, text);
+                lines.Add(text);
             for (int i = lines.Count - 1; i >= 0; i--) lines[i] = lines[i].Replace("\n", string.Empty);
             textEditor.Text = string.Join("\n", lines);
         }
@@ -155,7 +186,7 @@ namespace Monkeyspeak.Editor.Controls
         public void AddLine(string text)
         {
             text = text.Replace(Environment.NewLine, string.Empty);
-            textEditor.Text += Environment.NewLine + text;
+            textEditor.AppendText(Environment.NewLine + text);
         }
 
         public IList<string> Lines
@@ -170,8 +201,7 @@ namespace Monkeyspeak.Editor.Controls
 
         public int WordCount => textEditor.Text.Length;
 
-        // TODO improve selection to detect variables surrounded by {%var}
-        public string SelectedWord { get => textEditor.Text.Substring(textEditor.SelectionStart, textEditor.Text.IndexOf(" ", textEditor.SelectionStart)); }
+        public string SelectedWord { get; private set; }
 
         /// <summary>
         /// Gets the selected line without the ending newline character.
@@ -179,7 +209,7 @@ namespace Monkeyspeak.Editor.Controls
         /// <value>
         /// The selected line.
         /// </value>
-        public string SelectedLine { get => Lines[textEditor.TextArea.Caret.Line]; }
+        public string SelectedLine { get; private set; }
 
         /// <summary>
         /// Gets a value indicating whether this instance is the active editor, the one with the editor open.
@@ -187,7 +217,7 @@ namespace Monkeyspeak.Editor.Controls
         /// <value>
         ///   <c>true</c> if this instance is active editor; otherwise, <c>false</c>.
         /// </value>
-        public bool IsActiveEditor { get => Current == this; }
+        public bool IsActiveEditor { get => Editors.Instance.Selected == this; }
 
         public string CurrentFilePath
         {
@@ -233,7 +263,7 @@ namespace Monkeyspeak.Editor.Controls
                         HighlightingManager.Instance.GetDefinitionByExtension(System.IO.Path.GetExtension(CurrentFilePath)) ??
                         HighlightingManager.Instance.GetDefinition("Monkeyspeak");
             }
-            return opened.GetValueOrDefault(false);
+            return opened ?? false;
         }
 
         public void Save()
@@ -245,6 +275,7 @@ namespace Monkeyspeak.Editor.Controls
                 {
                     DefaultExt = ".ms",
                     AddExtension = true,
+                    RestoreDirectory = false,
                     Filter = "Monkeyspeak Script |*.ms|All files (*.*)|*.*"
                 };
                 if (dlg.ShowDialog() ?? false)
@@ -297,9 +328,10 @@ namespace Monkeyspeak.Editor.Controls
             {
                 var result = await DialogManager.ShowMessageAsync((MetroWindow)Application.Current.MainWindow,
                     "Save?",
-                    "Changes were detected.  Would you like to save before closing?", MessageDialogStyle.AffirmativeAndNegative,
-                    new MetroDialogSettings { AffirmativeButtonText = "Save", NegativeButtonText = "Nah" });
+                    "Changes were detected.  Would you like to save before closing?", MessageDialogStyle.AffirmativeAndNegativeAndSingleAuxiliary,
+                    new MetroDialogSettings { AffirmativeButtonText = "Save", NegativeButtonText = "Nah", FirstAuxiliaryButtonText = "Cancel" });
                 if (result == MessageDialogResult.Affirmative) Save();
+                else if (result == MessageDialogResult.FirstAuxiliary) return;
             }
 
             Editors.Instance.Remove(this);
@@ -335,25 +367,19 @@ namespace Monkeyspeak.Editor.Controls
 
         private void GotKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
         {
-            if (Current == this) return;
-            Current = this;
-            pluginContainer.Execute(Current);
+            if (Editors.Instance.Selected == this) return;
+            Editors.Instance.Selected = this;
         }
 
         private void OnGotFocus(object sender, RoutedEventArgs e)
         {
-            if (Current == this) return;
-            Current = this;
-            pluginContainer.Execute(Current);
+            if (Editors.Instance.Selected == this) return;
+            Editors.Instance.Selected = this;
+            textEditor.Focus();
         }
 
         private void OnLostFocus(object sender, RoutedEventArgs e)
         {
-        }
-
-        private void textEditor_TextChanged(object sender, EventArgs e)
-        {
-            HasChanges = true;
         }
 
         protected bool SetField<T>(ref T field, T value, [CallerMemberName] string propertyName = null)
@@ -374,6 +400,16 @@ namespace Monkeyspeak.Editor.Controls
             if (e.Command == ApplicationCommands.Undo)
             {
                 // TODO remove save changes prompt if under eliminated those changes
+            }
+        }
+
+        private void OnMouseButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            if (e.ClickCount == 1)
+            {
+                if (Editors.Instance.Selected == this) return;
+                Editors.Instance.Selected = this;
+                Focus();
             }
         }
     }

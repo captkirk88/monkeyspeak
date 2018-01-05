@@ -16,7 +16,7 @@
                        Width="Auto" Height="Auto"
                        Controls:TabControlHelper.Transition="LeftReplace"
                        CloseButtonEnabled="False"
-                       GotFocus="OnGotFocus" LostFocus="OnLostFocus">
+                       GotFocus="OnGotFocus" LostFocus="OnLostFocus" MouseDown="OnMouseButtonDown">
 
     <Controls:MetroTabItem.CommandBindings>
         <CommandBinding Command="Undo" Executed="CommandBinding_Executed" />
@@ -118,7 +118,7 @@
 				FontFamily="Consolas"
 				FontSize="10pt"
 				SyntaxHighlighting="Monkeyspeak"
-                Background="White" TextChanged="textEditor_TextChanged">
+                Background="White">
                 <avalonEdit:TextEditor.ContextMenu>
                     <ContextMenu>
                         <MenuItem Command="Cut" />

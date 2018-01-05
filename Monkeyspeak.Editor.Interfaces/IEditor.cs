@@ -69,11 +69,11 @@ namespace Monkeyspeak.Editor
         string SelectedLine { get; }
 
         /// <summary>
-        /// Inserts the text at the specified line, moving any lines below it down.
+        /// Inserts the text at the caret's line, moving any lines below it down.
         /// </summary>
         /// <param name="line">The line.</param>
         /// <param name="text">The text.</param>
-        void InsertLine(int line, string text);
+        void InsertAtCaretLine(string text);
 
         /// <summary>
         /// Adds the text at the end of the current editor.

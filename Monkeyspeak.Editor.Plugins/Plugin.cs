@@ -34,15 +34,13 @@ namespace Monkeyspeak.Editor.Plugins
         }
 
         /// <summary>
-        /// Executes on the current Editor that has focus.
-        /// </summary>
-        /// <param name="editor">The editor.</param>
-        public abstract void Execute(IEditor editor);
-
-        /// <summary>
         /// Initializes the specified plugin container.
         /// </summary>
         public abstract void Initialize();
+
+        public abstract void OnEditorSelectionChanged(IEditor editor);
+
+        public abstract void OnEditorTextChanged(IEditor editor);
 
         /// <summary>
         /// Unloads this instance.

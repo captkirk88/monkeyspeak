@@ -205,22 +205,6 @@ namespace Monkeyspeak
         }
 
         /// <summary>
-        /// Gets the parameters of a certain type.
-        ///
-        /// <para>
-        /// See also <seealso cref="TryGetParameter{T}(int, out T)"/>
-        /// </para>
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
-        public IEnumerable<object> EnumerateParameters()
-        {
-            if (args != null && args.Length > 0)
-                return args.AsEnumerable();
-            return Enumerable.Empty<object>();
-        }
-
-        /// <summary>
         /// Reads the next String, throws TriggerReaderException on failure
         /// </summary>
         /// <param name="processVariables">[true] process variables and replace them with their values; [false] do nothing</param>

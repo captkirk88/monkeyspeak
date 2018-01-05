@@ -155,6 +155,14 @@ namespace MonkeyspeakTests
 (6:450) %answer %life(5:150) %answer 1(1:102) %answer 21(5:450)(6:454)(5:102) {%answer}(5:102) {We may never know the answer...}
 ";
 
+        public static string testGerolkaeTemplate = @"
+*MSPK V04.00 Silver Monkey
+*MonkeySpeak Script File
+*Created by <name>
+
+*Endtriggers* 8888 *Endtriggers*
+";
+
         [SetUp]
         public void Initialize()
         {
@@ -200,11 +208,11 @@ namespace MonkeyspeakTests
         }
 
         [Test]
-        public void DemoTest()
+        public async Task DemoTest()
         {
             var engine = new MonkeyspeakEngine();
             engine.Options.Debug = true;
-            Logger.LogOutput = new FileLogger();
+            Logger.LogOutput = new MultiLogOutput(new FileLogger(Level.Debug), new FileLogger(), new FileLogger(Level.Info));
             Page page = engine.LoadFromString(testScript);
 
             page.LoadAllLibraries();
@@ -216,9 +224,9 @@ namespace MonkeyspeakTests
             // Trigger count created by subscribing to TriggerAdded event and putting triggers into a list.
             Console.WriteLine("Trigger Count: " + page.Size);
             Assert.Greater(page.Size, 0);
-            Assert.Throws<VariableIsConstantException>(() => page.Execute());
             page.Error += DebugAllErrors;
-            Assert.DoesNotThrow(() => page.Execute());
+            Logger.Debug("Creating cancellation token");
+            page.Execute();
             foreach (var variable in page.Scope)
             {
                 Console.WriteLine(variable.ToString());

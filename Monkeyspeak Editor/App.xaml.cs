@@ -50,6 +50,11 @@ namespace Monkeyspeak.Editor
         {
             InitializeComponent();
             Logger.LogOutput = new MultiLogOutput(new FileLogger(), new FileLogger(Level.Debug));
+            DispatcherUnhandledException += (sender, e) =>
+            {
+                e.Handled = true;
+                Logger.Error<App>(e.Exception);
+            };
         }
 
         private void Application_Startup(object sender, StartupEventArgs e)
@@ -59,14 +64,10 @@ namespace Monkeyspeak.Editor
             MainWindow.Show();
         }
 
-        private void Application_DispatcherUnhandledException(object sender, System.Windows.Threading.DispatcherUnhandledExceptionEventArgs e)
-        {
-            Logger.Error<App>(e.Exception);
-        }
-
         [STAThread]
         public static void Main()
         {
+            AppDomain.CurrentDomain.UnhandledException += (sender, args) => Logger.Error($"{sender.GetType().Name}: {args.ExceptionObject}");
             var app = new App();
             app.Run();
         }

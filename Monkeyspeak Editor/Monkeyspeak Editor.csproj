@@ -140,7 +140,6 @@
     <Compile Include="HelperClasses\CommandManagerHelper.cs" />
     <Compile Include="HelperClasses\DelegateCommand.cs" />
     <Compile Include="Logging\ConsoleWindowLogOutput.cs" />
-    <Compile Include="Logging\MutliLogOutput.cs" />
     <Compile Include="Logging\NotificationPanelLogOutput.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
@@ -157,6 +156,7 @@
     </Compile>
     <Compile Include="Notifications\NotificationManager.cs" />
     <Compile Include="Notifications\StringNotification.cs" />
+    <Compile Include="Notifications\WelcomeNotification.cs" />
     <Compile Include="Plugins\DefaultPluginContainer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
@@ -190,6 +190,10 @@
     <ProjectReference Include="..\Monkeyspeak.Editor.Interfaces\Monkeyspeak.Editor.Interfaces.csproj">
       <Project>{CF6EA88D-BEE4-4DEB-A4D1-CA6D6E263AC6}</Project>
       <Name>Monkeyspeak.Editor.Interfaces</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Monkeyspeak.Editor.Plugins\Monkeyspeak.Editor.Plugins.csproj">
+      <Project>{3429d7ee-1715-4ff4-a686-2614e255d8f7}</Project>
+      <Name>Monkeyspeak.Editor.Plugins</Name>
     </ProjectReference>
     <ProjectReference Include="..\Monkeyspeak\Monkeyspeak.csproj">
       <Project>{925781e6-8b75-471b-887f-616495bbbfdd}</Project>

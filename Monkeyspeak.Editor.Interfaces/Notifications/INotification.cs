@@ -8,7 +8,5 @@ namespace Monkeyspeak.Editor.Interfaces.Notifications
     public interface INotification
     {
         object Content { get; }
-        Color ForegroundColor { get; }
-        Color BackgroundColor { get; }
     }
 }
