@@ -36,22 +36,19 @@ namespace Monkeyspeak.Editor
             console = new ConsoleWindow();
             ((MultiLogOutput)Logger.LogOutput).Add(new NotificationPanelLogOutput(Level.Error), new ConsoleWindowLogOutput(console));
 
-            NotificationManager.Instance.Added += notif =>
+            NotificationManager.Instance.Added += notif => this.Dispatcher.Invoke(() =>
             {
-                this.Dispatcher.Invoke(() =>
+                var count = NotificationManager.Instance.Count;
+                if (count == 0)
                 {
-                    var count = NotificationManager.Instance.Count;
-                    if (count == 0)
-                    {
-                        notifs_flyout.IsOpen = false;
-                        notif_badge.Badge = "";
-                    }
-                    else notif_badge.Badge = count;
+                    notifs_flyout.IsOpen = false;
+                    notif_badge.Badge = "";
+                }
+                else notif_badge.Badge = count;
 
-                    notifs_list.Items.Add(new NotificationPanel(notif));
-                    notifs_flyout_scroll.ScrollToBottom();
-                });
-            };
+                notifs_list.Items.Add(new NotificationPanel(notif));
+                notifs_flyout_scroll.ScrollToBottom();
+            });
             NotificationManager.Instance.Removed += notif => Dispatcher.Invoke(() =>
             {
                 var count = NotificationManager.Instance.Count;

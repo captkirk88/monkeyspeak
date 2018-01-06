@@ -22,14 +22,14 @@ namespace Monkeyspeak.Editor.Controls
     {
         private Paragraph paragraph;
         internal List<IConsoleCommand> commands;
-        internal Deque<string> history;
+        internal LinkedList<string> history;
 
         public ConsoleWindow()
         {
             InitializeComponent();
             this.paragraph = new Paragraph();
             console.Document = new FlowDocument(paragraph);
-            history = new Deque<string>();
+            history = new LinkedList<string>();
             commands = new List<IConsoleCommand>();
             foreach (var asm in ReflectionHelper.GetAllAssemblies())
             {
@@ -82,31 +82,62 @@ namespace Monkeyspeak.Editor.Controls
             DataContext = this;
         }
 
-        private void input_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+        private LinkedListNode<string> node;
+
+        private void input_PreviewKeyDown(object sender, System.Windows.Input.KeyEventArgs e)
         {
             if (e.Key == System.Windows.Input.Key.Return)
             {
                 e.Handled = true;
+                if (history.Contains(input.Text))
+                    history.Remove(input.Text);
+                history.AddFirst(input.Text);
+                if (history.Count > 10)
+                {
+                    while (history.Count > 10) history.RemoveLast();
+                }
                 var commandsFound = commands.FindAll(c => input.Text.StartsWith(c.Command, StringComparison.InvariantCultureIgnoreCase));
                 if (commandsFound.Count > 0)
                 {
-                    history.PushFront(input.Text);
                     foreach (var command in commandsFound)
                     {
-                        command.Invoke(this, input.Text.Split(' '));
+                        try
+                        {
+                            command.Invoke(this, Editors.Instance.Selected,
+                                input.Text.Substring(command.Command.Length).Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries) ?? new string[0]);
+                        }
+                        catch (Exception ex)
+                        {
+                            Logger.Error($"Failed to execute {command.Command}\n{ex}");
+                        }
                     }
+                    input.Text = null;
                 }
-                else
-                {
-                    WriteLine(input.Text, Colors.White);
-                }
-                input.Text = null;
             }
             else if (e.Key == System.Windows.Input.Key.Up)
             {
+                e.Handled = true;
                 if (history.Count > 0)
                 {
-                    input.Text = history.PopFront();
+                    if (node == null) node = history.First;
+                    else
+                    {
+                        node = node.Next;
+                    }
+                    input.Text = node?.Value;
+                }
+            }
+            else if (e.Key == System.Windows.Input.Key.Down)
+            {
+                e.Handled = true;
+                if (history.Count > 0)
+                {
+                    if (node == null) node = history.Last;
+                    else
+                    {
+                        node = node.Previous;
+                    }
+                    input.Text = node?.Value;
                 }
             }
         }

@@ -159,7 +159,13 @@ namespace Monkeyspeak.Editor.Controls
         }
 
         public string Title { get => _title; set => SetField(ref _title, value); }
-        public string HighlighterLanguage => textEditor.SyntaxHighlighting.Name;
+
+        public string HighlighterLanguage
+        {
+            get => textEditor.SyntaxHighlighting.Name;
+            set => textEditor.SyntaxHighlighting = HighlightingManager.Instance.GetDefinition(value) ??
+                HighlightingManager.Instance.GetDefinition("Monkeyspeak");
+        }
 
         public int CaretLine
         {
@@ -187,6 +193,13 @@ namespace Monkeyspeak.Editor.Controls
         {
             text = text.Replace(Environment.NewLine, string.Empty);
             textEditor.AppendText(Environment.NewLine + text);
+        }
+
+        public void AddLine(string text, Color color)
+        {
+            text = text.Replace(Environment.NewLine, string.Empty);
+            textEditor.AppendText(Environment.NewLine + text);
+            SetTextColor(color, Lines.Count - 1, 0, text.Length - 1);
         }
 
         public IList<string> Lines

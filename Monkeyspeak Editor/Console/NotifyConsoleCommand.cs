@@ -9,7 +9,7 @@ namespace Monkeyspeak.Editor.Console
 
         public string Help => "Sends a notification";
 
-        public void Invoke(IConsole console, params string[] args)
+        public void Invoke(IConsole console, IEditor editor, params string[] args)
         {
             var message = string.Join(" ", args);
             if (!string.IsNullOrWhiteSpace(message))

@@ -3,6 +3,7 @@ using Monkeyspeak.Logging;
 using Monkeyspeak.Utils;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -12,15 +13,15 @@ namespace Monkeyspeak.Editor.Plugins
 {
     internal static class Plugins
     {
-        private static List<IPlugin> plugins;
+        private static ObservableCollection<IPlugin> plugins;
 
         static Plugins()
         {
-            plugins = new List<IPlugin>();
-            plugins.AddRange(GetAllPlugins());
+            plugins = new ObservableCollection<IPlugin>();
+            foreach (var plugin in GetAllPlugins()) plugins.Add(plugin);
         }
 
-        public static IReadOnlyCollection<IPlugin> All => plugins.AsReadOnly();
+        public static ObservableCollection<IPlugin> All => plugins;
 
         public static void Add(IPlugin plugin)
         {
@@ -43,7 +44,7 @@ namespace Monkeyspeak.Editor.Plugins
                     {
                         if (ReflectionHelper.TryCreate(type, out var plugin))
                         {
-                            Logger.Debug($"Registering console command {type.Name}", null);
+                            Logger.Debug($"Registering plugin {type.Name}", null);
                             yield return (IPlugin)plugin;
                         }
                     }
