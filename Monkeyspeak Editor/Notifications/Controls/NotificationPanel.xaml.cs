@@ -22,13 +22,24 @@ namespace Monkeyspeak.Editor.Notifications.Controls
         {
             InitializeComponent();
             Unloaded += NotificationPanel_Unloaded;
-            NotificationManager.Instance.Removed += NotificationManager_Removed;
+            NotificationManager.Instance.Removed += Notification_Removed;
             DataContext = this;
+        }
+
+        private void Notification_Removed(INotification notif)
+        {
+            if (notif == this.notif)
+                Delete();
         }
 
         public NotificationPanel(INotification notif) : this()
         {
             this.notif = notif;
+        }
+
+        public void Delete()
+        {
+            (Parent as ListView).Items.Remove(this);
         }
 
         private void UserControl_Loaded(object sender, RoutedEventArgs e)
@@ -39,23 +50,9 @@ namespace Monkeyspeak.Editor.Notifications.Controls
         {
         }
 
-        private void NotificationManager_Removed(INotification notif)
-        {
-            this.Dispatcher.Invoke(() =>
-            {
-                if (this.notif == notif)
-                {
-                    var listView = Parent as ListView;
-                    if (listView != null)
-                        listView.Items.Remove(this);
-                    NotificationManager.Instance.Removed -= NotificationManager_Removed;
-                }
-            });
-        }
-
         private void DismissButton_Click(object sender, RoutedEventArgs e)
         {
-            Dispatcher.Invoke(() => NotificationManager.Instance.RemoveNotification(notif));
+            NotificationManager.Instance.RemoveNotification(notif);
         }
 
         private void ContentContainer_Loaded(object sender, RoutedEventArgs e)

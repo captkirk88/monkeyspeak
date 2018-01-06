@@ -76,5 +76,53 @@ namespace Monkeyspeak.Extensions
         {
             return string.IsNullOrEmpty(str) || (str.Length == 1 && str[0] == ' ');
         }
+
+        public static string LeftOf(this string str, char c)
+        {
+            int index = str.IndexOf(c);
+            return (index > 0 ? str.Substring(0, index) : "");
+        }
+
+        public static string LeftOf(this string str, string c)
+        {
+            int index = str.IndexOf(c);
+            return (index > 0 ? str.Substring(0, index) : "");
+        }
+
+        public static string RightMostLeftOf(this string str, char c)
+        {
+            int index = str.LastIndexOf(c);
+            return (index > 0 ? str.Substring(0, index) : "");
+        }
+
+        public static string RightMostLeftOf(this string str, string c)
+        {
+            int index = str.LastIndexOf(c);
+            return (index > 0 ? str.Substring(0, index) : "");
+        }
+
+        public static string RightOf(this string str, char c)
+        {
+            int index = str.IndexOf(c);
+            return (index > 0 ? str.Substring(index, str.Length - index) : "");
+        }
+
+        public static string RightOf(this string str, string c)
+        {
+            int index = str.IndexOf(c);
+            return (index > 0 ? str.Substring(index, str.Length - index) : "");
+        }
+
+        public static string RightMostRightOf(this string str, char c)
+        {
+            int index = str.LastIndexOf(c);
+            return (index > 0 ? str.Substring(index, str.Length - index) : "");
+        }
+
+        public static string RightMostRightOf(this string str, string c)
+        {
+            int index = str.LastIndexOf(c);
+            return (index > 0 ? str.Substring(index, str.Length - index) : "");
+        }
     }
 }

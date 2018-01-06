@@ -1,4 +1,5 @@
 ﻿using Monkeyspeak.Editor;
+using Monkeyspeak.Editor.Controls;
 using Monkeyspeak.Logging;
 using System;
 using System.Collections.Generic;

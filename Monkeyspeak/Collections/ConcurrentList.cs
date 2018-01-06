@@ -5,9 +5,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Collections.ObjectModel;
 
-namespace Monkeyspeak.Logging
+namespace Monkeyspeak.Collections
 {
-    internal class ConcurrentList<T> : IList<T>
+    public class ConcurrentList<T> : IList<T>
     {
         public event Action<T, int> Removed;
 

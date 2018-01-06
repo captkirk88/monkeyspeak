@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using Monkeyspeak.Logging;
 using Monkeyspeak.Extensions;
+using Monkeyspeak.Collections;
 
 #endregion Usings
 
@@ -61,7 +62,7 @@ namespace Monkeyspeak.Logging
         private LogMessage(Level level, string msg, TimeSpan expireDuration)
         {
             this.level = level;
-            message = msg;
+            message = string.IsNullOrEmpty(msg) ? string.Empty : msg;
             var now = DateTime.Now;
             expires = now.Add(expireDuration);
             timeStamp = now;

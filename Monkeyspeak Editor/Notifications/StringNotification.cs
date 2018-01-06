@@ -20,8 +20,6 @@ namespace Monkeyspeak.Editor.Notifications
             {
                 Text = content,
                 TextWrapping = System.Windows.TextWrapping.WrapWithOverflow,
-                Foreground = new SolidColorBrush(this.foreground),
-                Background = new SolidColorBrush(this.background)
             };
         }
 
@@ -31,15 +29,7 @@ namespace Monkeyspeak.Editor.Notifications
             {
                 Text = content,
                 TextWrapping = System.Windows.TextWrapping.WrapWithOverflow,
-                Foreground = foreground != default(Color) ? new SolidColorBrush(foreground) : new SolidColorBrush(this.foreground),
-                Background = background != default(Color) ? new SolidColorBrush(background) : new SolidColorBrush(this.background),
-                Width = double.NaN,
-                Height = double.NaN
             };
-            if (foreground != default(Color))
-                this.foreground = foreground;
-            if (background != default(Color))
-                this.background = background;
         }
 
         public object Content => content;

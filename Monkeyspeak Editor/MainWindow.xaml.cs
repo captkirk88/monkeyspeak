@@ -38,27 +38,30 @@ namespace Monkeyspeak.Editor
 
             NotificationManager.Instance.Added += notif =>
             {
-                this.Dispatcher.Invoke(() => notif_badge.Badge = NotificationManager.Instance.Count);
                 this.Dispatcher.Invoke(() =>
                 {
+                    var count = NotificationManager.Instance.Count;
+                    if (count == 0)
+                    {
+                        notifs_flyout.IsOpen = false;
+                        notif_badge.Badge = "";
+                    }
+                    else notif_badge.Badge = count;
+
                     notifs_list.Items.Add(new NotificationPanel(notif));
                     notifs_flyout_scroll.ScrollToBottom();
                 });
             };
-            NotificationManager.Instance.Removed += notif =>
+            NotificationManager.Instance.Removed += notif => Dispatcher.Invoke(() =>
             {
-                this.Dispatcher.Invoke(() =>
-                {
-                    notif_badge.Badge = NotificationManager.Instance.Count;
-                    notifs_list.Items.Remove(notif);
-                });
-
-                if (NotificationManager.Instance.Count == 0)
+                var count = NotificationManager.Instance.Count;
+                if (count == 0)
                 {
                     notifs_flyout.IsOpen = false;
                     notif_badge.Badge = "";
                 }
-            };
+                else notif_badge.Badge = count;
+            });
 
             Editors.Instance.Added += editor => this.Dispatcher.Invoke(() =>
             {
@@ -220,6 +223,13 @@ namespace Monkeyspeak.Editor
             Tuple<MahApps.Metro.AppTheme, Accent> appStyle = ThemeManager.DetectAppStyle(Application.Current);
             Enum.TryParse(appStyle.Item1.Name.Replace("Base", ""), out AppTheme theme);
             return theme;
+        }
+
+        private void RestorePlugins_Click(object sender, RoutedEventArgs e)
+        {
+            plugins.Unload();
+            plugins = new DefaultPluginContainer();
+            plugins.Initialize();
         }
     }
 }

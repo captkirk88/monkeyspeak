@@ -24,8 +24,8 @@
                     HorizontalAlignment="Stretch"
                     Padding="1,1,1,1"
                     BorderBrush="Blue"
-                    BorderThickness="1"
-                    Click="DismissButton_Click">
+                    Click="DismissButton_Click"
+                    BorderThickness="1" Controls:ControlsHelper.ContentCharacterCasing="Normal">
             <TextBlock HorizontalAlignment="Center">DISMISS</TextBlock>
         </Button>
     </StackPanel>

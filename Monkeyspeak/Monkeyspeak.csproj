@@ -124,7 +124,7 @@
     <Compile Include="Libraries\BaseLibrary.cs" />
     <Compile Include="Libraries\Loops.cs" />
     <Compile Include="Libraries\Tables.cs" />
-    <Compile Include="Logging\ConcurrentList.cs" />
+    <Compile Include="Collections\ConcurrentList.cs" />
     <Compile Include="Logging\FileLogger.cs" />
     <Compile Include="Logging\MutliLogOutput.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">

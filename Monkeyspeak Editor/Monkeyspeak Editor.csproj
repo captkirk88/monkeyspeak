@@ -105,10 +105,13 @@
     <Compile Include="Commands\OpenFileCommand.cs" />
     <Compile Include="Commands\SaveAllCommand.cs" />
     <Compile Include="Commands\SaveCommand.cs" />
+    <Compile Include="Console\NotifyConsoleCommand.cs" />
+    <Compile Include="Console\HelpConsoleCommand.cs" />
+    <Compile Include="Console\PluginsConsoleCommand.cs" />
     <Compile Include="Editors.cs" />
     <Compile Include="HelperClasses\WordColorizer.cs" />
     <Compile Include="Notifications\NotificationWithIcon.cs" />
-    <Page Include="ConsoleWindow.xaml">
+    <Page Include="Controls\ConsoleWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -128,7 +131,7 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="ConsoleWindow.xaml.cs">
+    <Compile Include="Controls\ConsoleWindow.xaml.cs">
       <DependentUpon>ConsoleWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Controls\TriggerList.xaml.cs">
@@ -158,6 +161,7 @@
     <Compile Include="Notifications\StringNotification.cs" />
     <Compile Include="Notifications\WelcomeNotification.cs" />
     <Compile Include="Plugins\DefaultPluginContainer.cs" />
+    <Compile Include="Plugins\Plugins.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
