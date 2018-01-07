@@ -927,7 +927,7 @@ namespace Monkeyspeak
         {
             var reader = new TriggerReader(this, triggerBlock)
             {
-                Parameters = args
+                Parameters = args ?? new object[0]
             };
 
             int j = 0;
