@@ -5,7 +5,7 @@ branches:
 image: Visual Studio 2017
 configuration: Release
 platform: Any CPU
-skip_branch_with_pr: false
+skip_branch_with_pr: true
 
 environment:
   EMAIL:
@@ -15,7 +15,9 @@ environment:
 
 cache:
   - packages -> **\packages.config  # preserve "packages" directory in the root of build folder but will reset it if packages.config is modified
-  - node_modules
+
+skip_commits:
+  message: /norelease/      # Regex for matching commit message
 
 # enable patching of AssemblyInfo.* files
 assembly_info:
@@ -51,18 +53,18 @@ deploy:
     draft: false
     prerelease: false
     force_update: true
+    appveyor_repo_tag: true        # deploy on tag push only
     release: "{version}"
-    description: Monkeyspeak Release
+    description: "Monkeyspeak Release for $"
     auth_token:
-        secure: $GITHUB_AUTH # your encrypted token from GitHub
+        secure: $(GITHUB_AUTH) # your encrypted token from GitHub
     on:
         branch: master                 # release from master branch only
-        appveyor_repo_tag: true        # deploy on tag push only
 
 notifications:
 - provider: Email
   to:
-  - $EMAIL
+  - $(EMAIL)
   on_build_success: false
   on_build_failure: true
   on_build_status_changed: false

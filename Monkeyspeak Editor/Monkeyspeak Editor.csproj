@@ -238,4 +238,21 @@ cd $(TargetDir)
 rar a -r -x*.tmp -x*.rar -x*.tt "$(TargetDir)$(TargetName)_$(ConfigurationName)_$(PlatformName)_Binaries.rar" *.*
 </PostBuildEvent>
   </PropertyGroup>
+  <PropertyGroup>
+    <PostBuildEvent>REM DEL old files
+cd $(TargetDir)
+del "$(TargetDir)$(TargetName)_$(ConfigurationName)_$(PlatformName)_Src.rar"
+del "$(TargetDir)$(TargetName)_$(ConfigurationName)_$(PlatformName)_Binaries.rar"
+
+REM set path to WinRAR for rar command
+set path="C:\Program Files\WinRAR\";%25path%25
+
+REM Create the BIN rar
+rar a -r -x*\.svn\* -x*\bin\* -x*\obj\* -x*.tmp -x*.rar -x*.tt -x*.user "$(TargetDir)$(TargetName)_$(ConfigurationName)_$(PlatformName)_Binaries.rar" *.*
+
+REM Create the SRC rar
+cd $(ProjectDir)
+rar a -r -x*\.svn\* -x*\bin\* -x*\obj\* -x*.tmp -x*.rar -x*.tt -x*.user  "$(TargetDir)$(TargetName)_$(PlatformName)_Src.rar" *.*
+	</PostBuildEvent>
+  </PropertyGroup>
 </Project>
