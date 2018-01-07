@@ -43,7 +43,7 @@ build:
 # Deploy to GitHub Releases
 deploy:
   - provider: GitHub
-    artifact: /.*\.nupkg/           # upload all NuGet packages to release assets
+    artifact: **/*.rar           # upload all rars to release assets
     draft: false
     prerelease: false
     force_update: true
