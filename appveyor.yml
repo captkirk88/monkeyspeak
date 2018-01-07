@@ -63,14 +63,14 @@ deploy:
     appveyor_repo_tag: true        # deploy on tag push only
     description: "Monkeyspeak Release for $(appveyor_build_version)"
     auth_token:
-        secure: "$($env:GITHUB_AUTH)" # your encrypted token from GitHub
+        secure: O1WNJUJxBOAXq0u7U/lAJZREJ4INf6cMp4wAtcxBG60kemmYLumTDyjArtZEtNRl # your encrypted token from GitHub
     on:
         branch: master                 # release from master branch only
 
 notifications:
 - provider: Email
   to:
-    - "$($env:EMAIL)"
+    - secure: 5DsdNYTfa5eNrxsF2bEIiSajS0B0I28NIpNPewvCoZA=
   on_build_success: false
   on_build_failure: true
   on_build_status_changed: false
