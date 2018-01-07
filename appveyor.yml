@@ -41,8 +41,9 @@ build:
   verbosity: minimal
 
 artifacts:
-    - path: **/*.rar
+  - path: '**\*.rar'
     name: rars
+
 # Deploy to GitHub Releases
 deploy:
   - provider: GitHub
