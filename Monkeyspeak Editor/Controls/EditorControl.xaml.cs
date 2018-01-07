@@ -1,6 +1,7 @@
 ﻿using ICSharpCode.AvalonEdit.CodeCompletion;
 using ICSharpCode.AvalonEdit.Document;
 using ICSharpCode.AvalonEdit.Highlighting;
+using ICSharpCode.AvalonEdit.Rendering;
 using MahApps.Metro.Controls;
 using MahApps.Metro.Controls.Dialogs;
 using Microsoft.Win32;
@@ -66,7 +67,7 @@ namespace Monkeyspeak.Editor.Controls
         private FileSystemWatcher fileWatcher;
         private CompletionWindow completionWindow;
         private bool showingCompletion = false;
-        private List<TriggerCompletionData> triggerCompletions, filteredCompletions;
+        private List<TriggerCompletionData> triggerCompletions;
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -79,7 +80,6 @@ namespace Monkeyspeak.Editor.Controls
             page.LoadAllLibraries();
 
             triggerCompletions = new List<TriggerCompletionData>();
-            filteredCompletions = new List<TriggerCompletionData>();
             foreach (var lib in page.Libraries)
             {
                 foreach (var trigger in lib.Handlers.Select(handler => handler.Key))
@@ -87,7 +87,6 @@ namespace Monkeyspeak.Editor.Controls
                     triggerCompletions.Add(new TriggerCompletionData(page, lib, trigger));
                 }
             }
-            filteredCompletions.AddRange(triggerCompletions);
 
             Logger.DebugEnabled = true;
 
@@ -95,6 +94,8 @@ namespace Monkeyspeak.Editor.Controls
             DataContext = this;
 
             //textEditor.SyntaxHighlighting = HighlightingManager.Instance.GetDefinitionByExtension(".ms");
+            textEditor.TextArea.Caret.PositionChanged += (sender, e) =>
+                textEditor.TextArea.TextView.InvalidateLayer(KnownLayer.Background);
             textEditor.TextChanged += (sender, args) =>
             {
                 HasChanges = true;
@@ -108,12 +109,6 @@ namespace Monkeyspeak.Editor.Controls
             };
             textEditor.TextArea.TextEntered += (sender, e) =>
             {
-                if (e.Text == "(" || e.Text == "\n")
-                {
-                    completionWindow?.Close();
-                    filteredCompletions.Clear();
-                    filteredCompletions.AddRange(triggerCompletions);
-                }
                 ShowCompletion();
             };
             textEditor.TextArea.TextEntering += (sender, e) =>
@@ -152,6 +147,52 @@ namespace Monkeyspeak.Editor.Controls
 
             // set this as the active editor since it was new
             Editors.Instance.Selected = this;
+
+            AddLine(@"
+(0:0) when the script is started,
+        (5:100) set %hello to {Hello World}.
+        (5:101) set %num to 5.1212E+003.
+        (5:102) print {num = %num} to the console.
+        (5:102) print {%hello} to the console.
+
+(0:0) when the script is started,
+    *Uncommented version
+    (1:104) and variable %hello equals {this will be false move on to next condition}
+        (5:102) print {the pen is blue!} to the console
+    (1:104) and variable %hello equals {Hello World}
+        (5:102) print {the pen is red!} to the console
+        (5:102) print {hello = %hello helloNum = %helloNum} to the console
+        (5:100) set %hello to {@%helloNum}
+        (5:101) set %helloNum to 5.6969.
+        (5:102) print {hello = %hello helloNum = %helloNum} to the console
+        (5:115) call job 1 with %helloNum and {test arg}.
+        (5:115) call job 2.
+
+(0:0) when the script is started,
+        (5:250) create a table as %myTable.
+        (5:252) with table %myTable put {Hello World} in it at key {myKey}.
+        (5:102) print {%myTable[myKey]} to the console.
+        (6:250) for each entry in table %myTable put it into %entry,
+            (5:102) print {%entry} to the console.
+
+(0:0) when the script is started,
+		(5:10000) create a debug breakpoint here,
+        (5:100) set %testVariable to {Modified!}. -- try to modify constant variable
+		(5:102) print {%testVariable} to the console.
+
+(0:10000) when a debug breakpoint is hit,
+		(5:102) print {Hit a breakpoint!} to the console.
+        (5:105) raise an error. * dirty exit
+
+(0:100) when job 1 is called put arguments into table %table,
+    (5:102) print {job 1 executed} to the console
+        (6:250) for each entry in table %table put it into %entry,
+            (5:102) print {%entry} to the console.
+
+(0:100) when job 2 is called,
+    (5:102) print {job will not execute because infinite loop possibility} to the console
+   (5:115) call job 1.
+");
         }
 
         private void FileWatcher_Raised(object sender, FileSystemEventArgs e)
@@ -211,14 +252,16 @@ namespace Monkeyspeak.Editor.Controls
             }
             completionWindow = new CompletionWindow(textEditor.TextArea)
             {
-                CloseAutomatically = false
+                CloseAutomatically = false,
             };
             var data = completionWindow.CompletionList.CompletionData;
             data.Clear();
-            var col = TextUtilities.GetNextCaretPosition(textEditor.Document, textEditor.TextArea.Caret.Offset, LogicalDirection.Backward, CaretPositioningMode.EveryCodepoint);
-            //filteredCompletions.RemoveAll(tc => tc.Text.IndexOf(CurrentLine.TrimStart(' ')) != 0);
-            foreach (var tc in triggerCompletions.Where(tc => tc.Text.IndexOf(CurrentLine.TrimStart(' ')) == 0))
+            int width = 0;
+            foreach (var tc in triggerCompletions.Where(tc => tc.Text.IndexOf(CurrentLine.TrimStart(' ')) >= 0))
+            {
                 data.Add(tc);
+            }
+            completionWindow.SizeToContent = SizeToContent.Width;
             if (data.Count > 0) completionWindow.Show();
             completionWindow.Closed += delegate
             {
@@ -245,29 +288,26 @@ namespace Monkeyspeak.Editor.Controls
 
         public void InsertAtCaretLine(string text)
         {
-            var line = CaretLine - 1; // caret line is not 0 based, initial value is 1
+            var curLine = textEditor.Document.GetLineByOffset(textEditor.CaretOffset);
+            int lineOffset = curLine.Offset;
+            if (curLine.NextLine != null)
+                lineOffset = curLine.NextLine.Offset;
             text = text.Replace("\n", string.Empty);
-            var lines = new List<string>(textEditor.Text.Split('\n'));
-            if (line < lines.Count)
-                if (string.IsNullOrWhiteSpace(lines[line]) || lines[line][0] == '\n')
-                    lines[line] = text;
-                else lines.Insert(line, text);
-            else
-                lines.Add(text);
-            for (int i = lines.Count - 1; i >= 0; i--) lines[i] = lines[i].Replace("\n", string.Empty);
-            textEditor.Text = string.Join("\n", lines);
+            textEditor.Document.Insert(lineOffset, text + "\n", AnchorMovementType.AfterInsertion);
         }
 
         public void AddLine(string text)
         {
-            text = text.Replace(Environment.NewLine, string.Empty);
-            textEditor.AppendText(Environment.NewLine + text);
+            text = text.Replace(Environment.NewLine, "\n");
+            var lastLine = textEditor.Document.Lines[textEditor.LineCount - 1];
+            textEditor.Document.Insert(lastLine.Offset, "\n" + text, AnchorMovementType.AfterInsertion);
         }
 
         public void AddLine(string text, Color color)
         {
-            text = text.Replace(Environment.NewLine, string.Empty);
-            textEditor.AppendText(Environment.NewLine + text);
+            var lastLine = textEditor.Document.Lines[textEditor.LineCount - 1];
+            text = text.Replace(Environment.NewLine, "\n");
+            textEditor.Document.Insert(lastLine.Offset, "\n" + text, AnchorMovementType.AfterInsertion);
             SetTextColor(color, textEditor.LineCount, 0, text.Length);
         }
 

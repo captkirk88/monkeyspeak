@@ -1,6 +1,7 @@
 ﻿using ICSharpCode.AvalonEdit.CodeCompletion;
 using ICSharpCode.AvalonEdit.Document;
 using ICSharpCode.AvalonEdit.Editing;
+using Monkeyspeak.Editor.Notifications;
 using Monkeyspeak.Libraries;
 using System;
 using System.Collections.Generic;
@@ -55,18 +56,11 @@ namespace Monkeyspeak.Editor.HelperClasses
 
         public double Priority => 1;
 
-        public bool CanComplete(string line, string textEntered)
-        {
-            bool yes = false;
-            if (line.Contains($"({(int)trigger.Category}"))
-                yes = true;
-            return yes;
-        }
-
         public void Complete(TextArea textArea, ISegment completionSegment,
             EventArgs insertionRequestEventArgs)
         {
-            textArea.Document.Replace(completionSegment, Text.Substring(completionSegment.Offset));
+            var line = textArea.Document.GetLineByOffset(completionSegment.Offset);
+            textArea.Document.Replace(line.Offset, line.Length, Text);
         }
     }
 }
