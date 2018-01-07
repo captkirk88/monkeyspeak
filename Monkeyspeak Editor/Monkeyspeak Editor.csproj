@@ -109,7 +109,9 @@
     <Compile Include="Console\NotifyConsoleCommand.cs" />
     <Compile Include="Console\HelpConsoleCommand.cs" />
     <Compile Include="Console\PluginsConsoleCommand.cs" />
+    <Compile Include="Console\SetHighlighterConsoleCommand.cs" />
     <Compile Include="Editors.cs" />
+    <Compile Include="HelperClasses\TriggerCompletionData.cs" />
     <Compile Include="HelperClasses\WordColorizer.cs" />
     <Compile Include="Notifications\NotificationWithIcon.cs" />
     <Page Include="Controls\ConsoleWindow.xaml">

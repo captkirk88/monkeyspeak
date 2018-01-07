@@ -6,21 +6,24 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Monkeyspeak.Editor"
         mc:Ignorable="d"
-        Title="Console" MinHeight="350" MaxWidth="525" SizeToContent="Height" ShowIconOnTitleBar="True" ShowCloseButton="True">
+        Title="Console" Height="350" Width="525" VerticalContentAlignment="Stretch" ShowIconOnTitleBar="True" ShowCloseButton="True">
     <Grid FocusManager.FocusedElement="{Binding ElementName=input}">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition />
+        </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
+            <RowDefinition />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
-        <ScrollViewer x:Name="scroll" MinHeight="300" VerticalAlignment="Stretch" Grid.Row="0">
-            <RichTextBox x:Name="console" Background="Black" IsReadOnly="True" FontFamily="Terminal" />
+        <ScrollViewer x:Name="scroll" HorizontalAlignment="Stretch">
+            <RichTextBox x:Name="console" Background="Black" IsReadOnly="True" VerticalAlignment="Stretch" FontFamily="Terminal" />
         </ScrollViewer>
-        <Border BorderBrush="{DynamicResource AccentColorBrush}" Grid.Row="1" Height="Auto"
-                BorderThickness="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Controls:MetroWindow}}, Path=BorderThickness}">
-            <TextBox x:Name ="input" Background="Black" Foreground="White"
+        <DockPanel Grid.Row="1">
+            <TextBox x:Name ="input" Background="Black" Foreground="White" DockPanel.Dock="Bottom"
                  Controls:TextBoxHelper.AutoWatermark="True"
                  Controls:TextBoxHelper.Watermark="Enter a command..."
-                 AcceptsReturn="False" KeyDown="input_KeyDown" />
-        </Border>
+                 AcceptsReturn="False" PreviewKeyDown="input_PreviewKeyDown"
+                     Controls:TextBoxHelper.UseFloatingWatermark="True" />
+        </DockPanel>
     </Grid>
 </Controls:MetroWindow>

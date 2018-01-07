@@ -1,4 +1,6 @@
-﻿using ICSharpCode.AvalonEdit.Highlighting;
+﻿using ICSharpCode.AvalonEdit.CodeCompletion;
+using ICSharpCode.AvalonEdit.Document;
+using ICSharpCode.AvalonEdit.Highlighting;
 using MahApps.Metro.Controls;
 using MahApps.Metro.Controls.Dialogs;
 using Microsoft.Win32;
@@ -58,12 +60,37 @@ namespace Monkeyspeak.Editor.Controls
         private string _title;
         private bool _hasChanges;
 
+        private MonkeyspeakEngine engine;
+        private readonly Page page;
+
         private FileSystemWatcher fileWatcher;
+        private CompletionWindow completionWindow;
+        private bool showingCompletion = false;
+        private List<TriggerCompletionData> triggerCompletions, filteredCompletions;
 
         public event PropertyChangedEventHandler PropertyChanged;
 
         public EditorControl()
         {
+            engine = new MonkeyspeakEngine();
+            engine.options.Debug = false;
+            engine.Options.TriggerLimit = 100000;
+            page = new Page(engine);
+            page.LoadAllLibraries();
+
+            triggerCompletions = new List<TriggerCompletionData>();
+            filteredCompletions = new List<TriggerCompletionData>();
+            foreach (var lib in page.Libraries)
+            {
+                foreach (var trigger in lib.Handlers.Select(handler => handler.Key))
+                {
+                    triggerCompletions.Add(new TriggerCompletionData(page, lib, trigger));
+                }
+            }
+            filteredCompletions.AddRange(triggerCompletions);
+
+            Logger.DebugEnabled = true;
+
             InitializeComponent();
             DataContext = this;
 
@@ -76,16 +103,34 @@ namespace Monkeyspeak.Editor.Controls
             textEditor.TextArea.SelectionChanged += (sender, args) =>
             {
                 SelectedLine = Lines[textEditor.TextArea.Caret.Line - 1];
-                Logger.Debug<EditorControl>($"SelectedLine: {SelectedLine}");
-                var start = SelectedLine.IndexOf(textEditor.SelectedText);
-                Logger.Debug<EditorControl>($"Start: {start}");
-                var indexOf = SelectedLine.IndexOfAny(new char[] { ' ', '-', '{', '}' }, start);
-                Logger.Debug<EditorControl>($"Index of Space: {indexOf}");
-                SelectedWord = SelectedLine.Substring(start, indexOf != -1 ? indexOf : textEditor.SelectionLength > 0 ? textEditor.SelectionLength - start : SelectedLine.Length - start);
-                Logger.Debug<EditorControl>($"Word: {SelectedWord}");
+                SelectedText = textEditor.SelectedText;
                 foreach (var plugin in Plugins.Plugins.All) plugin.OnEditorSelectionChanged(this);
             };
-            textEditor.TextArea.Caret.PositionChanged += (sender, args) =>
+            textEditor.TextArea.TextEntered += (sender, e) =>
+            {
+                if (e.Text == "(" || e.Text == "\n")
+                {
+                    completionWindow?.Close();
+                    filteredCompletions.Clear();
+                    filteredCompletions.AddRange(triggerCompletions);
+                }
+                ShowCompletion();
+            };
+            textEditor.TextArea.TextEntering += (sender, e) =>
+            {
+                if (e.Text.Length > 0 && completionWindow != null)
+                {
+                    completionWindow.CompletionList.RequestInsertion(e);
+                }
+            };
+            textEditor.KeyDown += (sender, e) =>
+            {
+                if (Keyboard.IsKeyDown(Key.LeftCtrl) && e.Key == Key.Space)
+                {
+                    e.Handled = true;
+                    ShowCompletion();
+                }
+            };
             textEditor.Options.AllowScrollBelowDocument = true;
             textEditor.Options.HighlightCurrentLine = true;
             textEditor.Options.EnableImeSupport = true;
@@ -126,7 +171,7 @@ namespace Monkeyspeak.Editor.Controls
 
                         if (result == MessageDialogResult.Affirmative)
                         {
-                            Reload();
+                            await Reload();
                         }
                         else if (result == MessageDialogResult.FirstAuxiliary)
                         {
@@ -158,8 +203,38 @@ namespace Monkeyspeak.Editor.Controls
             fileWatcher.EnableRaisingEvents = true;
         }
 
+        private CompletionWindow ShowCompletion()
+        {
+            if (completionWindow != null)
+            {
+                completionWindow?.Close();
+            }
+            completionWindow = new CompletionWindow(textEditor.TextArea)
+            {
+                CloseAutomatically = false
+            };
+            var data = completionWindow.CompletionList.CompletionData;
+            data.Clear();
+            var col = TextUtilities.GetNextCaretPosition(textEditor.Document, textEditor.TextArea.Caret.Offset, LogicalDirection.Backward, CaretPositioningMode.EveryCodepoint);
+            //filteredCompletions.RemoveAll(tc => tc.Text.IndexOf(CurrentLine.TrimStart(' ')) != 0);
+            foreach (var tc in triggerCompletions.Where(tc => tc.Text.IndexOf(CurrentLine.TrimStart(' ')) == 0))
+                data.Add(tc);
+            if (data.Count > 0) completionWindow.Show();
+            completionWindow.Closed += delegate
+            {
+                completionWindow = null;
+            };
+            return completionWindow;
+        }
+
         public string Title { get => _title; set => SetField(ref _title, value); }
-        public string HighlighterLanguage => textEditor.SyntaxHighlighting.Name;
+
+        public string HighlighterLanguage
+        {
+            get => textEditor.SyntaxHighlighting.Name;
+            set => textEditor.SyntaxHighlighting = HighlightingManager.Instance.GetDefinition(value) ??
+                HighlightingManager.Instance.GetDefinition("Monkeyspeak");
+        }
 
         public int CaretLine
         {
@@ -189,6 +264,37 @@ namespace Monkeyspeak.Editor.Controls
             textEditor.AppendText(Environment.NewLine + text);
         }
 
+        public void AddLine(string text, Color color)
+        {
+            text = text.Replace(Environment.NewLine, string.Empty);
+            textEditor.AppendText(Environment.NewLine + text);
+            SetTextColor(color, textEditor.LineCount, 0, text.Length);
+        }
+
+        /// <summary>
+        /// Sets the text <seealso cref="Color"/> by navigating to the specified line and setting the color between the start and end position.
+        /// </summary>
+        /// <param name="line">The line.</param>
+        /// <param name="start">The start.</param>
+        /// <param name="end">The end.</param>
+        /// <param name="color">Text color to set</param>
+        public void SetTextColor(Color color, int line, int start, int end)
+        {
+            textEditor.TextArea.TextView.LineTransformers.Add(new WordColorizer(color, line, start, end));
+        }
+
+        /// <summary>
+        /// Sets the text <seealso cref="FontWeight"/> by navigating to the specified line and setting the color between the start and end position.
+        /// </summary>
+        /// <param name="weight">The weight.</param>
+        /// <param name="line">The line.</param>
+        /// <param name="start">The start.</param>
+        /// <param name="end">The end.</param>
+        public void SetTextWeight(FontWeight weight, int line, int start, int end)
+        {
+            textEditor.TextArea.TextView.LineTransformers.Add(new FontWeightTransformer(weight, line, start, end));
+        }
+
         public IList<string> Lines
         {
             get
@@ -201,7 +307,7 @@ namespace Monkeyspeak.Editor.Controls
 
         public int WordCount => textEditor.Text.Length;
 
-        public string SelectedWord { get; private set; }
+        public string SelectedText { get; private set; }
 
         /// <summary>
         /// Gets the selected line without the ending newline character.
@@ -232,17 +338,7 @@ namespace Monkeyspeak.Editor.Controls
             }
         }
 
-        /// <summary>
-        /// Sets the text color by navigating to the specified line and setting the color between the start and end position.
-        /// </summary>
-        /// <param name="line">The line.</param>
-        /// <param name="start">The start.</param>
-        /// <param name="end">The end.</param>
-        /// <param name="color">Text color to set</param>
-        public void SetTextColor(Color color, int line, int start, int end)
-        {
-            textEditor.TextArea.TextView.LineTransformers.Add(new WordColorizer(color, line, start, end));
-        }
+        public string CurrentLine { get => Lines[textEditor.TextArea.Caret.Line - 1]; }
 
         public bool Open()
         {

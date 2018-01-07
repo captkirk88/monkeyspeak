@@ -12,6 +12,8 @@ namespace Monkeyspeak.Editor.Interfaces.Console
 
         string Help { get; }
 
-        void Invoke(IConsole console, params string[] args);
+        bool CanInvoke { get; }
+
+        void Invoke(IConsole console, IEditor editor, params string[] args);
     }
 }

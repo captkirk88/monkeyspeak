@@ -18,7 +18,7 @@ namespace Monkeyspeak.Editor
         /// <value>
         /// The syntax highlighter language.
         /// </value>
-        string HighlighterLanguage { get; }
+        string HighlighterLanguage { get; set; }
 
         /// <summary>
         /// Gets the caret line, requires editor to have focus or 0.
@@ -58,7 +58,7 @@ namespace Monkeyspeak.Editor
         /// <value>
         /// The selected word.
         /// </value>
-        string SelectedWord { get; }
+        string SelectedText { get; }
 
         /// <summary>
         /// Gets the selected line.
@@ -80,6 +80,12 @@ namespace Monkeyspeak.Editor
         /// </summary>
         /// <param name="text">The text.</param>
         void AddLine(string text);
+
+        /// <summary>
+        /// Adds the text at the end of the current editor.
+        /// </summary>
+        /// <param name="text">The text.</param>
+        void AddLine(string text, Color color);
 
         /// <summary>
         /// Sets the text color by navigating to the specified line and setting the color between the start and end position.
