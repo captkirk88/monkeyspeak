@@ -4,7 +4,7 @@
 # Monkeyspeak
 Linux/Mono | Windows
 ------------ | ---------
-[![Build Status](https://travis-ci.org/captkirk88/monkeyspeak.svg?branch=master)](https://travis-ci.org/captkirk88/monkeyspeak) | <--- Passes
+[![Build Status](https://travis-ci.org/captkirk88/monkeyspeak.svg?branch=master)](https://travis-ci.org/captkirk88/monkeyspeak) | [![Build status](https://ci.appveyor.com/api/projects/status/eh3ang36lymr5ty8/branch/master?svg=true)](https://ci.appveyor.com/project/captkirk88/monkeyspeak/branch/master)
 
 [![Waffle.io](https://badge.waffle.io/captkirk88/monkeyspeak.svg?columns=inbox,In%20Progress&style=plastic)](https://waffle.io/captkirk88/monkeyspeak) 
 
