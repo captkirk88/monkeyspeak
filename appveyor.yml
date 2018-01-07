@@ -33,6 +33,8 @@ test:
     - '**\*.Tests.dll'
 
 before_build:
+    - git tag -d {version}
+    - git push master :{version}
     - choco install winrar
     - nuget restore Monkeyspeak.sln
 
