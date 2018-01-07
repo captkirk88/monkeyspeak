@@ -33,8 +33,10 @@ test:
     - '**\*.Tests.dll'
 
 before_build:
-    - ps: "git config --global credential.helper store"
+    - ps: git config --global credential.helper store
     - ps: Add-Content "$env:USERPROFILE\.git-credentials" "https://$($env:GITHUB_AUTH):x-oauth-basic@github.com`n"
+    - ps: git config --global user.email "$($env:APPVEYOR_REPO_COMMIT_AUTHOR_EMAIL)"
+    - ps: git config --global user.name "$($env:APPVEYOR_REPO_COMMIT_AUTHOR)"
     - ps: "git tag | foreach-object -process { git push $($env:APPVEYOR_REPO_BRANCH) --delete $_ }"
     - ps: "git tag | foreach-object -process { git tag -d $_ } "
     - choco install winrar
