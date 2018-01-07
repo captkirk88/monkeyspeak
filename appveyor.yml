@@ -40,10 +40,13 @@ build:
   parallel: true
   verbosity: minimal
 
+artifacts:
+    - path: **/*.rar
+    name: rars
 # Deploy to GitHub Releases
 deploy:
   - provider: GitHub
-    artifact: **/*.rar           # upload all rars to release assets
+    artifact: rars           # upload all rars to release assets
     draft: false
     prerelease: false
     force_update: true
