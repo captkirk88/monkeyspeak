@@ -57,14 +57,14 @@ deploy:
     release: "{version}"
     description: "Monkeyspeak Release for $"
     auth_token:
-        secure: $(GITHUB_AUTH) # your encrypted token from GitHub
+        secure: DtORb8qbALfHiPYvK7K0ncfYc4MFNiXiF562/zzHlqvM4/p13nAS6zJKwYhxB+4Y= # your encrypted token from GitHub
     on:
         branch: master                 # release from master branch only
 
 notifications:
 - provider: Email
   to:
-  - $(EMAIL)
+    secure: 5DsdNYTfa5eNrxsF2bEIiSajS0B0I28NIpNPewvCoZA=
   on_build_success: false
   on_build_failure: true
   on_build_status_changed: false
