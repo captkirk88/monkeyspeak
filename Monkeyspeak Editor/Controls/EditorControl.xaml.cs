@@ -360,7 +360,7 @@ namespace Monkeyspeak.Editor.Controls
                 CheckPathExists = true,
                 RestoreDirectory = false, // opens dialog at last location used
                 DefaultExt = ".ms",
-                Filter = "Monkeyspeak Script |*.ms|All files (*.*)|*.*"
+                Filter = "Monkeyspeak Script|*.ms|Monkeyspeak Compiled Script|*.msx|All files (*.*)|*.*"
             };
             var opened = dlg.ShowDialog();
             if (opened ?? false)

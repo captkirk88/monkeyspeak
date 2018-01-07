@@ -650,15 +650,7 @@ namespace MonkeyspeakTests
 ";
             var engine = new MonkeyspeakEngine();
             engine.Options.Debug = true;
-            var page = engine.LoadFromString(testScript);
-
-            page.Error += DebugAllErrors;
-
-            page.LoadAllLibraries();
-
-            page.Execute(0);
-            System.Threading.Thread.Sleep(100);
-            page.Dispose();
+            Assert.Throws<NullReferenceException>(() => engine.LoadFromString(testScript));
         }
 
         [Test]
