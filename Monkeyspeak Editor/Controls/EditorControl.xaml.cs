@@ -71,7 +71,7 @@ namespace Monkeyspeak.Editor.Controls
             textEditor.TextChanged += (sender, args) =>
             {
                 HasChanges = true;
-                foreach (var plugin in pluginContainer.Plugins) plugin.OnEditorTextChanged(this);
+                foreach (var plugin in Plugins.Plugins.All) plugin.OnEditorTextChanged(this);
             };
             textEditor.TextArea.SelectionChanged += (sender, args) =>
             {
@@ -83,7 +83,7 @@ namespace Monkeyspeak.Editor.Controls
                 Logger.Debug<EditorControl>($"Index of Space: {indexOf}");
                 SelectedWord = SelectedLine.Substring(start, indexOf != -1 ? indexOf : textEditor.SelectionLength > 0 ? textEditor.SelectionLength - start : SelectedLine.Length - start);
                 Logger.Debug<EditorControl>($"Word: {SelectedWord}");
-                foreach (var plugin in pluginContainer.Plugins) plugin.OnEditorSelectionChanged(this);
+                foreach (var plugin in Plugins.Plugins.All) plugin.OnEditorSelectionChanged(this);
             };
             textEditor.TextArea.Caret.PositionChanged += (sender, args) =>
             textEditor.Options.AllowScrollBelowDocument = true;
@@ -313,13 +313,26 @@ namespace Monkeyspeak.Editor.Controls
             HasChanges = false;
         }
 
-        public void Reload()
+        public async Task Reload()
         {
-            textEditor.Load(CurrentFilePath);
-            Save();
-            textEditor.SyntaxHighlighting =
-                HighlightingManager.Instance.GetDefinitionByExtension(System.IO.Path.GetExtension(CurrentFilePath)) ??
-                HighlightingManager.Instance.GetDefinition("Monkeyspeak");
+            if (HasChanges)
+            {
+                var result = await DialogManager.ShowMessageAsync((MetroWindow)Application.Current.MainWindow,
+                    "Save?",
+                    "Changes were detected.  Are you sure you don't want to save?", MessageDialogStyle.AffirmativeAndNegative,
+                    new MetroDialogSettings { AffirmativeButtonText = "Save", NegativeButtonText = "Nah" });
+                if (result == MessageDialogResult.Affirmative) Save();
+                else if (result == MessageDialogResult.FirstAuxiliary) return;
+            }
+
+            await Task.Run(() =>
+            {
+                textEditor.Load(CurrentFilePath);
+                HasChanges = false;
+                textEditor.SyntaxHighlighting =
+                    HighlightingManager.Instance.GetDefinitionByExtension(System.IO.Path.GetExtension(CurrentFilePath)) ??
+                    HighlightingManager.Instance.GetDefinition("Monkeyspeak");
+            });
         }
 
         public async Task CloseAsync()
@@ -360,7 +373,7 @@ namespace Monkeyspeak.Editor.Controls
                     break;
 
                 case 3:
-                    propertyGrid.SelectedObject = pluginContainer.Plugins.ToArray();
+                    propertyGrid.SelectedObject = Plugins.Plugins.All.ToArray();
                     break;
             }
         }

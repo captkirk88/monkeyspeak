@@ -1,6 +1,6 @@
-﻿using Monkeyspeak.Editor.Interfaces.Notifications;
+﻿using Monkeyspeak.Collections;
+using Monkeyspeak.Editor.Interfaces.Notifications;
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 
 namespace Monkeyspeak.Editor.Notifications
@@ -9,7 +9,7 @@ namespace Monkeyspeak.Editor.Notifications
     {
         public static NotificationManager Instance = new NotificationManager();
 
-        private ConcurrentQueue<INotification> notifs = new ConcurrentQueue<INotification>();
+        private ConcurrentList<INotification> notifs = new ConcurrentList<INotification>();
 
         public event Action<INotification> Added, Removed;
 
@@ -17,23 +17,23 @@ namespace Monkeyspeak.Editor.Notifications
 
         public void AddNotification(INotification notif)
         {
-            notifs.Enqueue(notif);
+            notifs.Add(notif);
             Added?.Invoke(notif);
         }
 
         public void RemoveNotification(INotification notif)
         {
-            if (notifs.TryDequeue(out INotification existing))
-                Removed?.Invoke(existing);
+            if (notifs.Remove(notif))
+                Removed?.Invoke(notif);
         }
 
-        public IReadOnlyCollection<INotification> All => notifs;
+        public IReadOnlyCollection<INotification> All => notifs.AsReadOnly();
 
         public void Clear()
         {
-            while (notifs.Count > 0)
+            foreach (var notif in notifs)
             {
-                if (notifs.TryDequeue(out INotification notif))
+                if (notifs.Remove(notif))
                     Removed?.Invoke(notif);
             }
         }

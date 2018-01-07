@@ -50,10 +50,9 @@
     <Controls:MetroWindow.Flyouts>
         <Controls:FlyoutsControl Width="Auto">
             <Controls:Flyout x:Name="notifs_flyout" Position="Right" TitleVisibility="Hidden"
-                             IsVisibleChanged="notifs_flyout_IsVisibleChanged"
-                             Width="Auto">
-                <ScrollViewer x:Name="notifs_flyout_scroll" Width="Auto">
-                    <ListView x:Name="notifs_list" Width="Auto">
+                             IsVisibleChanged="notifs_flyout_IsVisibleChanged">
+                <ScrollViewer x:Name="notifs_flyout_scroll">
+                    <ListView x:Name="notifs_list">
                         <ListView.ItemContainerStyle>
                             <Style TargetType="{x:Type ListViewItem}">
                                 <Setter Property="Background" Value="Transparent" />
@@ -80,6 +79,7 @@
                 <TextBlock Text="M" FontFamily="Arial" FontWeight="ExtraBold" />
                 <Button.ContextMenu>
                     <ContextMenu>
+                        <MenuItem Header="Reload Plugins" Click="RestorePlugins_Click" />
                         <MenuItem Header="Restore" />
                         <MenuItem Header="Minimize" />
                         <Separator />
@@ -96,7 +96,8 @@
                                   ToolTip="Select a Theme Light/Dark" />
             <Controls:SplitButton x:Name="style_chooser" Width="Auto" SelectionChanged="style_chooser_SelectionChanged" SelectedItem="Brown"
                                   ToolTip="Select a color" />
-            <Button Content="Console" Click="Console_Click" ToolTip="Displays a console window" />
+            <Separator />
+            <Button Content="Console" Click="Console_Click" ToolTip="Displays/hides the console window" />
             <Controls:Badged x:Name="notif_badge" BadgePlacementMode="BottomRight" Badge="">
                 <Controls:Badged.ToolTip>
                     <TextBlock>

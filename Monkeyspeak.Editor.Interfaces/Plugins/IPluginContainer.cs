@@ -8,6 +8,8 @@ namespace Monkeyspeak.Editor.Interfaces.Plugins
 
         void Unload();
 
-        ICollection<IPlugin> Plugins { get; }
+        bool HasPlugin<T>() where T : IPlugin;
+
+        T GetPlugin<T>() where T : IPlugin;
     }
 }

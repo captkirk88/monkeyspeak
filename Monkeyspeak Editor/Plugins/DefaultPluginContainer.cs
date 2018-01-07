@@ -13,29 +13,34 @@ namespace Monkeyspeak.Editor.Plugins
 {
     internal class DefaultPluginContainer : IPluginContainer
     {
-        private List<IPlugin> plugins = new List<IPlugin>();
-        public ICollection<IPlugin> Plugins { get => plugins.Where(plugin => plugin.Enabled).ToArray(); }
-
         public void Initialize()
         {
-            foreach (var plugin in GetAllPlugins())
+            foreach (var plugin in Plugins.All)
             {
-                plugins.Add(plugin);
                 try
                 {
                     plugin.Initialize();
-                    Logger.Debug<DefaultPluginContainer>($"Added plugin {plugin.Name}");
                 }
                 catch (Exception ex)
                 {
-                    Logger.Error<DefaultPluginContainer>(ex);
+                    ex.Log<IPlugin>();
                 }
             }
         }
 
+        public T GetPlugin<T>() where T : IPlugin
+        {
+            return Plugins.All.OfType<T>().FirstOrDefault();
+        }
+
+        public bool HasPlugin<T>() where T : IPlugin
+        {
+            return Plugins.All.OfType<T>().Count() > 0;
+        }
+
         public void Unload()
         {
-            foreach (var plugin in plugins)
+            foreach (var plugin in Plugins.All)
             {
                 try
                 {
@@ -45,25 +50,6 @@ namespace Monkeyspeak.Editor.Plugins
                 {
                     Logger.Error<DefaultPluginContainer>(ex);
                 }
-            }
-        }
-
-        private static IEnumerable<IPlugin> GetAllPlugins()
-        {
-            foreach (var asm in ReflectionHelper.GetAllAssemblies())
-            {
-                foreach (var plugin in GetPluginsFromAssembly(asm)) yield return plugin;
-            }
-        }
-
-        private static IEnumerable<IPlugin> GetPluginsFromAssembly(Assembly asm)
-        {
-            if (asm == null) yield break;
-            foreach (var type in ReflectionHelper.GetAllTypesWithInterface<IPlugin>(asm))
-            {
-                Logger.Debug<DefaultPluginContainer>($"Found plugin {type.Name}");
-                if (ReflectionHelper.HasNoArgConstructor(type))
-                    yield return (IPlugin)Activator.CreateInstance(type);
             }
         }
     }

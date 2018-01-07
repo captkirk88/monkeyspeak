@@ -41,6 +41,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Console\IConsole.cs" />
+    <Compile Include="Console\IConsoleCommand.cs" />
     <Compile Include="IEditor.cs" />
     <Compile Include="Notifications\INotification.cs" />
     <Compile Include="Notifications\INotificationManager.cs" />
