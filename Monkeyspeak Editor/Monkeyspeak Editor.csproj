@@ -99,6 +99,7 @@
       <SubType>Designer</SubType>
     </Page>
     <Compile Include="Commands\CloseCurrentEditorCommand.cs" />
+    <Compile Include="Commands\CompileCommand.cs" />
     <Compile Include="Commands\ExitCommand.cs" />
     <Compile Include="Commands\MonkeyspeakCommands.cs" />
     <Compile Include="Commands\NewEditorCommand.cs" />
@@ -111,8 +112,10 @@
     <Compile Include="Console\SetHighlighterConsoleCommand.cs" />
     <Compile Include="Editors.cs" />
     <Compile Include="HelperClasses\FileAssociations.cs" />
+    <Compile Include="HelperClasses\MonkeyspeakIndentationStrategy.cs" />
     <Compile Include="HelperClasses\TriggerCompletionData.cs" />
     <Compile Include="HelperClasses\WordColorizer.cs" />
+    <Compile Include="MonkeyspeakRunner.cs" />
     <Compile Include="Notifications\NotificationWithIcon.cs" />
     <Page Include="Controls\ConsoleWindow.xaml">
       <SubType>Designer</SubType>

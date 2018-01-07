@@ -1,6 +1,10 @@
-﻿using ICSharpCode.AvalonEdit.CodeCompletion;
+﻿using ICSharpCode.AvalonEdit;
+using ICSharpCode.AvalonEdit.CodeCompletion;
 using ICSharpCode.AvalonEdit.Document;
 using ICSharpCode.AvalonEdit.Editing;
+using ICSharpCode.AvalonEdit.Highlighting;
+using ICSharpCode.AvalonEdit.Rendering;
+using Monkeyspeak.Editor.Interfaces;
 using Monkeyspeak.Editor.Notifications;
 using Monkeyspeak.Libraries;
 using System;
@@ -43,14 +47,26 @@ namespace Monkeyspeak.Editor.HelperClasses
         {
             get
             {
+                TextEditor syntaxViewer = new TextEditor
+                {
+                    IsEnabled = false,
+                    SyntaxHighlighting = HighlightingManager.Instance.GetDefinition("Monkeyspeak"),
+                    ShowLineNumbers = false
+                };
                 var sb = new StringBuilder();
                 sb.AppendLine(Text);
                 if (lib != null)
                 {
+                    var handler = lib.Handlers.FirstOrDefault(h => h.Key == trigger).Value;
+                    if (handler != null)
+                    {
+                        var desc = handler.Method.GetCustomAttributes(typeof(TriggerDescriptionAttribute), true).FirstOrDefault() as TriggerDescriptionAttribute;
+                        sb.AppendLine(desc?.Description ?? "");
+                    }
                     sb.AppendLine($"Library: {lib.GetType().Name}");
-                    sb.AppendLine($"Handler: {lib.Handlers.FirstOrDefault(h => h.Key == trigger).Value?.Method.Name}");
                 }
-                return sb.ToString();
+                syntaxViewer.Text = Text;
+                return syntaxViewer;
             }
         }
 

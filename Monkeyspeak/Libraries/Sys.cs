@@ -79,6 +79,7 @@ namespace Monkeyspeak.Libraries
                 "call job # with (add strings, variables, numbers here) arguments.");
         }
 
+        [TriggerDescription("Calls the job")]
         private bool CallJob(TriggerReader reader)
         {
             double jobNumber = 0;
@@ -99,6 +100,7 @@ namespace Monkeyspeak.Libraries
             return true;
         }
 
+        [TriggerDescription("Occurs when a job number is called")]
         private bool JobCalled(TriggerReader reader)
         {
             double jobNumber = 0;
@@ -126,6 +128,7 @@ namespace Monkeyspeak.Libraries
             return result;
         }
 
+        [TriggerDescription("Deletes the variable, this is not recoverable")]
         private bool DeleteVariable(TriggerReader reader)
         {
             var var = reader.ReadVariable();
@@ -133,6 +136,7 @@ namespace Monkeyspeak.Libraries
             return !var.IsConstant ? reader.Page.RemoveVariable(var.Name) : false;
         }
 
+        [TriggerDescription("Gets the environment variable and puts it into a variable")]
         private bool GetEnvVariable(TriggerReader reader)
         {
             string envVar = Environment.GetEnvironmentVariable(reader.ReadString());
@@ -141,18 +145,21 @@ namespace Monkeyspeak.Libraries
             return true;
         }
 
+        [TriggerDescription("Determines whether the variable is defined or not")]
         private bool IsVariableDefined(TriggerReader reader)
         {
             var var = reader.ReadVariable();
             return var != null && reader.Page.HasVariable(var.Name);
         }
 
+        [TriggerDescription("Determines whether the variable is not defined")]
         private bool IsVariableNotDefined(TriggerReader reader)
         {
             var var = reader.ReadVariable();
             return var == null || !reader.Page.HasVariable(var.Name);
         }
 
+        [TriggerDescription("Determines whether the variable is equal to a number or variable that contains a number value")]
         private bool IsVariableEqualToNumberOrVar(TriggerReader reader)
         {
             var var = reader.ReadVariable();
@@ -160,11 +167,13 @@ namespace Monkeyspeak.Libraries
             return reader.ReadNumber() == var.Value.AsDouble();
         }
 
+        [TriggerDescription("Determines whether the variable is not equal to a number or variable that contains a number value")]
         private bool IsVariableNotEqualToNumberOrVar(TriggerReader reader)
         {
             return !IsVariableEqualToNumberOrVar(reader);
         }
 
+        [TriggerDescription("Determines whether the variable is equal to a string")]
         private bool IsVariableEqualToString(TriggerReader reader)
         {
             var var = reader.ReadVariable();
@@ -177,11 +186,13 @@ namespace Monkeyspeak.Libraries
             return false;
         }
 
+        [TriggerDescription("Determines whether the variable is not equal to a string")]
         private bool IsVariableNotEqualToString(TriggerReader reader)
         {
             return !IsVariableEqualToString(reader);
         }
 
+        [TriggerDescription("Gets all the loaded libraries and puts them into a table")]
         private bool GetAllLoadedLibrariesIntoTable(TriggerReader reader)
         {
             var table = reader.ReadVariableTable(true);
@@ -192,6 +203,7 @@ namespace Monkeyspeak.Libraries
             return true;
         }
 
+        [TriggerDescription("Unloads the library")]
         private bool UnloadLibrary(TriggerReader reader)
         {
             var libName = reader.ReadString();
@@ -200,6 +212,7 @@ namespace Monkeyspeak.Libraries
             return true;
         }
 
+        [TriggerDescription("Loads the library from the specified file")]
         private bool LoadLibraryFromFile(TriggerReader reader)
         {
             if (!reader.PeekString()) return false;
@@ -207,6 +220,7 @@ namespace Monkeyspeak.Libraries
             return true;
         }
 
+        [TriggerDescription("Prints to the log")]
         public virtual bool PrintToLog(TriggerReader reader)
         {
             string output = reader.ReadString();
@@ -215,6 +229,7 @@ namespace Monkeyspeak.Libraries
             return true;
         }
 
+        [TriggerDescription("Puts a random number into a variable")]
         private bool RandomValueToVar(TriggerReader reader)
         {
             var var = reader.ReadVariable(true);
@@ -222,6 +237,7 @@ namespace Monkeyspeak.Libraries
             return true;
         }
 
+        [TriggerDescription("Sets a variable to a number or variable")]
         private bool SetVariableToNumberOrVariable(TriggerReader reader)
         {
             var var = reader.ReadVariable(true);
@@ -237,6 +253,7 @@ namespace Monkeyspeak.Libraries
             return true;
         }
 
+        [TriggerDescription("Sets a variable to a string")]
         private bool SetVariableToString(TriggerReader reader)
         {
             var var = reader.ReadVariable(true);
@@ -245,11 +262,13 @@ namespace Monkeyspeak.Libraries
             return true;
         }
 
+        [TriggerDescription("Determines whether the variable is constant/unmodifiable")]
         private bool VariableIsConstant(TriggerReader reader)
         {
             return reader.ReadVariable().IsConstant;
         }
 
+        [TriggerDescription("Determines whether the variable is not constant/unmodifiablet")]
         private bool VariableIsNotConstant(TriggerReader reader)
         {
             return !reader.ReadVariable().IsConstant;

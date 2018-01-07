@@ -68,8 +68,12 @@
                 <ip:PackIconMaterial Kind="ContentSave" />
             </Button>
             <Button Command="{x:Static commands:MonkeyspeakCommands.SaveAll}" ToolTip="Save all documents"
-                    IsEnabled="{Binding Path=Editors.Instance.AnyHasChanges}">
+                    IsEnabled="{Binding Source={x:Static local:Editors.Instance}, Path=AnyHasChanges}">
                 <ip:PackIconMaterial Kind="ContentSaveAll" />
+            </Button>
+            <Separator />
+            <Button Command="{x:Static commands:MonkeyspeakCommands.Compile}" ToolTip="Compile current script" IsEnabled="True">
+                <ip:PackIconFontAwesome Kind="ArrowCircleRightSolid" />
             </Button>
             <Separator />
             <Button Command="Cut" ToolTip="{Binding RelativeSource={RelativeSource Self}, Path=Command}">
@@ -118,7 +122,7 @@
 				FontFamily="Consolas"
 				FontSize="10pt"
 				SyntaxHighlighting="Monkeyspeak"
-                Background="White">
+                Background="White" CaretOffset="0">
                 <avalonEdit:TextEditor.ContextMenu>
                     <ContextMenu>
                         <MenuItem Command="Cut" />
@@ -140,6 +144,7 @@
                     <ComboBoxItem>TextArea</ComboBoxItem>
                     <ComboBoxItem>Options</ComboBoxItem>
                     <ComboBoxItem>Active Plugins</ComboBoxItem>
+                    <ComboBoxItem>Monkeyspeak Options</ComboBoxItem>
                 </ComboBox>
                 <xc:PropertyGrid x:Name="propertyGrid" DockPanel.Dock="Right" />
             </DockPanel>

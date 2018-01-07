@@ -114,6 +114,11 @@ namespace Monkeyspeak
         /// </summary>
         public event TriggerHandledEventHandler AfterTriggerHandled;
 
+        public IEnumerable<Trigger> Triggers
+        {
+            get => triggerBlocks.SelectMany(block => block);
+        }
+
         public Page(MonkeyspeakEngine engine)
         {
             this.engine = engine;

@@ -45,7 +45,7 @@ namespace Monkeyspeak
     [Serializable]
     public struct Trigger : IEquatable<Trigger>
     {
-        public static readonly Trigger Undefined = new Trigger(TriggerCategory.Undefined, -1);
+        public static readonly Trigger Undefined = new Trigger(TriggerCategory.Cause, -1);
 
         private TriggerCategory category;
 
@@ -53,7 +53,7 @@ namespace Monkeyspeak
 
         internal List<IExpression> contents;
 
-        internal Trigger(TriggerCategory cat, int id)
+        internal Trigger(TriggerCategory cat, int id = -1)
         {
             category = cat;
             this.id = id;
