@@ -153,7 +153,7 @@ namespace MonkeyspeakTests
             };
             engine.Options.Debug = true;
             Logger.LogOutput = new FileLogger();
-            var page = engine.LoadFromString(UnitTest1.tableScript);
+            var page = engine.LoadFromString(ioTestString);
 
             page.LoadAllLibraries();
 

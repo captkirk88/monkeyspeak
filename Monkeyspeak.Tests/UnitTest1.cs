@@ -643,6 +643,40 @@ namespace MonkeyspeakTests
             page.Dispose();
         }
 
+        [Test]
+        public void NonExistantTriggersTest()
+        {
+            var testScript = @"
+";
+            var engine = new MonkeyspeakEngine();
+            engine.Options.Debug = true;
+            var page = engine.LoadFromString(testScript);
+
+            page.Error += DebugAllErrors;
+
+            page.LoadAllLibraries();
+
+            page.Execute(0);
+            System.Threading.Thread.Sleep(100);
+            page.Dispose();
+        }
+
+        [Test]
+        public void CallEffectTest()
+        {
+            var engine = new MonkeyspeakEngine();
+            engine.Options.Debug = true;
+            var page = engine.LoadFromString(testScript);
+
+            page.Error += DebugAllErrors;
+
+            page.LoadAllLibraries();
+
+            page.Execute();
+            System.Threading.Thread.Sleep(100);
+            page.Dispose();
+        }
+
         public static bool HandleScriptStartCause(Monkeyspeak.TriggerReader reader)
         {
             return true;

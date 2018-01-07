@@ -133,7 +133,7 @@ namespace Monkeyspeak
         /// <returns></returns>
         public Page LoadFromString(string chunk)
         {
-            if (string.IsNullOrWhiteSpace(chunk)) throw new NullReferenceException("chunk");
+            if (string.IsNullOrWhiteSpace(chunk)) throw new NullReferenceException("Cannot load a empty or null string");
             try
             {
                 var stream = new MemoryStream(Encoding.UTF8.GetBytes(chunk));

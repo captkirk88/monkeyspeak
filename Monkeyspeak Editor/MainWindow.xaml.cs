@@ -1,4 +1,5 @@
-﻿using MahApps.Metro;
+﻿using ICSharpCode.AvalonEdit.Highlighting;
+using MahApps.Metro;
 using MahApps.Metro.Controls;
 using MahApps.Metro.Controls.Dialogs;
 using Monkeyspeak.Editor.Commands;

@@ -414,14 +414,11 @@ namespace Monkeyspeak.Editor.Controls
                 else if (result == MessageDialogResult.FirstAuxiliary) return;
             }
 
-            await Task.Run(() =>
-            {
-                textEditor.Load(CurrentFilePath);
-                HasChanges = false;
-                textEditor.SyntaxHighlighting =
-                    HighlightingManager.Instance.GetDefinitionByExtension(System.IO.Path.GetExtension(CurrentFilePath)) ??
-                    HighlightingManager.Instance.GetDefinition("Monkeyspeak");
-            });
+            textEditor.Load(CurrentFilePath);
+            HasChanges = false;
+            textEditor.SyntaxHighlighting =
+                HighlightingManager.Instance.GetDefinitionByExtension(System.IO.Path.GetExtension(CurrentFilePath)) ??
+                HighlightingManager.Instance.GetDefinition("Monkeyspeak");
         }
 
         public async Task CloseAsync()
