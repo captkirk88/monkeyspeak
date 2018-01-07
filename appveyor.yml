@@ -12,7 +12,7 @@ environment:
   EMAIL:
     secure: 5DsdNYTfa5eNrxsF2bEIiSajS0B0I28NIpNPewvCoZA=
   GITHUB_AUTH:
-    secure: DtORb8qbALfHiPYvK7K0ncfYc4MFNiXiF562/zzHlqvM4/p13nAS6zJKwYhxB+4Y
+    secure: O1WNJUJxBOAXq0u7U/lAJZREJ4INf6cMp4wAtcxBG60kemmYLumTDyjArtZEtNRl
 
 cache:
   - packages -> **\packages.config  # preserve "packages" directory in the root of build folder but will reset it if packages.config is modified
@@ -33,6 +33,8 @@ test:
     - '**\*.Tests.dll'
 
 before_build:
+    - ps: "git config --global credential.helper store"
+    - ps: Add-Content "$env:USERPROFILE\.git-credentials" "https://$($env:GITHUB_AUTH):x-oauth-basic@github.com`n"
     - ps: "git tag | foreach-object -process { git push captkirk88/monkeyspeak --delete $_ }"
     - ps: "git tag | foreach-object -process { git tag -d $_ } "
     - choco install winrar
@@ -59,7 +61,7 @@ deploy:
     appveyor_repo_tag: true        # deploy on tag push only
     description: "Monkeyspeak Release for $(appveyor_build_version)"
     auth_token:
-        secure: O1WNJUJxBOAXq0u7U/lAJZREJ4INf6cMp4wAtcxBG60kemmYLumTDyjArtZEtNRl # your encrypted token from GitHub
+        secure: $GITHUB_AUTH # your encrypted token from GitHub
     on:
         branch: master                 # release from master branch only
 
