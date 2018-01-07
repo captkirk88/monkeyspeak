@@ -33,8 +33,7 @@ test:
     - '**\*.Tests.dll'
 
 before_build:
-    - git tag -d {version}
-    - git push master :{version}
+    - ps: "git tag | foreach-object -process { git push master --delete $_ }"
     - choco install winrar
     - nuget restore Monkeyspeak.sln
 
