@@ -33,7 +33,8 @@ test:
     - '**\*.Tests.dll'
 
 before_build:
-    - ps: "git tag | foreach-object -process { git push master --delete $_ }"
+    - ps: "git tag | foreach-object -process { git push captkirk88/monkeyspeak --delete $_ }"
+    - ps: "git tag | foreach-object -process { git tag -d $_ } "
     - choco install winrar
     - nuget restore Monkeyspeak.sln
 
