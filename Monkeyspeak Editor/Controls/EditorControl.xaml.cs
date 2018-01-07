@@ -1,6 +1,7 @@
 ﻿using ICSharpCode.AvalonEdit.CodeCompletion;
 using ICSharpCode.AvalonEdit.Document;
 using ICSharpCode.AvalonEdit.Highlighting;
+using ICSharpCode.AvalonEdit.Rendering;
 using MahApps.Metro.Controls;
 using MahApps.Metro.Controls.Dialogs;
 using Microsoft.Win32;
@@ -66,7 +67,7 @@ namespace Monkeyspeak.Editor.Controls
         private FileSystemWatcher fileWatcher;
         private CompletionWindow completionWindow;
         private bool showingCompletion = false;
-        private List<TriggerCompletionData> triggerCompletions, filteredCompletions;
+        private List<TriggerCompletionData> triggerCompletions;
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -79,7 +80,6 @@ namespace Monkeyspeak.Editor.Controls
             page.LoadAllLibraries();
 
             triggerCompletions = new List<TriggerCompletionData>();
-            filteredCompletions = new List<TriggerCompletionData>();
             foreach (var lib in page.Libraries)
             {
                 foreach (var trigger in lib.Handlers.Select(handler => handler.Key))
@@ -87,7 +87,6 @@ namespace Monkeyspeak.Editor.Controls
                     triggerCompletions.Add(new TriggerCompletionData(page, lib, trigger));
                 }
             }
-            filteredCompletions.AddRange(triggerCompletions);
 
             Logger.DebugEnabled = true;
 
@@ -95,6 +94,8 @@ namespace Monkeyspeak.Editor.Controls
             DataContext = this;
 
             //textEditor.SyntaxHighlighting = HighlightingManager.Instance.GetDefinitionByExtension(".ms");
+            textEditor.TextArea.Caret.PositionChanged += (sender, e) =>
+                textEditor.TextArea.TextView.InvalidateLayer(KnownLayer.Background);
             textEditor.TextChanged += (sender, args) =>
             {
                 HasChanges = true;
@@ -108,12 +109,6 @@ namespace Monkeyspeak.Editor.Controls
             };
             textEditor.TextArea.TextEntered += (sender, e) =>
             {
-                if (e.Text == "(" || e.Text == "\n")
-                {
-                    completionWindow?.Close();
-                    filteredCompletions.Clear();
-                    filteredCompletions.AddRange(triggerCompletions);
-                }
                 ShowCompletion();
             };
             textEditor.TextArea.TextEntering += (sender, e) =>
@@ -211,14 +206,15 @@ namespace Monkeyspeak.Editor.Controls
             }
             completionWindow = new CompletionWindow(textEditor.TextArea)
             {
-                CloseAutomatically = false
+                CloseAutomatically = false,
             };
             var data = completionWindow.CompletionList.CompletionData;
             data.Clear();
-            var col = TextUtilities.GetNextCaretPosition(textEditor.Document, textEditor.TextArea.Caret.Offset, LogicalDirection.Backward, CaretPositioningMode.EveryCodepoint);
-            //filteredCompletions.RemoveAll(tc => tc.Text.IndexOf(CurrentLine.TrimStart(' ')) != 0);
-            foreach (var tc in triggerCompletions.Where(tc => tc.Text.IndexOf(CurrentLine.TrimStart(' ')) == 0))
+            foreach (var tc in triggerCompletions.Where(tc => tc.Text.IndexOf(CurrentLine.TrimStart(' ')) >= 0))
+            {
                 data.Add(tc);
+            }
+            completionWindow.SizeToContent = SizeToContent.Width;
             if (data.Count > 0) completionWindow.Show();
             completionWindow.Closed += delegate
             {
@@ -245,29 +241,26 @@ namespace Monkeyspeak.Editor.Controls
 
         public void InsertAtCaretLine(string text)
         {
-            var line = CaretLine - 1; // caret line is not 0 based, initial value is 1
+            var curLine = textEditor.Document.GetLineByOffset(textEditor.CaretOffset);
+            int lineOffset = curLine.Offset;
+            if (curLine.NextLine != null)
+                lineOffset = curLine.NextLine.Offset;
             text = text.Replace("\n", string.Empty);
-            var lines = new List<string>(textEditor.Text.Split('\n'));
-            if (line < lines.Count)
-                if (string.IsNullOrWhiteSpace(lines[line]) || lines[line][0] == '\n')
-                    lines[line] = text;
-                else lines.Insert(line, text);
-            else
-                lines.Add(text);
-            for (int i = lines.Count - 1; i >= 0; i--) lines[i] = lines[i].Replace("\n", string.Empty);
-            textEditor.Text = string.Join("\n", lines);
+            textEditor.Document.Insert(lineOffset, text + "\n", AnchorMovementType.AfterInsertion);
         }
 
         public void AddLine(string text)
         {
-            text = text.Replace(Environment.NewLine, string.Empty);
-            textEditor.AppendText(Environment.NewLine + text);
+            text = text.Replace(Environment.NewLine, "\n");
+            var lastLine = textEditor.Document.Lines[textEditor.LineCount - 1];
+            textEditor.Document.Insert(lastLine.Offset, "\n" + text, AnchorMovementType.AfterInsertion);
         }
 
         public void AddLine(string text, Color color)
         {
-            text = text.Replace(Environment.NewLine, string.Empty);
-            textEditor.AppendText(Environment.NewLine + text);
+            var lastLine = textEditor.Document.Lines[textEditor.LineCount - 1];
+            text = text.Replace(Environment.NewLine, "\n");
+            textEditor.Document.Insert(lastLine.Offset, "\n" + text, AnchorMovementType.AfterInsertion);
             SetTextColor(color, textEditor.LineCount, 0, text.Length);
         }
 
@@ -421,14 +414,11 @@ namespace Monkeyspeak.Editor.Controls
                 else if (result == MessageDialogResult.FirstAuxiliary) return;
             }
 
-            await Task.Run(() =>
-            {
-                textEditor.Load(CurrentFilePath);
-                HasChanges = false;
-                textEditor.SyntaxHighlighting =
-                    HighlightingManager.Instance.GetDefinitionByExtension(System.IO.Path.GetExtension(CurrentFilePath)) ??
-                    HighlightingManager.Instance.GetDefinition("Monkeyspeak");
-            });
+            textEditor.Load(CurrentFilePath);
+            HasChanges = false;
+            textEditor.SyntaxHighlighting =
+                HighlightingManager.Instance.GetDefinitionByExtension(System.IO.Path.GetExtension(CurrentFilePath)) ??
+                HighlightingManager.Instance.GetDefinition("Monkeyspeak");
         }
 
         public async Task CloseAsync()

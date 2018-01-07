@@ -874,7 +874,7 @@ namespace Monkeyspeak
                     switch (current.Category)
                     {
                         case TriggerCategory.Cause:
-                            // skip any more causes since the initial passed
+                            // skip any more causes since the initial failed
                             Trigger possibleCause = Trigger.Undefined;
                             for (int i = index + 1; i <= triggerBlock.Count - 1; i++)
                             {
@@ -927,7 +927,7 @@ namespace Monkeyspeak
         {
             var reader = new TriggerReader(this, triggerBlock)
             {
-                Parameters = args
+                Parameters = args ?? new object[0]
             };
 
             int j = 0;
@@ -970,37 +970,6 @@ namespace Monkeyspeak
         }
 
         /// <summary>
-        /// Executes a trigger block containing <paramref name="cat"/> with ID equal to <paramref name="id" />
-        ///
-        /// </summary>
-        /// <param name="id"></param>
-        /// <param name="args"></param>
-        /// <param name="cat"><see cref="TriggerCategory"/></param>
-        public void Execute(TriggerCategory cat, int id = 0, params object[] args)
-        {
-            try
-            {
-                lock (syncObj)
-                {
-                    int index = -1, executed = 0;
-                    for (int j = 0; j <= triggerBlocks.Count - 1; j++)
-                    {
-                        if ((index = triggerBlocks[j].IndexOfTrigger(cat, id)) != -1)
-                        {
-                            ExecuteBlock(triggerBlocks[j], index, args);
-                            executed++;
-                        }
-                    }
-                    if (index == -1 && executed == 0) Logger.Debug<Page>($"No {cat} found with id {id}");
-                }
-            }
-            catch (Exception ex)
-            {
-                ex.Log<Page>();
-            }
-        }
-
-        /// <summary>
         /// Executes a trigger block containing TriggerCategory.Cause with ID equal to <param name="id" />
         ///
         /// </summary>
@@ -1012,100 +981,26 @@ namespace Monkeyspeak
             {
                 lock (syncObj)
                 {
-                    int index = -1;
-                    for (int j = 0; j <= triggerBlocks.Count - 1; j++)
+                    var cat = TriggerCategory.Cause;
+                    for (int i = 0; i <= ids.Length - 1; i++)
                     {
-                        for (int i = 0; i <= ids.Length - 1; i++)
-                        {
-                            if ((index = triggerBlocks[j].IndexOfTrigger(TriggerCategory.Cause, ids[i])) != -1)
-                            {
-                                ExecuteBlock(triggerBlocks[j], index, args);
-                            }
-                        }
-                    }
-                    if (index == -1) Logger.Debug<Page>($"No Cause found that matches id's '{ids.ToString(' ')}'");
-                }
-            }
-            catch (Exception ex)
-            {
-                ex.Log<Page>();
-            }
-        }
-
-        /// <summary>
-        /// Executes the asynchronous.
-        /// </summary>
-        /// <param name="cancellationToken">cancellation token to end the executing task</param>
-        /// <param name="id"></param>
-        /// <param name="args"></param>
-        /// <param name="cat"><see cref="TriggerCategory"/></param>
-        /// <returns></returns>
-        public async Task ExecuteAsync(TriggerCategory cat = TriggerCategory.Cause, int id = 0, CancellationToken cancellationToken = default(CancellationToken), params object[] args)
-        {
-            try
-            {
-                await Task.Run(() =>
-                {
-                    lock (syncObj)
-                    {
+                        int index = -1, executed = 0;
                         for (int j = 0; j <= triggerBlocks.Count - 1; j++)
                         {
-                            int index;
-                            if ((index = triggerBlocks[j].IndexOfTrigger(cat, id)) != -1)
+                            if ((index = triggerBlocks[j].IndexOfTrigger(cat, ids[i])) != -1)
                             {
                                 ExecuteBlock(triggerBlocks[j], index, args);
+                                executed++;
                             }
                         }
+                        if (index == -1 && executed == 0) Logger.Error<Page>($"No {cat} found with id {ids[i]}");
+                        executed = 0;
                     }
-                }, cancellationToken).ContinueWith(t => Logger.Error<Page>(t.Exception.InnerException), TaskContinuationOptions.OnlyOnFaulted | TaskContinuationOptions.ExecuteSynchronously);
-            }
-            catch (OperationCanceledException ex)
-            {
-                ex.LogMessage<Page>();
+                }
             }
             catch (Exception ex)
             {
                 ex.Log<Page>();
-            }
-        }
-
-        /// <summary>
-        /// Executes the specified <paramref name="cat"/> with specified <paramref name="ids"/> asynchronously.
-        /// </summary>
-        /// <param name="cancellationToken">cancellation token to end the executing task</param>
-        /// <param name="ids">The ids.</param>
-        /// <param name="args">todo: describe args parameter on ExecuteAsync</param>
-        /// <param name="cat"><see cref="TriggerCategory"/></param>
-        /// <returns></returns>
-        public async Task ExecuteAsync(TriggerCategory cat, IEnumerable<int> ids, CancellationToken cancellationToken = default(CancellationToken), params object[] args)
-        {
-            foreach (var id in ids)
-            {
-                try
-                {
-                    await Task.Run(() =>
-                    {
-                        lock (syncObj)
-                        {
-                            for (int j = 0; j <= triggerBlocks.Count - 1; j++)
-                            {
-                                int index;
-                                if ((index = triggerBlocks[j].IndexOfTrigger(cat, id)) != -1)
-                                {
-                                    ExecuteBlock(triggerBlocks[j], index, args);
-                                }
-                            }
-                        }
-                    }, cancellationToken).ContinueWith(t => Logger.Error<Page>(t.Exception.InnerException), TaskContinuationOptions.OnlyOnFaulted | TaskContinuationOptions.ExecuteSynchronously);
-                }
-                catch (OperationCanceledException ex)
-                {
-                    ex.LogMessage<Page>();
-                }
-                catch (Exception ex)
-                {
-                    ex.Log<Page>();
-                }
             }
         }
 
@@ -1125,22 +1020,16 @@ namespace Monkeyspeak
                 {
                     await Task.Run(() =>
                     {
-                        lock (syncObj)
-                        {
-                            for (int j = 0; j <= triggerBlocks.Count - 1; j++)
-                            {
-                                int index;
-                                if ((index = triggerBlocks[j].IndexOfTrigger(TriggerCategory.Cause, id)) != -1)
-                                {
-                                    ExecuteBlock(triggerBlocks[j], index, args);
-                                }
-                            }
-                        }
+                        Execute(id, args);
                     }, cancellationToken).ContinueWith(t => Logger.Error<Page>(t.Exception.InnerException), TaskContinuationOptions.OnlyOnFaulted | TaskContinuationOptions.ExecuteSynchronously);
                 }
                 catch (OperationCanceledException ex)
                 {
-                    ex.LogMessage<Page>();
+#if DEBUG
+                    ex.Log<Page>();
+#else
+                ex.LogMessage<Page>();
+#endif
                 }
                 catch (Exception ex)
                 {
@@ -1156,28 +1045,22 @@ namespace Monkeyspeak
         /// <param name="id">The id</param>
         /// <param name="cancellationToken">cancellation token to end the executing task</param>
         /// <returns></returns>
-        public async Task ExecuteAsync(int id, CancellationToken cancellationToken = default(CancellationToken), params object[] args)
+        public async Task ExecuteAsync(int id = 0, CancellationToken cancellationToken = default(CancellationToken), params object[] args)
         {
             try
             {
                 await Task.Run(() =>
                 {
-                    lock (syncObj)
-                    {
-                        for (int j = 0; j <= triggerBlocks.Count - 1; j++)
-                        {
-                            int index;
-                            if ((index = triggerBlocks[j].IndexOfTrigger(TriggerCategory.Cause, id)) != -1)
-                            {
-                                ExecuteBlock(triggerBlocks[j], index, args);
-                            }
-                        }
-                    }
-                }, cancellationToken);
+                    Execute(id, args);
+                }, cancellationToken).ContinueWith(t => Logger.Error<Page>(t.Exception.InnerException), TaskContinuationOptions.OnlyOnFaulted | TaskContinuationOptions.ExecuteSynchronously);
             }
             catch (OperationCanceledException ex)
             {
+#if DEBUG
+                ex.Log<Page>();
+#else
                 ex.LogMessage<Page>();
+#endif
             }
             catch (Exception ex)
             {
