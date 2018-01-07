@@ -377,6 +377,7 @@ namespace Monkeyspeak.Editor.Controls
                 else
                 {
                     textEditor.Load(CurrentFilePath);
+                    textEditor.Text = textEditor.Text.Replace(Environment.NewLine, "\n");
                     textEditor.SyntaxHighlighting =
                             HighlightingManager.Instance.GetDefinitionByExtension(System.IO.Path.GetExtension(CurrentFilePath)) ??
                             HighlightingManager.Instance.GetDefinition("Monkeyspeak");
