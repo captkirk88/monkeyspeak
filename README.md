@@ -1,5 +1,5 @@
 
-<img src="https://pbs.twimg.com/media/DBCp3bAXcAAL3WP.jpg" alt="Monkeyspeak Hero" style="width: 200px;" />
+<img src="https://github.com/captkirk88/monkeyspeak/blob/master/images/ms_edit.png" width="200" height="200" />
 
 # Monkeyspeak
 Linux/Mono | Windows
@@ -130,8 +130,6 @@ than [Basic Usage](#basic-usage)'s execution example.
 
 #### Monkeyspeak Editor
 Yes there is a editor in there.  As of right now it is in early pre-release alpha.
-
-![Monkeyspeak Editor](/images/ms_edit.png)
 
 #### Guides
 1) :book: [Triggers](wiki/Triggers.md)
