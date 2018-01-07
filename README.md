@@ -1,5 +1,5 @@
 
-<img src="https://github.com/captkirk88/monkeyspeak/blob/master/images/ms_edit.png" width="300" height="400" />
+<img src="https://github.com/captkirk88/monkeyspeak/blob/master/images/ms_edit.png" width="800" height="600" />
 
 # Monkeyspeak
 Linux/Mono | Windows
