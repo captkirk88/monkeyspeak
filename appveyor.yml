@@ -54,10 +54,9 @@ deploy:
     prerelease: false
     force_update: true
     appveyor_repo_tag: true        # deploy on tag push only
-    release: "{version}"
-    description: "Monkeyspeak Release for $"
+    description: "Monkeyspeak Release for $(appveyor_build_version)"
     auth_token:
-        secure: DtORb8qbALfHiPYvK7K0ncfYc4MFNiXiF562/zzHlqvM4/p13nAS6zJKwYhxB+4Y= # your encrypted token from GitHub
+        secure: O1WNJUJxBOAXq0u7U/lAJZREJ4INf6cMp4wAtcxBG60kemmYLumTDyjArtZEtNRl # your encrypted token from GitHub
     on:
         branch: master                 # release from master branch only
 
