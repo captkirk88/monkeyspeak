@@ -10,6 +10,8 @@ skip_branch_with_pr: false
 environment:
   EMAIL:
     secure: 5DsdNYTfa5eNrxsF2bEIiSajS0B0I28NIpNPewvCoZA=
+  GITHUB_AUTH:
+    secure: DtORb8qbALfHiPYvK7K0ncfYc4MFNiXiF562/zzHlqvM4/p13nAS6zJKwYhxB+4Y
 
 cache:
   - packages -> **\packages.config  # preserve "packages" directory in the root of build folder but will reset it if packages.config is modified
@@ -23,6 +25,12 @@ assembly_info:
   assembly_file_version: "{version}"
   assembly_informational_version: "{version}"
 
+test:
+  assemblies:
+    - '**\*.Tests.dll'
+
+before_build:
+    - choco install winrar
 build:
   project: Monkeyspeak.sln
   publish_nuget: false
@@ -30,10 +38,25 @@ build:
   parallel: true
   verbosity: minimal
 
+# Deploy to GitHub Releases
+deploy:
+  - provider: GitHub
+    artifact: /.*\.nupkg/           # upload all NuGet packages to release assets
+    draft: false
+    prerelease: false
+    force_update: true
+    release: "{version}"
+    description: Monkeyspeak Release
+    auth_token:
+        secure: $GITHUB_AUTH # your encrypted token from GitHub
+    on:
+        branch: master                 # release from master branch only
+        appveyor_repo_tag: true        # deploy on tag push only
+
 notifications:
 - provider: Email
   to:
-  - $(EMAIL)
+  - $EMAIL
   on_build_success: false
   on_build_failure: true
   on_build_status_changed: false
