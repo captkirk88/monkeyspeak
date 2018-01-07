@@ -35,8 +35,6 @@ namespace Monkeyspeak.Editor.Controls
     /// </summary>
     public partial class EditorControl : MetroTabItem, IEditor, INotifyPropertyChanged
     {
-        private static IPluginContainer pluginContainer = new DefaultPluginContainer();
-
         static EditorControl()
         {
             // load up monkeyspeak syntax higlighting
@@ -66,7 +64,6 @@ namespace Monkeyspeak.Editor.Controls
 
         private FileSystemWatcher fileWatcher;
         private CompletionWindow completionWindow;
-        private bool showingCompletion = false;
         private List<TriggerCompletionData> triggerCompletions;
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -99,13 +96,15 @@ namespace Monkeyspeak.Editor.Controls
             textEditor.TextChanged += (sender, args) =>
             {
                 HasChanges = true;
-                foreach (var plugin in Plugins.Plugins.All) plugin.OnEditorTextChanged(this);
+                Plugins.Plugins.AllEnabled = true;
+                Plugins.Plugins.OnEditorTextChanged(this);
             };
             textEditor.TextArea.SelectionChanged += (sender, args) =>
             {
                 SelectedLine = Lines[textEditor.TextArea.Caret.Line - 1];
                 SelectedText = textEditor.SelectedText;
-                foreach (var plugin in Plugins.Plugins.All) plugin.OnEditorSelectionChanged(this);
+                Plugins.Plugins.AllEnabled = true;
+                Plugins.Plugins.OnEditorSelectionChanged(this);
             };
             textEditor.TextArea.TextEntered += (sender, e) =>
             {
@@ -290,6 +289,7 @@ namespace Monkeyspeak.Editor.Controls
         /// <param name="color">Text color to set</param>
         public void SetTextColor(Color color, int line, int start, int end)
         {
+            if (start < 0 || end < 0) return;
             BeginUndoGroup();
             textEditor.TextArea.TextView.LineTransformers.Add(new WordColorizer(color, line, start, end));
             EndUndoGroup();
@@ -304,7 +304,10 @@ namespace Monkeyspeak.Editor.Controls
         /// <param name="end">The end.</param>
         public void SetTextWeight(FontWeight weight, int line, int start, int end)
         {
+            if (start < 0 || end < 0) return;
+            BeginUndoGroup();
             textEditor.TextArea.TextView.LineTransformers.Add(new FontWeightTransformer(weight, line, start, end));
+            EndUndoGroup();
         }
 
         public IList<string> Lines
@@ -318,6 +321,8 @@ namespace Monkeyspeak.Editor.Controls
         }
 
         public int WordCount => textEditor.Text.Length;
+
+        public string CurrentLine => Lines[textEditor.TextArea.Caret.Line - 1];
 
         public string SelectedText { get; private set; }
 
@@ -350,8 +355,6 @@ namespace Monkeyspeak.Editor.Controls
             }
         }
 
-        public string CurrentLine { get => Lines[textEditor.TextArea.Caret.Line - 1]; }
-
         public bool Open()
         {
             OpenFileDialog dlg = new OpenFileDialog
@@ -376,8 +379,9 @@ namespace Monkeyspeak.Editor.Controls
                 }
                 else
                 {
+                    Plugins.Plugins.AllEnabled = false;
                     textEditor.Load(CurrentFilePath);
-                    textEditor.Text = textEditor.Text.Replace(Environment.NewLine, "\n");
+                    textEditor.Text = TextUtilities.NormalizeNewLines(textEditor.Text, "\n");
                     textEditor.SyntaxHighlighting =
                             HighlightingManager.Instance.GetDefinitionByExtension(System.IO.Path.GetExtension(CurrentFilePath)) ??
                             HighlightingManager.Instance.GetDefinition("Monkeyspeak");
@@ -386,7 +390,7 @@ namespace Monkeyspeak.Editor.Controls
             return opened ?? false;
         }
 
-        public void Save()
+        public void Save(bool forced = false)
         {
             fileWatcher.EnableRaisingEvents = false;
             if (CurrentFilePath == null)
@@ -398,7 +402,15 @@ namespace Monkeyspeak.Editor.Controls
                     RestoreDirectory = false,
                     Filter = "Monkeyspeak Script |*.ms|All files (*.*)|*.*"
                 };
-                if (dlg.ShowDialog() ?? false)
+
+                if (forced)
+                {
+                    var temp = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), "backup_" + System.IO.Path.GetRandomFileName() + ".ms");
+                    CurrentFilePath = temp;
+                    textEditor.Save(CurrentFilePath);
+                    return;
+                }
+                else if (dlg.ShowDialog() ?? false)
                 {
                     CurrentFilePath = dlg.FileName;
                 }
@@ -410,6 +422,8 @@ namespace Monkeyspeak.Editor.Controls
             textEditor.Save(CurrentFilePath);
             HasChanges = false;
             fileWatcher.EnableRaisingEvents = true;
+            Plugins.Plugins.AllEnabled = true;
+            Plugins.Plugins.OnEditorSaveCompleted(this);
         }
 
         public void SaveAs(string fileName = null)
@@ -431,6 +445,8 @@ namespace Monkeyspeak.Editor.Controls
             }
             textEditor.Save(CurrentFilePath);
             HasChanges = false;
+            Plugins.Plugins.AllEnabled = true;
+            Plugins.Plugins.OnEditorSaveCompleted(this);
         }
 
         public async Task Reload()
@@ -444,8 +460,9 @@ namespace Monkeyspeak.Editor.Controls
                 if (result == MessageDialogResult.Affirmative) Save();
                 else if (result == MessageDialogResult.FirstAuxiliary) return;
             }
-
+            Plugins.Plugins.AllEnabled = false;
             textEditor.Load(CurrentFilePath);
+            textEditor.Text = TextUtilities.NormalizeNewLines(textEditor.Text, "\n");
             HasChanges = false;
             textEditor.SyntaxHighlighting =
                 HighlightingManager.Instance.GetDefinitionByExtension(System.IO.Path.GetExtension(CurrentFilePath)) ??
@@ -505,6 +522,11 @@ namespace Monkeyspeak.Editor.Controls
             Editors.Instance.Selected = this;
         }
 
+        private void OnPreviewLostKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
+        {
+            completionWindow?.Close();
+        }
+
         private void OnGotFocus(object sender, RoutedEventArgs e)
         {
             if (Editors.Instance.Selected == this) return;
@@ -514,6 +536,12 @@ namespace Monkeyspeak.Editor.Controls
 
         private void OnLostFocus(object sender, RoutedEventArgs e)
         {
+            completionWindow?.Close();
+        }
+
+        private void OnLostMouseCapture(object sender, MouseEventArgs e)
+        {
+            completionWindow?.Close();
         }
 
         protected bool SetField<T>(ref T field, T value, [CallerMemberName] string propertyName = null)

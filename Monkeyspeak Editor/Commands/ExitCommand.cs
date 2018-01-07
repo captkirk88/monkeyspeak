@@ -10,16 +10,9 @@ using System.Windows.Input;
 
 namespace Monkeyspeak.Editor.Commands
 {
-    public sealed class ExitCommand : ICommand
+    public sealed class ExitCommand : BaseCommand
     {
-        public event EventHandler CanExecuteChanged;
-
-        public bool CanExecute(object parameter)
-        {
-            return true;
-        }
-
-        public async void Execute(object parameter)
+        public override async void Execute(object parameter)
         {
             var window = (MetroWindow)Application.Current.MainWindow;
             var dialog = await DialogManager.GetCurrentDialogAsync<BaseMetroDialog>(window);
@@ -31,5 +24,7 @@ namespace Monkeyspeak.Editor.Commands
                 await editors[i].CloseAsync();
             Application.Current.Shutdown();
         }
+
+        public override object ToolTip => "Prompts for save changes, then exits the program";
     }
 }

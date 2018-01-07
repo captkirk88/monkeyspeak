@@ -1,4 +1,5 @@
 ﻿using ICSharpCode.AvalonEdit.Highlighting;
+using MahApps.Metro.Controls;
 using Monkeyspeak.Editor.Interfaces.Notifications;
 using System;
 using System.Collections.Generic;
@@ -16,20 +17,31 @@ namespace Monkeyspeak.Editor.Notifications
         {
             get
             {
+                var scroll = new ScrollViewer();
                 var stackPanel = new StackPanel();
+
+                StringBuilder welcome = new StringBuilder();
+                welcome.AppendLine("Thank you for using the Monkeyspeak Editor!")
+                    .AppendLine("Did you know?")
+                    .AppendLine("- Right click on a tab for shortcuts.")
+                    .AppendLine("- Ctrl+Space for intellisense.")
+                    .AppendLine("- Ctrl+S to save")
+                    .AppendLine("- Ctrl+N for new document")
+                    .AppendLine("- Ctrl+X close current document");
                 var tb = new TextBlock
                 {
-                    Text = "Thank you for using the Monkeyspeak Editor!",
+                    Text = welcome.ToString(),
                     TextWrapping = System.Windows.TextWrapping.Wrap,
                 };
                 var associateExtButton = new Button()
                 {
-                    Content = "Register .ms To This"
+                    Content = "Register .ms extension To This"
                 };
                 associateExtButton.Click += (sender, args) => EnsureFileAssociations();
                 stackPanel.Children.Add(tb);
                 stackPanel.Children.Add(associateExtButton);
-                return stackPanel;
+                scroll.Content = stackPanel;
+                return scroll;
             }
         }
 

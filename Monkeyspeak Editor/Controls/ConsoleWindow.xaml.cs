@@ -36,12 +36,9 @@ namespace Monkeyspeak.Editor.Controls
             {
                 foreach (var type in ReflectionHelper.GetAllTypesWithInterface<IConsoleCommand>(asm))
                 {
-                    if (ReflectionHelper.HasNoArgConstructor(type))
+                    if (ReflectionHelper.HasNoArgConstructor(type) && ReflectionHelper.TryCreate<IConsoleCommand>(type, out var consoleCommand))
                     {
-                        if (ReflectionHelper.TryCreate(type, out var consoleCommand))
-                        {
-                            commands.Add((IConsoleCommand)consoleCommand);
-                        }
+                        commands.Add(consoleCommand);
                     }
                 }
             }
@@ -58,6 +55,7 @@ namespace Monkeyspeak.Editor.Controls
 
         public void Write(string output, Color color)
         {
+            if (color == default(Color)) color = Colors.White;
             paragraph.Inlines.Add(new Run(output)
             {
                 FontFamily = console.FontFamily,
@@ -71,6 +69,7 @@ namespace Monkeyspeak.Editor.Controls
 
         public void WriteLine(string output, Color color)
         {
+            if (color == default(Color)) color = Colors.White;
             paragraph.Inlines.Add(new Run(output)
             {
                 FontFamily = console.FontFamily,
@@ -87,6 +86,7 @@ namespace Monkeyspeak.Editor.Controls
 
         private void input_PreviewKeyDown(object sender, System.Windows.Input.KeyEventArgs e)
         {
+            if (string.IsNullOrWhiteSpace(input.Text)) return;
             if (e.Key == System.Windows.Input.Key.Return)
             {
                 e.Handled = true;

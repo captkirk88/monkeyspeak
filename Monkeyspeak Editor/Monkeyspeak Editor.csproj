@@ -98,6 +98,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Compile Include="Commands\BaseCommand.cs" />
     <Compile Include="Commands\CloseCurrentEditorCommand.cs" />
     <Compile Include="Commands\CompileCommand.cs" />
     <Compile Include="Commands\ExitCommand.cs" />
@@ -147,7 +148,7 @@
       <DependentUpon>EditorControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="HelperClasses\CommandManagerHelper.cs" />
-    <Compile Include="HelperClasses\DelegateCommand.cs" />
+    <Compile Include="Commands\DelegateCommand.cs" />
     <Compile Include="Logging\ConsoleWindowLogOutput.cs" />
     <Compile Include="Logging\NotificationPanelLogOutput.cs" />
     <Compile Include="MainWindow.xaml.cs">
@@ -166,7 +167,6 @@
     <Compile Include="Notifications\NotificationManager.cs" />
     <Compile Include="Notifications\StringNotification.cs" />
     <Compile Include="Notifications\WelcomeNotification.cs" />
-    <Compile Include="Plugins\DefaultPluginContainer.cs" />
     <Compile Include="Plugins\Plugins.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>

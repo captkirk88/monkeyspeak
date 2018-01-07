@@ -47,7 +47,6 @@
     <Compile Include="Notifications\INotification.cs" />
     <Compile Include="Notifications\INotificationManager.cs" />
     <Compile Include="Plugins\IPlugin.cs" />
-    <Compile Include="Plugins\IPluginContainer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

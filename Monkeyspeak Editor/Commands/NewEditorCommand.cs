@@ -9,19 +9,14 @@ using System.Windows.Threading;
 
 namespace Monkeyspeak.Editor.Commands
 {
-    public sealed class NewEditorCommand : ICommand
+    public sealed class NewEditorCommand : BaseCommand
     {
-        public event EventHandler CanExecuteChanged;
-
-        public bool CanExecute(object parameter)
-        {
-            return true;
-        }
-
-        public void Execute(object parameter)
+        public override void Execute(object parameter)
         {
             var editor = Editors.Instance.Add();
             Application.Current.Dispatcher.Invoke(() => ((MahApps.Metro.Controls.MetroAnimatedSingleRowTabControl)editor.Parent).SelectedItem = editor);
         }
+
+        public override object ToolTip => "Creates a new document";
     }
 }

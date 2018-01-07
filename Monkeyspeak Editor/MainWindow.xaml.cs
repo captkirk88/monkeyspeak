@@ -28,7 +28,6 @@ namespace Monkeyspeak.Editor
     public partial class MainWindow : MetroWindow
     {
         private ConsoleWindow console;
-        private IPluginContainer plugins;
 
         public MainWindow(params string[] files)
         {
@@ -78,8 +77,6 @@ namespace Monkeyspeak.Editor
                 theme_chooser.Items.Add(theme);
             }
 
-            plugins = new DefaultPluginContainer();
-
             Loaded += MainWindow_Loaded;
 
             if (files != null && files.Length > 0)
@@ -100,7 +97,7 @@ namespace Monkeyspeak.Editor
                 new NewEditorCommand().Execute(null);
 
             NotificationManager.Instance.AddNotification(new WelcomeNotification());
-            plugins.Initialize();
+            Plugins.Plugins.Initialize();
         }
 
         private void MetroWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
@@ -225,9 +222,8 @@ namespace Monkeyspeak.Editor
 
         private void RestorePlugins_Click(object sender, RoutedEventArgs e)
         {
-            plugins.Unload();
-            plugins = new DefaultPluginContainer();
-            plugins.Initialize();
+            Plugins.Plugins.Unload();
+            Plugins.Plugins.Initialize();
         }
     }
 }

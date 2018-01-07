@@ -9,16 +9,9 @@ using System.Windows.Threading;
 
 namespace Monkeyspeak.Editor.Commands
 {
-    public sealed class CloseCurrentEditorCommand : ICommand
+    public sealed class CloseCurrentEditorCommand : BaseCommand
     {
-        public event EventHandler CanExecuteChanged;
-
-        public bool CanExecute(object parameter)
-        {
-            return true;
-        }
-
-        public async void Execute(object parameter)
+        public override async void Execute(object parameter)
         {
             await Editors.Instance.Selected?.CloseAsync();
             if (Editors.Instance.IsEmpty)
@@ -26,5 +19,7 @@ namespace Monkeyspeak.Editor.Commands
                 Application.Current.Shutdown();
             }
         }
+
+        public override object ToolTip => "Closes the current document";
     }
 }

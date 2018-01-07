@@ -26,21 +26,28 @@ namespace Monkeyspeak.Editor.Plugins
         /// </value>
         public virtual bool Enabled { get; set; }
 
-        protected INotificationManager NotificationManager { get; }
-
-        public void AddNotification(INotification notif)
-        {
-            NotificationManager.AddNotification(notif);
-        }
-
         /// <summary>
         /// Initializes the specified plugin container.
         /// </summary>
         public abstract void Initialize();
 
+        /// <summary>
+        /// Called when [editor selection changed].
+        /// </summary>
+        /// <param name="editor">The editor.</param>
         public abstract void OnEditorSelectionChanged(IEditor editor);
 
+        /// <summary>
+        /// Called when [editor text changed].
+        /// </summary>
+        /// <param name="editor">The editor.</param>
         public abstract void OnEditorTextChanged(IEditor editor);
+
+        /// <summary>
+        /// Called when [editor save completed].
+        /// </summary>
+        /// <param name="editor">The editor.</param>
+        public abstract void OnEditorSaveCompleted(IEditor editor);
 
         /// <summary>
         /// Unloads this instance.

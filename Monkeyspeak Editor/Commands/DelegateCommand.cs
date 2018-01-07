@@ -1,8 +1,9 @@
-﻿using System;
+﻿using Monkeyspeak.Editor.HelperClasses;
+using System;
 using System.Collections.Generic;
 using System.Windows.Input;
 
-namespace Monkeyspeak.Editor.HelperClasses
+namespace Monkeyspeak.Editor.Commands
 {
     /// <summary>
     /// This class allows delegating the commanding logic to methods passed as parameters,

@@ -10,16 +10,9 @@ using System.Windows.Threading;
 
 namespace Monkeyspeak.Editor.Commands
 {
-    public sealed class OpenFileCommand : ICommand
+    public sealed class OpenFileCommand : BaseCommand
     {
-        public event EventHandler CanExecuteChanged;
-
-        public bool CanExecute(object parameter)
-        {
-            return true;
-        }
-
-        public void Execute(object parameter)
+        public override void Execute(object parameter)
         {
             var editor = Editors.Instance.Add();
             var filePath = parameter as string;
@@ -35,5 +28,7 @@ namespace Monkeyspeak.Editor.Commands
             //Application.Current.Dispatcher.Invoke(() => ((MahApps.Metro.Controls.MetroAnimatedSingleRowTabControl)editor.Parent).SelectedItem = editor);
             editor.HasChanges = false;
         }
+
+        public override object ToolTip => "Opens a file";
     }
 }

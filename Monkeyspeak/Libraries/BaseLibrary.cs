@@ -155,9 +155,9 @@ namespace Monkeyspeak.Libraries
 
             foreach (var type in ReflectionHelper.GetAllTypesWithBaseClass<BaseLibrary>(asm))
             {
-                if (ReflectionHelper.HasNoArgConstructor(type))
-                    yield return (BaseLibrary)Activator.CreateInstance(type);
-                else Logger.Debug<BaseLibrary>($"{type.Name} does not have a no-arg constructor");
+                if (ReflectionHelper.HasNoArgConstructor(type) && ReflectionHelper.TryCreate<BaseLibrary>(type, out var lib))
+                    yield return lib;
+                else Logger.Debug<BaseLibrary>($"Failed to create {type.Name}, ensure it is public and has a no-arg constructor");
             }
         }
     }

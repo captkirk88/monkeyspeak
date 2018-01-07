@@ -16,7 +16,8 @@
                        Width="Auto" Height="Auto"
                        Controls:TabControlHelper.Transition="LeftReplace"
                        CloseButtonEnabled="False"
-                       GotFocus="OnGotFocus" LostFocus="OnLostFocus" MouseDown="OnMouseButtonDown">
+                       GotFocus="OnGotFocus" LostFocus="OnLostFocus" MouseDown="OnMouseButtonDown"
+                       LostMouseCapture="OnLostMouseCapture" PreviewLostKeyboardFocus="OnPreviewLostKeyboardFocus">
 
     <Controls:MetroTabItem.CommandBindings>
         <CommandBinding Command="Undo" Executed="CommandBinding_Executed" />
@@ -54,25 +55,26 @@
 
     <Controls:MetroTabItem.ContextMenu>
         <ContextMenu>
-            <MenuItem Header="SaveAll" Command="{x:Static commands:MonkeyspeakCommands.SaveAll}" />
-            <MenuItem Header="Save" Command="{x:Static commands:MonkeyspeakCommands.Save}" />
-            <MenuItem Header="New" Command="{x:Static commands:MonkeyspeakCommands.New}" />
-            <MenuItem Header="Open" Command="{x:Static commands:MonkeyspeakCommands.Open}" />
-            <MenuItem Header="Close" Command="{x:Static commands:MonkeyspeakCommands.Close}" />
+            <MenuItem Header="SaveAll" Command="{x:Static commands:MonkeyspeakCommands.SaveAll}" ToolTip="{Binding RelativeSource={RelativeSource Self}, Path=Command.ToolTip}" />
+            <MenuItem Header="Save" Command="{x:Static commands:MonkeyspeakCommands.Save}" ToolTip="{Binding RelativeSource={RelativeSource Self}, Path=Command.ToolTip}" />
+            <MenuItem Header="New" Command="{x:Static commands:MonkeyspeakCommands.New}" ToolTip="{Binding RelativeSource={RelativeSource Self}, Path=Command.ToolTip}" />
+            <MenuItem Header="Open" Command="{x:Static commands:MonkeyspeakCommands.Open}" ToolTip="{Binding RelativeSource={RelativeSource Self}, Path=Command.ToolTip}" />
+            <MenuItem Header="Close" Command="{x:Static commands:MonkeyspeakCommands.Close}" ToolTip="{Binding RelativeSource={RelativeSource Self}, Path=Command.ToolTip}" />
         </ContextMenu>
     </Controls:MetroTabItem.ContextMenu>
     <DockPanel>
         <ToolBar DockPanel.Dock="Top">
-            <Button Command="{x:Static commands:MonkeyspeakCommands.Save}" ToolTip="{Binding RelativeSource={RelativeSource Self}, Path=Command}"
+            <Button Command="{x:Static commands:MonkeyspeakCommands.Save}" ToolTip="{Binding RelativeSource={RelativeSource Self}, Path=Command.ToolTip}"
                     IsEnabled="{Binding HasChanges}">
                 <ip:PackIconMaterial Kind="ContentSave" />
             </Button>
-            <Button Command="{x:Static commands:MonkeyspeakCommands.SaveAll}" ToolTip="Save all documents"
+            <Button Command="{x:Static commands:MonkeyspeakCommands.SaveAll}" ToolTip="{Binding RelativeSource={RelativeSource Self}, Path=Command.ToolTip}"
                     IsEnabled="{Binding Source={x:Static local:Editors.Instance}, Path=AnyHasChanges}">
                 <ip:PackIconMaterial Kind="ContentSaveAll" />
             </Button>
             <Separator />
-            <Button Command="{x:Static commands:MonkeyspeakCommands.Compile}" ToolTip="Compile current script" IsEnabled="True">
+            <Button Command="{x:Static commands:MonkeyspeakCommands.Compile}" ToolTip="{Binding RelativeSource={RelativeSource Self}, Path=Command.ToolTip}"
+                    IsEnabled="True">
                 <ip:PackIconFontAwesome Kind="ArrowCircleRightSolid" />
             </Button>
             <Separator />
@@ -122,15 +124,15 @@
 				FontFamily="Consolas"
 				FontSize="10pt"
 				SyntaxHighlighting="Monkeyspeak"
-                Background="White" CaretOffset="0">
+                Background="White" CaretOffset="0" LostFocus="OnLostFocus" Margin="5">
                 <avalonEdit:TextEditor.ContextMenu>
                     <ContextMenu>
                         <MenuItem Command="Cut" />
                         <MenuItem Command="Copy" />
                         <MenuItem Command="Paste" />
                         <Separator />
-                        <MenuItem Header="Save" Command="{x:Static commands:MonkeyspeakCommands.Save}" />
-                        <MenuItem Header="Close" Command="{x:Static commands:MonkeyspeakCommands.Close}" />
+                        <MenuItem Header="Save" Command="{x:Static commands:MonkeyspeakCommands.Save}" ToolTip="{Binding RelativeSource={RelativeSource Self}, Path=Command.ToolTip}" />
+                        <MenuItem Header="Close" Command="{x:Static commands:MonkeyspeakCommands.Close}" ToolTip="{Binding RelativeSource={RelativeSource Self}, Path=Command.ToolTip}" />
                     </ContextMenu>
                 </avalonEdit:TextEditor.ContextMenu>
             </avalonEdit:TextEditor>

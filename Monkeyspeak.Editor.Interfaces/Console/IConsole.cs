@@ -9,8 +9,8 @@ namespace Monkeyspeak.Editor.Interfaces.Console
 {
     public interface IConsole
     {
-        void Write(string content, Color color);
+        void Write(string content, Color color = default(Color));
 
-        void WriteLine(string content, Color color);
+        void WriteLine(string content, Color color = default(Color));
     }
 }

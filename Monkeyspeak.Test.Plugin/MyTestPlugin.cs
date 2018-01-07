@@ -16,21 +16,32 @@ namespace Monkeyspeak.Test.Plugin
     /// <seealso cref="Monkeyspeak.Editor.Plugins.Plugin" />
     public class MyTestPlugin : Editor.Plugins.Plugin
     {
+        /// <summary>
+        /// Initializes the specified plugin container.
+        /// </summary>
         public override void Initialize()
         {
         }
 
-        public override void OnEditorSelectionChanged(IEditor editor)
+        public override void OnEditorSaveCompleted(IEditor editor)
         {
-            var selectedWord = editor.SelectedText;
-            var selectedLine = editor.SelectedLine;
-            Logger.Debug<MyTestPlugin>($"Line: {editor.CaretLine - 1}, Start: {selectedLine.IndexOf(selectedWord)}, End: {selectedLine.IndexOf(selectedWord) + selectedWord.Length}");
-            editor.SetTextColor(Colors.Red, editor.CaretLine - 1, selectedLine.IndexOf(selectedWord), selectedLine.IndexOf(selectedWord) + selectedWord.Length);
         }
 
+        /// <summary>
+        /// Called when [editor selection changed].
+        /// </summary>
+        /// <param name="editor">The editor.</param>
+        public override void OnEditorSelectionChanged(IEditor editor)
+        {
+        }
+
+        /// <summary>
+        /// Called when [editor text changed].
+        /// </summary>
+        /// <param name="editor">The editor.</param>
         public override void OnEditorTextChanged(IEditor editor)
         {
-            throw new NotImplementedException();
+            editor.SetTextColor(Colors.Red, editor.CaretLine, 0, editor.CurrentLine.Length - 1);
         }
 
         public override void Unload()

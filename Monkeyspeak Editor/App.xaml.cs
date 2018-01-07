@@ -1,5 +1,6 @@
 ﻿using MahApps.Metro;
 using MahApps.Metro.Controls.Dialogs;
+using Monkeyspeak.Editor.Commands;
 using Monkeyspeak.Editor.Logging;
 using Monkeyspeak.Logging;
 using System;
@@ -51,10 +52,17 @@ namespace Monkeyspeak.Editor
             InitializeComponent();
             Logger.LogCallingMethod = false;
             Logger.LogOutput = new MultiLogOutput(new FileLogger(), new FileLogger(Level.Debug));
+            Exception lastException = null;
             DispatcherUnhandledException += (sender, e) =>
             {
                 e.Handled = true;
-                Logger.Error<App>(e.Exception);
+                e.Exception.Log();
+                if (e.Exception.TargetSite == lastException?.TargetSite)
+                {
+                    new ForceSaveAllCommand().Execute(null);
+                    Application.Current.Shutdown(404);
+                }
+                lastException = e.Exception;
             };
         }
 
