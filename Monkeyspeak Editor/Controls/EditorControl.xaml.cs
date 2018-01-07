@@ -125,13 +125,19 @@ namespace Monkeyspeak.Editor.Controls
                     e.Handled = true;
                     ShowCompletion();
                 }
+                if (e.Key == Key.Return)
+                {
+                    textEditor.TextArea.IndentationStrategy.IndentLines(textEditor.Document, 0, textEditor.LineCount);
+                }
             };
             textEditor.Options.AllowScrollBelowDocument = true;
             textEditor.Options.HighlightCurrentLine = true;
             textEditor.Options.EnableImeSupport = true;
             textEditor.Options.EnableHyperlinks = true;
             textEditor.Options.CutCopyWholeLine = true;
+            textEditor.Options.InheritWordWrapIndentation = false;
             textEditor.ShowLineNumbers = true;
+            textEditor.TextArea.IndentationStrategy = new MonkeyspeakIndentationStrategy(page);
 
             Visibility = Visibility.Visible;
 
@@ -228,8 +234,13 @@ namespace Monkeyspeak.Editor.Controls
         public string HighlighterLanguage
         {
             get => textEditor.SyntaxHighlighting.Name;
-            set => textEditor.SyntaxHighlighting = HighlightingManager.Instance.GetDefinition(value) ??
-                HighlightingManager.Instance.GetDefinition("Monkeyspeak");
+            set
+            {
+                textEditor.SyntaxHighlighting = HighlightingManager.Instance.GetDefinition(value) ??
+              HighlightingManager.Instance.GetDefinition("Monkeyspeak");
+                if (textEditor.SyntaxHighlighting.Name == "Monkeyspeak")
+                    textEditor.TextArea.IndentationStrategy = new MonkeyspeakIndentationStrategy(page);
+            }
         }
 
         public int CaretLine
@@ -246,22 +257,28 @@ namespace Monkeyspeak.Editor.Controls
             if (curLine.NextLine != null)
                 lineOffset = curLine.NextLine.Offset;
             text = text.Replace("\n", string.Empty);
+            BeginUndoGroup();
             textEditor.Document.Insert(lineOffset, text + "\n", AnchorMovementType.AfterInsertion);
+            EndUndoGroup();
         }
 
         public void AddLine(string text)
         {
             text = text.Replace(Environment.NewLine, "\n");
             var lastLine = textEditor.Document.Lines[textEditor.LineCount - 1];
-            textEditor.Document.Insert(lastLine.Offset, "\n" + text, AnchorMovementType.AfterInsertion);
+            BeginUndoGroup();
+            textEditor.Document.Replace(lastLine.Offset, 0, text + "\n", OffsetChangeMappingType.KeepAnchorBeforeInsertion);
+            EndUndoGroup();
         }
 
         public void AddLine(string text, Color color)
         {
             var lastLine = textEditor.Document.Lines[textEditor.LineCount - 1];
             text = text.Replace(Environment.NewLine, "\n");
-            textEditor.Document.Insert(lastLine.Offset, "\n" + text, AnchorMovementType.AfterInsertion);
+            BeginUndoGroup();
+            textEditor.Document.Replace(lastLine.Offset, 0, text + "\n", OffsetChangeMappingType.KeepAnchorBeforeInsertion);
             SetTextColor(color, textEditor.LineCount, 0, text.Length);
+            EndUndoGroup();
         }
 
         /// <summary>
@@ -273,7 +290,9 @@ namespace Monkeyspeak.Editor.Controls
         /// <param name="color">Text color to set</param>
         public void SetTextColor(Color color, int line, int start, int end)
         {
+            BeginUndoGroup();
             textEditor.TextArea.TextView.LineTransformers.Add(new WordColorizer(color, line, start, end));
+            EndUndoGroup();
         }
 
         /// <summary>
@@ -341,16 +360,28 @@ namespace Monkeyspeak.Editor.Controls
                 CheckPathExists = true,
                 RestoreDirectory = false, // opens dialog at last location used
                 DefaultExt = ".ms",
-                Filter = "Monkeyspeak Script |*.ms|All files (*.*)|*.*"
+                Filter = "Monkeyspeak Script|*.ms|Monkeyspeak Compiled Script|*.msx|All files (*.*)|*.*"
             };
             var opened = dlg.ShowDialog();
             if (opened ?? false)
             {
                 CurrentFilePath = dlg.FileName;
-                textEditor.Load(CurrentFilePath);
-                textEditor.SyntaxHighlighting =
-                        HighlightingManager.Instance.GetDefinitionByExtension(System.IO.Path.GetExtension(CurrentFilePath)) ??
-                        HighlightingManager.Instance.GetDefinition("Monkeyspeak");
+                if (System.IO.Path.GetExtension(CurrentFilePath) == ".msx")
+                {
+                    var page = MonkeyspeakRunner.LoadCompiled(CurrentFilePath);
+                    foreach (var trigger in page.Triggers)
+                    {
+                        AddLine(trigger.RebuildToString(page.Engine.Options));
+                    }
+                }
+                else
+                {
+                    textEditor.Load(CurrentFilePath);
+                    textEditor.Text = textEditor.Text.Replace(Environment.NewLine, "\n");
+                    textEditor.SyntaxHighlighting =
+                            HighlightingManager.Instance.GetDefinitionByExtension(System.IO.Path.GetExtension(CurrentFilePath)) ??
+                            HighlightingManager.Instance.GetDefinition("Monkeyspeak");
+                }
             }
             return opened ?? false;
         }
@@ -459,7 +490,11 @@ namespace Monkeyspeak.Editor.Controls
                     break;
 
                 case 3:
-                    propertyGrid.SelectedObject = Plugins.Plugins.All.ToArray();
+                    propertyGrid.SelectedObject = Plugins.Plugins.All;
+                    break;
+
+                case 4:
+                    propertyGrid.SelectedObject = MonkeyspeakRunner.Options;
                     break;
             }
         }
@@ -474,7 +509,7 @@ namespace Monkeyspeak.Editor.Controls
         {
             if (Editors.Instance.Selected == this) return;
             Editors.Instance.Selected = this;
-            textEditor.Focus();
+            textEditor.TextArea.TextView.Focus();
         }
 
         private void OnLostFocus(object sender, RoutedEventArgs e)
@@ -494,6 +529,16 @@ namespace Monkeyspeak.Editor.Controls
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
+        private void BeginUndoGroup()
+        {
+            textEditor.Document.UndoStack.StartUndoGroup();
+        }
+
+        private void EndUndoGroup()
+        {
+            textEditor.Document.UndoStack.EndUndoGroup();
+        }
+
         private void CommandBinding_Executed(object sender, ExecutedRoutedEventArgs e)
         {
             if (e.Command == ApplicationCommands.Undo)
@@ -508,7 +553,7 @@ namespace Monkeyspeak.Editor.Controls
             {
                 if (Editors.Instance.Selected == this) return;
                 Editors.Instance.Selected = this;
-                Focus();
+                textEditor.TextArea.Focus();
             }
         }
     }

@@ -1,10 +1,10 @@
 
-<img src="https://pbs.twimg.com/media/DBCp3bAXcAAL3WP.jpg" alt="Monkeyspeak Hero" style="width: 200px;" />
+<img src="https://github.com/captkirk88/monkeyspeak/blob/master/images/ms_edit.png" width="800" height="600" />
 
 # Monkeyspeak
 Linux/Mono | Windows
 ------------ | ---------
-[![Build Status](https://travis-ci.org/captkirk88/monkeyspeak.svg?branch=master)](https://travis-ci.org/captkirk88/monkeyspeak) | <--- Passes
+[![Build Status](https://travis-ci.org/captkirk88/monkeyspeak.svg?branch=master)](https://travis-ci.org/captkirk88/monkeyspeak) | [![Build status](https://ci.appveyor.com/api/projects/status/eh3ang36lymr5ty8/branch/master?svg=true)](https://ci.appveyor.com/project/captkirk88/monkeyspeak/branch/master)
 
 [![Waffle.io](https://badge.waffle.io/captkirk88/monkeyspeak.svg?columns=inbox,In%20Progress&style=plastic)](https://waffle.io/captkirk88/monkeyspeak) 
 
@@ -130,8 +130,6 @@ than [Basic Usage](#basic-usage)'s execution example.
 
 #### Monkeyspeak Editor
 Yes there is a editor in there.  As of right now it is in early pre-release alpha.
-
-![Monkeyspeak Editor](/images/ms_edit.png)
 
 #### Guides
 1) :book: [Triggers](wiki/Triggers.md)

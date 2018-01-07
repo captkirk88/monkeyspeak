@@ -43,7 +43,7 @@
       <HintPath>..\packages\AvalonEdit.5.0.4\lib\Net40\ICSharpCode.AvalonEdit.dll</HintPath>
     </Reference>
     <Reference Include="MahApps.Metro, Version=1.5.0.23, Culture=neutral, PublicKeyToken=f4fb5a3c4d1e5b4f, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\MahApps.Metro.1.5.0\lib\net45\MahApps.Metro.dll</HintPath>
+      <HintPath>..\packages\MahApps.Metro.1.5.0\lib\net45\MahApps.Metro.dll</HintPath>
     </Reference>
     <Reference Include="MahApps.Metro.IconPacks.FontAwesome, Version=2.0.0.31, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\MahApps.Metro.IconPacks.FontAwesome.2.0.0\lib\net46\MahApps.Metro.IconPacks.FontAwesome.dll</HintPath>
@@ -60,8 +60,7 @@
       <HintPath>..\packages\System.ValueTuple.4.4.0\lib\net461\System.ValueTuple.dll</HintPath>
     </Reference>
     <Reference Include="System.Windows.Interactivity, Version=4.5.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\MahApps.Metro.1.5.0\lib\net45\System.Windows.Interactivity.dll</HintPath>
-      <Private>True</Private>
+      <HintPath>..\packages\MahApps.Metro.1.5.0\lib\net45\System.Windows.Interactivity.dll</HintPath>
     </Reference>
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
@@ -100,6 +99,7 @@
       <SubType>Designer</SubType>
     </Page>
     <Compile Include="Commands\CloseCurrentEditorCommand.cs" />
+    <Compile Include="Commands\CompileCommand.cs" />
     <Compile Include="Commands\ExitCommand.cs" />
     <Compile Include="Commands\MonkeyspeakCommands.cs" />
     <Compile Include="Commands\NewEditorCommand.cs" />
@@ -112,8 +112,10 @@
     <Compile Include="Console\SetHighlighterConsoleCommand.cs" />
     <Compile Include="Editors.cs" />
     <Compile Include="HelperClasses\FileAssociations.cs" />
+    <Compile Include="HelperClasses\MonkeyspeakIndentationStrategy.cs" />
     <Compile Include="HelperClasses\TriggerCompletionData.cs" />
     <Compile Include="HelperClasses\WordColorizer.cs" />
+    <Compile Include="MonkeyspeakRunner.cs" />
     <Compile Include="Notifications\NotificationWithIcon.cs" />
     <Page Include="Controls\ConsoleWindow.xaml">
       <SubType>Designer</SubType>
@@ -213,31 +215,46 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent Condition="'$(OS)' == 'Windows_NT'">REM DEL old files
-cd $(TargetDir)
-del "$(TargetDir)$(TargetName)_$(ConfigurationName)_$(PlatformName)_Src.rar"
-del "$(TargetDir)$(TargetName)_$(ConfigurationName)_$(PlatformName)_Binaries.rar"
+    <PostBuildEvent Condition="'$(OS)' == 'Windows_NT'">
+      REM DEL old files
+      cd $(TargetDir)
+      del "$(TargetDir)$(TargetName)_$(ConfigurationName)_$(PlatformName)_Src.rar"
+      del "$(TargetDir)$(TargetName)_$(ConfigurationName)_$(PlatformName)_Binaries.rar"
 
-REM set path to WinRAR for rar command
-set path="C:\Program Files\WinRAR\";%25path%25
+      REM set path to WinRAR for rar command
+      set path="C:\Program Files\WinRAR\";%25path%25
 
-REM Create the BIN rar
-rar a -r -x*.tmp -x*.rar -x*.tt "$(TargetDir)$(TargetName)_$(ConfigurationName)_$(PlatformName)_Binaries.rar" *.*
+      REM Create the BIN rar
+      rar a -r -x*.tmp -x*.rar -x*.tt "$(TargetDir)$(TargetName)_$(ConfigurationName)_$(PlatformName)_Binaries.rar" *.*
 
-REM Create the SRC rar
-cd $(ProjectDir)
-rar a -r -x*\.svn\* -x*\bin\* -x*\obj\* -x*.rar -x*.tt  "$(TargetDir)$(TargetName)_$(PlatformName)_Src.rar" *.*
-	</PostBuildEvent>
+      REM Create the SRC rar
+      cd $(ProjectDir)
+      rar a -r -x*\.svn\* -x*\bin\* -x*\obj\* -x*.rar -x*.tt  "$(TargetDir)$(TargetName)_$(PlatformName)_Src.rar" *.*
+    </PostBuildEvent>
     <PostBuildEvent Condition="'$(OS)' != 'Windows_NT'">
-cd $(TargetDir)
-rm -rf "$(TargetDir)$(TargetName)_$(ConfigurationName)_$(PlatformName)_Binaries.rar"
+      cd $(TargetDir)
+      rm -rf "$(TargetDir)$(TargetName)_$(ConfigurationName)_$(PlatformName)_Binaries.rar"
 
-cd $(TargetDir)
-rar a -r -x*.tmp -x*.rar -x*.tt "$(TargetDir)$(TargetName)_$(ConfigurationName)_$(PlatformName)_Binaries.rar" *.*
-</PostBuildEvent>
+      cd $(TargetDir)
+      rar a -r -x*.tmp -x*.rar -x*.tt "$(TargetDir)$(TargetName)_$(ConfigurationName)_$(PlatformName)_Binaries.rar" *.*
+    </PostBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
     <PostBuildEvent>
+      REM DEL old files
+      cd $(TargetDir)
+      del "$(TargetDir)$(TargetName)_$(ConfigurationName)_$(PlatformName)_Src.rar"
+      del "$(TargetDir)$(TargetName)_$(ConfigurationName)_$(PlatformName)_Binaries.rar"
+
+      REM set path to WinRAR for rar command
+      set path="C:\Program Files\WinRAR\";%25path%25
+
+      REM Create the BIN rar
+      rar a -r -x*\.svn\* -x*\bin\* -x*\obj\* -x*.tmp -x*.rar -x*.tt -x*.user "$(TargetDir)$(TargetName)_$(ConfigurationName)_$(PlatformName)_Binaries.rar" *.*
+
+      REM Create the SRC rar
+      cd $(ProjectDir)
+      rar a -r -x*\.svn\* -x*\bin\* -x*\obj\* -x*.tmp -x*.rar -x*.tt -x*.user  "$(TargetDir)$(TargetName)_$(PlatformName)_Src.rar" *.*
     </PostBuildEvent>
   </PropertyGroup>
 </Project>

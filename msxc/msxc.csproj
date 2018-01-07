@@ -62,6 +62,8 @@
     <PlatformTarget>AnyCPU</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>false</Prefer32Bit>
+    <WarningLevel>1</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
     <OutputPath>bin\Release\</OutputPath>
@@ -71,9 +73,7 @@
     <PlatformTarget>AnyCPU</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-  </PropertyGroup>
-  <PropertyGroup>
-    <RunPostBuildEvent>OnOutputUpdated</RunPostBuildEvent>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -106,31 +106,46 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent Condition="'$(OS)' == 'Windows_NT'">REM DEL old files
-cd $(TargetDir)
-del "$(TargetDir)$(TargetName)_$(ConfigurationName)_$(PlatformName)_Src.rar"
-del "$(TargetDir)$(TargetName)_$(ConfigurationName)_$(PlatformName)_Binaries.rar"
+    <PostBuildEvent Condition="'$(OS)' == 'Windows_NT'">
+      REM DEL old files
+      cd $(TargetDir)
+      del "$(TargetDir)$(TargetName)_$(ConfigurationName)_$(PlatformName)_Src.rar"
+      del "$(TargetDir)$(TargetName)_$(ConfigurationName)_$(PlatformName)_Binaries.rar"
 
-REM set path to WinRAR for rar command
-set path="C:\Program Files\WinRAR\";%25path%25
+      REM set path to WinRAR for rar command
+      set path="C:\Program Files\WinRAR\";%25path%25
 
-REM Create the BIN rar
-rar a -r -x*.tmp -x*.rar -x*.tt "$(TargetDir)$(TargetName)_$(ConfigurationName)_$(PlatformName)_Binaries.rar" *.*
+      REM Create the BIN rar
+      rar a -r -x*.tmp -x*.rar -x*.tt "$(TargetDir)$(TargetName)_$(ConfigurationName)_$(PlatformName)_Binaries.rar" *.*
 
-REM Create the SRC rar
-cd $(ProjectDir)
-rar a -r -x*\.svn\* -x*\bin\* -x*\obj\* -x*.rar -x*.tt  "$(TargetDir)$(TargetName)_$(PlatformName)_Src.rar" *.*
-	</PostBuildEvent>
+      REM Create the SRC rar
+      cd $(ProjectDir)
+      rar a -r -x*\.svn\* -x*\bin\* -x*\obj\* -x*.rar -x*.tt  "$(TargetDir)$(TargetName)_$(PlatformName)_Src.rar" *.*
+    </PostBuildEvent>
     <PostBuildEvent Condition="'$(OS)' != 'Windows_NT'">
-cd $(TargetDir)
-rm -rf "$(TargetDir)$(TargetName)_$(ConfigurationName)_$(PlatformName)_Binaries.rar"
+      cd $(TargetDir)
+      rm -rf "$(TargetDir)$(TargetName)_$(ConfigurationName)_$(PlatformName)_Binaries.rar"
 
-cd $(TargetDir)
-rar a -r -x*.tmp -x*.rar -x*.tt "$(TargetDir)$(TargetName)_$(ConfigurationName)_$(PlatformName)_Binaries.rar" *.*
-</PostBuildEvent>
+      cd $(TargetDir)
+      rar a -r -x*.tmp -x*.rar -x*.tt "$(TargetDir)$(TargetName)_$(ConfigurationName)_$(PlatformName)_Binaries.rar" *.*
+    </PostBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
     <PostBuildEvent>
+      REM DEL old files
+      cd $(TargetDir)
+      del "$(TargetDir)$(TargetName)_$(ConfigurationName)_$(PlatformName)_Src.rar"
+      del "$(TargetDir)$(TargetName)_$(ConfigurationName)_$(PlatformName)_Binaries.rar"
+
+      REM set path to WinRAR for rar command
+      set path="C:\Program Files\WinRAR\";%25path%25
+
+      REM Create the BIN rar
+      rar a -r -x*\.svn\* -x*\bin\* -x*\obj\* -x*.tmp -x*.rar -x*.tt -x*.user "$(TargetDir)$(TargetName)_$(ConfigurationName)_$(PlatformName)_Binaries.rar" *.*
+
+      REM Create the SRC rar
+      cd $(ProjectDir)
+      rar a -r -x*\.svn\* -x*\bin\* -x*\obj\* -x*.tmp -x*.rar -x*.tt -x*.user  "$(TargetDir)$(TargetName)_$(PlatformName)_Src.rar" *.*
     </PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
