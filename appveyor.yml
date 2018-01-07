@@ -31,6 +31,8 @@ test:
 
 before_build:
     - choco install winrar
+    - nuget restore Monkeyspeak.sln
+
 build:
   project: Monkeyspeak.sln
   publish_nuget: false
