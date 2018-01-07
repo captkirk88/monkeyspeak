@@ -47,6 +47,10 @@ namespace Monkeyspeak.Editor.Plugins
                             Logger.Debug($"Registering plugin {type.Name}", null);
                             yield return (IPlugin)plugin;
                         }
+                        else
+                        {
+                            Logger.Error($"Failed to create {type.Name}");
+                        }
                     }
                 }
             }

@@ -9,6 +9,7 @@ using Monkeyspeak.Utils;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using System.Text;
 using System.Windows.Documents;
 using System.Windows.Media;
@@ -89,17 +90,18 @@ namespace Monkeyspeak.Editor.Controls
             if (e.Key == System.Windows.Input.Key.Return)
             {
                 e.Handled = true;
-                if (history.Contains(input.Text))
-                    history.Remove(input.Text);
-                history.AddFirst(input.Text);
-                if (history.Count > 10)
-                {
-                    while (history.Count > 10) history.RemoveLast();
-                }
                 var commandsFound = commands.FindAll(c => input.Text.StartsWith(c.Command, StringComparison.InvariantCultureIgnoreCase));
                 if (commandsFound.Count > 0)
                 {
-                    foreach (var command in commandsFound)
+                    if (history.Contains(input.Text))
+                        history.Remove(input.Text);
+                    history.AddFirst(input.Text);
+                    if (history.Count > 10)
+                    {
+                        while (history.Count > 10) history.RemoveLast();
+                    }
+
+                    foreach (var command in commandsFound.Where(c => c.CanInvoke))
                     {
                         try
                         {

@@ -22,7 +22,7 @@ namespace Monkeyspeak.Test.Plugin
 
         public override void OnEditorSelectionChanged(IEditor editor)
         {
-            var selectedWord = editor.SelectedWord;
+            var selectedWord = editor.SelectedText;
             var selectedLine = editor.SelectedLine;
             Logger.Debug<MyTestPlugin>($"Line: {editor.CaretLine - 1}, Start: {selectedLine.IndexOf(selectedWord)}, End: {selectedLine.IndexOf(selectedWord) + selectedWord.Length}");
             editor.SetTextColor(Colors.Red, editor.CaretLine - 1, selectedLine.IndexOf(selectedWord), selectedLine.IndexOf(selectedWord) + selectedWord.Length);

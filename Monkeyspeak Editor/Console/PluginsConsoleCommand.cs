@@ -14,6 +14,8 @@ namespace Monkeyspeak.Editor.Console
 
         public string Help => "Lists all active plugins";
 
+        public bool CanInvoke => true;
+
         public void Invoke(IConsole console, IEditor editor, params string[] args)
         {
             var sb = new StringBuilder();

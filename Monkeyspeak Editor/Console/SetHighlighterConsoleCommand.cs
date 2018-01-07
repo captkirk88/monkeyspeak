@@ -19,6 +19,8 @@ namespace Monkeyspeak.Editor.Console
     syntax set <name> - sets the syntax highlighter to the <name>
 ";
 
+        public bool CanInvoke => true;
+
         public void Invoke(IConsole console, IEditor editor, params string[] args)
         {
             if (args.Length > 0)

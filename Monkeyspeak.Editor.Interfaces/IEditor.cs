@@ -58,7 +58,7 @@ namespace Monkeyspeak.Editor
         /// <value>
         /// The selected word.
         /// </value>
-        string SelectedWord { get; }
+        string SelectedText { get; }
 
         /// <summary>
         /// Gets the selected line.

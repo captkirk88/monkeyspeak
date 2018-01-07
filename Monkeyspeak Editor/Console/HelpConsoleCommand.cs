@@ -15,10 +15,14 @@ namespace Monkeyspeak.Editor.Console
 
         public string Help => "lol";
 
+        private bool ran = false;
+        public bool CanInvoke => !ran;
+
         private Random rand = new Random();
 
         public void Invoke(IConsole console, IEditor editor, params string[] args)
         {
+            ran = true;
             for (int i = 0; i <= 100; i++)
             {
                 console.Write("lol", Color.FromRgb((byte)rand.Next(1, 255), (byte)rand.Next(1, 255), (byte)rand.Next(1, 255)));
@@ -37,6 +41,8 @@ namespace Monkeyspeak.Editor.Console
         public string Command => "help";
 
         public string Help => "Shows this";
+
+        public bool CanInvoke => true;
 
         public void Invoke(IConsole console, IEditor editor, params string[] args)
         {
