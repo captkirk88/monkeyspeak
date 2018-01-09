@@ -39,11 +39,14 @@
     <StartupObject />
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="ControlzEx, Version=3.0.2.4, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\ControlzEx.3.0.2.4\lib\net45\ControlzEx.dll</HintPath>
+    </Reference>
     <Reference Include="ICSharpCode.AvalonEdit, Version=5.0.3.0, Culture=neutral, PublicKeyToken=9cc39be672370310, processorArchitecture=MSIL">
       <HintPath>..\packages\AvalonEdit.5.0.4\lib\Net40\ICSharpCode.AvalonEdit.dll</HintPath>
     </Reference>
-    <Reference Include="MahApps.Metro, Version=1.5.0.23, Culture=neutral, PublicKeyToken=f4fb5a3c4d1e5b4f, processorArchitecture=MSIL">
-      <HintPath>..\packages\MahApps.Metro.1.5.0\lib\net45\MahApps.Metro.dll</HintPath>
+    <Reference Include="MahApps.Metro, Version=1.6.0.184, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\MahApps.Metro.1.6.0-alpha0184\lib\net45\MahApps.Metro.dll</HintPath>
     </Reference>
     <Reference Include="MahApps.Metro.IconPacks.FontAwesome, Version=2.0.0.31, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\MahApps.Metro.IconPacks.FontAwesome.2.0.0\lib\net46\MahApps.Metro.IconPacks.FontAwesome.dll</HintPath>
@@ -60,7 +63,8 @@
       <HintPath>..\packages\System.ValueTuple.4.4.0\lib\net461\System.ValueTuple.dll</HintPath>
     </Reference>
     <Reference Include="System.Windows.Interactivity, Version=4.5.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\MahApps.Metro.1.5.0\lib\net45\System.Windows.Interactivity.dll</HintPath>
+      <HintPath>..\..\packages\ControlzEx.3.0.2.4\lib\net45\System.Windows.Interactivity.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
@@ -241,20 +245,6 @@
   </PropertyGroup>
   <PropertyGroup>
     <PostBuildEvent>
-      REM DEL old files
-      cd $(TargetDir)
-      del "$(TargetDir)$(TargetName)_$(ConfigurationName)_$(PlatformName)_Src.rar"
-      del "$(TargetDir)$(TargetName)_$(ConfigurationName)_$(PlatformName)_Binaries.rar"
-
-      REM set path to WinRAR for rar command
-      set path="C:\Program Files\WinRAR\";%25path%25
-
-      REM Create the BIN rar
-      rar a -r -x*\.svn\* -x*\bin\* -x*\obj\* -x*.tmp -x*.rar -x*.tt -x*.user "$(TargetDir)$(TargetName)_$(ConfigurationName)_$(PlatformName)_Binaries.rar" *.*
-
-      REM Create the SRC rar
-      cd $(ProjectDir)
-      rar a -r -x*\.svn\* -x*\bin\* -x*\obj\* -x*.tmp -x*.rar -x*.tt -x*.user  "$(TargetDir)$(TargetName)_$(PlatformName)_Src.rar" *.*
     </PostBuildEvent>
   </PropertyGroup>
 </Project>
