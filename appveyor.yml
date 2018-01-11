@@ -32,17 +32,15 @@ test:
   assemblies:
     - '**\*.Tests.dll'
 
-init:
+before_build:
+    - choco install winrar
+    - nuget restore Monkeyspeak.sln
     - ps: git config --global credential.helper store
     - ps: Add-Content "$($env:USERPROFILE)\.git-credentials" "https://$($env:GITHUB_AUTH):x-oauth-basic@github.com`n"
     - ps: git config --global user.email "$($env:APPVEYOR_REPO_COMMIT_AUTHOR_EMAIL)"
     - ps: git config --global user.name "$($env:APPVEYOR_REPO_COMMIT_AUTHOR)"
-    - ps: git tag | foreach-object -process { git push https://github.com/$($env:APPVEYOR_REPO_NAME).git --delete $_ }
+    - ps: git tag | foreach-object -process { git push master --delete $_ }
     - ps: git tag | foreach-object -process { git tag -d $_ }
-
-before_build:
-    - choco install winrar
-    - nuget restore Monkeyspeak.sln
 
 build:
   project: Monkeyspeak.sln
@@ -72,7 +70,7 @@ deploy:
 notifications:
 - provider: Email
   to:
-    - "$(EMAIL)"
+    - "{EMAIL}"
   on_build_success: false
   on_build_failure: true
   on_build_status_changed: false
