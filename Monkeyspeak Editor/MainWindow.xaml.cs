@@ -79,8 +79,24 @@ namespace Monkeyspeak.Editor
 
             Loaded += MainWindow_Loaded;
 
+            var settings = Properties.Settings.Default;
+            if (settings.WindowState != WindowState.Maximized)
+            {
+                Left = settings.WindowPosition.X;
+                Top = settings.WindowPosition.Y;
+            }
+            SetColor(settings.Color);
+            SetTheme(settings.Theme);
+
             if (files != null && files.Length > 0)
                 foreach (var file in files)
+                {
+                    if (!string.IsNullOrEmpty(file))
+                        new OpenFileCommand().Execute(file);
+                }
+
+            if (settings.LastDocuments != null && settings.LastDocuments.Count > 0)
+                foreach (var file in settings.LastDocuments)
                 {
                     if (!string.IsNullOrEmpty(file))
                         new OpenFileCommand().Execute(file);
@@ -172,7 +188,7 @@ namespace Monkeyspeak.Editor
             {
                 var selectedEditor = (((MetroAnimatedSingleRowTabControl)sender).SelectedItem as EditorControl);
                 if (selectedEditor != null)
-                Editors.Instance.Selected = selectedEditor;
+                    Editors.Instance.Selected = selectedEditor;
             });
         }
 
@@ -217,6 +233,24 @@ namespace Monkeyspeak.Editor
         {
             Plugins.Plugins.Unload();
             Plugins.Plugins.Initialize();
+        }
+
+        private void settingsDialog_Click(object sender, RoutedEventArgs e)
+        {
+            SettingsDialog dialog = new SettingsDialog();
+            var settings = dialog.settingsProps.SelectedObject as Properties.Settings;
+            settings.SettingsSaving += Settings_Saving;
+            if (dialog.ShowDialog() ?? true)
+            {
+                settings.SettingsSaving -= Settings_Saving;
+            }
+        }
+
+        private void Settings_Saving(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            var settings = sender as Properties.Settings;
+            SetColor(settings.Color);
+            SetTheme(settings.Theme);
         }
     }
 }

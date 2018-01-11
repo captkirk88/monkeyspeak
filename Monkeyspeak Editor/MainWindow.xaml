@@ -110,6 +110,9 @@
                     <iconPacks:PackIconModern Kind="Notification" />
                 </Button>
             </Controls:Badged>
+            <Button Click="settingsDialog_Click">
+                <iconPacks:PackIconMaterial Kind="Settings" />
+            </Button>
             <Button Click="githubButton_Click">
                 <iconPacks:PackIconFontAwesome Kind="GithubBrands" />
                 <Button.ToolTip>

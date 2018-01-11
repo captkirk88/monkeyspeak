@@ -1,7 +1,10 @@
 ﻿using MahApps.Metro.Controls;
 using MahApps.Metro.Controls.Dialogs;
+using Monkeyspeak.Editor.Controls;
+using Monkeyspeak.Editor.HelperClasses;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -20,8 +23,22 @@ namespace Monkeyspeak.Editor.Commands
                 await DialogManager.HideMetroDialogAsync(window, dialog);
 
             var editors = Editors.Instance.All.ToArray();
+            var settings = Properties.Settings.Default;
+            if (settings.LastDocuments == null) settings.LastDocuments = new List<SerializableString>();
+            settings.LastDocuments.Clear();
             for (int i = editors.Length - 1; i >= 0; i--)
+            {
+                if (File.Exists(editors[i].CurrentFilePath))
+                    settings.LastDocuments.Add(editors[i].CurrentFilePath);
                 await editors[i].CloseAsync();
+            }
+            if (settings.RememberWindowPosition)
+            {
+                settings.WindowState = window.WindowState;
+                if (settings.WindowState != WindowState.Maximized)
+                    settings.WindowPosition = new System.Drawing.Point((int)window.Left, (int)window.Top);
+            }
+            settings.Save();
             Application.Current.Shutdown();
         }
 

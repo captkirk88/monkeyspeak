@@ -8,6 +8,37 @@ using System.Windows.Media;
 
 namespace Monkeyspeak.Editor
 {
+    [Serializable]
+    public enum AppColor
+    {
+        Blue,
+        Red,
+        Green,
+        Purple,
+        Orange,
+        Lime,
+        Emerald,
+        Teal,
+        Cyan,
+        Cobalt,
+        Indigo,
+        Violet,
+        Pink,
+        Magenta,
+        Crimson,
+        Amber,
+        Yellow,
+        Brown,
+        Olive,
+        Steel,
+        Mauve,
+        Taupe,
+        Sienna
+    }
+
+    [Serializable]
+    public enum AppTheme { Light, Dark }
+
     /// <summary>
     /// Interface to a Editor instance
     /// </summary>

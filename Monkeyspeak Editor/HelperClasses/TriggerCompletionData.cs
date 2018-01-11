@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Controls;
 
 namespace Monkeyspeak.Editor.HelperClasses
 {
@@ -20,6 +21,9 @@ namespace Monkeyspeak.Editor.HelperClasses
         private readonly BaseLibrary lib;
         private readonly Trigger trigger;
         private readonly Page page;
+        private TextView text, syntaxViewer;
+        private DocumentHighlighter textHighlighter, syntaxViewerHighlighter;
+        private IHighlightingDefinition highlightingDef;
 
         public TriggerCompletionData(Page page, BaseLibrary lib, Trigger trigger)
         {
@@ -27,6 +31,9 @@ namespace Monkeyspeak.Editor.HelperClasses
             this.trigger = trigger;
             Text = page.GetTriggerDescription(trigger, true).Trim('\r', '\n');
             this.lib = lib;
+            highlightingDef = HighlightingManager.Instance.GetDefinition("Monkeyspeak");
+            this.text = new TextView();
+            syntaxViewer = new TextView();
         }
 
         public string Text { get; private set; }
@@ -39,19 +46,20 @@ namespace Monkeyspeak.Editor.HelperClasses
         // Use this property if you want to show a fancy UIElement in the list.
         public object Content
         {
-            get { return Text; }
+            get
+            {
+                text.Document = new TextDocument(Text);
+                HighlightingColorizer colorizer = new HighlightingColorizer(highlightingDef);
+                text.LineTransformers.Add(colorizer);
+                text.EnsureVisualLines();
+                return text;
+            }
         }
 
         public object Description
         {
             get
             {
-                TextEditor syntaxViewer = new TextEditor
-                {
-                    IsEnabled = false,
-                    SyntaxHighlighting = HighlightingManager.Instance.GetDefinition("Monkeyspeak"),
-                    ShowLineNumbers = false
-                };
                 var sb = new StringBuilder();
                 sb.AppendLine(Text);
                 if (lib != null)
@@ -64,7 +72,10 @@ namespace Monkeyspeak.Editor.HelperClasses
                     }
                     sb.AppendLine($"Library: {lib.GetType().Name}");
                 }
-                syntaxViewer.Text = Text;
+                syntaxViewer.Document = new TextDocument(sb.ToString());
+                HighlightingColorizer colorizer = new HighlightingColorizer(highlightingDef);
+                syntaxViewer.LineTransformers.Add(colorizer);
+                syntaxViewer.EnsureVisualLines();
                 return syntaxViewer;
             }
         }

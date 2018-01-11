@@ -13,35 +13,6 @@ using System.Windows;
 
 namespace Monkeyspeak.Editor
 {
-    public enum AppColor
-    {
-        Blue,
-        Red,
-        Green,
-        Purple,
-        Orange,
-        Lime,
-        Emerald,
-        Teal,
-        Cyan,
-        Cobalt,
-        Indigo,
-        Violet,
-        Pink,
-        Magenta,
-        Crimson,
-        Amber,
-        Yellow,
-        Brown,
-        Olive,
-        Steel,
-        Mauve,
-        Taupe,
-        Sienna
-    }
-
-    public enum AppTheme { Light, Dark }
-
     /// <summary>
     /// Interaction logic for App.xaml
     /// </summary>

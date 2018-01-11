@@ -15,6 +15,7 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -33,7 +34,8 @@ namespace Monkeyspeak.Editor.Controls
     /// <summary>
     /// Interaction logic for EditorControl.xaml
     /// </summary>
-    public partial class EditorControl : MetroTabItem, IEditor, INotifyPropertyChanged
+    [Serializable]
+    public partial class EditorControl : MetroTabItem, IEditor, INotifyPropertyChanged, ISerializable
     {
         static EditorControl()
         {
@@ -584,6 +586,12 @@ namespace Monkeyspeak.Editor.Controls
                 Editors.Instance.Selected = this;
                 textEditor.TextArea.Focus();
             }
+        }
+
+        public void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            info.AddValue("CurrentFilePath", CurrentFilePath);
+            //info.AddValue("Content", textEditor.Text);
         }
     }
 }
