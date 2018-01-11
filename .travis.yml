@@ -24,8 +24,8 @@ install:
 - nuget restore Monkeyspeak.sln
 
 script:
-- xbuild /p:Configuration=Release /langversion=7.1 Monkeyspeak/Monkeyspeak.csproj
-- xbuild /p:Configuration=Release /langversion=7.1 msxc/msxc.csproj
-- xbuild /p:Configuration=Release /langversion=7.1 Monkeyspeak.Tests/Monkeyspeak.Tests.csproj
+- msbuild /p:Configuration=Release /langversion:latest Monkeyspeak/Monkeyspeak.csproj
+- msbuild /p:Configuration=Release /langversion:latest msxc/msxc.csproj
+- msbuild /p:Configuration=Release /langversion:latest Monkeyspeak.Tests/Monkeyspeak.Tests.csproj
 - mono ./testrunner/NUnit.ConsoleRunner.3.7.0/tools/nunit3-console.exe ./Monkeyspeak.Tests/bin/Release/Monkeyspeak.Tests.dll
 
