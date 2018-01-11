@@ -39,7 +39,7 @@ before_build:
     - ps: Add-Content "$($env:USERPROFILE)\.git-credentials" "https://$($env:GITHUB_AUTH):x-oauth-basic@github.com`n"
     - ps: git config --global user.email "$($env:APPVEYOR_REPO_COMMIT_AUTHOR_EMAIL)"
     - ps: git config --global user.name "$($env:APPVEYOR_REPO_COMMIT_AUTHOR)"
-    - ps: git tag | foreach-object -process { git push master --delete $_ }
+    - ps: git tag | foreach-object -process { git push https://github.com/$($env:APPVEYOR_REPO_NAME) --delete $_ }
     - ps: git tag | foreach-object -process { git tag -d $_ }
 
 build:
@@ -60,7 +60,8 @@ deploy:
     draft: false
     prerelease: false
     force_update: true
-    appveyor_repo_tag: true        # deploy on tag push only
+    appveyor_repo_tag: false        # deploy on tag push only
+    release: Build
     description: "Monkeyspeak Release for $(appveyor_build_version)"
     auth_token:
         secure: O1WNJUJxBOAXq0u7U/lAJZREJ4INf6cMp4wAtcxBG60kemmYLumTDyjArtZEtNRl # your encrypted token from GitHub
