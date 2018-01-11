@@ -12,7 +12,7 @@
         mc:Ignorable="d"
         Loaded="MainWindow_Loaded"
         Closing="MetroWindow_Closing"
-        Title="Monkeyspeak Editor" Height="600" Width="800" ShowIconOnTitleBar="True">
+        Title="Monkeyspeak Editor" Height="600" Width="800" ShowIconOnTitleBar="False">
 
     <Controls:MetroWindow.Resources>
         <Style x:Key="GridSplitterPreviewStyle">
@@ -83,7 +83,7 @@
                         <MenuItem Header="Restore" />
                         <MenuItem Header="Minimize" />
                         <Separator />
-                        <MenuItem Header="Exit" Command="{x:Static commands:MonkeyspeakCommands.Exit}" />
+                        <MenuItem Header="Exit" Command="{x:Static commands:MonkeyspeakCommands.Exit}" ToolTip="{Binding RelativeSource={RelativeSource Self}, Path=Command.ToolTip}" />
                     </ContextMenu>
                 </Button.ContextMenu>
             </Button>
