@@ -32,7 +32,7 @@ namespace Monkeyspeak
         private long valueStart;
         private int valueLength;
 
-        public Token(TokenType type, long valueStart, int valueLength, SourcePosition position)
+        public Token(in TokenType type, in long valueStart, in int valueLength, in SourcePosition position)
         {
             _type = type;
             this.valueStart = valueStart;
@@ -40,7 +40,7 @@ namespace Monkeyspeak
             _position = position;
         }
 
-        public Token(TokenType type)
+        public Token(in TokenType type)
         {
             this._type = type;
             this.valueStart = 0;

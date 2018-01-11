@@ -1,5 +1,6 @@
 ﻿using ICSharpCode.AvalonEdit.Utils;
 using MahApps.Metro.Controls;
+using MahApps.Metro.Controls.Dialogs;
 using Monkeyspeak.Editor.Interfaces.Console;
 using Monkeyspeak.Editor.Logging;
 using Monkeyspeak.Editor.Notifications;
@@ -142,6 +143,13 @@ namespace Monkeyspeak.Editor.Controls
                     input.Text = node?.Value;
                 }
             }
+        }
+
+        public void Toggle()
+        {
+            if (Visibility == System.Windows.Visibility.Hidden || Visibility == System.Windows.Visibility.Collapsed)
+                Show();
+            else Hide();
         }
     }
 }

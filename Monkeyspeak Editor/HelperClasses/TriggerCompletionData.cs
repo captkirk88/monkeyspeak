@@ -42,7 +42,6 @@ namespace Monkeyspeak.Editor.HelperClasses
             get { return Text; }
         }
 
-        // TODO create syntax highlighted tooltips
         public object Description
         {
             get

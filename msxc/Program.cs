@@ -59,7 +59,7 @@ namespace msxc
                     //exeBuilder.Build();
                     if (filePath.EndsWith(".msx"))
                     {
-                        // TODO maybe I should add some sort of decompilation
+                        
                     }
                     else
                         page.CompileToFile(output);

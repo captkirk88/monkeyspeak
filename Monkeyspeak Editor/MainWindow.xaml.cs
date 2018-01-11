@@ -109,15 +109,7 @@ namespace Monkeyspeak.Editor
 
         private void Console_Click(object sender, RoutedEventArgs e)
         {
-            // TODO create console.Toggle() method
-            if (console.Visibility != Visibility.Visible)
-            {
-                console.Show();
-            }
-            else
-            {
-                console.Hide();
-            }
+            console.Toggle();
         }
 
         private void Notifications_Click(object sender, RoutedEventArgs e)
@@ -178,7 +170,8 @@ namespace Monkeyspeak.Editor
         {
             Dispatcher.InvokeAsync(() =>
             {
-                var selectedEditor = ((EditorControl)((MetroAnimatedTabControl)sender).SelectedItem);
+                var selectedEditor = (((MetroAnimatedSingleRowTabControl)sender).SelectedItem as EditorControl);
+                if (selectedEditor != null)
                 Editors.Instance.Selected = selectedEditor;
             });
         }

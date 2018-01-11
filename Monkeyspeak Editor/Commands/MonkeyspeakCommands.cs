@@ -13,6 +13,7 @@ namespace Monkeyspeak.Editor.Commands
 
         public static OpenFileCommand Open = new OpenFileCommand();
 
+        public static NavigateToDocumentPathCommand NavigateTo = new NavigateToDocumentPathCommand();
         public static SaveCommand Save = new SaveCommand();
 
         public static SaveAllCommand SaveAll = new SaveAllCommand();

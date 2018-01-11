@@ -386,6 +386,7 @@ namespace Monkeyspeak.Editor.Controls
                             HighlightingManager.Instance.GetDefinitionByExtension(System.IO.Path.GetExtension(CurrentFilePath)) ??
                             HighlightingManager.Instance.GetDefinition("Monkeyspeak");
                 }
+                textEditor.Document.UndoStack.MarkAsOriginalFile();
             }
             return opened ?? false;
         }
@@ -571,7 +572,7 @@ namespace Monkeyspeak.Editor.Controls
         {
             if (e.Command == ApplicationCommands.Undo)
             {
-                // TODO remove save changes prompt if under eliminated those changes
+                HasChanges = !textEditor.Document.UndoStack.IsOriginalFile;
             }
         }
 
