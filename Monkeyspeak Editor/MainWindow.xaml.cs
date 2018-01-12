@@ -251,8 +251,8 @@ namespace Monkeyspeak.Editor
                     if (asset.Name.Contains("Editor") && asset.Name.Contains("Binaries"))
                     {
                         var result = DialogManager.ShowModalMessageExternal(System.Windows.Application.Current.MainWindow as MetroWindow,
-"Update Found!", $"A update was found {userVersion} < {currentVersion}, would you like to download the latest version?", MessageDialogStyle.AffirmativeAndNegative,
-new MetroDialogSettings { DefaultButtonFocus = MessageDialogResult.Affirmative, AffirmativeButtonText = "Yes!", NegativeButtonText = "No" });
+                                    "Update Found!", $"A update was found {userVersion} < {currentVersion}, would you like to download the latest version?", MessageDialogStyle.AffirmativeAndNegative,
+                                    new MetroDialogSettings { DefaultButtonFocus = MessageDialogResult.Affirmative, AffirmativeButtonText = "Yes!", NegativeButtonText = "No" });
 
                         if (result == MessageDialogResult.Affirmative)
                         {

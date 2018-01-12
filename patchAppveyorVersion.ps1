@@ -1,23 +1,25 @@
 ﻿param([string]$SolutionDir,[string]$ProjectDir,[string]$TargetDir, [string]$TargetPath,[string]$ConfigurationName)
 try{
-	$targetVersion = [Reflection.Assembly]::LoadFile($TargetPath).GetName().Version
-	Write-Host "Located version $targetVersion"
+	$targetVersion = [version][Reflection.Assembly]::LoadFile($TargetPath).GetName().Version
+	Write-Host "Located version $($targetVersion.ToString(3))"
 
 	$appveyorFile = "{0}/appveyor.yml" -f $SolutionDir
     $path = (Get-Item -Path $appveyorFile).FullName
-	$versionFound = $false
-    $pattern = 'version: (.*)'
-    (Get-Content $path) | ForEach-Object{
-        if($_ -match $pattern -and $versionFound -eq $false){
+	$finish = $false
+    $pattern = '\bversion: (.*)'
+    (Get-Content $path -ErrorAction SilentlyContinue) | ForEach-Object{
+        if($_ -match $pattern -and $finish -eq $false){
             # We have found the matching line
 			$oldVersion = [version]$matches[1]
-			if ($oldVersion -ne $targetVersion) {
+			if ($oldVersion.Major -ne $targetVersion.Major -or $oldVersion.Minor -ne $targetVersion.Minor -or $oldVersion.Build -ne $targetVersion.Build) {
 				$newVersion = "{0}.{1}.{2}" -f $targetVersion.Major, $targetVersion.Minor, $targetVersion.Build
 				'version: {0}' -f $newVersion
-				$versionFound = $true
+				$finish = $true
 				Write-Host "Patched appveyor version from $oldVersion to $newVersion!" -ForegroundColor Green
 			}else{
+				$finish = $true
 				Write-Host "Appveyor version $oldVersion is up-to-date"
+				$_
 			}
         } else {
             # Output line as is
