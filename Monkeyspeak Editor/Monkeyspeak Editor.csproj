@@ -126,7 +126,6 @@
     <Compile Include="HelperClasses\TriggerCompletionData.cs" />
     <Compile Include="HelperClasses\WordColorizer.cs" />
     <Compile Include="MonkeyspeakRunner.cs" />
-    <Compile Include="Notifications\NeedUpdateNotification.cs" />
     <Compile Include="Notifications\NotificationWithIcon.cs" />
     <Page Include="Controls\ConsoleWindow.xaml">
       <SubType>Designer</SubType>
@@ -253,7 +252,9 @@ rar a -r -x*.tmp -x*.rar -x*.tt "$(TargetDir)$(TargetName)_$(ConfigurationName)_
 </PostBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
-    <PostBuildEvent>REM DEL old files
+    <PostBuildEvent>powershell -NoLogo -NonInteractive -ExecutionPolicy Unrestricted -Command $(SolutionDir)patchAppVeyorVersion.ps1 -SolutionDir '$(SolutionDir)' -ProjectDir '$(ProjectDir)' -TargetDir '$(TargetDir)' -TargetPath '$(TargetPath)' -ConfigurationName '$(ConfigurationName)'
+
+REM DEL old files
 cd $(TargetDir)
 del "$(TargetDir)$(TargetName)_$(ConfigurationName)_$(PlatformName)_Src.rar"
 del "$(TargetDir)$(TargetName)_$(ConfigurationName)_$(PlatformName)_Binaries.rar"

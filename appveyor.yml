@@ -1,4 +1,4 @@
-version: 7.0.{build}
+version: 7.0.6585
 branches:
   only:
   - master
@@ -24,9 +24,9 @@ skip_commits:
 assembly_info:
   patch: true
   file: AssemblyInfo.*
-  assembly_version: "{version}"
-  assembly_file_version: "{version}"
-  assembly_informational_version: "{version}"
+version: 7.0.6585
+version: 7.0.6585
+version: 7.0.6585
 
 test:
   assemblies:

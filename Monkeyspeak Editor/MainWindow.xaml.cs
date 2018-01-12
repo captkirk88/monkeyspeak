@@ -238,28 +238,26 @@ namespace Monkeyspeak.Editor
 
         public async Task<bool> Check()
         {
-            var currentVersion = Assembly.GetExecutingAssembly().GetName().Version;
+            var userVersion = Assembly.GetExecutingAssembly().GetName().Version;
             Uri uri = new Uri("https://github.com/captkirk88/monkeyspeak");
             var web = new WebClient();
             var github = new GitHubClient(new ProductHeaderValue("monkeyspeak"), uri);
             var release = await github.Repository.Release.GetLatest("captkirk88", "monkeyspeak");
-            if (new Version(release.Body) > currentVersion)
+            var currentVersion = new Version(release.Body);
+            if (currentVersion > userVersion)
             {
                 foreach (var asset in release.Assets)
                 {
                     if (asset.Name.Contains("Editor") && asset.Name.Contains("Binaries"))
                     {
-                        await System.Windows.Application.Current.Dispatcher.InvokeAsync(async () =>
-                        {
-                            var result = await DialogManager.ShowMessageAsync(System.Windows.Application.Current.MainWindow as MetroWindow,
-                            "Update Found!", $"A update was found, would you like to download the latest version?", MessageDialogStyle.AffirmativeAndNegative,
-                            new MetroDialogSettings { DefaultButtonFocus = MessageDialogResult.Affirmative, AffirmativeButtonText = "Yes!", NegativeButtonText = "No" });
+                        var result = DialogManager.ShowModalMessageExternal(System.Windows.Application.Current.MainWindow as MetroWindow,
+"Update Found!", $"A update was found {userVersion} < {currentVersion}, would you like to download the latest version?", MessageDialogStyle.AffirmativeAndNegative,
+new MetroDialogSettings { DefaultButtonFocus = MessageDialogResult.Affirmative, AffirmativeButtonText = "Yes!", NegativeButtonText = "No" });
 
-                            if (result == MessageDialogResult.Affirmative)
-                            {
-                                System.Diagnostics.Process.Start(asset.BrowserDownloadUrl);
-                            }
-                        });
+                        if (result == MessageDialogResult.Affirmative)
+                        {
+                            System.Diagnostics.Process.Start(asset.BrowserDownloadUrl);
+                        }
                         return true;
                     }
                 }
