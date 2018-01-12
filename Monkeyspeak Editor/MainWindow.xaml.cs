@@ -10,9 +10,12 @@ using Monkeyspeak.Editor.Notifications;
 using Monkeyspeak.Editor.Notifications.Controls;
 using Monkeyspeak.Editor.Plugins;
 using Monkeyspeak.Logging;
+using Octokit;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -103,17 +106,21 @@ namespace Monkeyspeak.Editor
                 }
         }
 
-        private void MainWindow_Loaded(object sender, RoutedEventArgs e)
+        private async void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
-            e.Handled = true;
-            notifs_flyout.AutoCloseInterval = 3000;
-            notifs_flyout.IsAutoCloseEnabled = false;
+            await Dispatcher.InvokeAsync(() =>
+            {
+                e.Handled = true;
+                notifs_flyout.AutoCloseInterval = 3000;
+                notifs_flyout.IsAutoCloseEnabled = false;
 
-            if (Editors.Instance.IsEmpty)
-                new NewEditorCommand().Execute(null);
+                if (Editors.Instance.IsEmpty)
+                    new NewEditorCommand().Execute(null);
 
-            NotificationManager.Instance.AddNotification(new WelcomeNotification());
-            Plugins.Plugins.Initialize();
+                NotificationManager.Instance.AddNotification(new WelcomeNotification());
+                Plugins.Plugins.Initialize();
+            });
+            await Check();
         }
 
         private void MetroWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
@@ -196,8 +203,8 @@ namespace Monkeyspeak.Editor
         {
             this.Dispatcher.Invoke(() =>
             {
-                Tuple<MahApps.Metro.AppTheme, Accent> appStyle = ThemeManager.DetectAppStyle(Application.Current);
-                ThemeManager.ChangeAppStyle(Application.Current.Resources,
+                Tuple<MahApps.Metro.AppTheme, Accent> appStyle = ThemeManager.DetectAppStyle(System.Windows.Application.Current);
+                ThemeManager.ChangeAppStyle(System.Windows.Application.Current.Resources,
                                         ThemeManager.GetAccent(Enum.GetName(typeof(AppColor), color)),
                                         appStyle.Item1);
             });
@@ -205,7 +212,7 @@ namespace Monkeyspeak.Editor
 
         public AppColor GetColor()
         {
-            Tuple<MahApps.Metro.AppTheme, Accent> appStyle = ThemeManager.DetectAppStyle(Application.Current);
+            Tuple<MahApps.Metro.AppTheme, Accent> appStyle = ThemeManager.DetectAppStyle(System.Windows.Application.Current);
             if (Enum.TryParse(appStyle.Item2.Name, out AppColor color))
                 return color;
             else return AppColor.Brown;
@@ -215,8 +222,8 @@ namespace Monkeyspeak.Editor
         {
             this.Dispatcher.Invoke(() =>
             {
-                Tuple<MahApps.Metro.AppTheme, Accent> appStyle = ThemeManager.DetectAppStyle(Application.Current);
-                ThemeManager.ChangeAppStyle(Application.Current.Resources,
+                Tuple<MahApps.Metro.AppTheme, Accent> appStyle = ThemeManager.DetectAppStyle(System.Windows.Application.Current);
+                ThemeManager.ChangeAppStyle(System.Windows.Application.Current.Resources,
                                         appStyle.Item2,
                                         ThemeManager.GetAppTheme($"Base{Enum.GetName(typeof(AppTheme), accent)}"));
             });
@@ -224,9 +231,40 @@ namespace Monkeyspeak.Editor
 
         public AppTheme GetTheme()
         {
-            Tuple<MahApps.Metro.AppTheme, Accent> appStyle = ThemeManager.DetectAppStyle(Application.Current);
+            Tuple<MahApps.Metro.AppTheme, Accent> appStyle = ThemeManager.DetectAppStyle(System.Windows.Application.Current);
             Enum.TryParse(appStyle.Item1.Name.Replace("Base", ""), out AppTheme theme);
             return theme;
+        }
+
+        public async Task<bool> Check()
+        {
+            var currentVersion = Assembly.GetExecutingAssembly().GetName().Version;
+            Uri uri = new Uri("https://github.com/captkirk88/monkeyspeak");
+            var web = new WebClient();
+            var github = new GitHubClient(new ProductHeaderValue("monkeyspeak"), uri);
+            var release = await github.Repository.Release.GetLatest("captkirk88", "monkeyspeak");
+            if (new Version(release.Body) > currentVersion)
+            {
+                foreach (var asset in release.Assets)
+                {
+                    if (asset.Name.Contains("Editor") && asset.Name.Contains("Binaries"))
+                    {
+                        await System.Windows.Application.Current.Dispatcher.InvokeAsync(async () =>
+                        {
+                            var result = await DialogManager.ShowMessageAsync(System.Windows.Application.Current.MainWindow as MetroWindow,
+                            "Update Found!", $"A update was found, would you like to download the latest version?", MessageDialogStyle.AffirmativeAndNegative,
+                            new MetroDialogSettings { DefaultButtonFocus = MessageDialogResult.Affirmative, AffirmativeButtonText = "Yes!", NegativeButtonText = "No" });
+
+                            if (result == MessageDialogResult.Affirmative)
+                            {
+                                System.Diagnostics.Process.Start(asset.BrowserDownloadUrl);
+                            }
+                        });
+                        return true;
+                    }
+                }
+            }
+            return false;
         }
 
         private void RestorePlugins_Click(object sender, RoutedEventArgs e)
