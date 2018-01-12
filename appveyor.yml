@@ -24,9 +24,9 @@ skip_commits:
 assembly_info:
   patch: true
   file: AssemblyInfo.*
-version: 7.0.6585
-version: 7.0.6585
-version: 7.0.6585
+  assembly_version: '{version}'
+  assembly_file_version: '{version}'
+  assembly_informational_version: '{version}'
 
 test:
   assemblies:
