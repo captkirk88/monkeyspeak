@@ -211,6 +211,7 @@ namespace Monkeyspeak.Editor.Controls
             {
                 completionWindow?.Close();
             }
+
             completionWindow = new CompletionWindow(textEditor.TextArea)
             {
                 CloseAutomatically = false,

@@ -88,6 +88,7 @@ namespace Monkeyspeak.Editor
                 Left = settings.WindowPosition.X;
                 Top = settings.WindowPosition.Y;
             }
+            WindowState = settings.WindowState;
             SetColor(settings.Color);
             SetTheme(settings.Theme);
 
@@ -106,9 +107,9 @@ namespace Monkeyspeak.Editor
                 }
         }
 
-        private async void MainWindow_Loaded(object sender, RoutedEventArgs e)
+        private void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
-            await Dispatcher.InvokeAsync(() =>
+            Dispatcher.Invoke(() =>
             {
                 e.Handled = true;
                 notifs_flyout.AutoCloseInterval = 3000;
@@ -120,7 +121,7 @@ namespace Monkeyspeak.Editor
                 NotificationManager.Instance.AddNotification(new WelcomeNotification());
                 Plugins.Plugins.Initialize();
             });
-            await Check();
+            Dispatcher.Invoke(async () => await Check());
         }
 
         private void MetroWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)

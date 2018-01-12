@@ -121,6 +121,7 @@
     </Compile>
     <Compile Include="Editors.cs" />
     <Compile Include="HelperClasses\FileAssociations.cs" />
+    <Compile Include="HelperClasses\GithubIssueTracker.cs" />
     <Compile Include="HelperClasses\MonkeyspeakIndentationStrategy.cs" />
     <Compile Include="HelperClasses\SerializableString.cs" />
     <Compile Include="HelperClasses\TriggerCompletionData.cs" />

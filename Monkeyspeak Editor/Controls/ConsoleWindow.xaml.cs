@@ -22,12 +22,14 @@ namespace Monkeyspeak.Editor.Controls
     /// </summary>
     public partial class ConsoleWindow : MetroWindow, IConsole
     {
+        public static ConsoleWindow Current { get; private set; }
         private Paragraph paragraph;
         internal List<IConsoleCommand> commands;
         internal LinkedList<string> history;
 
         public ConsoleWindow()
         {
+            Current = this;
             InitializeComponent();
             this.paragraph = new Paragraph();
             console.Document = new FlowDocument(paragraph);
@@ -45,6 +47,8 @@ namespace Monkeyspeak.Editor.Controls
             }
             DataContext = this;
         }
+
+        public string Text => new TextRange(paragraph.ContentStart, paragraph.ContentEnd).Text;
 
         protected override void OnClosing(CancelEventArgs e)
         {

@@ -12,6 +12,7 @@ namespace Monkeyspeak.Editor.Commands
         public override void Execute(object parameter)
         {
             var script = Editors.Instance.Selected?.textEditor.Text;
+            if (string.IsNullOrWhiteSpace(script)) return;
             MonkeyspeakRunner.LoadString(script);
             MonkeyspeakRunner.Compile(Editors.Instance.Selected?.CurrentFilePath);
         }
