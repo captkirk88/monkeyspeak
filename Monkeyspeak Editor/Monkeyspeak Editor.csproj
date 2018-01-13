@@ -38,6 +38,9 @@
   <PropertyGroup>
     <StartupObject />
   </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>if_face-monkey_30313.ico</ApplicationIcon>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="ICSharpCode.AvalonEdit, Version=5.0.3.0, Culture=neutral, PublicKeyToken=9cc39be672370310, processorArchitecture=MSIL">
       <HintPath>..\packages\AvalonEdit.5.0.4\lib\Net40\ICSharpCode.AvalonEdit.dll</HintPath>
@@ -58,6 +61,7 @@
       <HintPath>..\packages\Octokit.0.28.0\lib\net45\Octokit.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.ValueTuple, Version=4.0.2.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
@@ -121,8 +125,9 @@
     </Compile>
     <Compile Include="Editors.cs" />
     <Compile Include="HelperClasses\FileAssociations.cs" />
-    <Compile Include="HelperClasses\GithubIssueTracker.cs" />
+    <Compile Include="HelperClasses\Github.cs" />
     <Compile Include="HelperClasses\MonkeyspeakIndentationStrategy.cs" />
+    <Compile Include="HelperClasses\SecureStringProtectedConfigurationProvider.cs" />
     <Compile Include="HelperClasses\SerializableString.cs" />
     <Compile Include="HelperClasses\TriggerCompletionData.cs" />
     <Compile Include="HelperClasses\WordColorizer.cs" />
@@ -200,15 +205,13 @@
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
     <EmbeddedResource Include="MonkeyspeakSyntax_default.xshd" />
+    <None Include="app.config" />
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
     <None Include="TODO.md" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Monkeyspeak.Editor.Interfaces\Monkeyspeak.Editor.Interfaces.csproj">
@@ -226,6 +229,9 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Utils\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="if_face-monkey_30313.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
@@ -254,6 +260,8 @@ rar a -r -x*.tmp -x*.rar -x*.tt "$(TargetDir)$(TargetName)_$(ConfigurationName)_
   </PropertyGroup>
   <PropertyGroup>
     <PostBuildEvent>powershell -NoLogo -NonInteractive -ExecutionPolicy Unrestricted -Command $(SolutionDir)patchAppVeyorVersion.ps1 -SolutionDir '$(SolutionDir)' -ProjectDir '$(ProjectDir)' -TargetDir '$(TargetDir)' -TargetPath '$(TargetPath)' -ConfigurationName '$(ConfigurationName)'
+
+REM powershell -NoLogo -NonInteractive -ExecutionPolicy Unrestricted -Command $(SolutionDir)protectAppConfig.ps1 -SolutionDir '$(SolutionDir)' -ProjectDir '$(ProjectDir)' -TargetDir '$(TargetDir)' -TargetPath '$(TargetPath)' -ConfigurationName '$(ConfigurationName)'
 
 REM DEL old files
 cd $(TargetDir)

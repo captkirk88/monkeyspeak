@@ -31,7 +31,6 @@ namespace Monkeyspeak.Editor
                 if (e.Exception.TargetSite == lastException?.TargetSite)
                 {
                     new ForceSaveAllCommand().Execute(null);
-                    new HelperClasses.GithubIssueTracker().SubmitIssue($"Auto-Generated Issue for {e?.Exception?.GetType()?.Name}", e.Exception).Wait();
                     Application.Current.Shutdown(404);
                 }
                 lastException = e.Exception;

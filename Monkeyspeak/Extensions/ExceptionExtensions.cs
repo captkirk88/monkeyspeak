@@ -8,7 +8,7 @@ using System.Runtime.CompilerServices;
 
 public static class ExceptionExtensions
 {
-    public static void Log(this Exception ex, Level level = Level.Debug, [CallerMemberName] string memberName = "")
+    public static void Log(this Exception ex, Level level = Level.Error, [CallerMemberName] string memberName = "")
     {
         if (ex != null)
         {
@@ -37,7 +37,7 @@ public static class ExceptionExtensions
         }
     }
 
-    public static void Log<T>(this Exception ex, Level level = Level.Debug, [CallerMemberName] string memberName = "")
+    public static void Log<T>(this Exception ex, Level level = Level.Error, [CallerMemberName] string memberName = "")
     {
         if (ex != null)
         {
@@ -66,7 +66,7 @@ public static class ExceptionExtensions
         }
     }
 
-    public static void LogMessage(this Exception ex, Level level = Level.Debug, [CallerMemberName] string memberName = "")
+    public static void LogMessage(this Exception ex, Level level = Level.Error, [CallerMemberName] string memberName = "")
     {
         if (ex != null)
         {
@@ -91,7 +91,7 @@ public static class ExceptionExtensions
         }
     }
 
-    public static void LogMessage<T>(this Exception ex, Level level = Level.Debug, [CallerMemberName] string memberName = "")
+    public static void LogMessage<T>(this Exception ex, Level level = Level.Error, [CallerMemberName] string memberName = "")
     {
         if (ex != null)
         {

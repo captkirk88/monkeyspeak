@@ -4,6 +4,7 @@ using MahApps.Metro.Controls;
 using MahApps.Metro.Controls.Dialogs;
 using Monkeyspeak.Editor.Commands;
 using Monkeyspeak.Editor.Controls;
+using Monkeyspeak.Editor.HelperClasses;
 using Monkeyspeak.Editor.Interfaces.Plugins;
 using Monkeyspeak.Editor.Logging;
 using Monkeyspeak.Editor.Notifications;
@@ -240,10 +241,9 @@ namespace Monkeyspeak.Editor
         public async Task<bool> Check()
         {
             var userVersion = Assembly.GetExecutingAssembly().GetName().Version;
-            Uri uri = new Uri("https://github.com/captkirk88/monkeyspeak");
             var web = new WebClient();
-            var github = new GitHubClient(new ProductHeaderValue("monkeyspeak"), uri);
-            var release = await github.Repository.Release.GetLatest("captkirk88", "monkeyspeak");
+            var release = await Github.GetLatestRelease();
+            if (release == null || release.Prerelease || release.Draft) return true; // in case internet is not connected or other issue return true to prevent a nagging dialog
             var currentVersion = new Version(release.Body);
             if (currentVersion > userVersion)
             {
