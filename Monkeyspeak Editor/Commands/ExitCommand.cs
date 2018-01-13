@@ -24,20 +24,24 @@ namespace Monkeyspeak.Editor.Commands
 
             var editors = Editors.Instance.All.ToArray();
             var settings = Properties.Settings.Default;
-            if (settings.LastDocuments == null) settings.LastDocuments = new List<SerializableString>();
-            settings.LastDocuments.Clear();
+            List<string> session = new List<string>();
             for (int i = editors.Length - 1; i >= 0; i--)
             {
                 if (File.Exists(editors[i].CurrentFilePath))
-                    settings.LastDocuments.Add(editors[i].CurrentFilePath);
+                    session.Add(editors[i].CurrentFilePath);
                 await editors[i].CloseAsync();
             }
             if (settings.RememberWindowPosition)
             {
                 settings.WindowState = window.WindowState;
                 if (settings.WindowState != WindowState.Maximized)
+                {
                     settings.WindowPosition = new System.Drawing.Point((int)window.Left, (int)window.Top);
+                    settings.WindowSizeWidth = window.Width;
+                    settings.WindowSizeHeight = window.Height;
+                }
             }
+            settings.LastSession = string.Join(",", session);
             settings.Save();
             Application.Current.Shutdown();
         }

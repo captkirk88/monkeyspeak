@@ -138,7 +138,7 @@ namespace Monkeyspeak.Editor.Controls
             textEditor.Options.CutCopyWholeLine = true;
             textEditor.Options.InheritWordWrapIndentation = false;
             textEditor.ShowLineNumbers = true;
-            textEditor.TextArea.IndentationStrategy = new MonkeyspeakIndentationStrategy(page);
+            //textEditor.TextArea.IndentationStrategy = new MonkeyspeakIndentationStrategy(page);
 
             Visibility = Visibility.Visible;
 
@@ -154,6 +154,7 @@ namespace Monkeyspeak.Editor.Controls
 
             // set this as the active editor since it was new
             Editors.Instance.Selected = this;
+            textEditor.TextArea.TextView.CaptureMouse();
         }
 
         private void FileWatcher_Raised(object sender, FileSystemEventArgs e)

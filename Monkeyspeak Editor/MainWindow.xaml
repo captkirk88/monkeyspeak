@@ -12,7 +12,7 @@
         mc:Ignorable="d"
         Loaded="MainWindow_Loaded"
         Closing="MetroWindow_Closing"
-        Title="Monkeyspeak Editor" Height="600" Width="800" ShowIconOnTitleBar="False">
+        Title="Monkeyspeak Editor" MinHeight="600" MinWidth="800" ShowIconOnTitleBar="False">
 
     <Controls:MetroWindow.Resources>
         <Style x:Key="GridSplitterPreviewStyle">

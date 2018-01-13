@@ -88,6 +88,8 @@ namespace Monkeyspeak.Editor
             {
                 Left = settings.WindowPosition.X;
                 Top = settings.WindowPosition.Y;
+                Width = settings.WindowSizeWidth;
+                Height = settings.WindowSizeHeight;
             }
             WindowState = settings.WindowState;
             SetColor(settings.Color);
@@ -96,14 +98,14 @@ namespace Monkeyspeak.Editor
             if (files != null && files.Length > 0)
                 foreach (var file in files)
                 {
-                    if (!string.IsNullOrEmpty(file))
+                    if (!string.IsNullOrEmpty(file) && System.IO.File.Exists(file))
                         new OpenFileCommand().Execute(file);
                 }
 
-            if (settings.LastDocuments != null && settings.LastDocuments.Count > 0)
-                foreach (var file in settings.LastDocuments)
+            if (!string.IsNullOrWhiteSpace(settings.LastSession))
+                foreach (var file in settings.LastSession.Split(','))
                 {
-                    if (!string.IsNullOrEmpty(file))
+                    if (!string.IsNullOrEmpty(file) && System.IO.File.Exists(file))
                         new OpenFileCommand().Execute(file);
                 }
         }
@@ -129,7 +131,8 @@ namespace Monkeyspeak.Editor
         {
             e.Cancel = true;
             console.Close();
-            new ExitCommand().Execute(null);
+            if (sender is MainWindow)
+                new ExitCommand().Execute(null);
         }
 
         private void Console_Click(object sender, RoutedEventArgs e)
@@ -160,7 +163,7 @@ namespace Monkeyspeak.Editor
         {
         }
 
-        private void TriggerList_SelectionChanged(string trigger, string lib)
+        private void TriggerList_SelectionChanged(string trigger, string description, string lib)
         {
             if (Editors.Instance.Selected != null)
             {
@@ -193,7 +196,7 @@ namespace Monkeyspeak.Editor
 
         private void MetroAnimatedTabControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            Dispatcher.InvokeAsync(() =>
+            Dispatcher.Invoke(() =>
             {
                 var selectedEditor = (((MetroAnimatedSingleRowTabControl)sender).SelectedItem as EditorControl);
                 if (selectedEditor != null)
@@ -203,7 +206,7 @@ namespace Monkeyspeak.Editor
 
         public void SetColor(AppColor color)
         {
-            this.Dispatcher.Invoke(() =>
+            Dispatcher.Invoke(() =>
             {
                 Tuple<MahApps.Metro.AppTheme, Accent> appStyle = ThemeManager.DetectAppStyle(System.Windows.Application.Current);
                 ThemeManager.ChangeAppStyle(System.Windows.Application.Current.Resources,

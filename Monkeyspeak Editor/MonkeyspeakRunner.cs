@@ -11,12 +11,17 @@ namespace Monkeyspeak.Editor
     public static class MonkeyspeakRunner
     {
         private static MonkeyspeakEngine engine = new MonkeyspeakEngine();
-        private static Page page;
+        private static Page page = new Page(engine);
 
         [Browsable(false)]
         public static Page CurrentPage => page;
 
         public static Options Options => engine.Options;
+
+        static MonkeyspeakRunner()
+        {
+            page.LoadAllLibraries();
+        }
 
         public static void LoadString(string code)
         {

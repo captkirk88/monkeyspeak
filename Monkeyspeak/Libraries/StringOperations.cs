@@ -16,6 +16,11 @@ namespace Monkeyspeak.Libraries
                 "with {...} get index of {...} and set it to variable %.");
         }
 
+        [TriggerDescription("Gets the words between a range and puts them into a variable")]
+        [TriggerStringParameter]
+        [TriggerNumberParameter]
+        [TriggerNumberParameter]
+        [TriggerVariableParameter]
         private bool SubStringToVar(TriggerReader reader)
         {
             var str = reader.ReadString();

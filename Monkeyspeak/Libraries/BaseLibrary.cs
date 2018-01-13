@@ -46,12 +46,13 @@ namespace Monkeyspeak.Libraries
         /// <param name="trigger"></param>
         /// <param name="handler"></param>
         /// <param name="description"></param>
-        [Obsolete("Next build will remove this, use Add(TriggerCategory cat, int id) instead", false)]
         public virtual void Add(Trigger trigger, TriggerHandler handler, string description = null)
         {
-            if (description != null && !descriptions.ContainsKey(trigger)) descriptions.Add(trigger, description);
             if (!handlers.ContainsKey(trigger))
+            {
+                if (description != null && !descriptions.ContainsKey(trigger)) descriptions.Add(trigger, description);
                 handlers.Add(trigger, handler);
+            }
             else throw new UnauthorizedAccessException($"Override of existing Trigger {trigger}'s handler with handler in {handler.Method}.");
         }
 
@@ -65,9 +66,11 @@ namespace Monkeyspeak.Libraries
         public virtual void Add(TriggerCategory cat, int id, TriggerHandler handler, string description = null)
         {
             Trigger trigger = new Trigger(cat, id);
-            if (description != null) descriptions.Add(trigger, description);
             if (!handlers.ContainsKey(trigger))
+            {
+                if (description != null && !descriptions.ContainsKey(trigger)) descriptions.Add(trigger, description);
                 handlers.Add(trigger, handler);
+            }
             else throw new UnauthorizedAccessException($"Override of existing Trigger {trigger}'s handler with handler in {handler.Method}.");
         }
 
@@ -91,14 +94,14 @@ namespace Monkeyspeak.Libraries
         /// Builds a string representation of the descriptions of <paramref name="trigger"/>.
         /// </summary>
         /// <returns></returns>
-        public string ToString(Trigger trigger, bool excludeLibraryName = false, bool excludeDescriptions = false)
+        public string ToString(MonkeyspeakEngine engine, Trigger trigger, bool excludeLibraryName = false, bool excludeDescriptions = false)
         {
             StringBuilder sb = new StringBuilder();
             if (!excludeLibraryName) sb.AppendLine(GetType().Name);
             sb.Append(trigger);
             if (descriptions.TryGetValue(trigger, out string value))
             {
-                sb.Append(' ').Append(!excludeDescriptions ? value : string.Empty);
+                sb.Append(' ').Append(!excludeDescriptions ? value : trigger.ToString(engine));
                 return sb.ToString();
             }
             else return null;

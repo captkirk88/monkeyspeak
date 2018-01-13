@@ -2,7 +2,7 @@
 <SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="Monkeyspeak.Editor.Properties" GeneratedClassName="Settings">
   <Profiles />
   <Settings>
-    <Setting Name="LastDocuments" Type="System.Collections.Generic.List&lt;Monkeyspeak.Editor.HelperClasses.SerializableString&gt;" Scope="User">
+    <Setting Name="LastSession" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
     </Setting>
     <Setting Name="Color" Type="Monkeyspeak.Editor.AppColor" Scope="User">
@@ -19,6 +19,12 @@
     </Setting>
     <Setting Name="WindowState" Type="System.Windows.WindowState" Scope="User">
       <Value Profile="(Default)">Normal</Value>
+    </Setting>
+    <Setting Name="WindowSizeHeight" Type="System.Double" Scope="User">
+      <Value Profile="(Default)">600</Value>
+    </Setting>
+    <Setting Name="WindowSizeWidth" Type="System.Double" Scope="User">
+      <Value Profile="(Default)">800</Value>
     </Setting>
   </Settings>
 </SettingsFile>

@@ -25,12 +25,13 @@ namespace Monkeyspeak.Editor.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        public global::System.Collections.Generic.List<Monkeyspeak.Editor.HelperClasses.SerializableString> LastDocuments {
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string LastSession {
             get {
-                return ((global::System.Collections.Generic.List<Monkeyspeak.Editor.HelperClasses.SerializableString>)(this["LastDocuments"]));
+                return ((string)(this["LastSession"]));
             }
             set {
-                this["LastDocuments"] = value;
+                this["LastSession"] = value;
             }
         }
         
@@ -91,6 +92,30 @@ namespace Monkeyspeak.Editor.Properties {
             }
             set {
                 this["WindowState"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("600")]
+        public double WindowSizeHeight {
+            get {
+                return ((double)(this["WindowSizeHeight"]));
+            }
+            set {
+                this["WindowSizeHeight"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("800")]
+        public double WindowSizeWidth {
+            get {
+                return ((double)(this["WindowSizeWidth"]));
+            }
+            set {
+                this["WindowSizeWidth"] = value;
             }
         }
     }

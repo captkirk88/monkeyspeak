@@ -16,6 +16,7 @@
             <GridView>
                 <GridView.Columns>
                     <GridViewColumn Header="Triggers" DisplayMemberBinding="{Binding Item1}" />
+                    <GridViewColumn Header="Description" DisplayMemberBinding="{Binding Item3}" />
                     <GridViewColumn Header="Libraries" DisplayMemberBinding="{Binding Item2}" />
                 </GridView.Columns>
             </GridView>

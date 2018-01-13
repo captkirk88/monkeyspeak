@@ -35,7 +35,7 @@ namespace Monkeyspeak.Editor.Notifications
                 };
                 var associateExtButton = new Button()
                 {
-                    Content = "Register .ms extension To This"
+                    Content = "Register .ms extension"
                 };
                 associateExtButton.Click += (sender, args) => EnsureFileAssociations();
                 stackPanel.Children.Add(tb);
