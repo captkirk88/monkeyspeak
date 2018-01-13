@@ -42,8 +42,7 @@ namespace Monkeyspeak.Editor.HelperClasses
         {
             this.page = page;
             line = line.Trim(' ');
-            Trigger.TryParse(MonkeyspeakRunner.Engine, line, out Trigger trigger);
-            this.trigger = trigger;
+            this.trigger = Trigger.Parse(MonkeyspeakRunner.Engine, line);
             Text = page.GetTriggerDescription(trigger, true);
             this.lib = page.Libraries.FirstOrDefault(lib => lib.Contains(trigger.Category, trigger.Id));
             highlightingDef = HighlightingManager.Instance.GetDefinition("Monkeyspeak");
@@ -104,6 +103,8 @@ namespace Monkeyspeak.Editor.HelperClasses
         }
 
         public double Priority => 1;
+
+        public Trigger Trigger => trigger;
 
         public void Complete(TextArea textArea, ISegment completionSegment,
             EventArgs insertionRequestEventArgs)

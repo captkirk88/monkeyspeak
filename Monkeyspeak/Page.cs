@@ -325,7 +325,7 @@ namespace Monkeyspeak
         /// <returns>string</returns>
         public string GetTriggerDescription(Trigger trigger, bool excludeLibraryName = false)
         {
-            if (trigger == null) return "(#:#)";
+            if (trigger == null || trigger == Trigger.Undefined) return string.Empty;
             lock (syncObj)
             {
                 return libraries.FirstOrDefault(lib => lib.Contains(trigger.Category, trigger.Id))?.ToString(trigger) ?? trigger.ToString();

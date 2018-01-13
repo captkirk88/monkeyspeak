@@ -140,13 +140,19 @@ namespace Monkeyspeak.Editor.Controls
                     var offset = textEditor.Document.GetOffset(line, 1);
                     if (offset >= textEditor.Document.TextLength) offset--;
                     if (offset <= 0) offset++;
-                    var textAtOffset = textEditor.Document.GetText(offset, textEditor.Document.GetLineByNumber(line).Length);
+                    var textAtOffset = textEditor.Document.GetText(textEditor.Document.GetLineByNumber(line));
                     if (string.IsNullOrWhiteSpace(textAtOffset))
                     {
                         triggerDescToolTip.IsOpen = false;
                         return;
                     }
-                    triggerDescToolTip.Content = new TriggerCompletionData(page, textAtOffset).Description;
+                    var completionData = new TriggerCompletionData(page, textAtOffset);
+                    if (completionData.Trigger == Trigger.Undefined)
+                    {
+                        triggerDescToolTip.IsOpen = false;
+                        return;
+                    }
+                    triggerDescToolTip.Content = completionData.Description;
                     //triggerDescToolTip.Content = textAtOffset;
                     triggerDescToolTip.PlacementTarget = this;
                     triggerDescToolTip.IsOpen = true;
