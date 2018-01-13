@@ -31,7 +31,7 @@ namespace Monkeyspeak.Editor.Controls
         public void Add(Page page, Trigger trigger, TriggerHandler handler, BaseLibrary lib)
         {
             var triggerDescriptions = ReflectionHelper.GetAllAttributesFromMethod<TriggerDescriptionAttribute>(handler.Method);
-            var pair = new Tuple<string, string, string>(page.GetTriggerDescription(trigger, true), lib.GetType().Name,
+            var pair = new Tuple<string, string, string>(lib.ToString(trigger, true), lib.GetType().Name,
                 triggerDescriptions.FirstOrDefault()?.Description ?? string.Empty);
             if (!TriggerDescriptions.Contains(pair))
                 TriggerDescriptions.Add(pair);

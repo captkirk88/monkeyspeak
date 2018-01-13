@@ -94,17 +94,14 @@ namespace Monkeyspeak.Libraries
         /// Builds a string representation of the descriptions of <paramref name="trigger"/>.
         /// </summary>
         /// <returns></returns>
-        public string ToString(MonkeyspeakEngine engine, Trigger trigger, bool excludeLibraryName = false, bool excludeDescriptions = false)
+        public string ToString(Trigger trigger, bool excludeLibraryName = false, bool excludeDescriptions = false)
         {
             StringBuilder sb = new StringBuilder();
-            if (!excludeLibraryName) sb.AppendLine(GetType().Name);
             sb.Append(trigger);
-            if (descriptions.TryGetValue(trigger, out string value))
-            {
-                sb.Append(' ').Append(!excludeDescriptions ? value : trigger.ToString(engine));
-                return sb.ToString();
-            }
-            else return null;
+            descriptions.TryGetValue(trigger, out string value);
+            sb.Append(' ').Append(!excludeDescriptions ? value ?? string.Empty : string.Empty);
+            if (!excludeLibraryName) sb.AppendLine(GetType().Name);
+            return sb.ToString();
         }
 
         /// <summary>
@@ -117,7 +114,7 @@ namespace Monkeyspeak.Libraries
             if (!excludeLibraryName) sb.AppendLine(GetType().Name);
             foreach (var kv in descriptions.OrderBy(kv => kv.Key.Category))
             {
-                sb.Append(kv.Key).Append(' ').Append(!excludeDescriptions ? kv.Value : string.Empty).Append(Environment.NewLine);
+                sb.Append(kv.Key).Append(' ').Append(!excludeDescriptions ? kv.Value ?? string.Empty : string.Empty).Append(Environment.NewLine);
             }
             return sb.ToString();
         }
