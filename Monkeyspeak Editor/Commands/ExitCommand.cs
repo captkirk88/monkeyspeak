@@ -29,7 +29,10 @@ namespace Monkeyspeak.Editor.Commands
             {
                 if (File.Exists(editors[i].CurrentFilePath))
                     session.Add(editors[i].CurrentFilePath);
-                await editors[i].CloseAsync();
+                if (!await editors[i].CloseAsync())
+                {
+                    return;
+                }
             }
             if (settings.RememberWindowPosition)
             {

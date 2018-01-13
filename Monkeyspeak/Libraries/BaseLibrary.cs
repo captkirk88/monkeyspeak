@@ -94,13 +94,12 @@ namespace Monkeyspeak.Libraries
         /// Builds a string representation of the descriptions of <paramref name="trigger"/>.
         /// </summary>
         /// <returns></returns>
-        public string ToString(Trigger trigger, bool excludeLibraryName = false, bool excludeDescriptions = false)
+        public string ToString(Trigger trigger, bool excludeDescriptions = false)
         {
             StringBuilder sb = new StringBuilder();
             sb.Append(trigger);
             descriptions.TryGetValue(trigger, out string value);
             sb.Append(' ').Append(!excludeDescriptions ? value ?? string.Empty : string.Empty);
-            if (!excludeLibraryName) sb.AppendLine(GetType().Name);
             return sb.ToString();
         }
 

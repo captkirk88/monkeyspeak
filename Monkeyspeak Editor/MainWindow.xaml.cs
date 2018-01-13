@@ -83,18 +83,17 @@ namespace Monkeyspeak.Editor
 
             Loaded += MainWindow_Loaded;
 
+            // Settings
             var settings = Properties.Settings.Default;
-            if (settings.WindowState != WindowState.Maximized)
-            {
-                Left = settings.WindowPosition.X;
-                Top = settings.WindowPosition.Y;
-                Width = settings.WindowSizeWidth;
-                Height = settings.WindowSizeHeight;
-            }
+            Left = settings.WindowPosition.X;
+            Top = settings.WindowPosition.Y;
+            Width = settings.WindowSizeWidth;
+            Height = settings.WindowSizeHeight;
             WindowState = settings.WindowState;
             SetColor(settings.Color);
             SetTheme(settings.Theme);
 
+            // Load files passed into the program and from last session
             if (files != null && files.Length > 0)
                 foreach (var file in files)
                 {
@@ -132,7 +131,9 @@ namespace Monkeyspeak.Editor
             e.Cancel = true;
             console.Close();
             if (sender is MainWindow)
+            {
                 new ExitCommand().Execute(null);
+            }
         }
 
         private void Console_Click(object sender, RoutedEventArgs e)
@@ -225,7 +226,7 @@ namespace Monkeyspeak.Editor
 
         public void SetTheme(AppTheme accent)
         {
-            this.Dispatcher.Invoke(() =>
+            Dispatcher.Invoke(() =>
             {
                 Tuple<MahApps.Metro.AppTheme, Accent> appStyle = ThemeManager.DetectAppStyle(System.Windows.Application.Current);
                 ThemeManager.ChangeAppStyle(System.Windows.Application.Current.Resources,
@@ -241,12 +242,13 @@ namespace Monkeyspeak.Editor
             return theme;
         }
 
-        public async Task<bool> Check()
+        public async Task Check()
         {
             var userVersion = Assembly.GetExecutingAssembly().GetName().Version;
             var web = new WebClient();
             var release = await Github.GetLatestRelease();
-            if (release == null || release.Prerelease || release.Draft) return true; // in case internet is not connected or other issue return true to prevent a nagging dialog
+            // in case internet is not connected or other issue return to prevent a nagging dialog
+            if (release == null || release.Prerelease || release.Draft) return;
             var currentVersion = new Version(release.Body);
             if (currentVersion > userVersion)
             {
@@ -255,18 +257,17 @@ namespace Monkeyspeak.Editor
                     if (asset.Name.Contains("Editor") && asset.Name.Contains("Binaries"))
                     {
                         var result = DialogManager.ShowModalMessageExternal(System.Windows.Application.Current.MainWindow as MetroWindow,
-                                    "Update Found!", $"A update was found {userVersion} < {currentVersion}, would you like to download the latest version?", MessageDialogStyle.AffirmativeAndNegative,
+                                    "Update Found!", $"A update was found ({userVersion} -> {currentVersion}), would you like to download the latest version?", MessageDialogStyle.AffirmativeAndNegative,
                                     new MetroDialogSettings { DefaultButtonFocus = MessageDialogResult.Affirmative, AffirmativeButtonText = "Yes!", NegativeButtonText = "No" });
 
                         if (result == MessageDialogResult.Affirmative)
                         {
                             System.Diagnostics.Process.Start(asset.BrowserDownloadUrl);
                         }
-                        return true;
+                        break;
                     }
                 }
             }
-            return false;
         }
 
         private void RestorePlugins_Click(object sender, RoutedEventArgs e)
@@ -291,6 +292,10 @@ namespace Monkeyspeak.Editor
             var settings = sender as Properties.Settings;
             SetColor(settings.Color);
             SetTheme(settings.Theme);
+            WindowState = settings.WindowState;
+            Width = settings.WindowSizeWidth;
+            Height = settings.WindowSizeHeight;
+            WindowState = settings.WindowState;
         }
     }
 }

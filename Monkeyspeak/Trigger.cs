@@ -2,6 +2,7 @@
 using Monkeyspeak.Lexical.Expressions;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -249,6 +250,16 @@ namespace Monkeyspeak
                 }
             }
             return sb.ToString();
+        }
+
+        public static bool TryParse(MonkeyspeakEngine engine, string str, out Trigger trigger)
+        {
+            var stream = new MemoryStream(Encoding.Default.GetBytes(str));
+            Parser parser = new Parser(engine);
+            Lexer lexer = new Lexer(engine, new SStreamReader(stream));
+            trigger = parser.Parse(lexer).FirstOrDefault();
+            if (trigger != Undefined) return true;
+            return false;
         }
     }
 }

@@ -303,13 +303,16 @@ namespace Monkeyspeak
         /// </summary>
         /// <param name="excludeLibraryName">[true] hide library name, [false] show library name above triggers</param>
         /// <returns>IEnumerable of Triggers</returns>
-        public IEnumerable<string> GetTriggerDescriptions(bool excludeLibraryName = false)
+        public IEnumerable<Tuple<BaseLibrary, Trigger, string>> GetTriggerDescriptions(bool excludeLibraryName = false)
         {
             lock (syncObj)
             {
                 foreach (var lib in libraries)
                 {
-                    yield return lib.ToString(excludeLibraryName);
+                    foreach (var kv in lib.Handlers)
+                    {
+                        yield return new Tuple<BaseLibrary, Trigger, string>(lib, kv.Key, lib.ToString(kv.Key));
+                    }
                 }
             }
         }
@@ -325,7 +328,7 @@ namespace Monkeyspeak
             if (trigger == null) return "(#:#)";
             lock (syncObj)
             {
-                return libraries.FirstOrDefault(lib => lib.Contains(trigger.Category, trigger.Id))?.ToString(trigger, excludeLibraryName) ?? trigger.ToString();
+                return libraries.FirstOrDefault(lib => lib.Contains(trigger.Category, trigger.Id))?.ToString(trigger) ?? trigger.ToString();
             }
         }
 

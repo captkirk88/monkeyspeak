@@ -12,6 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using MahApps.Metro;
 using MahApps.Metro.Controls;
 
 namespace Monkeyspeak.Editor.Controls
@@ -31,6 +32,10 @@ namespace Monkeyspeak.Editor.Controls
         {
             Properties.Settings.Default.Save();
             Close();
+        }
+
+        private void MetroWindow_Loaded(object sender, RoutedEventArgs e)
+        {
         }
     }
 }

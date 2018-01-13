@@ -9,7 +9,9 @@
              xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
              mc:Ignorable="d"
              d:DesignHeight="600" d:DesignWidth="300"
-                      Title="Settings" IsCloseButtonEnabled="False" IsMinButtonEnabled="False" IsMaxRestoreButtonEnabled="False">
+                      Title="Settings" IsCloseButtonEnabled="False"
+                      IsMinButtonEnabled="False" Width="400" Height="400" IsMaxRestoreButtonEnabled="False"
+                      Loaded="MetroWindow_Loaded">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="1*" />

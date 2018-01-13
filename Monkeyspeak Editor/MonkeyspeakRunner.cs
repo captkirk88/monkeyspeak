@@ -11,12 +11,14 @@ namespace Monkeyspeak.Editor
     public static class MonkeyspeakRunner
     {
         private static MonkeyspeakEngine engine = new MonkeyspeakEngine();
-        private static Page page = new Page(engine);
+        private static Page page = new Page(Engine);
 
         [Browsable(false)]
         public static Page CurrentPage => page;
 
-        public static Options Options => engine.Options;
+        public static Options Options => Engine.Options;
+
+        public static MonkeyspeakEngine Engine { get => engine; }
 
         static MonkeyspeakRunner()
         {
@@ -25,7 +27,7 @@ namespace Monkeyspeak.Editor
 
         public static void LoadString(string code)
         {
-            page = engine.LoadFromString(code);
+            page = Engine.LoadFromString(code);
         }
 
         public static void Run(int id = 0)
@@ -55,7 +57,7 @@ namespace Monkeyspeak.Editor
         {
             try
             {
-                return engine.LoadCompiledFile(filePath);
+                return Engine.LoadCompiledFile(filePath);
             }
             catch (Exception ex)
             {

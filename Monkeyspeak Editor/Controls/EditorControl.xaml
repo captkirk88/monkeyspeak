@@ -59,7 +59,7 @@
             <MenuItem Header="Save" Command="{x:Static commands:MonkeyspeakCommands.Save}" ToolTip="{Binding RelativeSource={RelativeSource Self}, Path=Command.ToolTip}" />
             <MenuItem Header="New" Command="{x:Static commands:MonkeyspeakCommands.New}" ToolTip="{Binding RelativeSource={RelativeSource Self}, Path=Command.ToolTip}" />
             <MenuItem Header="Open" Command="{x:Static commands:MonkeyspeakCommands.Open}" ToolTip="{Binding RelativeSource={RelativeSource Self}, Path=Command.ToolTip}" />
-            <MenuItem Header="Navigate to Document in Explorer" Command="{x:Static commands:MonkeyspeakCommands.NavigateTo}" ToolTip="{Binding RelativeSource={RelativeSource Self}, Path=Command.ToolTip}"/>
+            <MenuItem Header="Navigate to Document in Explorer" Command="{x:Static commands:MonkeyspeakCommands.NavigateTo}" ToolTip="{Binding RelativeSource={RelativeSource Self}, Path=Command.ToolTip}" />
             <MenuItem Header="Close" Command="{x:Static commands:MonkeyspeakCommands.Close}" ToolTip="{Binding RelativeSource={RelativeSource Self}, Path=Command.ToolTip}" />
         </ContextMenu>
     </Controls:MetroTabItem.ContextMenu>
@@ -92,7 +92,7 @@
                 <ip:PackIconModern Kind="Delete" />
             </Button>
             <Separator />
-            <Button Command="Undo" ToolTip="{Binding RelativeSource={RelativeSource Self}, Path=Command}">
+            <Button x:Name="UndoButton" Command="Undo" ToolTip="{Binding RelativeSource={RelativeSource Self}, Path=Command}">
                 <ip:PackIconModern Kind="Undo" />
             </Button>
             <Button Command="Redo" ToolTip="{Binding RelativeSource={RelativeSource Self}, Path=Command}">

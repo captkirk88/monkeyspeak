@@ -19,7 +19,7 @@ namespace Monkeyspeak.Utils
 
         public static IEnumerable<T> GetAllAttributesFromMethod<T>(MethodInfo methodInfo) where T : Attribute
         {
-            var attributes = (T[])methodInfo.GetCustomAttributes(typeof(T), false);
+            var attributes = methodInfo.GetCustomAttributes<T>(true).ToArray();
             if (attributes != null && attributes.Length > 0)
                 for (int k = 0; k <= attributes.Length - 1; k++)
                 {
