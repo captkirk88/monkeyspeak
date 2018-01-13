@@ -11,8 +11,8 @@ try{
         if($_ -match $pattern -and $finish -eq $false){
             # We have found the matching line
 			$oldVersion = [version]$matches[1]
-			if ($oldVersion.Major -ne $targetVersion.Major -or $oldVersion.Minor -ne $targetVersion.Minor -or $oldVersion.Build -ne $targetVersion.Build) {
-				$newVersion = "{0}.{1}.{2}" -f $targetVersion.Major, $targetVersion.Minor, $targetVersion.Build
+			if ($oldVersion.Major -ne $targetVersion.Major -or $oldVersion.Minor -ne $targetVersion.Minor -or $oldVersion.Build -ne $targetVersion.Build -or $oldVersion.Revision -ne $targetVersion.Revision) {
+				$newVersion = "{0}.{1}.{2}.{3}" -f $targetVersion.Major, $targetVersion.Minor, $targetVersion.Build, $targetVersion.Revision
 				'version: {0}' -f $newVersion
 				$finish = $true
 				Write-Host "Patched appveyor version from $oldVersion to $newVersion!" -ForegroundColor Green
