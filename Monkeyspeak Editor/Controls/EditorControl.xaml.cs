@@ -28,6 +28,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Xml;
+using Monkeyspeak.Extensions;
 
 namespace Monkeyspeak.Editor.Controls
 {
@@ -248,8 +249,8 @@ namespace Monkeyspeak.Editor.Controls
                 CloseAutomatically = false,
             };
             var data = completionWindow.CompletionList.CompletionData;
-            data.Clear();
-            foreach (var tc in triggerCompletions.Where(tc => tc.Text.IndexOf(CurrentLine.Trim(' ')) >= 0))
+            var line = CurrentLine.Trim(' ', '\t', '\n');
+            foreach (var tc in triggerCompletions.Where(tc => tc.Text.IndexOf(line) >= 0 || line.CompareTo(tc.Text) <= 0))
             {
                 data.Add(tc);
             }
