@@ -18,6 +18,7 @@ notifications:
 
 before_install:
 - sudo apt-get install rar
+- sudo apt=get update
 
 install:
 - nuget install NUnit.ConsoleRunner -Version 3.7.0 -OutputDirectory testrunner
