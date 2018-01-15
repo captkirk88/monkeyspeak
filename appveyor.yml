@@ -1,4 +1,4 @@
-version: 7.0.6588.34120
+version: 7.0.6588.34120.{appveyor_job_id}
 branches:
   only:
   - master
