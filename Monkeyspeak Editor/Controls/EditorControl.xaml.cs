@@ -66,30 +66,15 @@ namespace Monkeyspeak.Editor.Controls
         private readonly Page page;
 
         private FileSystemWatcher fileWatcher;
-        private CompletionWindow completionWindow;
-        private List<TriggerCompletionData> triggerCompletions;
-
-        private ToolTip triggerDescToolTip;
 
         public event PropertyChangedEventHandler PropertyChanged;
 
         public EditorControl()
         {
-            triggerCompletions = new List<TriggerCompletionData>();
-            page = MonkeyspeakRunner.CurrentPage;
-            foreach (var lib in MonkeyspeakRunner.CurrentPage.Libraries)
-            {
-                foreach (var trigger in lib.Handlers.Select(handler => handler.Key))
-                {
-                    triggerCompletions.Add(new TriggerCompletionData(page, lib, trigger));
-                }
-            }
-
             Logger.DebugEnabled = true;
 
             InitializeComponent();
             DataContext = this;
-            triggerDescToolTip = new System.Windows.Controls.ToolTip();
 
             //textEditor.SyntaxHighlighting = HighlightingManager.Instance.GetDefinitionByExtension(".ms");
             textEditor.TextArea.Caret.PositionChanged += (sender, e) =>
@@ -109,22 +94,22 @@ namespace Monkeyspeak.Editor.Controls
             };
             textEditor.TextArea.TextEntered += (sender, e) =>
             {
-                ShowCompletion();
+                Intellisense.GenerateTriggerListCompletion();
             };
             textEditor.TextArea.TextEntering += (sender, e) =>
             {
-                if (e.Text.Length > 0 && completionWindow != null)
-                {
-                    completionWindow.CompletionList.RequestInsertion(e);
-                }
+                Intellisense.TextEntered(e);
             };
             textEditor.KeyDown += (sender, e) =>
             {
                 if (Keyboard.IsKeyDown(Key.LeftCtrl) && e.Key == Key.Space)
                 {
                     e.Handled = true;
-                    ShowCompletion();
+                    Intellisense.GenerateTriggerListCompletion();
                 }
+
+                var settings = Properties.Settings.Default;
+
                 if (e.Key == Key.Return)
                 {
                     textEditor.TextArea.IndentationStrategy.IndentLines(textEditor.Document, 0, textEditor.LineCount);
@@ -133,36 +118,11 @@ namespace Monkeyspeak.Editor.Controls
 
             textEditor.TextArea.TextView.PreviewMouseHover += (sender, e) =>
             {
-                var textArea = textEditor.TextArea;
-                var mousePos = textEditor.GetPositionFromPoint(e.GetPosition(textEditor));
-                if (mousePos != null)
-                {
-                    var line = mousePos.Value.Line;
-                    var offset = textEditor.Document.GetOffset(line, 1);
-                    if (offset >= textEditor.Document.TextLength) offset--;
-                    if (offset <= 0) offset++;
-                    var textAtOffset = textEditor.Document.GetText(textEditor.Document.GetLineByNumber(line));
-                    if (string.IsNullOrWhiteSpace(textAtOffset))
-                    {
-                        triggerDescToolTip.IsOpen = false;
-                        return;
-                    }
-                    var completionData = new TriggerCompletionData(page, textAtOffset);
-                    if (completionData.Trigger == Trigger.Undefined)
-                    {
-                        triggerDescToolTip.IsOpen = false;
-                        return;
-                    }
-                    triggerDescToolTip.Content = completionData.Description;
-                    //triggerDescToolTip.Content = textAtOffset;
-                    triggerDescToolTip.PlacementTarget = this;
-                    triggerDescToolTip.IsOpen = true;
-                    e.Handled = true;
-                }
+                Intellisense.MouseHover(e);
             };
             textEditor.PreviewMouseMove += (sender, e) =>
             {
-                triggerDescToolTip.IsOpen = false;
+                Intellisense.MouseMove(e);
             };
             textEditor.Options.AllowScrollBelowDocument = true;
             textEditor.Options.HighlightCurrentLine = true;
@@ -187,7 +147,7 @@ namespace Monkeyspeak.Editor.Controls
 
             // set this as the active editor since it was new
             Editors.Instance.Selected = this;
-            textEditor.TextArea.TextView.CaptureMouse();
+            Keyboard.Focus(textEditor);
         }
 
         private void FileWatcher_Raised(object sender, FileSystemEventArgs e)
@@ -235,32 +195,6 @@ namespace Monkeyspeak.Editor.Controls
                     break;
             }
             fileWatcher.EnableRaisingEvents = true;
-        }
-
-        private CompletionWindow ShowCompletion()
-        {
-            if (completionWindow != null)
-            {
-                completionWindow?.Close();
-            }
-
-            completionWindow = new CompletionWindow(textEditor.TextArea)
-            {
-                CloseAutomatically = false,
-            };
-            var data = completionWindow.CompletionList.CompletionData;
-            var line = CurrentLine.Trim(' ', '\t', '\n');
-            foreach (var tc in triggerCompletions.Where(tc => tc.Text.IndexOf(line) >= 0 || line.CompareTo(tc.Text) <= 0))
-            {
-                data.Add(tc);
-            }
-            completionWindow.SizeToContent = SizeToContent.Width;
-            if (data.Count > 0) completionWindow.Show();
-            completionWindow.Closed += delegate
-            {
-                completionWindow = null;
-            };
-            return completionWindow;
         }
 
         public string Title { get => _title; set => SetField(ref _title, value); }
@@ -331,6 +265,7 @@ namespace Monkeyspeak.Editor.Controls
             BeginUndoGroup();
             textEditor.TextArea.TextView.LineTransformers.Add(new WordColorizer(color, line, start, end));
             EndUndoGroup();
+            textEditor.TextArea.TextView.EnsureVisualLines();
         }
 
         /// <summary>
@@ -346,6 +281,7 @@ namespace Monkeyspeak.Editor.Controls
             BeginUndoGroup();
             textEditor.TextArea.TextView.LineTransformers.Add(new FontWeightTransformer(weight, line, start, end));
             EndUndoGroup();
+            textEditor.TextArea.TextView.EnsureVisualLines();
         }
 
         public IList<string> Lines
@@ -565,25 +501,25 @@ namespace Monkeyspeak.Editor.Controls
 
         private void OnPreviewLostKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
         {
-            completionWindow?.Close();
-            triggerDescToolTip.IsOpen = false;
+            Intellisense.Close();
         }
 
         private void OnGotFocus(object sender, RoutedEventArgs e)
         {
             if (Editors.Instance.Selected == this) return;
             Editors.Instance.Selected = this;
-            FocusManager.SetFocusedElement(textEditor.TextArea, textEditor);
+            Keyboard.Focus(textEditor);
+            Mouse.Capture(textEditor);
         }
 
         private void OnLostFocus(object sender, RoutedEventArgs e)
         {
-            completionWindow?.Close();
+            Intellisense.Close();
         }
 
         private void OnLostMouseCapture(object sender, MouseEventArgs e)
         {
-            completionWindow?.Close();
+            Intellisense.Close();
         }
 
         protected bool SetField<T>(ref T field, T value, [CallerMemberName] string propertyName = null)
@@ -623,7 +559,6 @@ namespace Monkeyspeak.Editor.Controls
             {
                 if (Editors.Instance.Selected == this) return;
                 Editors.Instance.Selected = this;
-                FocusManager.SetFocusedElement(textEditor.TextArea, textEditor);
             }
         }
 

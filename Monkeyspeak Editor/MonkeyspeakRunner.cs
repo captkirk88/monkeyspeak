@@ -18,6 +18,7 @@ namespace Monkeyspeak.Editor
 
         public static Options Options => Engine.Options;
 
+        [Browsable(false)]
         public static MonkeyspeakEngine Engine { get => engine; }
 
         static MonkeyspeakRunner()

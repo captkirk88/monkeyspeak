@@ -14,8 +14,9 @@
         Closing="MetroWindow_Closing"
         Title="Monkeyspeak Editor" MinHeight="600" MinWidth="800"
                       ShowIconOnTitleBar="False"
-                      BorderBrush="{DynamicResource AccentColorBrush}"
-                      BorderThickness="1">
+                      ResizeMode="CanResizeWithGrip"
+                      GlowBrush="{DynamicResource AccentColorBrush}"
+                      BorderThickness="2" WindowStartupLocation="CenterScreen">
 
     <Controls:MetroWindow.Resources>
         <Style x:Key="GridSplitterPreviewStyle">
@@ -78,7 +79,7 @@
         <Controls:WindowCommands>
             <Button Background="Transparent"
                     BorderBrush="Transparent"
-                    BorderThickness="0">
+                    BorderThickness="0" Click="mainButton_Click">
                 <TextBlock Text="M" FontFamily="Arial" FontWeight="ExtraBold" />
                 <Button.ContextMenu>
                     <ContextMenu>
@@ -120,7 +121,7 @@
                 <iconPacks:PackIconFontAwesome Kind="GithubBrands" />
                 <Button.ToolTip>
                     <TextBlock TextWrapping="Wrap">
-                        Navigates to the Github page where this editor is hosted
+                        Navigates using the default browser to the Github page where this editor is hosted
                     </TextBlock>
                 </Button.ToolTip>
             </Button>

@@ -14,6 +14,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using MahApps.Metro;
 using MahApps.Metro.Controls;
+using Monkeyspeak.Editor.HelperClasses;
 
 namespace Monkeyspeak.Editor.Controls
 {
@@ -25,17 +26,23 @@ namespace Monkeyspeak.Editor.Controls
         public SettingsDialog()
         {
             InitializeComponent();
+            DataContext = this;
             settingsProps.SelectedObject = Properties.Settings.Default;
+
+            HotkeyManager.Populate(this, hotkeysContainer, hotkeysContainer.FirstChild as StackPanel, hotkeysContainer.SecondChild as StackPanel);
         }
 
         private void Apply_Click(object sender, RoutedEventArgs e)
         {
+            HotkeyManager.ApplyChangesToInputBindings();
+            HotkeyManager.Save();
             Properties.Settings.Default.Save();
             Close();
         }
 
-        private void MetroWindow_Loaded(object sender, RoutedEventArgs e)
+        private void Cancel_Click(object sender, RoutedEventArgs e)
         {
+            Close();
         }
     }
 }

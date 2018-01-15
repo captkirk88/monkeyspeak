@@ -65,6 +65,7 @@ namespace Monkeyspeak.Editor.HelperClasses
                 HighlightingColorizer colorizer = new HighlightingColorizer(highlightingDef);
                 text.LineTransformers.Add(colorizer);
                 text.EnsureVisualLines();
+                text.IsHitTestVisible = true;
                 return text;
             }
         }
@@ -98,11 +99,12 @@ namespace Monkeyspeak.Editor.HelperClasses
                 HighlightingColorizer colorizer = new HighlightingColorizer(highlightingDef);
                 syntaxViewer.LineTransformers.Add(colorizer);
                 syntaxViewer.EnsureVisualLines();
+                syntaxViewer.IsHitTestVisible = false;
                 return syntaxViewer;
             }
         }
 
-        public double Priority => 1;
+        public double Priority => 0;
 
         public Trigger Trigger => trigger;
 

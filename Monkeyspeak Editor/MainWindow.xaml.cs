@@ -297,5 +297,10 @@ namespace Monkeyspeak.Editor
             Height = settings.WindowSizeHeight;
             WindowState = settings.WindowState;
         }
+
+        private void mainButton_Click(object sender, RoutedEventArgs e)
+        {
+            ((Button)sender).ContextMenu.IsOpen = true;
+        }
     }
 }

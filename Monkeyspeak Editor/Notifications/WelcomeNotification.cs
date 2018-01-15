@@ -25,9 +25,10 @@ namespace Monkeyspeak.Editor.Notifications
                     .AppendLine("Did you know?")
                     .AppendLine("- Right click on a tab for shortcuts.")
                     .AppendLine("- Ctrl+Space for intellisense.")
-                    .AppendLine("- Ctrl+S to save")
-                    .AppendLine("- Ctrl+N for new document")
-                    .AppendLine("- Ctrl+X close current document");
+                    .AppendLine("- Ctrl+S to save.")
+                    .AppendLine("- Ctrl+N for new document.")
+                    .AppendLine("- Ctrl+X close current document.")
+                    .AppendLine("- You can type words to filter triggers.");
                 var tb = new TextBlock
                 {
                     Text = welcome.ToString(),
