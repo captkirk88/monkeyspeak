@@ -37,6 +37,7 @@ namespace Monkeyspeak.Libraries
                 "exit the current loop.");
         }
 
+        [TriggerDescription("Executed when the loop completes or is exited")]
         private bool AfterLoopIsDone(TriggerReader reader)
         {
             bool canContinue = true;
@@ -53,6 +54,7 @@ namespace Monkeyspeak.Libraries
             return canContinue;
         }
 
+        [TriggerDescription("Exits the current loop")]
         private bool BreakCurrentFlow(TriggerReader reader)
         {
             reader.CurrentBlockIndex = -1;
@@ -60,6 +62,9 @@ namespace Monkeyspeak.Libraries
             return true;
         }
 
+        [TriggerDescription("Loops through the block below this trigger while the variable equals the specified string")]
+        [TriggerVariableParameter]
+        [TriggerStringParameter]
         private bool WhileVarIsString(TriggerReader reader)
         {
             var var = reader.ReadVariable();
@@ -81,6 +86,9 @@ namespace Monkeyspeak.Libraries
             return canContinue;
         }
 
+        [TriggerDescription("Loops through the block below this trigger while the variable does not equal the specified string")]
+        [TriggerVariableParameter]
+        [TriggerStringParameter]
         private bool WhileVarIsNotString(TriggerReader reader)
         {
             var var = reader.ReadVariable();
@@ -101,6 +109,9 @@ namespace Monkeyspeak.Libraries
             return canContinue;
         }
 
+        [TriggerDescription("Loops through the block below this trigger while the variable equals the specified number")]
+        [TriggerVariableParameter]
+        [TriggerNumberParameter]
         private bool WhileVarIsValue(TriggerReader reader)
         {
             var var = reader.ReadVariable();
@@ -123,6 +134,9 @@ namespace Monkeyspeak.Libraries
             return canContinue;
         }
 
+        [TriggerDescription("Loops through the block below this trigger while the variable does not equal the specified number")]
+        [TriggerVariableParameter]
+        [TriggerNumberParameter]
         private bool WhileVarIsNotValue(TriggerReader reader)
         {
             var var = reader.ReadVariable();

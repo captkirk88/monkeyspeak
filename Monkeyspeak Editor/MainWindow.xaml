@@ -87,6 +87,9 @@
                         <MenuItem Header="Restore" />
                         <MenuItem Header="Minimize" />
                         <Separator />
+                        <MenuItem Header="Recent Documents" x:Name="recentDocuments">
+                        </MenuItem>
+                        <Separator />
                         <MenuItem Header="Exit" Command="{x:Static commands:MonkeyspeakCommands.Exit}" ToolTip="{Binding RelativeSource={RelativeSource Self}, Path=Command.ToolTip}" />
                     </ContextMenu>
                 </Button.ContextMenu>

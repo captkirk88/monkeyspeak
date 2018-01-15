@@ -92,7 +92,7 @@ namespace Monkeyspeak.Editor.HelperClasses
                                 sb.AppendLine($"Param {arg++}: {desc.Description}");
                         }
                     }
-                    else sb.AppendLine("No description found");
+                    else sb.AppendLine("No description found"); // should never happen
                     sb.AppendLine($"Library: {lib.GetType().Name}");
                 }
                 syntaxViewer.Document = new TextDocument(sb.ToString());

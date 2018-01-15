@@ -9,7 +9,7 @@ namespace Monkeyspeak.Libraries
             Add(TriggerCategory.Effect, 400, PutWordCountIntoVariable,
                 "with {...} get word count and set it to variable %.");
             Add(TriggerCategory.Effect, 401, AddStringToVar,
-                "with {...} set it to variable %.");
+                "with {...} add it to variable %.");
             Add(TriggerCategory.Effect, 402, SubStringToVar,
                 "with {...} get words starting at # to # and set it to variable %.");
             Add(TriggerCategory.Effect, 403, IndexOfStringToVar,
@@ -32,6 +32,9 @@ namespace Monkeyspeak.Libraries
             return true;
         }
 
+        [TriggerDescription("Gets the position of the specified string in the original string")]
+        [TriggerStringParameter]
+        [TriggerStringParameter]
         private bool IndexOfStringToVar(TriggerReader reader)
         {
             var str = reader.ReadString();
@@ -42,6 +45,9 @@ namespace Monkeyspeak.Libraries
             return true;
         }
 
+        [TriggerDescription("Adds the string to the variable")]
+        [TriggerStringParameter]
+        [TriggerVariableParameter]
         private bool AddStringToVar(TriggerReader reader)
         {
             string str = reader.ReadString();
@@ -50,6 +56,9 @@ namespace Monkeyspeak.Libraries
             return true;
         }
 
+        [TriggerDescription("Gets the word count and puts it into the variable")]
+        [TriggerStringParameter]
+        [TriggerVariableParameter]
         private bool PutWordCountIntoVariable(TriggerReader reader)
         {
             string[] words = reader.ReadString().Split(' ');
