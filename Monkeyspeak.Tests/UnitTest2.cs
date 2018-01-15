@@ -1,5 +1,6 @@
 ﻿using Monkeyspeak;
 using Monkeyspeak.Logging;
+using Monkeyspeak.Utils;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
@@ -167,6 +168,32 @@ namespace MonkeyspeakTests
             {
                 Console.WriteLine(variable.ToString());
             }
+        }
+
+        [Test]
+        public void TestLibraryDefinitions()
+        {
+            var engine = new Monkeyspeak.MonkeyspeakEngine
+            {
+                Options = { TriggerLimit = int.MaxValue }
+            };
+            engine.Options.Debug = true;
+            var page = engine.LoadFromString(testScript);
+
+            page.LoadAllLibraries();
+
+            var libsFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), "libs");
+            foreach (var lib in page.Libraries)
+            {
+                LibraryUtils.SaveHandlerMappings(lib, Path.Combine(libsFolder, $"{lib.GetType().Name}.libdef"));
+
+                foreach (var file in Directory.GetFiles(libsFolder))
+                {
+                    LibraryUtils.LoadHandlerMappings(engine, lib, file);
+                }
+            }
+
+            page.Execute();
         }
 
         public bool HandleAllCauses(Monkeyspeak.TriggerReader reader)

@@ -105,25 +105,25 @@ namespace Monkeyspeak.Extensions
         public static string RightOf(this string str, char c)
         {
             int index = str.IndexOf(c);
-            return (index > 0 ? str.Substring(index, str.Length - index) : "");
+            return (index > 0 ? str.Substring(index + 1, str.Length - (index + 1)) : "");
         }
 
         public static string RightOf(this string str, string c)
         {
             int index = str.IndexOf(c);
-            return (index > 0 ? str.Substring(index, str.Length - index) : "");
+            return (index > 0 ? str.Substring(index + c.Length, str.Length - (index + c.Length)) : "");
         }
 
         public static string RightMostRightOf(this string str, char c)
         {
             int index = str.LastIndexOf(c);
-            return (index > 0 ? str.Substring(index, str.Length - index) : "");
+            return (index > 0 ? str.Substring(index + 1, str.Length - (index + 1)) : "");
         }
 
         public static string RightMostRightOf(this string str, string c)
         {
             int index = str.LastIndexOf(c);
-            return (index > 0 ? str.Substring(index, str.Length - index) : "");
+            return (index > 0 ? str.Substring(index + c.Length, str.Length - (index + c.Length)) : "");
         }
 
         /// <summary>
@@ -160,6 +160,16 @@ namespace Monkeyspeak.Extensions
                 }
             }
             return d[n, m];
+        }
+
+        public static string ToBase64(this string str)
+        {
+            return Convert.ToBase64String(Encoding.UTF8.GetBytes(str));
+        }
+
+        public static string FromBase64(this string str)
+        {
+            return Encoding.UTF8.GetString(Convert.FromBase64String(str));
         }
     }
 }

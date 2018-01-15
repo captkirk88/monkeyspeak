@@ -160,6 +160,7 @@
     <Compile Include="Page.cs" />
     <Compile Include="lexical\Token.cs" />
     <Compile Include="Utils\IOPermissions.cs" />
+    <Compile Include="Utils\LibraryUtils.cs" />
     <Compile Include="Utils\OtherUtils.cs" />
     <Compile Include="Utils\ReflectionHelper.cs" />
     <Compile Include="Trigger.cs" />

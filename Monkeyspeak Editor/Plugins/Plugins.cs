@@ -63,7 +63,7 @@ namespace Monkeyspeak.Editor.Plugins
                         }
                         else
                         {
-                            Logger.Error($"Failed to create {type.Name}");
+                            Logger.Error($"Failed to register plugin {type.Name}");
                         }
                 }
             }
