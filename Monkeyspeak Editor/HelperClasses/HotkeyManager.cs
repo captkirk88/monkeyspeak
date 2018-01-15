@@ -53,7 +53,6 @@ namespace Monkeyspeak.Editor.HelperClasses
             CreateDefaultHotKeyEntry(MonkeyspeakCommands.Close, Key.X, ModifierKeys.Control);
             CreateDefaultHotKeyEntry(MonkeyspeakCommands.Exit, Key.F4, ModifierKeys.Control | ModifierKeys.Alt);
             Load();
-            ApplyChangesToInputBindings();
         }
 
         internal static void Populate(MetroWindow window, SplitContainer hotkeysContainer, StackPanel panel1, StackPanel panel2)
@@ -229,10 +228,12 @@ namespace Monkeyspeak.Editor.HelperClasses
                     var command = (ICommand)typeof(MonkeyspeakCommands).GetFields(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static).FirstOrDefault(prop => prop.FieldType.Equals(commandType))?.GetValue(null);
                     if (command != null)
                     {
-                        var oldHotKey = Defaults[command];
-                        var hotkey = new HotKeyWithDefault(keyGesture.Key, keyGesture.Modifiers, oldHotKey.Key, oldHotKey.ModifierKeys);
+                        Defaults.TryGetValue(command, out var oldHotKey);
+                        var hotkey = new HotKeyWithDefault(keyGesture.Key, keyGesture.Modifiers, oldHotKey != null ? oldHotKey.Key : Key.None, oldHotKey != null ? oldHotKey.ModifierKeys : ModifierKeys.None);
                         Logger.Debug(command.GetType().Name);
-                        Defaults[command] = hotkey;
+                        if (Defaults.ContainsKey(command))
+                            Defaults[command] = hotkey;
+                        else Defaults.TryAdd(command, hotkey);
                     }
                 }
             }

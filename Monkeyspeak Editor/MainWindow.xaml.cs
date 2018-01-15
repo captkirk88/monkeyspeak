@@ -120,6 +120,8 @@ namespace Monkeyspeak.Editor
                 if (Editors.Instance.IsEmpty)
                     new NewEditorCommand().Execute(null);
 
+                HotkeyManager.ApplyChangesToInputBindings();
+
                 NotificationManager.Instance.AddNotification(new WelcomeNotification());
                 Plugins.Plugins.Initialize();
             });
