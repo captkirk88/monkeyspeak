@@ -1,4 +1,4 @@
-version: 7.0.6588.34120
+version: 7.0.6588.41850
 branches:
   only:
   - master
@@ -62,7 +62,7 @@ deploy:
     force_update: true
     appveyor_repo_tag: false        # deploy on tag push only
     release: Build
-    tag: "$(appveyor_job_id)"
+    tag: "$(appveyor_job_version)"
     description: "$(appveyor_build_version)"
     auth_token:
         secure: O1WNJUJxBOAXq0u7U/lAJZREJ4INf6cMp4wAtcxBG60kemmYLumTDyjArtZEtNRl # your encrypted token from GitHub
