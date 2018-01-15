@@ -21,18 +21,16 @@ namespace Monkeyspeak.Editor.HelperClasses
         private static ToolTip triggerDescToolTip;
 
         private static List<TriggerCompletionData> triggerCompletions = new List<TriggerCompletionData>();
-        private static List<VariableCompletionData> variableCompletions = new List<VariableCompletionData>();
+
         private static Page page;
-        private static bool variableSymbolTyped = false;
 
         public static void InitializeTriggerListCompletion()
         {
-            page = MonkeyspeakRunner.CurrentPage;
             foreach (var lib in MonkeyspeakRunner.CurrentPage.Libraries)
             {
                 foreach (var trigger in lib.Handlers.Select(handler => handler.Key))
                 {
-                    triggerCompletions.Add(new TriggerCompletionData(page, lib, trigger));
+                    triggerCompletions.Add(new TriggerCompletionData(MonkeyspeakRunner.CurrentPage, lib, trigger));
                 }
             }
         }
@@ -67,34 +65,6 @@ namespace Monkeyspeak.Editor.HelperClasses
             };
         }
 
-        public static void GenerateVariableListCompletion()
-        {
-            if (variableCompletions.Count == 0) ScanForVariables();
-            if (variableCompletionWindow != null || Editors.Instance.Selected == null)
-            {
-                variableCompletionWindow?.Close();
-            }
-
-            var selected = Editors.Instance.Selected;
-            var textEditor = selected.textEditor;
-            variableCompletionWindow = new CompletionWindow(textEditor.TextArea)
-            {
-                CloseAutomatically = false,
-            };
-            var data = variableCompletionWindow.CompletionList.CompletionData;
-            var line = selected.CurrentLine.Trim(' ', '\t', '\n');
-            foreach (var vc in variableCompletions.Where(vc => vc.Text.IndexOf(line) >= 0 || line.CompareTo(vc.Text) <= 0))
-            {
-                data.Add(vc);
-            }
-            variableCompletionWindow.SizeToContent = SizeToContent.Width;
-            if (data.Count > 0) variableCompletionWindow.Show();
-            variableCompletionWindow.Closed += delegate
-            {
-                variableCompletionWindow = null;
-            };
-        }
-
         /// <summary>
         /// Add this to the text editor's TextEntered event
         /// </summary>
@@ -103,28 +73,10 @@ namespace Monkeyspeak.Editor.HelperClasses
         {
             if (e.Text.Length > 0)
             {
-                if (!variableSymbolTyped && triggerCompletionWindow != null)
+                if (triggerCompletionWindow != null)
                 {
-                    variableCompletionWindow?.Close();
                     triggerCompletionWindow.CompletionList.RequestInsertion(e);
                 }
-                else if (variableSymbolTyped && variableCompletionWindow != null)
-                {
-                    triggerCompletionWindow?.Close();
-                    variableCompletionWindow.CompletionList.RequestInsertion(e);
-                }
-            }
-
-            if (e.Text.StartsWith(MonkeyspeakRunner.Options.VariableDeclarationSymbol.ToString()))
-            {
-                variableSymbolTyped = true;
-                GenerateVariableListCompletion();
-            }
-
-            if (e.Text == " ")
-            {
-                ScanForVariables();
-                variableCompletionWindow?.Close();
             }
         }
 
@@ -149,7 +101,7 @@ namespace Monkeyspeak.Editor.HelperClasses
                     triggerDescToolTip.IsOpen = false;
                     return;
                 }
-                var completionData = new TriggerCompletionData(page, textAtOffset);
+                var completionData = new TriggerCompletionData(MonkeyspeakRunner.CurrentPage, textAtOffset);
                 if (completionData.Trigger == Trigger.Undefined)
                 {
                     triggerDescToolTip.IsOpen = false;
@@ -175,24 +127,6 @@ namespace Monkeyspeak.Editor.HelperClasses
                 variableCompletionWindow.Close();
             if (triggerDescToolTip != null)
                 triggerDescToolTip.IsOpen = false;
-        }
-
-        public static void ScanForVariables()
-        {
-            var selected = Editors.Instance.Selected;
-            var textEditor = selected.textEditor;
-            if (selected == null) return;
-            Parser parser = new Parser(MonkeyspeakRunner.Engine);
-            var memory = new MemoryStream(Encoding.Default.GetBytes(textEditor.Text));
-            Lexer lexer = new Lexer(MonkeyspeakRunner.Engine, new SStreamReader(memory));
-            foreach (var expr in parser.Parse(lexer)
-                .SelectMany(trigger =>
-                trigger.Contents.Where(expr => Expressions.Instance[TokenType.VARIABLE | TokenType.TABLE] == expr.GetType())))
-            {
-                var varExpr = expr.GetValue<string>();
-                if (!variableCompletions.Any(vc => vc.Text == varExpr)) variableCompletions.Add(new VariableCompletionData(page, varExpr));
-            }
-            variableSymbolTyped = false;
         }
     }
 }
