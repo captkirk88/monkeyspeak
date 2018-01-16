@@ -231,10 +231,6 @@
     <None Include="TODO.md" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\SmEngine\SmEngine.csproj">
-      <Project>{f1e0feb3-a74e-43ce-98bf-b908ed1753fa}</Project>
-      <Name>SmEngine</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Monkeyspeak.Editor.Interfaces\Monkeyspeak.Editor.Interfaces.csproj">
       <Project>{CF6EA88D-BEE4-4DEB-A4D1-CA6D6E263AC6}</Project>
       <Name>Monkeyspeak.Editor.Interfaces</Name>
