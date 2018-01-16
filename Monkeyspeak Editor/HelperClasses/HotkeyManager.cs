@@ -230,7 +230,6 @@ namespace Monkeyspeak.Editor.HelperClasses
                     {
                         Defaults.TryGetValue(command, out var oldHotKey);
                         var hotkey = new HotKeyWithDefault(keyGesture.Key, keyGesture.Modifiers, oldHotKey != null ? oldHotKey.Key : Key.None, oldHotKey != null ? oldHotKey.ModifierKeys : ModifierKeys.None);
-                        Logger.Debug(command.GetType().Name);
                         if (Defaults.ContainsKey(command))
                             Defaults[command] = hotkey;
                         else Defaults.TryAdd(command, hotkey);
