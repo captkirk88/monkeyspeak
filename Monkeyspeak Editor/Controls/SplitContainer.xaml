@@ -1,0 +1,25 @@
+﻿<UserControl x:Class="Monkeyspeak.Editor.Controls.SplitContainer"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:Monkeyspeak.Editor.Controls"
+             xmlns:controls="http://metro.mahapps.com/winfx/xaml/controls"
+             mc:Ignorable="d"
+             d:DesignHeight="300" d:DesignWidth="300">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition />
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition />
+        </Grid.ColumnDefinitions>
+        <ContentControl Content="{Binding FirstChild}" />
+        <GridSplitter Grid.Column="1"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Stretch"
+                    Background="{DynamicResource AccentColorBrush}"
+                    ShowsPreview="False"
+                    Width="2" />
+        <ContentControl Content="{Binding SecondChild}" Grid.Column="2" />
+    </Grid>
+</UserControl>

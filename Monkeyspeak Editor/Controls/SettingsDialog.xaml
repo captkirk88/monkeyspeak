@@ -1,0 +1,44 @@
+﻿<Controls:MetroWindow x:Class="Monkeyspeak.Editor.Controls.SettingsDialog"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+             xmlns:local="clr-namespace:Monkeyspeak.Editor.Controls"
+            xmlns:helpers="clr-namespace:Monkeyspeak.Editor.HelperClasses"
+             xmlns:properties="clr-namespace:Monkeyspeak.Editor.Properties"
+             xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
+             mc:Ignorable="d"
+             d:DesignHeight="600" d:DesignWidth="300"
+                      Title="Settings" IsCloseButtonEnabled="False"
+                      IsMinButtonEnabled="False" Width="450" Height="400" IsMaxRestoreButtonEnabled="False"
+                      ResizeMode="CanResizeWithGrip"
+                      GlowBrush="{DynamicResource AccentColorBrush}"
+                      BorderThickness="2" WindowStartupLocation="CenterScreen">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="1*" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <Controls:MetroAnimatedTabControl Controls:TabControlHelper.Underlined="SelectedTabItem">
+            <Controls:MetroTabItem Header="General" Controls:ControlsHelper.HeaderFontSize="14">
+                <xctk:PropertyGrid x:Name="settingsProps" Height="Auto" VerticalAlignment="Stretch" AutoGenerateProperties="True" IsMiscCategoryLabelHidden="True" />
+            </Controls:MetroTabItem>
+            <Controls:MetroTabItem Header="Keybindings"  Controls:ControlsHelper.HeaderFontSize="14">
+                <ScrollViewer>
+                    <local:SplitContainer x:Name="hotkeysContainer">
+                        <local:SplitContainer.FirstChild>
+                            <StackPanel Orientation="Vertical" />
+                        </local:SplitContainer.FirstChild>
+                        <local:SplitContainer.SecondChild>
+                            <StackPanel Orientation="Vertical" />
+                        </local:SplitContainer.SecondChild>
+                    </local:SplitContainer>
+                </ScrollViewer>
+            </Controls:MetroTabItem>
+        </Controls:MetroAnimatedTabControl>
+        <Button Content="Apply" Height="32" Grid.Row="1" Click="Apply_Click" />
+        <Button Content="Cancel" Height="32" Grid.Row="2"  Click="Cancel_Click" />
+    </Grid>
+</Controls:MetroWindow>
