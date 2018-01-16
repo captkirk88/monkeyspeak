@@ -568,9 +568,9 @@ namespace MonkeyspeakTests
 
             page.LoadAllLibraries();
 
-            foreach (string desc in page.GetTriggerDescriptions())
+            foreach (var desc in page.GetTriggerDescriptions())
             {
-                Console.WriteLine(desc);
+                Console.WriteLine(desc.Item3);
             }
         }
 

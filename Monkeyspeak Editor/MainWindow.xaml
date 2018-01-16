@@ -12,7 +12,11 @@
         mc:Ignorable="d"
         Loaded="MainWindow_Loaded"
         Closing="MetroWindow_Closing"
-        Title="Monkeyspeak Editor" Height="600" Width="800" ShowIconOnTitleBar="True">
+        Title="Monkeyspeak Editor" MinHeight="600" MinWidth="800"
+                      ShowIconOnTitleBar="False"
+                      ResizeMode="CanResizeWithGrip"
+                      GlowBrush="{DynamicResource AccentColorBrush}"
+                      BorderThickness="2" WindowStartupLocation="CenterScreen">
 
     <Controls:MetroWindow.Resources>
         <Style x:Key="GridSplitterPreviewStyle">
@@ -75,7 +79,7 @@
         <Controls:WindowCommands>
             <Button Background="Transparent"
                     BorderBrush="Transparent"
-                    BorderThickness="0">
+                    BorderThickness="0" Click="mainButton_Click">
                 <TextBlock Text="M" FontFamily="Arial" FontWeight="ExtraBold" />
                 <Button.ContextMenu>
                     <ContextMenu>
@@ -83,7 +87,10 @@
                         <MenuItem Header="Restore" />
                         <MenuItem Header="Minimize" />
                         <Separator />
-                        <MenuItem Header="Exit" Command="{x:Static commands:MonkeyspeakCommands.Exit}" />
+                        <MenuItem Header="Recent Documents" x:Name="recentDocuments">
+                        </MenuItem>
+                        <Separator />
+                        <MenuItem Header="Exit" Command="{x:Static commands:MonkeyspeakCommands.Exit}" ToolTip="{Binding RelativeSource={RelativeSource Self}, Path=Command.ToolTip}" />
                     </ContextMenu>
                 </Button.ContextMenu>
             </Button>
@@ -110,11 +117,14 @@
                     <iconPacks:PackIconModern Kind="Notification" />
                 </Button>
             </Controls:Badged>
+            <Button Click="settingsDialog_Click">
+                <iconPacks:PackIconMaterial Kind="Settings" />
+            </Button>
             <Button Click="githubButton_Click">
                 <iconPacks:PackIconFontAwesome Kind="GithubBrands" />
                 <Button.ToolTip>
                     <TextBlock TextWrapping="Wrap">
-                        Navigates to the Github page where this editor is hosted
+                        Navigates using the default browser to the Github page where this editor is hosted
                     </TextBlock>
                 </Button.ToolTip>
             </Button>

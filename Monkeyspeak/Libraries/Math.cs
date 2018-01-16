@@ -43,6 +43,9 @@ namespace Monkeyspeak.Libraries
         {
         }
 
+        [TriggerDescription("Performs addition on the variable")]
+        [TriggerVariableParameter]
+        [TriggerNumberParameter]
         private bool AddToVariable(TriggerReader reader)
         {
             var toAssign = reader.ReadVariable(true);
@@ -52,6 +55,9 @@ namespace Monkeyspeak.Libraries
             return true;
         }
 
+        [TriggerDescription("Performs division on the variable")]
+        [TriggerVariableParameter]
+        [TriggerNumberParameter]
         private bool DivideByVariable(TriggerReader reader)
         {
             var toAssign = reader.ReadVariable(true);
@@ -61,6 +67,9 @@ namespace Monkeyspeak.Libraries
             return true;
         }
 
+        [TriggerDescription("Performs multiplication on the variable")]
+        [TriggerVariableParameter]
+        [TriggerNumberParameter]
         private bool MultiplyByVariable(TriggerReader reader)
         {
             var toAssign = reader.ReadVariable(true);
@@ -70,6 +79,9 @@ namespace Monkeyspeak.Libraries
             return true;
         }
 
+        [TriggerDescription("Performs subtraction on the variable")]
+        [TriggerVariableParameter]
+        [TriggerNumberParameter]
         private bool SubtractFromVariable(TriggerReader reader)
         {
             var toAssign = reader.ReadVariable(true);
@@ -79,6 +91,9 @@ namespace Monkeyspeak.Libraries
             return true;
         }
 
+        [TriggerDescription("Checks to see if the variable is greater than the specified number")]
+        [TriggerVariableParameter]
+        [TriggerNumberParameter]
         private bool VariableGreaterThan(TriggerReader reader)
         {
             var mainVar = reader.ReadVariable();
@@ -86,6 +101,9 @@ namespace Monkeyspeak.Libraries
             return mainVar.Value.AsDouble() > num;
         }
 
+        [TriggerDescription("Checks to see if the variable is greater than or equal to the specified number")]
+        [TriggerVariableParameter]
+        [TriggerNumberParameter]
         private bool VariableGreaterThanOrEqual(TriggerReader reader)
         {
             var mainVar = reader.ReadVariable();
@@ -93,6 +111,9 @@ namespace Monkeyspeak.Libraries
             return mainVar.Value.AsDouble() >= num;
         }
 
+        [TriggerDescription("Checks to see if the variable is less than the specified number")]
+        [TriggerVariableParameter]
+        [TriggerNumberParameter]
         private bool VariableLessThan(TriggerReader reader)
         {
             var mainVar = reader.ReadVariable();
@@ -100,6 +121,9 @@ namespace Monkeyspeak.Libraries
             return mainVar.Value.AsDouble() < num;
         }
 
+        [TriggerDescription("Checks to see if the variable is less than or equal to the specified number")]
+        [TriggerVariableParameter]
+        [TriggerNumberParameter]
         private bool VariableLessThanOrEqual(TriggerReader reader)
         {
             var mainVar = reader.ReadVariable();

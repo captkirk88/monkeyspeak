@@ -17,7 +17,7 @@
                        Padding="10,10,10,10"
                        Loaded="ContentContainer_Loaded"
                        Content="{Binding Path=Notification.Content}" />
-        <!--    <Button Name="DismissButton"
+        <Button Name="DismissButton"
                     Width="Auto"
                     Height="Auto"
                     VerticalAlignment="Bottom"
@@ -27,6 +27,6 @@
                     Click="DismissButton_Click"
                     BorderThickness="1" Controls:ControlsHelper.ContentCharacterCasing="Normal">
             <TextBlock HorizontalAlignment="Center">DISMISS</TextBlock>
-        </Button> -->
+        </Button>
     </StackPanel>
 </UserControl>

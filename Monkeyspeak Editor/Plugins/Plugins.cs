@@ -23,6 +23,21 @@ namespace Monkeyspeak.Editor.Plugins
 
         public static ObservableCollection<IPlugin> All => plugins;
 
+        public static bool AllEnabled
+        {
+            get
+            {
+                var result = false;
+                foreach (var plugin in plugins)
+                    result &= plugin.Enabled;
+                return result;
+            }
+            set
+            {
+                foreach (var plugin in plugins) plugin.Enabled = value;
+            }
+        }
+
         public static void Add(IPlugin plugin)
         {
             plugins.Add(plugin);
@@ -41,17 +56,91 @@ namespace Monkeyspeak.Editor.Plugins
                 foreach (var type in ReflectionHelper.GetAllTypesWithInterface<IPlugin>(asm))
                 {
                     if (ReflectionHelper.HasNoArgConstructor(type))
-                    {
-                        if (ReflectionHelper.TryCreate(type, out var plugin))
+                        if (ReflectionHelper.TryCreate<IPlugin>(type, out var plugin))
                         {
-                            Logger.Debug($"Registering plugin {type.Name}", null);
-                            yield return (IPlugin)plugin;
+                            Logger.Debug($"Registering plugin {type.Name}");
+                            yield return plugin;
                         }
                         else
                         {
-                            Logger.Error($"Failed to create {type.Name}");
+                            Logger.Error($"Failed to register plugin {type.Name}");
                         }
-                    }
+                }
+            }
+        }
+
+        public static void Initialize()
+        {
+            foreach (var plugin in plugins)
+            {
+                try
+                {
+                    plugin.Initialize();
+                }
+                catch (Exception ex)
+                {
+                    Logger.Error<Plugin>($"Failed to initialize {plugin.Name}");
+                    ex.Log<Plugin>();
+                }
+            }
+        }
+
+        public static void OnEditorSaveCompleted(IEditor editor)
+        {
+            foreach (var plugin in plugins)
+            {
+                try
+                {
+                    plugin.OnEditorSaveCompleted(editor);
+                }
+                catch (Exception ex)
+                {
+                    ex.Log<Plugin>();
+                }
+            }
+        }
+
+        public static void OnEditorSelectionChanged(IEditor editor)
+        {
+            foreach (var plugin in plugins)
+            {
+                try
+                {
+                    plugin.OnEditorSelectionChanged(editor);
+                }
+                catch (Exception ex)
+                {
+                    ex.Log<Plugin>();
+                }
+            }
+        }
+
+        public static void OnEditorTextChanged(IEditor editor)
+        {
+            foreach (var plugin in plugins)
+            {
+                try
+                {
+                    plugin.OnEditorTextChanged(editor);
+                }
+                catch (Exception ex)
+                {
+                    ex.Log<Plugin>();
+                }
+            }
+        }
+
+        internal static void Unload()
+        {
+            foreach (var plugin in plugins)
+            {
+                try
+                {
+                    plugin.Unload();
+                }
+                catch (Exception ex)
+                {
+                    ex.Log<Plugin>();
                 }
             }
         }

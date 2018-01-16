@@ -46,13 +46,31 @@ namespace Monkeyspeak.Libraries
         /// <param name="trigger"></param>
         /// <param name="handler"></param>
         /// <param name="description"></param>
-        [Obsolete("Next build will remove this, use Add(TriggerCategory cat, int id) instead", false)]
+        public virtual void Add(Trigger trigger, MethodInfo handler, string description = null)
+        {
+            if (!handlers.ContainsKey(trigger) || handler.DeclaringType == GetType())
+            {
+                if (description != null && !descriptions.ContainsKey(trigger)) descriptions.Add(trigger, description);
+                if (handlers.ContainsKey(trigger)) handlers.Remove(trigger);
+                handlers.Add(trigger, handler.CreateDelegate(typeof(TriggerHandler), this) as TriggerHandler);
+            }
+            else throw new UnauthorizedAccessException($"Override of existing Trigger {trigger}'s handler with handler in {handler.DeclaringType.Name}.");
+        }
+
+        /// <summary>
+        /// Registers a Trigger to the TriggerHandler with optional description
+        /// </summary>
+        /// <param name="trigger"></param>
+        /// <param name="handler"></param>
+        /// <param name="description"></param>
         public virtual void Add(Trigger trigger, TriggerHandler handler, string description = null)
         {
-            if (description != null && !descriptions.ContainsKey(trigger)) descriptions.Add(trigger, description);
-            if (!handlers.ContainsKey(trigger))
+            if (!handlers.ContainsKey(trigger) || handler.Method.DeclaringType == GetType())
+            {
+                if (description != null && !descriptions.ContainsKey(trigger)) descriptions.Add(trigger, description);
                 handlers.Add(trigger, handler);
-            else throw new UnauthorizedAccessException($"Override of existing Trigger {trigger}'s handler with handler in {handler.Method}.");
+            }
+            else throw new UnauthorizedAccessException($"Override of existing Trigger {trigger}'s handler with handler in {handler.Method.DeclaringType.Name}.");
         }
 
         /// <summary>
@@ -65,10 +83,12 @@ namespace Monkeyspeak.Libraries
         public virtual void Add(TriggerCategory cat, int id, TriggerHandler handler, string description = null)
         {
             Trigger trigger = new Trigger(cat, id);
-            if (description != null) descriptions.Add(trigger, description);
-            if (!handlers.ContainsKey(trigger))
+            if (!handlers.ContainsKey(trigger) || handler.Method.DeclaringType == GetType())
+            {
+                if (description != null && !descriptions.ContainsKey(trigger)) descriptions.Add(trigger, description);
                 handlers.Add(trigger, handler);
-            else throw new UnauthorizedAccessException($"Override of existing Trigger {trigger}'s handler with handler in {handler.Method}.");
+            }
+            else throw new UnauthorizedAccessException($"Override of existing Trigger {trigger}'s handler with handler in {handler.Method.DeclaringType.Name}.");
         }
 
         public virtual bool Contains(TriggerCategory cat, int id)
@@ -91,17 +111,13 @@ namespace Monkeyspeak.Libraries
         /// Builds a string representation of the descriptions of <paramref name="trigger"/>.
         /// </summary>
         /// <returns></returns>
-        public string ToString(Trigger trigger, bool excludeLibraryName = false, bool excludeDescriptions = false)
+        public string ToString(Trigger trigger, bool excludeDescriptions = false)
         {
             StringBuilder sb = new StringBuilder();
-            if (!excludeLibraryName) sb.AppendLine(GetType().Name);
             sb.Append(trigger);
-            if (descriptions.TryGetValue(trigger, out string value))
-            {
-                sb.Append(' ').Append(!excludeDescriptions ? value : string.Empty);
-                return sb.ToString();
-            }
-            else return null;
+            descriptions.TryGetValue(trigger, out string value);
+            sb.Append(' ').Append(!excludeDescriptions ? value ?? string.Empty : string.Empty);
+            return sb.ToString();
         }
 
         /// <summary>
@@ -114,7 +130,7 @@ namespace Monkeyspeak.Libraries
             if (!excludeLibraryName) sb.AppendLine(GetType().Name);
             foreach (var kv in descriptions.OrderBy(kv => kv.Key.Category))
             {
-                sb.Append(kv.Key).Append(' ').Append(!excludeDescriptions ? kv.Value : string.Empty).Append(Environment.NewLine);
+                sb.Append(kv.Key).Append(' ').Append(!excludeDescriptions ? kv.Value ?? string.Empty : string.Empty).Append(Environment.NewLine);
             }
             return sb.ToString();
         }
@@ -155,9 +171,9 @@ namespace Monkeyspeak.Libraries
 
             foreach (var type in ReflectionHelper.GetAllTypesWithBaseClass<BaseLibrary>(asm))
             {
-                if (ReflectionHelper.HasNoArgConstructor(type))
-                    yield return (BaseLibrary)Activator.CreateInstance(type);
-                else Logger.Debug<BaseLibrary>($"{type.Name} does not have a no-arg constructor");
+                if (ReflectionHelper.HasNoArgConstructor(type) && ReflectionHelper.TryCreate<BaseLibrary>(type, out var lib))
+                    yield return lib;
+                else Logger.Debug<BaseLibrary>($"Failed to create {type.Name}, ensure it is public and has a no-arg constructor");
             }
         }
     }

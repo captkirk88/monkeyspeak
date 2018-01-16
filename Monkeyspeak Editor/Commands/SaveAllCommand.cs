@@ -7,19 +7,25 @@ using System.Windows.Input;
 
 namespace Monkeyspeak.Editor.Commands
 {
-    public sealed class SaveAllCommand : ICommand
+    public sealed class SaveAllCommand : BaseCommand
     {
-        public event EventHandler CanExecuteChanged;
-
-        public bool CanExecute(object parameter)
-        {
-            return true;
-        }
-
-        public void Execute(object parameter)
+        public override void Execute(object parameter)
         {
             foreach (var editor in Editors.Instance.All)
                 if (editor.HasChanges) editor.Save();
         }
+
+        public override object ToolTip => "Saves all open documents";
+    }
+
+    public sealed class ForceSaveAllCommand : BaseCommand
+    {
+        public override void Execute(object parameter)
+        {
+            foreach (var editor in Editors.Instance.All)
+                if (editor.HasChanges) editor.Save(true);
+        }
+
+        public override object ToolTip => "Saves all open documents";
     }
 }

@@ -15,8 +15,15 @@
         <ListView.View>
             <GridView>
                 <GridView.Columns>
-                    <GridViewColumn Header="Triggers" DisplayMemberBinding="{Binding Item1}" />
-                    <GridViewColumn Header="Libraries" DisplayMemberBinding="{Binding Item2}" />
+                    <GridViewColumn DisplayMemberBinding="{Binding Item1}">
+                        <GridViewColumnHeader Content="Triggers" Click="GridViewColumnHeader_Click" />
+                    </GridViewColumn>
+                    <GridViewColumn DisplayMemberBinding="{Binding Item3}">
+                        <GridViewColumnHeader Content="Description" Click="GridViewColumnHeader_Click" />
+                    </GridViewColumn>
+                    <GridViewColumn DisplayMemberBinding="{Binding Item2}">
+                        <GridViewColumnHeader Content="Libraries" Click="GridViewColumnHeader_Click" />
+                    </GridViewColumn>
                 </GridView.Columns>
             </GridView>
         </ListView.View>

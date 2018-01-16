@@ -3,10 +3,42 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Media;
 
 namespace Monkeyspeak.Editor
 {
+    [Serializable]
+    public enum AppColor
+    {
+        Blue,
+        Red,
+        Green,
+        Purple,
+        Orange,
+        Lime,
+        Emerald,
+        Teal,
+        Cyan,
+        Cobalt,
+        Indigo,
+        Violet,
+        Pink,
+        Magenta,
+        Crimson,
+        Amber,
+        Yellow,
+        Brown,
+        Olive,
+        Steel,
+        Mauve,
+        Taupe,
+        Sienna
+    }
+
+    [Serializable]
+    public enum AppTheme { Light, Dark }
+
     /// <summary>
     /// Interface to a Editor instance
     /// </summary>
@@ -69,6 +101,14 @@ namespace Monkeyspeak.Editor
         string SelectedLine { get; }
 
         /// <summary>
+        /// Gets the current line.
+        /// </summary>
+        /// <value>
+        /// The current line.
+        /// </value>
+        string CurrentLine { get; }
+
+        /// <summary>
         /// Inserts the text at the caret's line, moving any lines below it down.
         /// </summary>
         /// <param name="line">The line.</param>
@@ -94,5 +134,14 @@ namespace Monkeyspeak.Editor
         /// <param name="start">The start.</param>
         /// <param name="end">The end.</param>
         void SetTextColor(Color color, int line, int start, int end);
+
+        /// <summary>
+        /// Sets the text <seealso cref="FontWeights"/> (thin, normal, bold, extra bold).
+        /// </summary>
+        /// <param name="weight">The weight.</param>
+        /// <param name="line">The line.</param>
+        /// <param name="start">The start.</param>
+        /// <param name="end">The end.</param>
+        void SetTextWeight(FontWeight weight, int line, int start, int end);
     }
 }

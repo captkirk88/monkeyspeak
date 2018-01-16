@@ -19,7 +19,7 @@ namespace Monkeyspeak.Utils
 
         public static IEnumerable<T> GetAllAttributesFromMethod<T>(MethodInfo methodInfo) where T : Attribute
         {
-            var attributes = (T[])methodInfo.GetCustomAttributes(typeof(T), false);
+            var attributes = methodInfo.GetCustomAttributes(true).OfType<T>().ToArray();
             if (attributes != null && attributes.Length > 0)
                 for (int k = 0; k <= attributes.Length - 1; k++)
                 {
@@ -65,7 +65,7 @@ namespace Monkeyspeak.Utils
             var types = new Type[0];
             try
             {
-                types = asm.GetExportedTypes();
+                types = asm.GetTypes();
             }
             catch (Exception ex)
             { yield break; }
@@ -85,23 +85,38 @@ namespace Monkeyspeak.Utils
             {
                 types = asm.GetTypes();
             }
-            catch (Exception ex)
-            { yield break; }
-            foreach (var type in types)
-                if (type.GetInterfaces().Contains(desiredType))
-                    yield return type;
+            catch (ReflectionTypeLoadException ex)
+            {
+                Logger.Error($"Failed to load types from {asm.GetName().Name}");
+                foreach (var loaderEx in ex.LoaderExceptions) loaderEx.Log();
+                yield break;
+            }
+            foreach (var type in types.Where(i => i.GetInterfaces().Contains(desiredType)))
+                yield return type;
         }
 
         public static IEnumerable<Assembly> GetAllAssemblies()
         {
             if (all != null && all.Count > 0) return all;
             all = new List<Assembly>();
-            foreach (string asmFile in Directory.GetFiles(Path.GetFullPath(AppDomain.CurrentDomain.BaseDirectory), "*.dll"))
+            foreach (string asmFile in Directory.EnumerateFiles(Path.GetFullPath(AppDomain.CurrentDomain.BaseDirectory), "*.*", SearchOption.TopDirectoryOnly)
+                                        .Where(s => s.EndsWith(".dll") || s.EndsWith(".exe")))
             {
-                var asm = Assembly.LoadFile(asmFile);
-                all.AddIfUnique(asm);
-                foreach (var referenced in asm.GetReferencedAssemblies())
-                    all.AddIfUnique(Assembly.Load(referenced));
+                try
+                {
+                    var asm = Assembly.LoadFile(asmFile);
+                    all.AddIfUnique(asm);
+                    foreach (var referenced in asm.GetReferencedAssemblies())
+                        all.AddIfUnique(Assembly.Load(referenced));
+                }
+                catch (BadImageFormatException ex)
+                {
+                    Logger.Debug($"Failed to load assembly file '{asmFile}'. {ex.Message}");
+                }
+                catch (FileLoadException ex)
+                {
+                    Logger.Debug($"Failed to load assembly file '{asmFile}'. {ex.Message}");
+                }
             }
 
             if (Assembly.GetExecutingAssembly() != null)
@@ -127,6 +142,7 @@ namespace Monkeyspeak.Utils
 
                 all.AddIfUnique(asm);
             }
+            //foreach (var asm in all) Logger.Debug<ReflectionHelper>(asm.GetName().Name);
             return all;
         }
 
@@ -153,22 +169,23 @@ namespace Monkeyspeak.Utils
             }
         }
 
-        public static bool TryCreate(Type type, out object obj, params object[] args)
+        public static bool TryCreate<T>(Type type, out T obj, params object[] args)
         {
-            if (!type.IsAbstract && !type.IsInterface && HasNoArgConstructor(type))
+            if (!type.IsAbstract && !type.IsInterface)
             {
                 try
                 {
                     if (args == null || args.Length == 0)
-                        obj = Activator.CreateInstance(type);
-                    else obj = Activator.CreateInstance(type, args);
+                        obj = (T)Activator.CreateInstance(type);
+                    else obj = (T)Activator.CreateInstance(type, args);
                     return obj != null;
                 }
                 catch (Exception ex)
                 {
+                    ex.Log();
                 }
             }
-            obj = null;
+            obj = default(T);
             return false;
         }
 
@@ -185,7 +202,7 @@ namespace Monkeyspeak.Utils
 
         public static object Create(Type type, params object[] args)
         {
-            if (!type.IsAbstract && !type.IsInterface && HasNoArgConstructor(type))
+            if (!type.IsAbstract && !type.IsInterface)
             {
                 try
                 {

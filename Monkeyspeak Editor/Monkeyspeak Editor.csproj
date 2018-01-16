@@ -38,15 +38,15 @@
   <PropertyGroup>
     <StartupObject />
   </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>if_face-monkey_30313.ico</ApplicationIcon>
+  </PropertyGroup>
   <ItemGroup>
-    <Reference Include="ControlzEx, Version=3.0.2.4, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\ControlzEx.3.0.2.4\lib\net45\ControlzEx.dll</HintPath>
-    </Reference>
     <Reference Include="ICSharpCode.AvalonEdit, Version=5.0.3.0, Culture=neutral, PublicKeyToken=9cc39be672370310, processorArchitecture=MSIL">
       <HintPath>..\packages\AvalonEdit.5.0.4\lib\Net40\ICSharpCode.AvalonEdit.dll</HintPath>
     </Reference>
-    <Reference Include="MahApps.Metro, Version=1.6.0.184, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\MahApps.Metro.1.6.0-alpha0184\lib\net45\MahApps.Metro.dll</HintPath>
+    <Reference Include="MahApps.Metro, Version=1.5.0.23, Culture=neutral, PublicKeyToken=f4fb5a3c4d1e5b4f, processorArchitecture=MSIL">
+      <HintPath>..\packages\MahApps.Metro.1.5.0\lib\net45\MahApps.Metro.dll</HintPath>
     </Reference>
     <Reference Include="MahApps.Metro.IconPacks.FontAwesome, Version=2.0.0.31, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\MahApps.Metro.IconPacks.FontAwesome.2.0.0\lib\net46\MahApps.Metro.IconPacks.FontAwesome.dll</HintPath>
@@ -57,14 +57,18 @@
     <Reference Include="MahApps.Metro.IconPacks.Modern, Version=2.0.0.31, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\MahApps.Metro.IconPacks.Modern.2.0.0\lib\net46\MahApps.Metro.IconPacks.Modern.dll</HintPath>
     </Reference>
+    <Reference Include="Octokit, Version=0.28.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Octokit.0.28.0\lib\net45\Octokit.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.ValueTuple, Version=4.0.2.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\System.ValueTuple.4.4.0\lib\net461\System.ValueTuple.dll</HintPath>
     </Reference>
     <Reference Include="System.Windows.Interactivity, Version=4.5.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\ControlzEx.3.0.2.4\lib\net45\System.Windows.Interactivity.dll</HintPath>
-      <Private>True</Private>
+      <HintPath>..\packages\MahApps.Metro.1.5.0\lib\net45\System.Windows.Interactivity.dll</HintPath>
     </Reference>
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
@@ -102,10 +106,12 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Compile Include="Commands\BaseCommand.cs" />
     <Compile Include="Commands\CloseCurrentEditorCommand.cs" />
     <Compile Include="Commands\CompileCommand.cs" />
     <Compile Include="Commands\ExitCommand.cs" />
     <Compile Include="Commands\MonkeyspeakCommands.cs" />
+    <Compile Include="Commands\NavigateToDocumentPathCommand.cs" />
     <Compile Include="Commands\NewEditorCommand.cs" />
     <Compile Include="Commands\OpenFileCommand.cs" />
     <Compile Include="Commands\SaveAllCommand.cs" />
@@ -114,14 +120,41 @@
     <Compile Include="Console\HelpConsoleCommand.cs" />
     <Compile Include="Console\PluginsConsoleCommand.cs" />
     <Compile Include="Console\SetHighlighterConsoleCommand.cs" />
+    <Compile Include="Controls\AboutView.xaml.cs">
+      <DependentUpon>AboutView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\SettingsDialog.xaml.cs">
+      <DependentUpon>SettingsDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\SplitContainer.xaml.cs">
+      <DependentUpon>SplitContainer.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Editors.cs" />
     <Compile Include="HelperClasses\FileAssociations.cs" />
+    <Compile Include="HelperClasses\Github.cs" />
+    <Compile Include="HelperClasses\HotkeyManager.cs" />
+    <Compile Include="HelperClasses\Intellisense.cs" />
     <Compile Include="HelperClasses\MonkeyspeakIndentationStrategy.cs" />
+    <Compile Include="HelperClasses\SecureStringProtectedConfigurationProvider.cs" />
+    <Compile Include="HelperClasses\SerializableString.cs" />
     <Compile Include="HelperClasses\TriggerCompletionData.cs" />
+    <Compile Include="HelperClasses\VariableCompletionData.cs" />
     <Compile Include="HelperClasses\WordColorizer.cs" />
     <Compile Include="MonkeyspeakRunner.cs" />
     <Compile Include="Notifications\NotificationWithIcon.cs" />
+    <Page Include="Controls\AboutView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Controls\ConsoleWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\SettingsDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\SplitContainer.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -151,7 +184,7 @@
       <DependentUpon>EditorControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="HelperClasses\CommandManagerHelper.cs" />
-    <Compile Include="HelperClasses\DelegateCommand.cs" />
+    <Compile Include="Commands\DelegateCommand.cs" />
     <Compile Include="Logging\ConsoleWindowLogOutput.cs" />
     <Compile Include="Logging\NotificationPanelLogOutput.cs" />
     <Compile Include="MainWindow.xaml.cs">
@@ -170,7 +203,6 @@
     <Compile Include="Notifications\NotificationManager.cs" />
     <Compile Include="Notifications\StringNotification.cs" />
     <Compile Include="Notifications\WelcomeNotification.cs" />
-    <Compile Include="Plugins\DefaultPluginContainer.cs" />
     <Compile Include="Plugins\Plugins.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
@@ -190,6 +222,7 @@
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
     <EmbeddedResource Include="MonkeyspeakSyntax_default.xshd" />
+    <None Include="app.config" />
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -198,9 +231,10 @@
     <None Include="TODO.md" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.config" />
-  </ItemGroup>
-  <ItemGroup>
+    <ProjectReference Include="..\..\SmEngine\SmEngine.csproj">
+      <Project>{f1e0feb3-a74e-43ce-98bf-b908ed1753fa}</Project>
+      <Name>SmEngine</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Monkeyspeak.Editor.Interfaces\Monkeyspeak.Editor.Interfaces.csproj">
       <Project>{CF6EA88D-BEE4-4DEB-A4D1-CA6D6E263AC6}</Project>
       <Name>Monkeyspeak.Editor.Interfaces</Name>
@@ -217,34 +251,53 @@
   <ItemGroup>
     <Folder Include="Utils\" />
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="if_face-monkey_30313.ico" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent Condition="'$(OS)' == 'Windows_NT'">
-      REM DEL old files
-      cd $(TargetDir)
-      del "$(TargetDir)$(TargetName)_$(ConfigurationName)_$(PlatformName)_Src.rar"
-      del "$(TargetDir)$(TargetName)_$(ConfigurationName)_$(PlatformName)_Binaries.rar"
+    <PostBuildEvent Condition="'$(OS)' == 'Windows_NT'">REM DEL old files
+cd $(TargetDir)
+del "$(TargetDir)$(TargetName)_$(ConfigurationName)_$(PlatformName)_Src.rar"
+del "$(TargetDir)$(TargetName)_$(ConfigurationName)_$(PlatformName)_Binaries.rar"
 
-      REM set path to WinRAR for rar command
-      set path="C:\Program Files\WinRAR\";%25path%25
+REM set path to WinRAR for rar command
+set path="C:\Program Files\WinRAR\";%25path%25
 
-      REM Create the BIN rar
-      rar a -r -x*.tmp -x*.rar -x*.tt "$(TargetDir)$(TargetName)_$(ConfigurationName)_$(PlatformName)_Binaries.rar" *.*
+REM Create the BIN rar
+rar a -r -x*.tmp -x*.rar -x*.tt "$(TargetDir)$(TargetName)_$(ConfigurationName)_$(PlatformName)_Binaries.rar" *.*
 
-      REM Create the SRC rar
-      cd $(ProjectDir)
-      rar a -r -x*\.svn\* -x*\bin\* -x*\obj\* -x*.rar -x*.tt  "$(TargetDir)$(TargetName)_$(PlatformName)_Src.rar" *.*
-    </PostBuildEvent>
+REM Create the SRC rar
+cd $(ProjectDir)
+rar a -r -x*\.svn\* -x*\bin\* -x*\obj\* -x*.rar -x*.tt  "$(TargetDir)$(TargetName)_$(PlatformName)_Src.rar" *.*
+	</PostBuildEvent>
     <PostBuildEvent Condition="'$(OS)' != 'Windows_NT'">
-      cd $(TargetDir)
-      rm -rf "$(TargetDir)$(TargetName)_$(ConfigurationName)_$(PlatformName)_Binaries.rar"
+cd $(TargetDir)
+rm -rf "$(TargetDir)$(TargetName)_$(ConfigurationName)_$(PlatformName)_Binaries.rar"
 
-      cd $(TargetDir)
-      rar a -r -x*.tmp -x*.rar -x*.tt "$(TargetDir)$(TargetName)_$(ConfigurationName)_$(PlatformName)_Binaries.rar" *.*
-    </PostBuildEvent>
+cd $(TargetDir)
+rar a -r -x*.tmp -x*.rar -x*.tt "$(TargetDir)$(TargetName)_$(ConfigurationName)_$(PlatformName)_Binaries.rar" *.*
+</PostBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
-    <PostBuildEvent>
-    </PostBuildEvent>
+    <PostBuildEvent>powershell -NoLogo -NonInteractive -ExecutionPolicy Unrestricted -Command $(SolutionDir)patchAppVeyorVersion.ps1 -SolutionDir '$(SolutionDir)' -ProjectDir '$(ProjectDir)' -TargetDir '$(TargetDir)' -TargetPath '$(TargetPath)' -ConfigurationName '$(ConfigurationName)'
+
+REM powershell -NoLogo -NonInteractive -ExecutionPolicy Unrestricted -Command $(SolutionDir)protectAppConfig.ps1 -SolutionDir '$(SolutionDir)' -ProjectDir '$(ProjectDir)' -TargetDir '$(TargetDir)' -TargetPath '$(TargetPath)' -ConfigurationName '$(ConfigurationName)'
+
+REM DEL old files
+cd $(TargetDir)
+del "$(TargetDir)$(TargetName)_$(ConfigurationName)_$(PlatformName)_Src.rar"
+del "$(TargetDir)$(TargetName)_$(ConfigurationName)_$(PlatformName)_Binaries.rar"
+
+REM set path to WinRAR for rar command
+set path="C:\Program Files\WinRAR\";%25path%25
+
+REM Create the BIN rar
+rar a -r -x*\.svn\* -x*\bin\* -x*\obj\* -x*.tmp -x*.rar -x*.tt -x*.user "$(TargetDir)$(TargetName)_$(ConfigurationName)_$(PlatformName)_Binaries.rar" *.*
+
+REM Create the SRC rar
+cd $(ProjectDir)
+rar a -r -x*\.svn\* -x*\bin\* -x*\obj\* -x*.tmp -x*.rar -x*.tt -x*.user  "$(TargetDir)$(TargetName)_$(PlatformName)_Src.rar" *.*
+	</PostBuildEvent>
   </PropertyGroup>
 </Project>

@@ -22,12 +22,14 @@ namespace Monkeyspeak.Lexical.Expressions
             {
                 return Trigger.Undefined;
             }
-            var cat = value.Substring(0, value.IndexOf(':'));
+            var indexOfColon = value.IndexOf(':');
+            if (indexOfColon == -1) return Trigger.Undefined;
+            var cat = value.Substring(0, indexOfColon);
             if (string.IsNullOrWhiteSpace(cat))
             {
                 return Trigger.Undefined;
             }
-            var id = value.Substring(value.IndexOf(':') + 1);
+            var id = value.Substring(indexOfColon + 1);
             if (string.IsNullOrWhiteSpace(id))
             {
                 return Trigger.Undefined;
@@ -36,6 +38,10 @@ namespace Monkeyspeak.Lexical.Expressions
                 OtherUtils.IntParse(id), pos);
         }
 
+        /// <summary>
+        /// Applies the specified previous trigger.
+        /// </summary>
+        /// <param name="prevTrigger">The previous trigger.</param>
         public override void Apply(Trigger? prevTrigger)
         {
             // not needed

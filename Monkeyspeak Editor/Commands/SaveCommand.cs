@@ -7,18 +7,13 @@ using System.Windows.Input;
 
 namespace Monkeyspeak.Editor.Commands
 {
-    public sealed class SaveCommand : ICommand
+    public sealed class SaveCommand : BaseCommand
     {
-        public event EventHandler CanExecuteChanged;
-
-        public bool CanExecute(object parameter)
-        {
-            return true;
-        }
-
-        public void Execute(object parameter)
+        public override void Execute(object parameter)
         {
             Editors.Instance.Selected?.Save();
         }
+
+        public override object ToolTip => "Saves the current document";
     }
 }

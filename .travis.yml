@@ -18,14 +18,15 @@ notifications:
 
 before_install:
 - sudo apt-get install rar
+- sudo apt=get update
 
 install:
 - nuget install NUnit.ConsoleRunner -Version 3.7.0 -OutputDirectory testrunner
 - nuget restore Monkeyspeak.sln
 
 script:
-- xbuild /p:Configuration=Release Monkeyspeak/Monkeyspeak.csproj
-- xbuild /p:Configuration=Release msxc/msxc.csproj
-- xbuild /p:Configuration=Release Monkeyspeak.Tests/Monkeyspeak.Tests.csproj
+- msbuild /p:Configuration=Release Monkeyspeak/Monkeyspeak.csproj
+- msbuild /p:Configuration=Release msxc/msxc.csproj
+- msbuild /p:Configuration=Release Monkeyspeak.Tests/Monkeyspeak.Tests.csproj
 - mono ./testrunner/NUnit.ConsoleRunner.3.7.0/tools/nunit3-console.exe ./Monkeyspeak.Tests/bin/Release/Monkeyspeak.Tests.dll
 

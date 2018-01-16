@@ -63,6 +63,9 @@ namespace Monkeyspeak.Libraries
         {
         }
 
+        [TriggerDescription("Adds text to the specified file or creates the file if it doesn't exist")]
+        [TriggerStringParameter]
+        [TriggerStringParameter]
         private bool AppendToFile(TriggerReader reader)
         {
             string data = reader.ReadString();
@@ -76,6 +79,8 @@ namespace Monkeyspeak.Libraries
             return true;
         }
 
+        [TriggerDescription("Checks to see if the file can be read from")]
+        [TriggerStringParameter]
         private bool CanReadFile(TriggerReader reader)
         {
             string file = reader.ReadString();
@@ -92,6 +97,8 @@ namespace Monkeyspeak.Libraries
             }
         }
 
+        [TriggerDescription("Checks to see if the file can be written to")]
+        [TriggerStringParameter]
         private bool CanWriteFile(TriggerReader reader)
         {
             string file = reader.ReadString();
@@ -108,6 +115,8 @@ namespace Monkeyspeak.Libraries
             }
         }
 
+        [TriggerDescription("Creates the file or overwrites it if it already exists")]
+        [TriggerStringParameter]
         private bool CreateFile(TriggerReader reader)
         {
             if (!reader.PeekString()) return false;
@@ -116,6 +125,8 @@ namespace Monkeyspeak.Libraries
             return true;
         }
 
+        [TriggerDescription("Deletes the file from disk")]
+        [TriggerStringParameter]
         private bool DeleteFile(TriggerReader reader)
         {
             if (!reader.PeekString()) return false;
@@ -124,17 +135,24 @@ namespace Monkeyspeak.Libraries
             return true;
         }
 
+        [TriggerDescription("Checks to see if the file exists")]
+        [TriggerStringParameter]
         private bool FileExists(TriggerReader reader)
         {
             string file = (reader.PeekString()) ? reader.ReadString() : "";
             return File.Exists(file);
         }
 
+        [TriggerDescription("Checks to see if the file does not exist")]
+        [TriggerStringParameter]
         private bool FileNotExists(TriggerReader reader)
         {
             return !FileExists(reader);
         }
 
+        [TriggerDescription("Reads the file contents and puts it into the specified variable")]
+        [TriggerStringParameter]
+        [TriggerVariableParameter]
         private bool ReadFileIntoVariable(TriggerReader reader)
         {
             string file = reader.ReadString();

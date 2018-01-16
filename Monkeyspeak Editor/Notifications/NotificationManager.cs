@@ -2,6 +2,7 @@
 using Monkeyspeak.Editor.Interfaces.Notifications;
 using System;
 using System.Collections.Generic;
+using System.Windows;
 
 namespace Monkeyspeak.Editor.Notifications
 {

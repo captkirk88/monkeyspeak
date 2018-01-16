@@ -41,6 +41,8 @@ namespace Monkeyspeak.Libraries
                 "and variable % is not a table,");
         }
 
+        [TriggerDescription("Clears the table")]
+        [TriggerVariableParameter]
         private bool ClearTable(TriggerReader reader)
         {
             var var = reader.ReadVariableTable();
@@ -48,18 +50,25 @@ namespace Monkeyspeak.Libraries
             return true;
         }
 
+        [TriggerDescription("Checks to see if variable is not a table")]
+        [TriggerVariableParameter]
         private bool VariableIsNotTable(TriggerReader reader)
         {
             var var = reader.ReadVariable();
             return !(var is VariableTable);
         }
 
+        [TriggerDescription("Checks to see if variable is a table")]
+        [TriggerVariableParameter]
         private bool VariableIsTable(TriggerReader reader)
         {
             var var = reader.ReadVariable();
             return var is VariableTable;
         }
 
+        [TriggerDescription("Iterates through a table")]
+        [TriggerParameter("Variable to assign the table key on each iteration")]
+        [TriggerParameter("Variable to assign the table value on each iteration")]
         private bool ForKeyValueInTable(TriggerReader reader)
         {
             var table = reader.ReadVariableTable();
@@ -76,6 +85,8 @@ namespace Monkeyspeak.Libraries
             return true;
         }
 
+        [TriggerDescription("Iterates through a table")]
+        [TriggerParameter("Variable to assign the table entry on each iteration")]
         private bool ForEntryInTable(TriggerReader reader)
         {
             var table = reader.ReadVariableTable();
@@ -89,6 +100,9 @@ namespace Monkeyspeak.Libraries
             return true;
         }
 
+        [TriggerDescription("Gets the key in a table and puts it into a variable")]
+        [TriggerStringParameter]
+        [TriggerVariableParameter]
         private bool GetTableKeyIntoVar(TriggerReader reader)
         {
             var var = reader.ReadVariableTable();
@@ -98,6 +112,10 @@ namespace Monkeyspeak.Libraries
             return true;
         }
 
+        [TriggerDescription("Puts the string into a table at the specified key, if the key doesn't exist, it will be created")]
+        [TriggerVariableParameter]
+        [TriggerStringParameter]
+        [TriggerStringParameter]
         private bool PutStringIntoTable(TriggerReader reader)
         {
             var var = reader.ReadVariableTable(true);
@@ -107,6 +125,10 @@ namespace Monkeyspeak.Libraries
             return true;
         }
 
+        [TriggerDescription("Puts the number into a table at the specified key, if the key doesn't exist, it will be created")]
+        [TriggerVariableParameter]
+        [TriggerNumberParameter]
+        [TriggerStringParameter]
         private bool PutNumIntoTable(TriggerReader reader)
         {
             var var = reader.ReadVariableTable(true);
@@ -116,6 +138,8 @@ namespace Monkeyspeak.Libraries
             return true;
         }
 
+        [TriggerDescription("Creates a table or clears a table if the specified table already exists")]
+        [TriggerVariableParameter]
         private bool CreateTable(TriggerReader reader)
         {
             reader.ReadVariableTable(true);

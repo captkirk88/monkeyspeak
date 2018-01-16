@@ -5,6 +5,9 @@ namespace Monkeyspeak.Editor.Interfaces.Plugins
 {
     public interface IPlugin
     {
+        /// <summary>
+        /// Initializes this plugin.
+        /// </summary>
         void Initialize();
 
         /// <summary>
@@ -20,10 +23,10 @@ namespace Monkeyspeak.Editor.Interfaces.Plugins
         void OnEditorSelectionChanged(IEditor editor);
 
         /// <summary>
-        /// Adds the notification to the notification panel.
+        /// Called when [editor save completed].
         /// </summary>
-        /// <param name="notif">The notif.</param>
-        void AddNotification(INotification notif);
+        /// <param name="editor">The editor.</param>
+        void OnEditorSaveCompleted(IEditor editor);
 
         /// <summary>
         /// Unloads this instance.

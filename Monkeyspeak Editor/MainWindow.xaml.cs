@@ -4,15 +4,19 @@ using MahApps.Metro.Controls;
 using MahApps.Metro.Controls.Dialogs;
 using Monkeyspeak.Editor.Commands;
 using Monkeyspeak.Editor.Controls;
+using Monkeyspeak.Editor.HelperClasses;
 using Monkeyspeak.Editor.Interfaces.Plugins;
 using Monkeyspeak.Editor.Logging;
 using Monkeyspeak.Editor.Notifications;
 using Monkeyspeak.Editor.Notifications.Controls;
 using Monkeyspeak.Editor.Plugins;
 using Monkeyspeak.Logging;
+using Octokit;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -28,7 +32,6 @@ namespace Monkeyspeak.Editor
     public partial class MainWindow : MetroWindow
     {
         private ConsoleWindow console;
-        private IPluginContainer plugins;
 
         public MainWindow(params string[] files)
         {
@@ -78,49 +81,66 @@ namespace Monkeyspeak.Editor
                 theme_chooser.Items.Add(theme);
             }
 
-            plugins = new DefaultPluginContainer();
-
             Loaded += MainWindow_Loaded;
 
+            // Settings
+            var settings = Properties.Settings.Default;
+            Left = settings.WindowPosition.X;
+            Top = settings.WindowPosition.Y;
+            Width = settings.WindowSizeWidth;
+            Height = settings.WindowSizeHeight;
+            WindowState = settings.WindowState;
+            SetColor(settings.Color);
+            SetTheme(settings.Theme);
+
+            // Load files passed into the program and from last session
             if (files != null && files.Length > 0)
                 foreach (var file in files)
                 {
-                    if (!string.IsNullOrEmpty(file))
+                    if (!string.IsNullOrEmpty(file) && System.IO.File.Exists(file))
+                        new OpenFileCommand().Execute(file);
+                }
+
+            if (!string.IsNullOrWhiteSpace(settings.LastSession))
+                foreach (var file in settings.LastSession.Split(','))
+                {
+                    if (!string.IsNullOrEmpty(file) && System.IO.File.Exists(file))
                         new OpenFileCommand().Execute(file);
                 }
         }
 
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
-            e.Handled = true;
-            notifs_flyout.AutoCloseInterval = 3000;
-            notifs_flyout.IsAutoCloseEnabled = false;
+            Dispatcher.Invoke(() =>
+            {
+                e.Handled = true;
+                notifs_flyout.AutoCloseInterval = 3000;
+                notifs_flyout.IsAutoCloseEnabled = false;
 
-            if (Editors.Instance.IsEmpty)
-                new NewEditorCommand().Execute(null);
+                if (Editors.Instance.IsEmpty)
+                    new NewEditorCommand().Execute(null);
 
-            NotificationManager.Instance.AddNotification(new WelcomeNotification());
-            plugins.Initialize();
+                HotkeyManager.ApplyChangesToInputBindings();
+
+                NotificationManager.Instance.AddNotification(new WelcomeNotification());
+                Plugins.Plugins.Initialize();
+            });
+            Dispatcher.Invoke(async () => await Check());
         }
 
         private void MetroWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             e.Cancel = true;
             console.Close();
-            new ExitCommand().Execute(null);
+            if (sender is MainWindow)
+            {
+                new ExitCommand().Execute(null);
+            }
         }
 
         private void Console_Click(object sender, RoutedEventArgs e)
         {
-            // TODO create console.Toggle() method
-            if (console.Visibility != Visibility.Visible)
-            {
-                console.Show();
-            }
-            else
-            {
-                console.Hide();
-            }
+            console.Toggle();
         }
 
         private void Notifications_Click(object sender, RoutedEventArgs e)
@@ -146,7 +166,7 @@ namespace Monkeyspeak.Editor
         {
         }
 
-        private void TriggerList_SelectionChanged(string trigger, string lib)
+        private void TriggerList_SelectionChanged(string trigger, string description, string lib)
         {
             if (Editors.Instance.Selected != null)
             {
@@ -179,19 +199,20 @@ namespace Monkeyspeak.Editor
 
         private void MetroAnimatedTabControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            Dispatcher.InvokeAsync(() =>
+            Dispatcher.Invoke(() =>
             {
-                var selectedEditor = ((EditorControl)((MetroAnimatedTabControl)sender).SelectedItem);
-                Editors.Instance.Selected = selectedEditor;
+                var selectedEditor = (((MetroAnimatedSingleRowTabControl)sender).SelectedItem as EditorControl);
+                if (selectedEditor != null)
+                    Editors.Instance.Selected = selectedEditor;
             });
         }
 
         public void SetColor(AppColor color)
         {
-            this.Dispatcher.Invoke(() =>
+            Dispatcher.Invoke(() =>
             {
-                Tuple<MahApps.Metro.AppTheme, Accent> appStyle = ThemeManager.DetectAppStyle(Application.Current);
-                ThemeManager.ChangeAppStyle(Application.Current.Resources,
+                Tuple<MahApps.Metro.AppTheme, Accent> appStyle = ThemeManager.DetectAppStyle(System.Windows.Application.Current);
+                ThemeManager.ChangeAppStyle(System.Windows.Application.Current.Resources,
                                         ThemeManager.GetAccent(Enum.GetName(typeof(AppColor), color)),
                                         appStyle.Item1);
             });
@@ -199,7 +220,7 @@ namespace Monkeyspeak.Editor
 
         public AppColor GetColor()
         {
-            Tuple<MahApps.Metro.AppTheme, Accent> appStyle = ThemeManager.DetectAppStyle(Application.Current);
+            Tuple<MahApps.Metro.AppTheme, Accent> appStyle = ThemeManager.DetectAppStyle(System.Windows.Application.Current);
             if (Enum.TryParse(appStyle.Item2.Name, out AppColor color))
                 return color;
             else return AppColor.Brown;
@@ -207,10 +228,10 @@ namespace Monkeyspeak.Editor
 
         public void SetTheme(AppTheme accent)
         {
-            this.Dispatcher.Invoke(() =>
+            Dispatcher.Invoke(() =>
             {
-                Tuple<MahApps.Metro.AppTheme, Accent> appStyle = ThemeManager.DetectAppStyle(Application.Current);
-                ThemeManager.ChangeAppStyle(Application.Current.Resources,
+                Tuple<MahApps.Metro.AppTheme, Accent> appStyle = ThemeManager.DetectAppStyle(System.Windows.Application.Current);
+                ThemeManager.ChangeAppStyle(System.Windows.Application.Current.Resources,
                                         appStyle.Item2,
                                         ThemeManager.GetAppTheme($"Base{Enum.GetName(typeof(AppTheme), accent)}"));
             });
@@ -218,16 +239,70 @@ namespace Monkeyspeak.Editor
 
         public AppTheme GetTheme()
         {
-            Tuple<MahApps.Metro.AppTheme, Accent> appStyle = ThemeManager.DetectAppStyle(Application.Current);
+            Tuple<MahApps.Metro.AppTheme, Accent> appStyle = ThemeManager.DetectAppStyle(System.Windows.Application.Current);
             Enum.TryParse(appStyle.Item1.Name.Replace("Base", ""), out AppTheme theme);
             return theme;
         }
 
+        public async Task Check()
+        {
+            var userVersion = Assembly.GetExecutingAssembly().GetName().Version;
+            var web = new WebClient();
+            var release = await Github.GetLatestRelease();
+            // in case internet is not connected or other issue return to prevent a nagging dialog
+            if (release == null || release.Prerelease || release.Draft) return;
+            var currentVersion = new Version(release.Body);
+            if (currentVersion > userVersion)
+            {
+                foreach (var asset in release.Assets)
+                {
+                    if (asset.Name.Contains("Editor") && asset.Name.Contains("Binaries"))
+                    {
+                        var result = DialogManager.ShowModalMessageExternal(System.Windows.Application.Current.MainWindow as MetroWindow,
+                                    "Update Found!", $"A update was found ({userVersion} -> {currentVersion}), would you like to download the latest version?", MessageDialogStyle.AffirmativeAndNegative,
+                                    new MetroDialogSettings { DefaultButtonFocus = MessageDialogResult.Affirmative, AffirmativeButtonText = "Yes!", NegativeButtonText = "No" });
+
+                        if (result == MessageDialogResult.Affirmative)
+                        {
+                            System.Diagnostics.Process.Start(asset.BrowserDownloadUrl);
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+
         private void RestorePlugins_Click(object sender, RoutedEventArgs e)
         {
-            plugins.Unload();
-            plugins = new DefaultPluginContainer();
-            plugins.Initialize();
+            Plugins.Plugins.Unload();
+            Plugins.Plugins.Initialize();
+        }
+
+        private void settingsDialog_Click(object sender, RoutedEventArgs e)
+        {
+            SettingsDialog dialog = new SettingsDialog();
+            var settings = dialog.settingsProps.SelectedObject as Properties.Settings;
+            settings.SettingsSaving += Settings_Saving;
+            if (dialog.ShowDialog() ?? true)
+            {
+                settings.SettingsSaving -= Settings_Saving;
+            }
+        }
+
+        private void Settings_Saving(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            var settings = sender as Properties.Settings;
+            SetColor(settings.Color);
+            SetTheme(settings.Theme);
+            WindowState = settings.WindowState;
+            Width = settings.WindowSizeWidth;
+            Height = settings.WindowSizeHeight;
+            WindowState = settings.WindowState;
+        }
+
+        private void mainButton_Click(object sender, RoutedEventArgs e)
+        {
+            ((Button)sender).ContextMenu.IsOpen = true;
         }
     }
 }

@@ -19,7 +19,7 @@ namespace Monkeyspeak.Editor.Console
         public void Invoke(IConsole console, IEditor editor, params string[] args)
         {
             var sb = new StringBuilder();
-            sb.AppendLine("Plugins:");
+            sb.AppendLine($"Plugins: {Plugins.Plugins.All.Count}");
             foreach (var plugin in Plugins.Plugins.All)
             {
                 sb.AppendLine(plugin.Name ?? plugin.GetType().Name);

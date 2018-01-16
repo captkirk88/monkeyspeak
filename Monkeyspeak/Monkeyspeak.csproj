@@ -99,6 +99,7 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.EnterpriseServices" />
+    <Reference Include="System.Security" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -109,8 +110,10 @@
     <Compile Include="ConstantVariable.cs" />
     <Compile Include="Extensions\ArrayExtensions.cs" />
     <Compile Include="Extensions\CollectionExtensions.cs" />
+    <Compile Include="Extensions\EnumExtensions.cs" />
     <Compile Include="Extensions\ExceptionExtensions.cs" />
     <Compile Include="Extensions\ObjectExtensions.cs" />
+    <Compile Include="Extensions\SecureStringExtensions.cs" />
     <Compile Include="Extensions\StringExtensions.cs" />
     <Compile Include="Extensions\VariablesExtension.cs" />
     <Compile Include="GlobalSuppressions.cs" />
@@ -125,7 +128,7 @@
     <Compile Include="Libraries\Loops.cs" />
     <Compile Include="Libraries\Tables.cs" />
     <Compile Include="Collections\ConcurrentList.cs" />
-    <Compile Include="Libraries\TriggerDescriptionAttribute.cs" />
+    <Compile Include="Libraries\Attributes.cs" />
     <Compile Include="Logging\FileLogger.cs" />
     <Compile Include="Logging\MutliLogOutput.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
@@ -158,6 +161,7 @@
     <Compile Include="Page.cs" />
     <Compile Include="lexical\Token.cs" />
     <Compile Include="Utils\IOPermissions.cs" />
+    <Compile Include="Utils\LibraryUtils.cs" />
     <Compile Include="Utils\OtherUtils.cs" />
     <Compile Include="Utils\ReflectionHelper.cs" />
     <Compile Include="Trigger.cs" />
@@ -209,16 +213,45 @@
   <Target Name="AfterBuild">
   </Target>
   <PropertyGroup>
-    <PostBuildEvent Condition="'$(OS)' == 'Windows_NT'">
-       </PostBuildEvent>
+    <PostBuildEvent Condition="'$(OS)' == 'Windows_NT'">REM DEL old files
+cd $(TargetDir)
+del "$(TargetDir)$(TargetName)_$(ConfigurationName)_$(PlatformName)_Src.rar"
+del "$(TargetDir)$(TargetName)_$(ConfigurationName)_$(PlatformName)_Binaries.rar"
+
+REM set path to WinRAR for rar command
+set path="C:\Program Files\WinRAR\";%25path%25
+
+REM Create the BIN rar
+rar a -r -x*.tmp -x*.rar -x*.tt "$(TargetDir)$(TargetName)_$(ConfigurationName)_$(PlatformName)_Binaries.rar" *.*
+
+REM Create the SRC rar
+cd $(ProjectDir)
+rar a -r -x*\.svn\* -x*\bin\* -x*\obj\* -x*.rar -x*.tt  "$(TargetDir)$(TargetName)_$(PlatformName)_Src.rar" *.*
+	</PostBuildEvent>
     <PostBuildEvent Condition="'$(OS)' != 'Windows_NT'">
- 
-    </PostBuildEvent>
+cd $(TargetDir)
+rm -rf "$(TargetDir)$(TargetName)_$(ConfigurationName)_$(PlatformName)_Binaries.rar"
+
+cd $(TargetDir)
+rar a -r -x*.tmp -x*.rar -x*.tt "$(TargetDir)$(TargetName)_$(ConfigurationName)_$(PlatformName)_Binaries.rar" *.*
+</PostBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
-    <PostBuildEvent>
-     
-    </PostBuildEvent>
+    <PostBuildEvent>REM DEL old files
+cd $(TargetDir)
+del "$(TargetDir)$(TargetName)_$(ConfigurationName)_$(PlatformName)_Src.rar"
+del "$(TargetDir)$(TargetName)_$(ConfigurationName)_$(PlatformName)_Binaries.rar"
+
+REM set path to WinRAR for rar command
+set path="C:\Program Files\WinRAR\";%25path%25
+
+REM Create the BIN rar
+rar a -r -x*\.svn\* -x*\bin\* -x*\obj\* -x*.tmp -x*.rar -x*.tt -x*.user "$(TargetDir)$(TargetName)_$(ConfigurationName)_$(PlatformName)_Binaries.rar" *.*
+
+REM Create the SRC rar
+cd $(ProjectDir)
+rar a -r -x*\.svn\* -x*\bin\* -x*\obj\* -x*.tmp -x*.rar -x*.tt  "$(TargetDir)$(TargetName)_$(PlatformName)_Src.rar" *.*
+	</PostBuildEvent>
   </PropertyGroup>
   <!--   <ProjectExtensions>
     <VisualStudio>

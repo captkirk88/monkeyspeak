@@ -30,7 +30,6 @@ namespace Monkeyspeak.Editor.HelperClasses
                 {
                     lexer = new Lexer(page.Engine, new SStreamReader(memory));
                     var trigger = parser.Parse(lexer).FirstOrDefault();
-                    Logger.Debug(trigger);
                     if (trigger != default(Trigger))
                     {
                         int indentCount = 0;

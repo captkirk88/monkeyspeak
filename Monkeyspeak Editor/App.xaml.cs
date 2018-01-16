@@ -1,5 +1,6 @@
 ﻿using MahApps.Metro;
 using MahApps.Metro.Controls.Dialogs;
+using Monkeyspeak.Editor.Commands;
 using Monkeyspeak.Editor.Logging;
 using Monkeyspeak.Logging;
 using System;
@@ -12,35 +13,6 @@ using System.Windows;
 
 namespace Monkeyspeak.Editor
 {
-    public enum AppColor
-    {
-        Blue,
-        Red,
-        Green,
-        Purple,
-        Orange,
-        Lime,
-        Emerald,
-        Teal,
-        Cyan,
-        Cobalt,
-        Indigo,
-        Violet,
-        Pink,
-        Magenta,
-        Crimson,
-        Amber,
-        Yellow,
-        Brown,
-        Olive,
-        Steel,
-        Mauve,
-        Taupe,
-        Sienna
-    }
-
-    public enum AppTheme { Light, Dark }
-
     /// <summary>
     /// Interaction logic for App.xaml
     /// </summary>
@@ -51,10 +23,17 @@ namespace Monkeyspeak.Editor
             InitializeComponent();
             Logger.LogCallingMethod = false;
             Logger.LogOutput = new MultiLogOutput(new FileLogger(), new FileLogger(Level.Debug));
+            Exception lastException = null;
             DispatcherUnhandledException += (sender, e) =>
             {
                 e.Handled = true;
-                Logger.Error<App>(e.Exception);
+                e.Exception.Log();
+                if (e.Exception.TargetSite == lastException?.TargetSite)
+                {
+                    new ForceSaveAllCommand().Execute(null);
+                    Application.Current.Shutdown(404);
+                }
+                lastException = e.Exception;
             };
         }
 
