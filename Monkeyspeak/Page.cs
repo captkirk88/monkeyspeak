@@ -1029,14 +1029,12 @@ namespace Monkeyspeak
                     await Task.Run(() =>
                     {
                         Execute(id, args);
-                    }, cancellationToken).ContinueWith(t => Logger.Error<Page>(t.Exception.InnerException), TaskContinuationOptions.OnlyOnFaulted | TaskContinuationOptions.ExecuteSynchronously);
+                    }, cancellationToken);
                 }
                 catch (OperationCanceledException ex)
                 {
 #if DEBUG
                     ex.Log<Page>();
-#else
-                ex.LogMessage<Page>();
 #endif
                 }
                 catch (Exception ex)
@@ -1060,14 +1058,12 @@ namespace Monkeyspeak
                 await Task.Run(() =>
                 {
                     Execute(id, args);
-                }, cancellationToken).ContinueWith(t => Logger.Error<Page>(t.Exception.InnerException), TaskContinuationOptions.OnlyOnFaulted | TaskContinuationOptions.ExecuteSynchronously);
+                }, cancellationToken);
             }
             catch (OperationCanceledException ex)
             {
 #if DEBUG
                 ex.Log<Page>();
-#else
-                ex.LogMessage<Page>();
 #endif
             }
             catch (Exception ex)
