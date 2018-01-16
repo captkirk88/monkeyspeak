@@ -102,10 +102,21 @@ namespace Monkeyspeak.Utils
             foreach (string asmFile in Directory.EnumerateFiles(Path.GetFullPath(AppDomain.CurrentDomain.BaseDirectory), "*.*", SearchOption.TopDirectoryOnly)
                                         .Where(s => s.EndsWith(".dll") || s.EndsWith(".exe")))
             {
-                var asm = Assembly.LoadFile(asmFile);
-                all.AddIfUnique(asm);
-                foreach (var referenced in asm.GetReferencedAssemblies())
-                    all.AddIfUnique(Assembly.Load(referenced));
+                try
+                {
+                    var asm = Assembly.LoadFile(asmFile);
+                    all.AddIfUnique(asm);
+                    foreach (var referenced in asm.GetReferencedAssemblies())
+                        all.AddIfUnique(Assembly.Load(referenced));
+                }
+                catch (BadImageFormatException ex)
+                {
+                    Logger.Debug($"Failed to load assembly file '{asmFile}'. {ex.Message}");
+                }
+                catch (FileLoadException ex)
+                {
+                    Logger.Debug($"Failed to load assembly file '{asmFile}'. {ex.Message}");
+                }
             }
 
             if (Assembly.GetExecutingAssembly() != null)
