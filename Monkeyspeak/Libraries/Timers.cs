@@ -120,61 +120,61 @@ namespace Monkeyspeak.Libraries
         public override void Initialize(params object[] args)
         {
             // (0:300) When timer # goes off,
-            Add(TriggerCategory.Cause, 300, WhenTimerGoesOff,
+            Add(TriggerCategory.Cause, WhenTimerGoesOff,
                 "when timer # goes off,");
 
             // (1:300) and timer # is running,
-            Add(TriggerCategory.Condition, 300, AndTimerIsRunning,
+            Add(TriggerCategory.Condition, AndTimerIsRunning,
                 "and timer # is running,");
             // (1:301) and timer # is not running,
-            Add(TriggerCategory.Condition, 301, AndTimerIsNotRunning,
+            Add(TriggerCategory.Condition, AndTimerIsNotRunning,
                 "and timer # is not running,");
 
             // (5:300) create timer # to go off every # second(s).
-            Add(TriggerCategory.Effect, 300, CreateTimer,
+            Add(TriggerCategory.Effect, CreateTimer,
                 "create timer # to go off every # second(s) with a start delay of # second(s).");
 
             // (5:301) stop timer #.
-            Add(TriggerCategory.Effect, 301, StopTimer,
+            Add(TriggerCategory.Effect, StopTimer,
                 "stop timer #.");
 
-            Add(TriggerCategory.Effect, 302, GetCurrentTimerIntoVar,
+            Add(TriggerCategory.Effect, GetCurrentTimerIntoVar,
                 "get current timer and put the id into variable %.");
 
-            Add(TriggerCategory.Effect, 303, PauseScriptExecution,
+            Add(TriggerCategory.Effect, PauseScriptExecution,
                 "pause script execution for # seconds.");
 
-            Add(TriggerCategory.Effect, 304, GetCurrentUpTimeIntoVar,
+            Add(TriggerCategory.Effect, GetCurrentUpTimeIntoVar,
                 "get the current uptime and put it into variable %.");
 
-            Add(TriggerCategory.Effect, 305, GetCurrentHourIntoVar,
+            Add(TriggerCategory.Effect, GetCurrentHourIntoVar,
                 "get the current hour and put it into variable %.");
 
-            Add(TriggerCategory.Effect, 306, GetCurrentMinutesIntoVar,
+            Add(TriggerCategory.Effect, GetCurrentMinutesIntoVar,
                 "get the current minutes and put it into variable %.");
 
-            Add(TriggerCategory.Effect, 307, GetCurrentSecondsIntoVar,
+            Add(TriggerCategory.Effect, GetCurrentSecondsIntoVar,
                 "get the current seconds and put it into variable %.");
 
-            Add(TriggerCategory.Effect, 308, GetCurrentDayOfMonthIntoVar,
+            Add(TriggerCategory.Effect, GetCurrentDayOfMonthIntoVar,
                 "get the current day of the month and put it into variable %.");
 
-            Add(TriggerCategory.Effect, 309, GetCurrentMonthIntoVar,
+            Add(TriggerCategory.Effect, GetCurrentMonthIntoVar,
                 "get the current month and put it into variable %.");
 
-            Add(TriggerCategory.Effect, 310, GetCurrentYearIntoVar,
+            Add(TriggerCategory.Effect, GetCurrentYearIntoVar,
                 "get the current year and put it into variable %.");
 
-            Add(TriggerCategory.Effect, 311, StartTimer,
+            Add(TriggerCategory.Effect, StartTimer,
                 "start timer #.");
 
-            Add(TriggerCategory.Effect, 312, SetTheTimeZone,
+            Add(TriggerCategory.Effect, SetTheTimeZone,
                 "set the time zone to {...}");
 
-            Add(TriggerCategory.Effect, 313, GetUTCTimeZone,
+            Add(TriggerCategory.Effect, GetUTCTimeZone,
                 "get univeral time zone and put it into variable %");
 
-            Add(TriggerCategory.Effect, 314, GetAllTimeZones,
+            Add(TriggerCategory.Effect, GetAllTimeZones,
                 "get the available time zones and put it into table %");
         }
 

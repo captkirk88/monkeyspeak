@@ -62,35 +62,41 @@ namespace Monkeyspeak.Utils
         public static IEnumerable<Type> GetAllTypesWithBaseClass<T>(Assembly asm)
         {
             var desiredType = typeof(T);
-            var types = new Type[0];
+            var types = new List<Type>();
             try
             {
-                types = asm.GetExportedTypes();
+                foreach (var type in GetAllTypesInAssembly(asm).Where(t => t.BaseType != null))
+                {
+                    if (GetAllBaseTypes(type).Contains(desiredType))
+                        types.Add(type);
+                }
             }
             catch (Exception ex)
-            { yield break; }
-            foreach (var type in types)
-            {
-                if (GetAllBaseTypes(type).Contains(desiredType))
-                    yield return type;
-            }
+            { }
+            return types;
         }
 
         public static IEnumerable<Type> GetAllTypesWithInterface<T>(Assembly asm)
         {
             var desiredType = typeof(T);
-            if (!desiredType.IsInterface) yield break;
-            var types = new Type[0];
+            if (desiredType.IsInterface)
+            {
+                foreach (var type in GetAllTypesInAssembly(asm).Where(t => t.GetInterfaces().Contains(desiredType))) yield return type;
+            }
+        }
+
+        public static IEnumerable<Type> GetAllTypesInAssembly(Assembly asm)
+        {
+            Type[] types;
             try
             {
-                types = asm.GetExportedTypes();
+                types = asm.GetTypes();
             }
-            catch (Exception ex)
+            catch (ReflectionTypeLoadException e)
             {
-                yield break;
+                return e.Types.Where(t => t != null);
             }
-            foreach (var type in types.Where(i => i.GetInterfaces().Contains(desiredType)))
-                yield return type;
+            return types;
         }
 
         public static IEnumerable<Assembly> GetAllAssemblies()
@@ -105,39 +111,10 @@ namespace Monkeyspeak.Utils
                     if (all.AddIfUnique(asm))
                     {
                         Logger.Debug($"Caching: {asm.GetName().Name}");
-                        foreach (var asmName in asm.GetReferencedAssemblies())
-                        {
-                            if (TryLoadAssemblyFromName(asmName, out var referencedAssembly))
-                            {
-                                if (all.AddIfUnique(referencedAssembly)) Logger.Debug($"Caching: {referencedAssembly.GetName().Name}");
-                            }
-                        }
                     }
                 }
             }
 
-            if (Assembly.GetExecutingAssembly() != null)
-            {
-                // this detects the path from where the current CODE is being executed
-                foreach (var asmName in Assembly.GetExecutingAssembly().GetReferencedAssemblies())
-                {
-                    if (TryLoadAssemblyFromName(asmName, out var asm))
-                    {
-                        if (all.AddIfUnique(asm)) Logger.Debug($"Caching: {asm.GetName().Name}");
-                    }
-                }
-            }
-            else if (Assembly.GetEntryAssembly() != null)
-            {
-                // this detects the path from where the current CODE is being executed
-                foreach (var asmName in Assembly.GetEntryAssembly().GetReferencedAssemblies())
-                {
-                    if (TryLoadAssemblyFromName(asmName, out var asm))
-                    {
-                        if (all.AddIfUnique(asm)) Logger.Debug($"Caching: {asm.GetName().Name}");
-                    }
-                }
-            }
             foreach (var asm in AppDomain.CurrentDomain.GetAssemblies())
             {
                 // avoid all the Microsoft and System assemblies.  All assesmblies it is looking for should be in the local path
@@ -163,7 +140,7 @@ namespace Monkeyspeak.Utils
         {
             try
             {
-                asm = Assembly.LoadFile(assemblyFilePath);
+                asm = Assembly.Load(AssemblyName.GetAssemblyName(assemblyFilePath));
                 return true;
             }
 #if DEBUG

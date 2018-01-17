@@ -133,6 +133,7 @@
     <Compile Include="Editors.cs" />
     <Compile Include="HelperClasses\FileAssociations.cs" />
     <Compile Include="HelperClasses\Github.cs" />
+    <Compile Include="HelperClasses\HighlightSelectedColorizer.cs" />
     <Compile Include="HelperClasses\HotkeyManager.cs" />
     <Compile Include="HelperClasses\Intellisense.cs" />
     <Compile Include="HelperClasses\MonkeyspeakIndentationStrategy.cs" />
