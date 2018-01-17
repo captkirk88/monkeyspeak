@@ -89,6 +89,8 @@ namespace Monkeyspeak.Editor.Controls
             {
                 SelectedLine = Lines[textEditor.TextArea.Caret.Line - 1];
                 SelectedText = textEditor.SelectedText;
+                //if (!string.IsNullOrWhiteSpace(SelectedText))
+                //HighlightAllOccurances(SelectedText);
                 Plugins.Plugins.AllEnabled = true;
                 Plugins.Plugins.OnEditorSelectionChanged(this);
             };
@@ -265,7 +267,7 @@ namespace Monkeyspeak.Editor.Controls
             BeginUndoGroup();
             textEditor.TextArea.TextView.LineTransformers.Add(new WordColorizer(color, line, start, end));
             EndUndoGroup();
-            textEditor.TextArea.TextView.EnsureVisualLines();
+            this.textEditor.TextArea.TextView.Redraw();
         }
 
         /// <summary>
@@ -281,7 +283,15 @@ namespace Monkeyspeak.Editor.Controls
             BeginUndoGroup();
             textEditor.TextArea.TextView.LineTransformers.Add(new FontWeightTransformer(weight, line, start, end));
             EndUndoGroup();
-            textEditor.TextArea.TextView.EnsureVisualLines();
+            this.textEditor.TextArea.TextView.Redraw();
+        }
+
+        private void HighlightAllOccurances(string text)
+        {
+            BeginUndoGroup();
+            textEditor.TextArea.TextView.LineTransformers.Add(new HighlightSelectedColorizer(text));
+            EndUndoGroup();
+            this.textEditor.TextArea.TextView.Redraw();
         }
 
         public IList<string> Lines
