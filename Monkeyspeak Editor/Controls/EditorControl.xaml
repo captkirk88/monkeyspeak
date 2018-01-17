@@ -72,9 +72,18 @@
                     IsEnabled="{Binding HasChanges}">
                 <ip:PackIconMaterial Kind="ContentSave" />
             </Button>
+            <Button Command="{x:Static commands:MonkeyspeakCommands.SaveAs}" ToolTip="{Binding RelativeSource={RelativeSource Self}, Path=Command.ToolTip}">
+                <ip:PackIconMaterial Kind="ContentSaveOutline" />
+            </Button>
             <Button Command="{x:Static commands:MonkeyspeakCommands.SaveAll}" ToolTip="{Binding RelativeSource={RelativeSource Self}, Path=Command.ToolTip}"
                     IsEnabled="{Binding Source={x:Static local:Editors.Instance}, Path=AnyHasChanges}">
                 <ip:PackIconMaterial Kind="ContentSaveAll" />
+            </Button>
+            <Button Command="{x:Static commands:MonkeyspeakCommands.New}" ToolTip="{Binding RelativeSource={RelativeSource Self}, Path=Command.ToolTip}">
+                <ip:PackIconMaterial Kind="NewBox" />
+            </Button>
+            <Button Command="{x:Static commands:MonkeyspeakCommands.Open}" ToolTip="{Binding RelativeSource={RelativeSource Self}, Path=Command.ToolTip}">
+                <ip:PackIconMaterial Kind="OpenInNew" />
             </Button>
             <Separator />
             <Button Command="{x:Static commands:MonkeyspeakCommands.Compile}" ToolTip="{Binding RelativeSource={RelativeSource Self}, Path=Command.ToolTip}"
