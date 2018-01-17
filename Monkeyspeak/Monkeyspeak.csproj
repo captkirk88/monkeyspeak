@@ -160,6 +160,7 @@
     <Compile Include="Options.cs" />
     <Compile Include="Page.cs" />
     <Compile Include="lexical\Token.cs" />
+    <Compile Include="TriggerHanderNotFoundException.cs" />
     <Compile Include="Utils\IOPermissions.cs" />
     <Compile Include="Utils\LibraryUtils.cs" />
     <Compile Include="Utils\OtherUtils.cs" />

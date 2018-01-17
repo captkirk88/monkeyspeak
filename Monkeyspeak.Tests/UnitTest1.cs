@@ -270,7 +270,7 @@ namespace MonkeyspeakTests
 (0:10) When someone shouts something with {fuck} in it,
 (5:5) whisper {Please do not swear in shouts! Thank you #SA} to the triggering furre.
 ";
-            using (var stream = new MemoryStream(Encoding.UTF8.GetBytes(testScript)))
+            using (var stream = new MemoryStream(Encoding.UTF8.GetBytes(File.ReadAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "justin.ms")))))
             using (Lexer lexer = new Lexer(new MonkeyspeakEngine(), new SStreamReader(stream)))
             {
                 foreach (var token in lexer.Read())
@@ -295,7 +295,7 @@ namespace MonkeyspeakTests
             Logger.Debug(default(Trigger));
             var engine = new MonkeyspeakEngine();
             //engine.Options.Debug = true;
-            var stream = new MemoryStream(Encoding.UTF8.GetBytes(testScript));
+            using (var stream = new MemoryStream(Encoding.UTF8.GetBytes(File.ReadAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "justin.ms")))))
             using (Lexer lexer = new Lexer(engine, new SStreamReader(stream)))
             {
                 Parser parser = new Parser(engine);
