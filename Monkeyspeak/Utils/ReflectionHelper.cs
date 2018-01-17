@@ -63,17 +63,10 @@ namespace Monkeyspeak.Utils
         {
             var desiredType = typeof(T);
             var types = new List<Type>();
-            try
+            foreach (var type in GetAllTypesInAssembly(asm).Where(t => GetAllBaseTypes(t).Contains(desiredType)))
             {
-                foreach (var type in GetAllTypesInAssembly(asm).Where(t => t.BaseType != null))
-                {
-                    if (GetAllBaseTypes(type).Contains(desiredType))
-                        types.Add(type);
-                }
+                yield return type;
             }
-            catch (Exception ex)
-            { }
-            return types;
         }
 
         public static IEnumerable<Type> GetAllTypesWithInterface<T>(Assembly asm)
@@ -81,10 +74,16 @@ namespace Monkeyspeak.Utils
             var desiredType = typeof(T);
             if (desiredType.IsInterface)
             {
-                foreach (var type in GetAllTypesInAssembly(asm).Where(t => t.GetInterfaces().Contains(desiredType))) yield return type;
+                foreach (var type in GetAllTypesInAssembly(asm)
+                    .Where(t => t.GetInterfaces().Contains(desiredType))) yield return type;
             }
         }
 
+        /// <summary>
+        /// Gets all types in assembly.
+        /// </summary>
+        /// <param name="asm">The asm.</param>
+        /// <returns></returns>
         public static IEnumerable<Type> GetAllTypesInAssembly(Assembly asm)
         {
             Type[] types;
@@ -99,6 +98,10 @@ namespace Monkeyspeak.Utils
             return types;
         }
 
+        /// <summary>
+        /// Gets all assemblies.
+        /// </summary>
+        /// <returns></returns>
         public static IEnumerable<Assembly> GetAllAssemblies()
         {
             if (all != null && all.Count > 0) return all;
@@ -125,6 +128,13 @@ namespace Monkeyspeak.Utils
             return all;
         }
 
+        /// <summary>
+        /// Determines whether [the specified type] has a no-arg constructor.
+        /// </summary>
+        /// <param name="type">The type.</param>
+        /// <returns>
+        ///   <c>true</c> if [the specified type] has a no-arg constructor; otherwise, <c>false</c>.
+        /// </returns>
         public static bool HasNoArgConstructor(Type type)
         {
             return type.GetConstructors().FirstOrDefault(cnstr => cnstr.GetParameters().Length == 0) != null;
@@ -178,6 +188,14 @@ namespace Monkeyspeak.Utils
             }
         }
 
+        /// <summary>
+        /// Tries to create the specified type.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="type">The type.</param>
+        /// <param name="obj">The object.</param>
+        /// <param name="args">The arguments.</param>
+        /// <returns></returns>
         public static bool TryCreate<T>(Type type, out T obj, params object[] args)
         {
             if (!type.IsAbstract && !type.IsInterface)
@@ -198,6 +216,13 @@ namespace Monkeyspeak.Utils
             return false;
         }
 
+        /// <summary>
+        /// Tries to create the specfied type.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="obj">The object.</param>
+        /// <param name="args">The arguments.</param>
+        /// <returns><c>true</c> if type was created; otherwise <c>false</c></returns>
         public static bool TryCreate<T>(out T obj, params object[] args)
         {
             if (TryCreate(typeof(T), out object result, args))
@@ -209,6 +234,12 @@ namespace Monkeyspeak.Utils
             return false;
         }
 
+        /// <summary>
+        /// Creates the specified type.
+        /// </summary>
+        /// <param name="type">The type.</param>
+        /// <param name="args">The arguments.</param>
+        /// <returns></returns>
         public static object Create(Type type, params object[] args)
         {
             if (!type.IsAbstract && !type.IsInterface)
