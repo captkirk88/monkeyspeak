@@ -440,7 +440,7 @@ namespace Monkeyspeak
             Assembly asm;
             if (!File.Exists(assemblyFile))
                 throw new MonkeyspeakException("Load library from file '" + assemblyFile + "' failed, file not found.");
-            else if (!ReflectionHelper.TryLoad(assemblyFile, out asm))
+            else if (!ReflectionHelper.TryLoadAssemblyFromFile(assemblyFile, out asm))
             {
                 throw new MonkeyspeakException("Load library from file '" + assemblyFile + "' failed.");
             }
