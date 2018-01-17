@@ -25,11 +25,13 @@ namespace Monkeyspeak.Libraries
         [Obsolete("Use Add(TriggerCategory, TriggerHandler, string)", true)]
         public override void Add(Trigger trigger, TriggerHandler handler, string description = null)
         {
+            throw new NotImplementedException("For Auto-Increment libraries, this method is not used");
         }
 
         [Obsolete("Use Add(TriggerCategory, TriggerHandler, string)", true)]
         public override void Add(TriggerCategory cat, int id, TriggerHandler handler, string description = null)
         {
+            throw new NotImplementedException("For Auto-Increment libraries, this method is not used");
         }
 
         /// <summary>
