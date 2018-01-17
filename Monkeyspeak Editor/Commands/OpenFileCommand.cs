@@ -12,18 +12,18 @@ namespace Monkeyspeak.Editor.Commands
 {
     public sealed class OpenFileCommand : BaseCommand
     {
-        public override void Execute(object parameter)
+        public override async void Execute(object parameter)
         {
             var editor = Editors.Instance.Add();
             var filePath = parameter as string;
             if (!string.IsNullOrEmpty(filePath) && File.Exists(filePath))
             {
                 editor.CurrentFilePath = filePath;
-                editor.Reload();
+                await editor.Reload();
             }
             else
             {
-                editor.Open();
+                if (!editor.Open()) await editor.CloseAsync();
             }
             //Application.Current.Dispatcher.Invoke(() => ((MahApps.Metro.Controls.MetroAnimatedSingleRowTabControl)editor.Parent).SelectedItem = editor);
             editor.HasChanges = false;
