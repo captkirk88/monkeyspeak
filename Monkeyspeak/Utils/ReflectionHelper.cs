@@ -65,7 +65,7 @@ namespace Monkeyspeak.Utils
             var types = new List<Type>();
             try
             {
-                foreach (var type in asm.DefinedTypes)
+                foreach (var type in GetAllTypesInAssembly(asm).Where(t => t.BaseType != null))
                 {
                     if (GetAllBaseTypes(type).Contains(desiredType))
                         types.Add(type);
@@ -81,19 +81,22 @@ namespace Monkeyspeak.Utils
             var desiredType = typeof(T);
             if (desiredType.IsInterface)
             {
-                var types = new List<Type>();
-                try
-                {
-                    foreach (var type in asm.DefinedTypes.Where(i => i.GetInterfaces().Contains(desiredType)))
-                    {
-                        types.Add(type);
-                    }
-                }
-                catch (Exception ex)
-                { }
-                return types;
+                foreach (var type in GetAllTypesInAssembly(asm).Where(t => t.GetInterfaces().Contains(desiredType))) yield return type;
             }
-            return Enumerable.Empty<Type>();
+        }
+
+        public static IEnumerable<Type> GetAllTypesInAssembly(Assembly asm)
+        {
+            Type[] types;
+            try
+            {
+                types = asm.GetTypes();
+            }
+            catch (ReflectionTypeLoadException e)
+            {
+                return e.Types.Where(t => t != null);
+            }
+            return types;
         }
 
         public static IEnumerable<Assembly> GetAllAssemblies()
@@ -137,7 +140,7 @@ namespace Monkeyspeak.Utils
         {
             try
             {
-                asm = AppDomain.CurrentDomain.Load(AssemblyName.GetAssemblyName(assemblyFilePath));
+                asm = Assembly.Load(AssemblyName.GetAssemblyName(assemblyFilePath));
                 return true;
             }
 #if DEBUG
@@ -161,7 +164,7 @@ namespace Monkeyspeak.Utils
         {
             try
             {
-                asm = AppDomain.CurrentDomain.Load(assemblyName);
+                asm = Assembly.Load(assemblyName);
                 return true;
             }
 #if DEBUG
