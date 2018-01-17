@@ -29,6 +29,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Xml;
 using Monkeyspeak.Extensions;
+using ICSharpCode.AvalonEdit.Search;
 
 namespace Monkeyspeak.Editor.Controls
 {
@@ -77,6 +78,8 @@ namespace Monkeyspeak.Editor.Controls
             DataContext = this;
 
             //textEditor.SyntaxHighlighting = HighlightingManager.Instance.GetDefinitionByExtension(".ms");
+            SearchPanel.Install(textEditor);
+
             textEditor.TextArea.Caret.PositionChanged += (sender, e) =>
                 textEditor.TextArea.TextView.InvalidateLayer(KnownLayer.Background);
             textEditor.TextChanged += (sender, args) =>
