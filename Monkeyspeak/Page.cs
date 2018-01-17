@@ -411,7 +411,7 @@ namespace Monkeyspeak
             }
             catch (Exception ex)
             {
-                Logger.Error<Page>($"Failed to initialize {lib.GetType().Name}");
+                Logger.Error<Page>($"Failed to initialize {lib.GetType().Name}\n{ex}");
             }
         }
 
