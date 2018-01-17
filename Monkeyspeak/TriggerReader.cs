@@ -212,7 +212,7 @@ namespace Monkeyspeak
         /// <exception cref="TriggerReaderException"></exception>
         public string ReadString(bool processVariables = true)
         {
-            if (contents.Count == 0) throw new TriggerReaderException("Unexpected end of values");
+            if (contents == null || contents.Count == 0) throw new TriggerReaderException("Unexpected end of values");
             if (contents.Peek().GetType() != Expressions.Instance[TokenType.STRING_LITERAL]) throw new TriggerReaderException($"Expected string, got {contents.Peek().GetType().Name} at {contents.Peek().Position}");
             return (string)contents.Dequeue().Execute(page, contents, processVariables);
         }
@@ -284,7 +284,7 @@ namespace Monkeyspeak
         /// <exception cref="TriggerReaderException"></exception>
         public VariableTable ReadVariableTable(bool addIfNotExist = false)
         {
-            if (contents.Count == 0) throw new TriggerReaderException("Unexpected end of values");
+            if (contents == null || contents.Count == 0) throw new TriggerReaderException("Unexpected end of values");
 
             if (contents.Peek().GetType() == Expressions.Instance[TokenType.VARIABLE])
             {

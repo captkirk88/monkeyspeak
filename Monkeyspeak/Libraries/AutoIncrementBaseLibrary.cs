@@ -22,61 +22,14 @@ namespace Monkeyspeak.Libraries
         /// <param name="trigger"></param>
         /// <param name="handler"></param>
         /// <param name="description"></param>
+        [Obsolete("Use Add(TriggerCategory, TriggerHandler, string)", true)]
         public override void Add(Trigger trigger, TriggerHandler handler, string description = null)
         {
-            if (description != null && !descriptions.ContainsKey(trigger)) descriptions.Add(trigger, description);
-            if (!handlers.ContainsKey(trigger))
-            {
-                switch (trigger.Category)
-                {
-                    case TriggerCategory.Cause:
-                        triggerCauseIdCounter++;
-                        break;
-
-                    case TriggerCategory.Condition:
-                        triggerConditionIdCounter++;
-                        break;
-
-                    case TriggerCategory.Effect:
-                        triggerEffectIdCounter++;
-                        break;
-
-                    case TriggerCategory.Flow:
-                        triggerFlowIdCounter++;
-                        break;
-                }
-                handlers.Add(trigger, handler);
-            }
-            else throw new UnauthorizedAccessException($"Override of existing Trigger {trigger}'s handler with handler in {handler.Method}.");
         }
 
+        [Obsolete("Use Add(TriggerCategory, TriggerHandler, string)", true)]
         public override void Add(TriggerCategory cat, int id, TriggerHandler handler, string description = null)
         {
-            Trigger trigger = new Trigger(cat, id);
-            if (description != null) descriptions.Add(trigger, description);
-            if (!handlers.ContainsKey(trigger))
-            {
-                switch (trigger.Category)
-                {
-                    case TriggerCategory.Cause:
-                        triggerCauseIdCounter++;
-                        break;
-
-                    case TriggerCategory.Condition:
-                        triggerConditionIdCounter++;
-                        break;
-
-                    case TriggerCategory.Effect:
-                        triggerEffectIdCounter++;
-                        break;
-
-                    case TriggerCategory.Flow:
-                        triggerFlowIdCounter++;
-                        break;
-                }
-                handlers.Add(trigger, handler);
-            }
-            else throw new UnauthorizedAccessException($"Override of existing Trigger {trigger}'s handler with handler in {handler.Method}.");
         }
 
         /// <summary>

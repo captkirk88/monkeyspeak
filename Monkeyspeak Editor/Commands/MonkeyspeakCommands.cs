@@ -17,6 +17,8 @@ namespace Monkeyspeak.Editor.Commands
 
         public static SaveCommand Save = new SaveCommand();
 
+        public static SaveAsCommand SaveAs = new SaveAsCommand();
+
         public static SaveAllCommand SaveAll = new SaveAllCommand();
 
         public static CompileCommand Compile = new CompileCommand();

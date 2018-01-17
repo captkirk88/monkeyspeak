@@ -245,7 +245,7 @@ namespace Monkeyspeak
                             sb.Append(options.StringBeginSymbol).Append(expr.GetValue<string>()).Append(options.StringEndSymbol);
                             break;
                     }
-                    if (includeSourcePos) sb.Append(expr.Position);
+                    if (includeSourcePos) sb.Append(' ').Append(expr.Position);
                     if (i != contents.Count - 1) sb.Append(' ');
                 }
             }

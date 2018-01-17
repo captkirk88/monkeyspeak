@@ -115,6 +115,7 @@
     <Compile Include="Commands\NewEditorCommand.cs" />
     <Compile Include="Commands\OpenFileCommand.cs" />
     <Compile Include="Commands\SaveAllCommand.cs" />
+    <Compile Include="Commands\SaveAsCommand.cs" />
     <Compile Include="Commands\SaveCommand.cs" />
     <Compile Include="Console\NotifyConsoleCommand.cs" />
     <Compile Include="Console\HelpConsoleCommand.cs" />
