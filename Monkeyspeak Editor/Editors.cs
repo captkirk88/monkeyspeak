@@ -48,6 +48,7 @@ namespace Monkeyspeak.Editor
 
         public EditorControl Add(string filePath = null)
         {
+            if (docCount >= 300) throw new IndexOutOfRangeException("Way too many documents, tone it down...");
             var editor = new EditorControl();
             if (!string.IsNullOrEmpty(filePath) && File.Exists(filePath))
             {
@@ -55,8 +56,6 @@ namespace Monkeyspeak.Editor
                 editor.Open();
             }
             else editor.Title = $"new {(docCount == 0 ? "" : docCount.ToString())}";
-            //editor.GotKeyboardFocus += (sender, args) => Selected = (EditorControl)sender;
-            //editor.GotFocus += (sender, args) => Selected = (EditorControl)sender;
             All.Add(editor);
             docCount++;
             Added?.Invoke(editor);
@@ -73,6 +72,7 @@ namespace Monkeyspeak.Editor
             if (All.Remove(control))
             {
                 Removed?.Invoke(control);
+                docCount--;
             }
         }
 

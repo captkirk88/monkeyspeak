@@ -65,7 +65,7 @@ namespace Monkeyspeak.Utils
             var types = new Type[0];
             try
             {
-                types = asm.GetTypes();
+                types = asm.GetExportedTypes();
             }
             catch (Exception ex)
             { yield break; }
@@ -83,12 +83,10 @@ namespace Monkeyspeak.Utils
             var types = new Type[0];
             try
             {
-                types = asm.GetTypes();
+                types = asm.GetExportedTypes();
             }
-            catch (ReflectionTypeLoadException ex)
+            catch (Exception ex)
             {
-                Logger.Error($"Failed to load types from {asm.GetName().Name}");
-                foreach (var loaderEx in ex.LoaderExceptions) loaderEx.Log();
                 yield break;
             }
             foreach (var type in types.Where(i => i.GetInterfaces().Contains(desiredType)))
@@ -102,20 +100,19 @@ namespace Monkeyspeak.Utils
             foreach (string asmFile in Directory.EnumerateFiles(Path.GetFullPath(AppDomain.CurrentDomain.BaseDirectory), "*.*", SearchOption.TopDirectoryOnly)
                                         .Where(s => s.EndsWith(".dll") || s.EndsWith(".exe")))
             {
-                try
+                if (TryLoadAssemblyFromFile(asmFile, out var asm))
                 {
-                    var asm = Assembly.LoadFile(asmFile);
-                    all.AddIfUnique(asm);
-                    foreach (var referenced in asm.GetReferencedAssemblies())
-                        all.AddIfUnique(Assembly.Load(referenced));
-                }
-                catch (BadImageFormatException ex)
-                {
-                    Logger.Debug($"Failed to load assembly file '{asmFile}'. {ex.Message}");
-                }
-                catch (FileLoadException ex)
-                {
-                    Logger.Debug($"Failed to load assembly file '{asmFile}'. {ex.Message}");
+                    if (all.AddIfUnique(asm))
+                    {
+                        Logger.Debug($"Caching: {asm.GetName().Name}");
+                        foreach (var asmName in asm.GetReferencedAssemblies())
+                        {
+                            if (TryLoadAssemblyFromName(asmName, out var referencedAssembly))
+                            {
+                                if (all.AddIfUnique(referencedAssembly)) Logger.Debug($"Caching: {referencedAssembly.GetName().Name}");
+                            }
+                        }
+                    }
                 }
             }
 
@@ -124,7 +121,10 @@ namespace Monkeyspeak.Utils
                 // this detects the path from where the current CODE is being executed
                 foreach (var asmName in Assembly.GetExecutingAssembly().GetReferencedAssemblies())
                 {
-                    all.AddIfUnique(Assembly.Load(asmName));
+                    if (TryLoadAssemblyFromName(asmName, out var asm))
+                    {
+                        if (all.AddIfUnique(asm)) Logger.Debug($"Caching: {asm.GetName().Name}");
+                    }
                 }
             }
             else if (Assembly.GetEntryAssembly() != null)
@@ -132,7 +132,10 @@ namespace Monkeyspeak.Utils
                 // this detects the path from where the current CODE is being executed
                 foreach (var asmName in Assembly.GetEntryAssembly().GetReferencedAssemblies())
                 {
-                    all.AddIfUnique(Assembly.Load(asmName));
+                    if (TryLoadAssemblyFromName(asmName, out var asm))
+                    {
+                        if (all.AddIfUnique(asm)) Logger.Debug($"Caching: {asm.GetName().Name}");
+                    }
                 }
             }
             foreach (var asm in AppDomain.CurrentDomain.GetAssemblies())
@@ -140,9 +143,8 @@ namespace Monkeyspeak.Utils
                 // avoid all the Microsoft and System assemblies.  All assesmblies it is looking for should be in the local path
                 if (asm.GlobalAssemblyCache) continue;
 
-                all.AddIfUnique(asm);
+                if (all.AddIfUnique(asm)) Logger.Debug($"Caching: {asm.GetName().Name}");
             }
-            //foreach (var asm in all) Logger.Debug<ReflectionHelper>(asm.GetName().Name);
             return all;
         }
 
@@ -151,11 +153,41 @@ namespace Monkeyspeak.Utils
             return type.GetConstructors().FirstOrDefault(cnstr => cnstr.GetParameters().Length == 0) != null;
         }
 
-        public static bool TryLoad(string assemblyFile, out Assembly asm)
+        /// <summary>
+        /// Tries the load assembly from file.
+        /// </summary>
+        /// <param name="assemblyFile">The assembly file.</param>
+        /// <param name="asm">The asm.</param>
+        /// <returns></returns>
+        public static bool TryLoadAssemblyFromFile(string assemblyFilePath, out Assembly asm)
         {
             try
             {
-                asm = Assembly.LoadFile(Path.GetFullPath(assemblyFile));
+                asm = Assembly.LoadFile(assemblyFilePath);
+                return true;
+            }
+#if DEBUG
+            catch (Exception ex)
+#else
+            catch
+#endif
+            {
+                asm = null;
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Tries the load assembly.
+        /// </summary>
+        /// <param name="assemblyName">The assembly string.</param>
+        /// <param name="asm">The asm.</param>
+        /// <returns></returns>
+        public static bool TryLoadAssemblyFromName(AssemblyName assemblyName, out Assembly asm)
+        {
+            try
+            {
+                asm = Assembly.Load(assemblyName);
                 return true;
             }
 #if DEBUG
@@ -204,15 +236,9 @@ namespace Monkeyspeak.Utils
         {
             if (!type.IsAbstract && !type.IsInterface)
             {
-                try
-                {
-                    if (args == null || args.Length == 0)
-                        return Activator.CreateInstance(type);
-                    else return Activator.CreateInstance(type, args);
-                }
-                catch (Exception ex)
-                {
-                }
+                if (args == null || args.Length == 0)
+                    return Activator.CreateInstance(type);
+                else return Activator.CreateInstance(type, args);
             }
             return null;
         }
