@@ -15,9 +15,8 @@ namespace Monkeyspeak.Editor.Commands
             {
                 selected.SaveAs();
             }
+        }
 
-
-            public override object ToolTip => "Saves the current document to a different file";
+        public override object ToolTip => "Saves the current document to a different file";
     }
-}
 }
