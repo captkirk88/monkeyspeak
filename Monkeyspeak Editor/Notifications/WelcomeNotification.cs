@@ -1,5 +1,7 @@
 ﻿using ICSharpCode.AvalonEdit.Highlighting;
 using MahApps.Metro.Controls;
+using Monkeyspeak.Editor.Commands;
+using Monkeyspeak.Editor.HelperClasses;
 using Monkeyspeak.Editor.Interfaces.Notifications;
 using System;
 using System.Collections.Generic;
@@ -24,10 +26,10 @@ namespace Monkeyspeak.Editor.Notifications
                 welcome.AppendLine("Thank you for using the Monkeyspeak Editor!")
                     .AppendLine("Did you know?")
                     .AppendLine("- Right click on a tab for shortcuts.")
-                    .AppendLine("- Ctrl+Space for intellisense.")
-                    .AppendLine("- Ctrl+S to save.")
-                    .AppendLine("- Ctrl+N for new document.")
-                    .AppendLine("- Ctrl+X close current document.")
+                    .AppendLine($"- {HotkeyManager.GetHotkey<CompletionCommand>()} for intellisense.")
+                    .AppendLine($"- {HotkeyManager.GetHotkey<SaveCommand>()} to save.")
+                    .AppendLine($"- {HotkeyManager.GetHotkey<NewEditorCommand>()} for new document.")
+                    .AppendLine($"- {HotkeyManager.GetHotkey<CloseCurrentEditorCommand>()} close current document.")
                     .AppendLine("- You can type words to filter triggers.");
                 var tb = new TextBlock
                 {

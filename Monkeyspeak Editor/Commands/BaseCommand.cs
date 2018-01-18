@@ -16,5 +16,7 @@ namespace Monkeyspeak.Editor.Commands
         public abstract void Execute(object parameter);
 
         public virtual object ToolTip { get; }
+
+        public virtual string Name => GetType().Name.Replace("Command", string.Empty);
     }
 }
