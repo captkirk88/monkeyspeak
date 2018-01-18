@@ -53,13 +53,9 @@ namespace Monkeyspeak.Editor.HelperClasses
             {
                 CloseAutomatically = false,
             };
-            triggerCompletionWindow.PreviewMouseDown += (sender, e) =>
-            {
-                triggerCompletionWindow.CompletionList.RequestInsertion(e);
-            };
             var data = triggerCompletionWindow.CompletionList.CompletionData;
             var line = selected.CurrentLine.Trim(' ', '\t', '\n');
-            foreach (var tc in triggerCompletions.Where(tc => tc.Text.IndexOf(line) >= 0 || line.CompareTo(tc.Text) <= 0))
+            foreach (var tc in triggerCompletions.Where(tc => tc.Text.IndexOf(line) >= 0 || line.CompareTo(tc.Text) == 0))
             {
                 data.Add(tc);
             }
