@@ -23,15 +23,6 @@ namespace Monkeyspeak.Editor.Notifications
             };
         }
 
-        public StringNotification(string content, Color foreground, Color background = default(Color))
-        {
-            this.content = new TextBlock
-            {
-                Text = content,
-                TextWrapping = System.Windows.TextWrapping.WrapWithOverflow,
-            };
-        }
-
         public object Content => content;
     }
 }

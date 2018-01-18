@@ -186,6 +186,19 @@ namespace Monkeyspeak.Editor.HelperClasses
             }
         }
 
+        public static HotKeyWithDefault GetHotkey(BaseCommand command)
+        {
+            if (command != null)
+                return Defaults[command];
+            else return null;
+        }
+
+        public static HotKeyWithDefault GetHotkey<T>() where T : BaseCommand
+        {
+            var commandType = typeof(T);
+            return Defaults.FirstOrDefault(kv => kv.Key.GetType() == commandType).Value;
+        }
+
         public static void Save()
         {
             string dir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "monkeyspeak");

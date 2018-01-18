@@ -17,6 +17,7 @@ namespace Monkeyspeak.Editor.Syntax
     public class SyntaxChecker
     {
         private static Dictionary<EditorControl, ITextMarkerService> textMarkers = new Dictionary<EditorControl, ITextMarkerService>();
+        private static Page page;
 
         public static void Install(EditorControl editor)
         {
@@ -30,6 +31,8 @@ namespace Monkeyspeak.Editor.Syntax
                 services.AddService(typeof(ITextMarkerService), textMarkerService);
             else Logger.Debug<SyntaxChecker>("Failed to register service");
             textMarkers.Add(editor, textMarkerService);
+
+            page = MonkeyspeakRunner.CurrentPage;
         }
 
         private static void Editor_Unloaded(object sender, System.Windows.RoutedEventArgs e)
@@ -51,6 +54,10 @@ namespace Monkeyspeak.Editor.Syntax
                 {
                     foreach (var trigger in parser.Parse(lexer))
                     {
+                        if (page != null && !page.Libraries.All(lib => lib.Contains(trigger.Category, trigger.Id)))
+                        {
+                            Logger.Error($"{trigger} does not have a handler associated to it that could be found.");
+                        }
                     }
                 }
                 catch (MonkeyspeakException ex)

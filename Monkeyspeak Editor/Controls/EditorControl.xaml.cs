@@ -109,8 +109,7 @@ namespace Monkeyspeak.Editor.Controls
             {
                 if (!string.IsNullOrWhiteSpace(e.Text))
                 {
-                    if (e.Timestamp > 500)
-                        Intellisense.TextEntered(e);
+                    Intellisense.TextEntered(e);
                 }
             };
             textEditor.KeyDown += (sender, e) =>
