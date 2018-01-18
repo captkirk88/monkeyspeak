@@ -9,6 +9,8 @@ namespace Monkeyspeak.Editor.Commands
 {
     public static class MonkeyspeakCommands
     {
+        public static CompletionCommand Completion = new CompletionCommand();
+
         public static NewEditorCommand New = new NewEditorCommand();
 
         public static OpenFileCommand Open = new OpenFileCommand();

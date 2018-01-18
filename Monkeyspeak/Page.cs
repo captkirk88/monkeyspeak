@@ -971,7 +971,8 @@ namespace Monkeyspeak
                             executed++;
                         }
                     }
-                    if (index == -1 && executed == 0) Logger.Debug<Page>($"No {TriggerCategory.Cause} found with id {id}");
+                    if (executed == 0)
+                        Logger.Debug<Page>($"Trigger ({(int)TriggerCategory.Cause}:{id}) not found.");
                 }
             }
             catch (Exception ex)
@@ -995,16 +996,17 @@ namespace Monkeyspeak
                     var cat = TriggerCategory.Cause;
                     for (int i = 0; i <= ids.Length - 1; i++)
                     {
-                        int index = -1, executed = 0;
+                        int index = -1, executed = 0, id = ids[i];
                         for (int j = 0; j <= triggerBlocks.Count - 1; j++)
                         {
-                            if ((index = triggerBlocks[j].IndexOfTrigger(cat, ids[i])) != -1)
+                            if ((index = triggerBlocks[j].IndexOfTrigger(cat, id)) != -1)
                             {
                                 ExecuteBlock(triggerBlocks[j], index, args);
                                 executed++;
                             }
                         }
-                        if (index == -1 && executed == 0) Logger.Error<Page>($"No {cat} found with id {ids[i]}");
+                        if (executed == 0)
+                            Logger.Debug<Page>($"Trigger ({(int)cat}:{id}) not found.");
                         executed = 0;
                     }
                 }
