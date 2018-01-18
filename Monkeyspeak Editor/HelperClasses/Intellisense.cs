@@ -7,8 +7,10 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media;
 using ICSharpCode.AvalonEdit.CodeCompletion;
 using ICSharpCode.AvalonEdit.Document;
+using MahApps.Metro;
 using Monkeyspeak.Editor.Controls;
 using Monkeyspeak.Lexical.Expressions;
 
@@ -50,6 +52,10 @@ namespace Monkeyspeak.Editor.HelperClasses
             triggerCompletionWindow = new CompletionWindow(textEditor.TextArea)
             {
                 CloseAutomatically = false,
+            };
+            triggerCompletionWindow.PreviewMouseDown += (sender, e) =>
+            {
+                triggerCompletionWindow.CompletionList.RequestInsertion(e);
             };
             var data = triggerCompletionWindow.CompletionList.CompletionData;
             var line = selected.CurrentLine.Trim(' ', '\t', '\n');

@@ -100,7 +100,7 @@ namespace Monkeyspeak.Editor.HelperClasses
             }
         }
 
-        public double Priority => 1;
+        public double Priority => 0;
 
         public Trigger Trigger => trigger;
 

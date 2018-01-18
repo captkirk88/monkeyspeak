@@ -212,7 +212,7 @@ namespace MonkeyspeakTests
         {
             var engine = new MonkeyspeakEngine();
             engine.Options.Debug = true;
-            Logger.LogOutput = new MultiLogOutput(new FileLogger(Level.Debug), new FileLogger(), new FileLogger(Level.Info));
+            //Logger.LogOutput = new MultiLogOutput(new FileLogger(Level.Debug), new FileLogger(), new FileLogger(Level.Info));
             Page page = engine.LoadFromString(testScript);
 
             page.LoadAllLibraries();

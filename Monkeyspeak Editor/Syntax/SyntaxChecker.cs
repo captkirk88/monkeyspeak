@@ -40,30 +40,22 @@ namespace Monkeyspeak.Editor.Syntax
 
         public static void Check(EditorControl editor)
         {
+            ClearAllMarkers(editor);
             var text = editor.textEditor.Text;
             if (string.IsNullOrWhiteSpace(text)) return;
-            using (var memory = new MemoryStream(Encoding.Default.GetBytes(text)))
+            using (var memory = new MemoryStream(Encoding.UTF8.GetBytes(text)))
             {
                 Parser parser = new Parser(MonkeyspeakRunner.Engine);
                 Lexer lexer = new Lexer(MonkeyspeakRunner.Engine, new SStreamReader(memory));
                 try
                 {
-                    foreach (var token in lexer.Read())
+                    foreach (var trigger in parser.Parse(lexer))
                     {
-                        if (token.Type == TokenType.TRIGGER)
-                        {
-                            if (Trigger.TryParse(MonkeyspeakRunner.Engine, token.GetValue(lexer), out var trigger))
-                                if (MonkeyspeakRunner.CurrentPage.Libraries.All(lib => !lib.Contains(trigger.Category, trigger.Id)))
-                                {
-                                    // that trigger was not found in any library
-                                    AddMarker(token, editor, "Trigger was not found in any libraries currently loaded.");
-                                }
-                        }
                     }
                 }
                 catch (MonkeyspeakException ex)
                 {
-                    ex.Log<SyntaxChecker>();
+                    ex.LogMessage(memberName: null);
                     var pos = ex.SourcePosition;
                     AddMarker(ex.SourcePosition, editor, ex.Message);
                 }
@@ -93,7 +85,7 @@ namespace Monkeyspeak.Editor.Syntax
                     color = Colors.Red;
                     break;
             }
-            ITextMarker marker = textMarker.Create(line.Offset + token.Position.Column, line.Offset + token.Position.Column + token.Length);
+            ITextMarker marker = textMarker.Create(line.Offset, line.Length);
             marker.MarkerTypes = TextMarkerTypes.SquigglyUnderline;
             marker.MarkerColor = color;
             if (!string.IsNullOrWhiteSpace(message))
@@ -125,7 +117,7 @@ namespace Monkeyspeak.Editor.Syntax
                     color = Colors.Red;
                     break;
             }
-            ITextMarker marker = textMarker.Create(line.Offset + pos.Column, line.EndOffset - pos.Column);
+            ITextMarker marker = textMarker.Create(line.Offset, line.Length);
             marker.MarkerTypes = TextMarkerTypes.SquigglyUnderline;
             marker.MarkerColor = color;
             if (!string.IsNullOrWhiteSpace(message))

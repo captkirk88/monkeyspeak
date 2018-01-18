@@ -252,10 +252,9 @@ namespace Monkeyspeak
 
         public override void CheckIsDigit(char c = '\0')
         {
-            if (c == '\0') c = (char)currentChar;
             if (!char.IsDigit(c))
             {
-                throw new MonkeyspeakException(String.Format("Expected '{0}' but got '{1}'", c.EscapeForCSharp(), ((char)currentChar).EscapeForCSharp()), CurrentSourcePosition);
+                throw new MonkeyspeakException(String.Format("Expected number but got '{1}'", c.EscapeForCSharp(), ((char)currentChar).EscapeForCSharp()), CurrentSourcePosition);
             }
         }
 
@@ -504,7 +503,7 @@ namespace Monkeyspeak
             long startPos = reader.Position;
             int length = 1;
             Next(); // trigger category
-            CheckIsDigit();
+            CheckIsDigit((char)currentChar);
             Next(); // seperator
             length++;
             CheckMatch(':');
@@ -522,7 +521,7 @@ namespace Monkeyspeak
                     break;
                 }
             }
-            CheckIsDigit((char)LookBack(1));
+            //CheckIsDigit((char)LookBack(1));
             return new Token(TokenType.TRIGGER, startPos, length, sourcePos);
         }
 

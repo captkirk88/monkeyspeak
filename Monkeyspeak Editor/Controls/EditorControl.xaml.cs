@@ -102,7 +102,8 @@ namespace Monkeyspeak.Editor.Controls
             textEditor.TextArea.TextEntered += (sender, e) =>
             {
                 Intellisense.GenerateTriggerListCompletion(this);
-                SyntaxChecker.Check(this);
+                if (e.Text == " ")
+                    SyntaxChecker.Check(this);
             };
             textEditor.TextArea.TextEntering += (sender, e) =>
             {
@@ -122,7 +123,7 @@ namespace Monkeyspeak.Editor.Controls
                 }
             };
 
-            textEditor.TextArea.TextView.PreviewMouseHover += (sender, e) =>
+            textEditor.PreviewMouseHover += (sender, e) =>
             {
                 Intellisense.MouseHover(this, e);
             };
@@ -449,13 +450,26 @@ namespace Monkeyspeak.Editor.Controls
                 if (result == MessageDialogResult.Affirmative) Save();
                 else if (result == MessageDialogResult.FirstAuxiliary) return;
             }
-            Plugins.Plugins.AllEnabled = false;
-            textEditor.Load(CurrentFilePath);
-            textEditor.Text = TextUtilities.NormalizeNewLines(textEditor.Text, "\n");
+
+            if (System.IO.Path.GetExtension(CurrentFilePath) == ".msx")
+            {
+                textEditor.Text = string.Empty;
+                var page = MonkeyspeakRunner.LoadCompiled(CurrentFilePath);
+                foreach (var trigger in page.Triggers)
+                {
+                    AddLine(trigger.RebuildToString(page.Engine.Options));
+                }
+            }
+            else
+            {
+                Plugins.Plugins.AllEnabled = false;
+                textEditor.Load(CurrentFilePath);
+                textEditor.Text = TextUtilities.NormalizeNewLines(textEditor.Text, "\n");
+                textEditor.SyntaxHighlighting =
+                        HighlightingManager.Instance.GetDefinitionByExtension(System.IO.Path.GetExtension(CurrentFilePath)) ??
+                        HighlightingManager.Instance.GetDefinition("Monkeyspeak");
+            }
             HasChanges = false;
-            textEditor.SyntaxHighlighting =
-                HighlightingManager.Instance.GetDefinitionByExtension(System.IO.Path.GetExtension(CurrentFilePath)) ??
-                HighlightingManager.Instance.GetDefinition("Monkeyspeak");
             Plugins.Plugins.AllEnabled = true;
         }
 
