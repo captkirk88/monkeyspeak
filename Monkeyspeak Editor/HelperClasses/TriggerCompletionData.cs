@@ -61,12 +61,7 @@ namespace Monkeyspeak.Editor.HelperClasses
         {
             get
             {
-                text.Document = new TextDocument(Text ?? string.Empty);
-                HighlightingColorizer colorizer = new HighlightingColorizer(highlightingDef);
-                text.LineTransformers.Add(colorizer);
-                text.EnsureVisualLines();
-                text.IsHitTestVisible = true;
-                return text;
+                return Text;
             }
         }
 
@@ -92,19 +87,20 @@ namespace Monkeyspeak.Editor.HelperClasses
                                 sb.AppendLine($"Param {arg++}: {desc.Description}");
                         }
                     }
-                    else sb.AppendLine("No description found"); // should never happen
+                    else sb.AppendLine("No description found."); // should never happen
                     sb.AppendLine($"Library: {lib.GetType().Name}");
                 }
+                else
+                    sb.AppendLine("This trigger has no handler loaded into the editor.");
                 syntaxViewer.Document = new TextDocument(sb.ToString());
                 HighlightingColorizer colorizer = new HighlightingColorizer(highlightingDef);
                 syntaxViewer.LineTransformers.Add(colorizer);
                 syntaxViewer.EnsureVisualLines();
-                syntaxViewer.IsHitTestVisible = false;
                 return syntaxViewer;
             }
         }
 
-        public double Priority => 0;
+        public double Priority => 1;
 
         public Trigger Trigger => trigger;
 

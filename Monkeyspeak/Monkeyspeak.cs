@@ -33,14 +33,29 @@ namespace Monkeyspeak
         }
 
         public MonkeyspeakException(string message, SourcePosition pos)
-            : base(String.Format("{0} at {1}", message, pos))
+            : base($"{message} at {pos}")
         {
+            SourcePosition = pos;
+        }
+
+        public MonkeyspeakException(string message, Trigger trigger, SourcePosition pos)
+            : base($"{message} at {pos} with trigger {trigger}")
+        {
+            SourcePosition = pos;
+        }
+
+        public MonkeyspeakException(string message, TriggerBlock triggerBlock, SourcePosition pos)
+            : base($"{message} at {pos} with block {triggerBlock}")
+        {
+            SourcePosition = pos;
         }
 
         protected MonkeyspeakException(
               System.Runtime.Serialization.SerializationInfo info,
               System.Runtime.Serialization.StreamingContext context)
             : base(info, context) { }
+
+        public SourcePosition SourcePosition { get; }
     }
 
     /// <summary>

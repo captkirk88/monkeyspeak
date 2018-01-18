@@ -9,6 +9,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using ICSharpCode.AvalonEdit.CodeCompletion;
 using ICSharpCode.AvalonEdit.Document;
+using Monkeyspeak.Editor.Controls;
 using Monkeyspeak.Lexical.Expressions;
 
 namespace Monkeyspeak.Editor.HelperClasses
@@ -35,17 +36,16 @@ namespace Monkeyspeak.Editor.HelperClasses
             }
         }
 
-        public static bool CanShow => Editors.Instance.Selected != null;
-
-        public static void GenerateTriggerListCompletion()
+        public static void GenerateTriggerListCompletion(EditorControl editor)
         {
+            if (editor == null) return;
             if (triggerCompletions.Count == 0) InitializeTriggerListCompletion();
-            if (triggerCompletionWindow != null || Editors.Instance.Selected == null)
+            if (triggerCompletionWindow != null)
             {
                 triggerCompletionWindow?.Close();
             }
 
-            var selected = Editors.Instance.Selected;
+            var selected = editor;
             var textEditor = selected.textEditor;
             triggerCompletionWindow = new CompletionWindow(textEditor.TextArea)
             {
@@ -71,20 +71,17 @@ namespace Monkeyspeak.Editor.HelperClasses
         /// <param name="e">The <see cref="TextCompositionEventArgs"/> instance containing the event data.</param>
         public static void TextEntered(TextCompositionEventArgs e)
         {
-            if (e.Text.Length > 0)
+            if (e.Text.Length > 0 && triggerCompletionWindow != null)
             {
-                if (triggerCompletionWindow != null)
-                {
-                    triggerCompletionWindow.CompletionList.RequestInsertion(e);
-                }
+                triggerCompletionWindow.CompletionList.RequestInsertion(e);
             }
         }
 
-        public static void MouseHover(MouseEventArgs e)
+        public static void MouseHover(EditorControl editor, MouseEventArgs e)
         {
             if (triggerDescToolTip == null) triggerDescToolTip = new ToolTip();
 
-            var selected = Editors.Instance.Selected;
+            var selected = editor;
             var textEditor = selected.textEditor;
 
             var textArea = textEditor.TextArea;
@@ -114,7 +111,7 @@ namespace Monkeyspeak.Editor.HelperClasses
             }
         }
 
-        public static void MouseMove(MouseEventArgs e)
+        public static void MouseMove(EditorControl editor, MouseEventArgs e)
         {
             if (triggerDescToolTip != null) triggerDescToolTip.IsOpen = false;
         }

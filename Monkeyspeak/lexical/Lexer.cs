@@ -156,7 +156,7 @@ namespace Monkeyspeak
                         default: Next(); break;
                     }
                 }
-                FINISH:
+            FINISH:
                 if (token.Type != TokenType.NONE)
                 {
                     //Logger.Debug<Lexer>(token);
@@ -208,7 +208,7 @@ namespace Monkeyspeak
             var found = LookAheadToString(str.Length);
             if (found != str)
             {
-                throw new MonkeyspeakException($"Expected '{str}' but got '{found}'");
+                throw new MonkeyspeakException($"Expected '{str}' but got '{found}'", CurrentSourcePosition);
             }
             else
             {

@@ -42,7 +42,7 @@ namespace Monkeyspeak.Editor.HelperClasses
 
     public static class HotkeyManager
     {
-        public static ConcurrentDictionary<ICommand, HotKeyWithDefault> Defaults = new ConcurrentDictionary<ICommand, HotKeyWithDefault>();
+        public static ConcurrentDictionary<BaseCommand, HotKeyWithDefault> Defaults = new ConcurrentDictionary<BaseCommand, HotKeyWithDefault>();
 
         static HotkeyManager()
         {
@@ -52,6 +52,7 @@ namespace Monkeyspeak.Editor.HelperClasses
             CreateDefaultHotKeyEntry(MonkeyspeakCommands.SaveAll, Key.S, ModifierKeys.Control | ModifierKeys.Alt);
             CreateDefaultHotKeyEntry(MonkeyspeakCommands.Close, Key.X, ModifierKeys.Control);
             CreateDefaultHotKeyEntry(MonkeyspeakCommands.Exit, Key.F4, ModifierKeys.Control | ModifierKeys.Alt);
+            CreateDefaultHotKeyEntry(MonkeyspeakCommands.Completion, Key.Space, ModifierKeys.Control);
             Load();
         }
 
@@ -64,7 +65,7 @@ namespace Monkeyspeak.Editor.HelperClasses
                     Orientation = Orientation.Horizontal
                 };
 
-                Label labelCtrl = new Label() { Content = kv.Key.GetType().Name };
+                Label labelCtrl = new Label() { Content = kv.Key.Name };
                 HotKeyBox hotkey = new HotKeyBox
                 {
                     HotKey = kv.Value
@@ -96,12 +97,12 @@ namespace Monkeyspeak.Editor.HelperClasses
             }
         }
 
-        private static void CreateDefaultHotKeyEntry(ICommand command, Key key, ModifierKeys modifierKeys = ModifierKeys.None)
+        private static void CreateDefaultHotKeyEntry(BaseCommand command, Key key, ModifierKeys modifierKeys = ModifierKeys.None)
         {
             Defaults.TryAdd(command, new HotKeyWithDefault(key, modifierKeys));
         }
 
-        private static async Task GeneratePrompt(MetroWindow window, ICommand command, HotKeyBox hotkeyBox)
+        private static async Task GeneratePrompt(MetroWindow window, BaseCommand command, HotKeyBox hotkeyBox)
         {
             CustomDialog popup = new CustomDialog
             {
@@ -115,6 +116,8 @@ namespace Monkeyspeak.Editor.HelperClasses
             keyInput.Height = 32;
             TextBoxHelper.SetAutoWatermark(keyInput, true);
             TextBoxHelper.SetWatermark(keyInput, "Type keys then press enter");
+            Keyboard.Focus(keyInput);
+
             keyInput.PreviewKeyDown += async (sender, e) =>
             {
                 if (e.SystemKey != Key.None) return;
@@ -157,8 +160,6 @@ namespace Monkeyspeak.Editor.HelperClasses
                 }
                 e.Handled = true;
             };
-            Keyboard.Focus(keyInput);
-            Mouse.Capture(keyInput);
 
             Button cancelButton = new Button() { Content = "Cancel" };
             cancelButton.Height = 32;
@@ -170,7 +171,7 @@ namespace Monkeyspeak.Editor.HelperClasses
             await DialogManager.ShowMetroDialogAsync(window, popup);
         }
 
-        private static void ApplyChange(ICommand command, HotKeyWithDefault hotkey)
+        private static void ApplyChange(BaseCommand command, HotKeyWithDefault hotkey)
         {
             Defaults[command] = hotkey;
         }
@@ -225,7 +226,7 @@ namespace Monkeyspeak.Editor.HelperClasses
                     string keyStr = line.RightOf('=').Trim();
                     KeyGestureConverter keyGestureConverter = new KeyGestureConverter();
                     var keyGesture = (KeyGesture)keyGestureConverter.ConvertFromString(keyStr);
-                    var command = (ICommand)typeof(MonkeyspeakCommands).GetFields(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static).FirstOrDefault(prop => prop.FieldType.Equals(commandType))?.GetValue(null);
+                    var command = (BaseCommand)typeof(MonkeyspeakCommands).GetFields(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static).FirstOrDefault(prop => prop.FieldType.Equals(commandType))?.GetValue(null);
                     if (command != null)
                     {
                         Defaults.TryGetValue(command, out var oldHotKey);

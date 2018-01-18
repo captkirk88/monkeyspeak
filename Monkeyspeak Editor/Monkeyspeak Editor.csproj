@@ -102,6 +102,10 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Commands\CompletionCommand.cs" />
+    <Compile Include="Syntax\ITextMarker.cs" />
+    <Compile Include="Syntax\SyntaxChecker.cs" />
+    <Compile Include="Syntax\TextMarkerService.cs" />
     <Page Include="App.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
