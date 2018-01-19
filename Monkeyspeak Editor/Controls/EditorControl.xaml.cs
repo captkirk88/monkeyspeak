@@ -534,7 +534,6 @@ namespace Monkeyspeak.Editor.Controls
         private void OnPreviewLostKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
         {
             Intellisense.Close();
-            SyntaxChecker.ClearAllMarkers(this);
         }
 
         private void OnGotFocus(object sender, RoutedEventArgs e)
@@ -548,13 +547,11 @@ namespace Monkeyspeak.Editor.Controls
         private void OnLostFocus(object sender, RoutedEventArgs e)
         {
             Intellisense.Close();
-            SyntaxChecker.ClearAllMarkers(this);
         }
 
         private void OnLostMouseCapture(object sender, MouseEventArgs e)
         {
             Intellisense.Close();
-            SyntaxChecker.ClearAllMarkers(this);
         }
 
         protected bool SetField<T>(ref T field, T value, [CallerMemberName] string propertyName = null)

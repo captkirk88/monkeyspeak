@@ -65,7 +65,6 @@ namespace Monkeyspeak.Editor.Syntax
                 }
                 catch (MonkeyspeakException ex)
                 {
-                    ex.LogMessage(memberName: null);
                     var pos = ex.SourcePosition;
                     AddMarker(ex.SourcePosition, editor, ex.Message);
                 }
