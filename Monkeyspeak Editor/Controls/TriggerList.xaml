@@ -6,6 +6,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="clr-namespace:Monkeyspeak.Editor.Controls"
              xmlns:xc="http://schemas.xceed.com/wpf/xaml/toolkit"
+             xmlns:avalonedit="http://icsharpcode.net/sharpdevelop/avalonedit"
              mc:Ignorable="d"
              Loaded="UserControl_Loaded"
              d:DesignHeight="300" d:DesignWidth="300">
@@ -15,14 +16,21 @@
         <ListView.View>
             <GridView>
                 <GridView.Columns>
-                    <GridViewColumn DisplayMemberBinding="{Binding Item1}">
+                    <GridViewColumn>
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <Controls:ContentControlEx Content="{Binding Content}" />
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
                         <GridViewColumnHeader Content="Triggers" Click="GridViewColumnHeader_Click" />
                     </GridViewColumn>
-                    <GridViewColumn DisplayMemberBinding="{Binding Item3}">
+                    <GridViewColumn>
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <Controls:ContentControlEx Content="{Binding DescriptionWithoutTrigger}" />
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
                         <GridViewColumnHeader Content="Description" Click="GridViewColumnHeader_Click" />
-                    </GridViewColumn>
-                    <GridViewColumn DisplayMemberBinding="{Binding Item2}">
-                        <GridViewColumnHeader Content="Libraries" Click="GridViewColumnHeader_Click" />
                     </GridViewColumn>
                 </GridView.Columns>
             </GridView>

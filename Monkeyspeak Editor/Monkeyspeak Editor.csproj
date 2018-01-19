@@ -248,6 +248,7 @@
     <ProjectReference Include="..\Monkeyspeak\Monkeyspeak.csproj">
       <Project>{925781e6-8b75-471b-887f-616495bbbfdd}</Project>
       <Name>Monkeyspeak</Name>
+      <EmbedInteropTypes>False</EmbedInteropTypes>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

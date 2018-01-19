@@ -1,4 +1,5 @@
-﻿using Monkeyspeak.Libraries;
+﻿using Monkeyspeak.Editor.HelperClasses;
+using Monkeyspeak.Libraries;
 using Monkeyspeak.Utils;
 using System;
 using System.Collections.ObjectModel;
@@ -17,37 +18,37 @@ namespace Monkeyspeak.Editor.Controls
     public partial class TriggerList : UserControl
     {
         private static MonkeyspeakEngine engine = null;
-        private static Page page = null;
+        private static Page page = MonkeyspeakRunner.CurrentPage;
 
-        public event Action<string, string, string> TriggerSelected;
+        private ToolTip selectedToolTip;
+
+        public event Action<TriggerCompletionData> TriggerSelected;
+
+        private ObservableCollection<TriggerCompletionData> Triggers = new ObservableCollection<TriggerCompletionData>();
 
         public TriggerList()
 
         {
             InitializeComponent();
-            TriggerDescriptions = new ObservableCollection<Tuple<string, string, string>>();
             this.DataContext = this;
-            trigger_view.ItemsSource = TriggerDescriptions;
+            trigger_view.SelectionMode = SelectionMode.Single;
+            trigger_view.ItemsSource = Triggers;
         }
 
         public void Add(Page page, Trigger trigger, TriggerHandler handler, BaseLibrary lib)
         {
-            var triggerDescriptions = ReflectionHelper.GetAllAttributesFromMethod<TriggerDescriptionAttribute>(handler.Method);
-            var pair = new Tuple<string, string, string>(lib.ToString(trigger), lib.GetType().Name,
-                triggerDescriptions.FirstOrDefault()?.Description ?? string.Empty);
-            if (!TriggerDescriptions.Contains(pair))
-                TriggerDescriptions.Add(pair);
+            var data = new TriggerCompletionData(page, lib, trigger);
+            Triggers.Add(data);
         }
 
         public TriggerCategory TriggerCategory { get; set; }
-        public ObservableCollection<Tuple<string, string, string>> TriggerDescriptions { get; set; }
 
         private void Content_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
-            var item = trigger_view.SelectedItem as Tuple<string, string, string>;
+            var item = trigger_view.SelectedItem as TriggerCompletionData;
             if (item != null)
             {
-                TriggerSelected?.Invoke(item.Item1, item.Item3, item.Item2);
+                TriggerSelected?.Invoke(item);
             }
         }
 
@@ -57,7 +58,7 @@ namespace Monkeyspeak.Editor.Controls
             {
                 foreach (var lib in MonkeyspeakRunner.CurrentPage.Libraries)
                 {
-                    foreach (var kv in lib.Handlers.Where(h => h.Key.Category == this.TriggerCategory))
+                    foreach (var kv in lib.Handlers.Where(h => h.Key.Category == TriggerCategory))
                     {
                         Add(page, kv.Key, kv.Value, lib);
                     }

@@ -69,6 +69,16 @@ namespace Monkeyspeak.Utils
             }
         }
 
+        public static bool HasInterface<T>(Type type)
+        {
+            var desiredType = typeof(T);
+            if (desiredType.IsInterface)
+            {
+                return type.GetInterface(desiredType.Name, true) != null;
+            }
+            return false;
+        }
+
         public static IEnumerable<Type> GetAllTypesWithInterface<T>(Assembly asm)
         {
             var desiredType = typeof(T);
@@ -93,6 +103,8 @@ namespace Monkeyspeak.Utils
             }
             catch (ReflectionTypeLoadException e)
             {
+                foreach (var loaderEx in e.LoaderExceptions)
+                    loaderEx.LogMessage(Level.Debug);
                 return e.Types.Where(t => t != null);
             }
             return types;

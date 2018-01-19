@@ -5,6 +5,8 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Media;
 using ICSharpCode.AvalonEdit;
 using ICSharpCode.AvalonEdit.Document;
@@ -18,6 +20,7 @@ namespace Monkeyspeak.Editor.Syntax
     {
         private static Dictionary<EditorControl, ITextMarkerService> textMarkers = new Dictionary<EditorControl, ITextMarkerService>();
         private static Page page;
+        private static ToolTip syntaxErrorToolTip;
 
         public static void Install(EditorControl editor)
         {
@@ -54,9 +57,9 @@ namespace Monkeyspeak.Editor.Syntax
                 {
                     foreach (var trigger in parser.Parse(lexer))
                     {
-                        if (page != null && !page.Libraries.All(lib => lib.Contains(trigger.Category, trigger.Id)))
+                        if (page != null && !page.Libraries.Any(lib => lib.Contains(trigger.Category, trigger.Id)))
                         {
-                            Logger.Error($"{trigger} does not have a handler associated to it that could be found.");
+                            AddMarker(lexer.CurrentSourcePosition, editor, $"{trigger} does not have a handler associated to it that could be found.", Severity.Warning);
                         }
                     }
                 }
@@ -69,32 +72,68 @@ namespace Monkeyspeak.Editor.Syntax
             }
         }
 
+        public static bool MouseHover(EditorControl editor, MouseEventArgs e)
+        {
+            var pos = editor.textEditor.TextArea.TextView.GetPositionFloor(e.GetPosition(editor.textEditor.TextArea.TextView) + editor.textEditor.TextArea.TextView.ScrollOffset);
+            bool inDocument = pos.HasValue;
+            if (inDocument)
+            {
+                TextLocation logicalPosition = pos.Value.Location;
+                int offset = editor.textEditor.Document.GetOffset(logicalPosition);
+
+                var markersAtOffset = textMarkers[editor].GetMarkersAtOffset(offset);
+                ITextMarker markerWithToolTip = markersAtOffset.FirstOrDefault(marker => marker.ToolTip != null);
+
+                if (markerWithToolTip != null)
+                {
+                    if (syntaxErrorToolTip == null)
+                    {
+                        syntaxErrorToolTip = new ToolTip();
+                        syntaxErrorToolTip.Closed += delegate
+                        { syntaxErrorToolTip = null; };
+                        syntaxErrorToolTip.PlacementTarget = editor.textEditor;
+                        syntaxErrorToolTip.Content = markerWithToolTip.ToolTip;
+                        syntaxErrorToolTip.IsOpen = true;
+                        e.Handled = true;
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        public static void MouseMove(EditorControl editor, MouseEventArgs e)
+        {
+            if (syntaxErrorToolTip != null) syntaxErrorToolTip.IsOpen = false;
+        }
+
         private static void AddMarker(Token token, EditorControl editor, string message = null, Severity severity = Severity.Error)
         {
             var line = editor.textEditor.Document.GetLineByNumber(token.Position.Line);
             var textMarker = textMarkers[editor];
-            Color color;
+            ITextMarker marker = textMarker.Create(line.Offset, line.Length);
             switch (severity)
             {
                 case Severity.Error:
-                    color = Colors.Red;
+                    marker.MarkerColor = Colors.Red;
+                    marker.MarkerTypes = TextMarkerTypes.SquigglyUnderline;
                     break;
 
                 case Severity.Warning:
-                    color = Colors.Yellow;
+                    marker.MarkerColor = Colors.OrangeRed;
+                    marker.MarkerTypes = TextMarkerTypes.NormalUnderline;
                     break;
 
                 case Severity.Info:
-                    color = Colors.Blue;
+                    marker.MarkerColor = Colors.Blue;
+                    marker.MarkerTypes = TextMarkerTypes.DottedUnderline;
                     break;
 
                 default:
-                    color = Colors.Red;
+                    marker.MarkerColor = Colors.Red;
+                    marker.MarkerTypes = TextMarkerTypes.SquigglyUnderline;
                     break;
             }
-            ITextMarker marker = textMarker.Create(line.Offset, line.Length);
-            marker.MarkerTypes = TextMarkerTypes.SquigglyUnderline;
-            marker.MarkerColor = color;
             if (!string.IsNullOrWhiteSpace(message))
             {
                 marker.ToolTip = message;
@@ -105,28 +144,29 @@ namespace Monkeyspeak.Editor.Syntax
         {
             var line = editor.textEditor.Document.GetLineByNumber(pos.Line);
             var textMarker = textMarkers[editor];
-            Color color;
+            ITextMarker marker = textMarker.Create(line.Offset, line.Length);
             switch (severity)
             {
                 case Severity.Error:
-                    color = Colors.Red;
+                    marker.MarkerColor = Colors.Red;
+                    marker.MarkerTypes = TextMarkerTypes.SquigglyUnderline;
                     break;
 
                 case Severity.Warning:
-                    color = Colors.Yellow;
+                    marker.MarkerColor = Colors.Orange;
+                    marker.MarkerTypes = TextMarkerTypes.NormalUnderline;
                     break;
 
                 case Severity.Info:
-                    color = Colors.Blue;
+                    marker.MarkerColor = Colors.Blue;
+                    marker.MarkerTypes = TextMarkerTypes.DottedUnderline;
                     break;
 
                 default:
-                    color = Colors.Red;
+                    marker.MarkerColor = Colors.Red;
+                    marker.MarkerTypes = TextMarkerTypes.SquigglyUnderline;
                     break;
             }
-            ITextMarker marker = textMarker.Create(line.Offset, line.Length);
-            marker.MarkerTypes = TextMarkerTypes.SquigglyUnderline;
-            marker.MarkerColor = color;
             if (!string.IsNullOrWhiteSpace(message))
             {
                 marker.ToolTip = message;
