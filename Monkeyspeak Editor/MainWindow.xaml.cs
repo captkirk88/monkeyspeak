@@ -166,13 +166,13 @@ namespace Monkeyspeak.Editor
         {
         }
 
-        private void TriggerList_SelectionChanged(string trigger, string description, string lib)
+        private void TriggerList_SelectionChanged(TriggerCompletionData data)
         {
             if (Editors.Instance.Selected != null)
             {
                 if (Editors.Instance.Selected.CaretLine > 0)
-                    Editors.Instance.Selected.InsertAtCaretLine(trigger);
-                else Editors.Instance.Selected.AddLine(trigger);
+                    Editors.Instance.Selected.InsertAtCaretLine(data.Prepare());
+                else Editors.Instance.Selected.AddLine(data.Prepare());
             }
         }
 

@@ -1,4 +1,4 @@
-version: 7.0.6592.438
+version: 7.0.6592.36151
 branches:
   only:
   - master
@@ -48,6 +48,7 @@ build:
   include_nuget_references: false
   parallel: true
   verbosity: minimal
+
 
 artifacts:
   - path: '**\*.rar'

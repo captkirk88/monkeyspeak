@@ -19,6 +19,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
 using System.Windows;
 using System.Windows.Media;
@@ -111,8 +112,7 @@ namespace Monkeyspeak.Editor.Syntax
             {
                 view.Redraw(segment, DispatcherPriority.Normal);
             }
-            if (RedrawRequested != null)
-                RedrawRequested(this, EventArgs.Empty);
+            RedrawRequested?.Invoke(this, EventArgs.Empty);
         }
 
         public event EventHandler RedrawRequested;
@@ -228,12 +228,14 @@ namespace Monkeyspeak.Editor.Syntax
                             Pen usedPen = new Pen(usedBrush, 1);
                             usedPen.Freeze();
                             drawingContext.DrawGeometry(Brushes.Transparent, usedPen, geometry);
+                            //DrawToolTip(textView, drawingContext, usedPen, new Point(r.Right, (r.Top / 2)), marker);
                         }
                         if ((marker.MarkerTypes & TextMarkerTypes.NormalUnderline) != 0)
                         {
                             Pen usedPen = new Pen(usedBrush, 1);
                             usedPen.Freeze();
                             drawingContext.DrawLine(usedPen, startPoint, endPoint);
+                            //DrawToolTip(textView, drawingContext, usedPen, new Point(r.Right, (r.Top / 2)), marker);
                         }
                         if ((marker.MarkerTypes & TextMarkerTypes.DottedUnderline) != 0)
                         {
@@ -241,9 +243,25 @@ namespace Monkeyspeak.Editor.Syntax
                             usedPen.DashStyle = DashStyles.Dot;
                             usedPen.Freeze();
                             drawingContext.DrawLine(usedPen, startPoint, endPoint);
+                            //DrawToolTip(textView, drawingContext, usedPen, new Point(r.Right, (r.Top / 2)), marker);
                         }
                     }
                 }
+            }
+        }
+
+        private void DrawToolTip(TextView textView, DrawingContext drawingContext, Pen pen, Point startPoint, ITextMarker marker)
+        {
+            if (marker.ToolTip != null)
+            {
+                var systemDefaultFamily = SystemFonts.MessageFontFamily;
+                FormattedText tooltip = new FormattedText(marker.ToolTip.ToString(),
+                    CultureInfo.CurrentUICulture, FlowDirection.LeftToRight, new Typeface(systemDefaultFamily,
+                    marker.FontStyle ?? FontStyles.Normal,
+                    marker.FontWeight ?? FontWeights.Bold,
+                    FontStretches.Normal), 12, new SolidColorBrush(marker.MarkerColor));
+                drawingContext.DrawRectangle(Brushes.Black, pen, new Rect(startPoint, new Size(tooltip.Width, tooltip.Height)));
+                drawingContext.DrawText(tooltip, startPoint);
             }
         }
 
