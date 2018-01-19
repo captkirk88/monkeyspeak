@@ -230,7 +230,7 @@ namespace Monkeyspeak
             if (input != c)
             {
                 string inputChar = (input != -1) ? ((char)input).ToString(CultureInfo.InvariantCulture) : "END_OF_FILE";
-                throw new MonkeyspeakException(String.Format("Expected '{0}' but got '{1}'", ((char)c).EscapeForCSharp(), inputChar), CurrentSourcePosition);
+                throw new MonkeyspeakException($"Expected '{((char)c).EscapeForCSharp()}' but got '{inputChar}'", CurrentSourcePosition);
             }
         }
 
@@ -238,7 +238,7 @@ namespace Monkeyspeak
         {
             if (a != b)
             {
-                throw new MonkeyspeakException(String.Format("Expected '{0}' but got '{1}'", b.EscapeForCSharp(), a.EscapeForCSharp()), CurrentSourcePosition);
+                throw new MonkeyspeakException($"Expected '{b.EscapeForCSharp()}' but got '{a.EscapeForCSharp()}'", CurrentSourcePosition);
             }
         }
 
@@ -246,7 +246,7 @@ namespace Monkeyspeak
         {
             if (a != b)
             {
-                throw new MonkeyspeakException(String.Format("Expected '{0}' but got '{1}'", ((char)b).EscapeForCSharp(), ((char)a).EscapeForCSharp()), CurrentSourcePosition);
+                throw new MonkeyspeakException($"Expected '{((char)b).EscapeForCSharp()}' but got '{((char)a).EscapeForCSharp()}'", CurrentSourcePosition);
             }
         }
 
@@ -254,7 +254,7 @@ namespace Monkeyspeak
         {
             if (!char.IsDigit(c))
             {
-                throw new MonkeyspeakException(String.Format("Expected number but got '{1}'", c.EscapeForCSharp(), ((char)currentChar).EscapeForCSharp()), CurrentSourcePosition);
+                throw new MonkeyspeakException($"Expected number but got '{c.EscapeForCSharp()}'", CurrentSourcePosition);
             }
         }
 
@@ -507,7 +507,9 @@ namespace Monkeyspeak
             Next(); // seperator
             length++;
             CheckMatch(':');
-            char c = (char)LookAhead(1);
+            Next();
+
+            char c = (char)currentChar;
             CheckIsDigit(c);
             while (char.IsDigit(c))
             {
