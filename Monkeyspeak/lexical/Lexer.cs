@@ -507,7 +507,9 @@ namespace Monkeyspeak
             Next(); // seperator
             length++;
             CheckMatch(':');
-            char c = (char)LookAhead(1);
+            Next();
+
+            char c = (char)currentChar;
             CheckIsDigit(c);
             while (char.IsDigit(c))
             {
