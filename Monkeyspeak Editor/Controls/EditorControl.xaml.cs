@@ -102,8 +102,6 @@ namespace Monkeyspeak.Editor.Controls
             textEditor.TextArea.TextEntered += (sender, e) =>
             {
                 Intellisense.GenerateTriggerListCompletion(this);
-                if (e.Text == " ")
-                    SyntaxChecker.Check(this);
             };
             textEditor.TextArea.TextEntering += (sender, e) =>
             {
@@ -119,15 +117,22 @@ namespace Monkeyspeak.Editor.Controls
                 if (e.Key == Key.Return)
                 {
                     textEditor.TextArea.IndentationStrategy.IndentLines(textEditor.Document, 0, textEditor.LineCount);
+                    SyntaxChecker.Check(this);
+                }
+                else if (e.Key == Key.Space)
+                {
+                    SyntaxChecker.Check(this);
                 }
             };
 
             textEditor.PreviewMouseHover += (sender, e) =>
             {
-                Intellisense.MouseHover(this, e);
+                if (!SyntaxChecker.MouseHover(this, e))
+                    Intellisense.MouseHover(this, sender, e);
             };
             textEditor.PreviewMouseMove += (sender, e) =>
             {
+                SyntaxChecker.MouseMove(this, e);
                 Intellisense.MouseMove(this, e);
             };
             textEditor.Options.AllowScrollBelowDocument = true;

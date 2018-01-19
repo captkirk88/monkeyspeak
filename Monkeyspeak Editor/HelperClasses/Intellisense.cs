@@ -12,7 +12,9 @@ using ICSharpCode.AvalonEdit.CodeCompletion;
 using ICSharpCode.AvalonEdit.Document;
 using MahApps.Metro;
 using Monkeyspeak.Editor.Controls;
+using Monkeyspeak.Editor.Syntax;
 using Monkeyspeak.Lexical.Expressions;
+using Monkeyspeak.Utils;
 
 namespace Monkeyspeak.Editor.HelperClasses
 {
@@ -79,18 +81,19 @@ namespace Monkeyspeak.Editor.HelperClasses
             }
         }
 
-        public static void MouseHover(EditorControl editor, MouseEventArgs e)
+        public static bool MouseHover(EditorControl editor, object sender, MouseEventArgs e)
         {
-            if (triggerDescToolTip == null) triggerDescToolTip = new ToolTip();
+            if (triggerDescToolTip == null) triggerDescToolTip = new ToolTip() { Content = new StackPanel() { Orientation = Orientation.Vertical } };
 
             var selected = editor;
             var textEditor = selected.textEditor;
 
             var textArea = textEditor.TextArea;
-            var mousePos = textEditor.GetPositionFromPoint(e.GetPosition(textEditor));
-            if (mousePos != null)
+            var pos = editor.textEditor.TextArea.TextView.GetPositionFloor(e.GetPosition(editor.textEditor.TextArea.TextView) + editor.textEditor.TextArea.TextView.ScrollOffset);
+            bool inDocument = pos.HasValue;
+            if (inDocument)
             {
-                var line = mousePos.Value.Line;
+                var line = pos.Value.Line;
                 var offset = textEditor.Document.GetOffset(line, 1);
                 if (offset >= textEditor.Document.TextLength) offset--;
                 if (offset <= 0) offset++;
@@ -98,24 +101,39 @@ namespace Monkeyspeak.Editor.HelperClasses
                 if (string.IsNullOrWhiteSpace(textAtOffset))
                 {
                     triggerDescToolTip.IsOpen = false;
-                    return;
+                    return false;
                 }
                 var completionData = new TriggerCompletionData(MonkeyspeakRunner.CurrentPage, textAtOffset);
-                if (completionData.Trigger == Trigger.Undefined)
+                if (completionData.IsValid)
                 {
                     triggerDescToolTip.IsOpen = false;
-                    return;
+                    return false;
                 }
-                triggerDescToolTip.Content = completionData.Description;
+                var tooltipContent = (StackPanel)triggerDescToolTip.Content;
+                tooltipContent.Children.Clear();
+                if (completionData.Description is UIElement)
+                    tooltipContent.Children.Add((UIElement)completionData.Description);
+                else tooltipContent.Children.Add(new TextBlock { Text = (string)completionData.Description });
                 triggerDescToolTip.PlacementTarget = selected;
                 triggerDescToolTip.IsOpen = true;
                 e.Handled = true;
+                return true;
             }
+            return false;
         }
 
         public static void MouseMove(EditorControl editor, MouseEventArgs e)
         {
             if (triggerDescToolTip != null) triggerDescToolTip.IsOpen = false;
+        }
+
+        public static void AddToToolTip(object content)
+        {
+            if (triggerDescToolTip != null)
+            {
+                var tooltipContent = (StackPanel)triggerDescToolTip.Content;
+                tooltipContent.Children.Add(content is UIElement ? (UIElement)content : new TextBlock { Text = (string)content });
+            }
         }
 
         public static void Close()
