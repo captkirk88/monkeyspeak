@@ -72,35 +72,35 @@ namespace Monkeyspeak
         /// </summary>
         /// <param name="c">The c.</param>
         /// <exception cref="MonkeyspeakException" />
-        public abstract void CheckMatch(int c);
+        public abstract bool CheckMatch(int c);
 
         /// <summary>
         /// Checks if the next input is a match to <paramref name="c"/>.
         /// </summary>
         /// <param name="c">The c.</param>
         /// <exception cref="MonkeyspeakException" />
-        public abstract void CheckMatch(char c);
+        public abstract bool CheckMatch(char c);
 
         /// <summary>
         /// Checks if the next input is a match to <paramref name="str"/>.
         /// </summary>
         /// <param name="str">The string.</param>
         /// <exception cref="MonkeyspeakException" />
-        public abstract void CheckMatch(string str);
+        public abstract bool CheckMatch(string str);
 
         /// <summary>
         /// Checks if <paramref name="c"/> is a number.
         /// </summary>
         /// <param name="c">The c.</param>
         /// <exception cref="MonkeyspeakException" />
-        public abstract void CheckIsDigit(char c = '\0');
+        public abstract bool CheckIsDigit(char c = '\0');
 
         /// <summary>
         /// Checks if the next input results in End of File.
         /// </summary>
         /// <param name="c">The c.</param>
         /// <exception cref="MonkeyspeakException" />
-        public abstract void CheckEOF(int c);
+        public abstract bool CheckEOF(int c);
 
         /// <summary>
         /// Resets this instance.

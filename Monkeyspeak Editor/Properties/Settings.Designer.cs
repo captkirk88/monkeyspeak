@@ -118,5 +118,41 @@ namespace Monkeyspeak.Editor.Properties {
                 this["WindowSizeWidth"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool Intellisense {
+            get {
+                return ((bool)(this["Intellisense"]));
+            }
+            set {
+                this["Intellisense"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("-1")]
+        public int TriggerSplitterPosition {
+            get {
+                return ((int)(this["TriggerSplitterPosition"]));
+            }
+            set {
+                this["TriggerSplitterPosition"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("-1")]
+        public int OptionsSplitterPosition {
+            get {
+                return ((int)(this["OptionsSplitterPosition"]));
+            }
+            set {
+                this["OptionsSplitterPosition"] = value;
+            }
+        }
     }
 }

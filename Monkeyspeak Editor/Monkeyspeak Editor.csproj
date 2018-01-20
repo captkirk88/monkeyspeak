@@ -103,9 +103,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Commands\CompletionCommand.cs" />
+    <Compile Include="Extensions\ThemeExtensions.cs" />
     <Compile Include="Syntax\ITextMarker.cs" />
     <Compile Include="Syntax\SyntaxChecker.cs" />
     <Compile Include="Syntax\TextMarkerService.cs" />
+    <Compile Include="Utils\ToolTipManager.cs" />
     <Page Include="App.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -251,9 +253,7 @@
       <EmbedInteropTypes>False</EmbedInteropTypes>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Utils\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <Resource Include="if_face-monkey_30313.ico" />
   </ItemGroup>

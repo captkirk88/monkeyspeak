@@ -10,6 +10,7 @@ using Monkeyspeak.Editor.Logging;
 using Monkeyspeak.Editor.Notifications;
 using Monkeyspeak.Editor.Notifications.Controls;
 using Monkeyspeak.Editor.Plugins;
+using Monkeyspeak.Editor.Utils;
 using Monkeyspeak.Logging;
 using Octokit;
 using System;
@@ -92,6 +93,10 @@ namespace Monkeyspeak.Editor
             WindowState = settings.WindowState;
             SetColor(settings.Color);
             SetTheme(settings.Theme);
+            if (settings.TriggerSplitterPosition > 0)
+                TopRow.Height = new GridLength(settings.TriggerSplitterPosition);
+
+            Intellisense.Enabled = settings.Intellisense;
 
             // Load files passed into the program and from last session
             if (files != null && files.Length > 0)
@@ -298,6 +303,8 @@ namespace Monkeyspeak.Editor
             Width = settings.WindowSizeWidth;
             Height = settings.WindowSizeHeight;
             WindowState = settings.WindowState;
+            Intellisense.Enabled = settings.Intellisense;
+            HotkeyManager.ApplyChangesToInputBindings();
         }
 
         private void mainButton_Click(object sender, RoutedEventArgs e)

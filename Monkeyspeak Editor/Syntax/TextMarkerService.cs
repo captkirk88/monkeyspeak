@@ -304,9 +304,7 @@ namespace Monkeyspeak.Editor.Syntax
 
         public TextMarker(TextMarkerService service, int startOffset, int length)
         {
-            if (service == null)
-                throw new ArgumentNullException("service");
-            this.service = service;
+            this.service = service ?? throw new ArgumentNullException("service");
             this.StartOffset = startOffset;
             this.Length = length;
             this.markerTypes = TextMarkerTypes.None;
@@ -316,7 +314,7 @@ namespace Monkeyspeak.Editor.Syntax
 
         public bool IsDeleted
         {
-            get { return !this.IsConnectedToCollection; }
+            get { return !IsConnectedToCollection; }
         }
 
         public void Delete()
@@ -326,8 +324,7 @@ namespace Monkeyspeak.Editor.Syntax
 
         internal void OnDeleted()
         {
-            if (Deleted != null)
-                Deleted(this, EventArgs.Empty);
+            Deleted?.Invoke(this, EventArgs.Empty);
         }
 
         private void Redraw()

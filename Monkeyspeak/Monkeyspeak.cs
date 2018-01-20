@@ -11,6 +11,29 @@ using System.Threading.Tasks;
 namespace Monkeyspeak
 {
     [Serializable]
+    public class MonkeyspeakSyntaxException : Exception
+    {
+        public MonkeyspeakSyntaxException()
+        {
+        }
+
+        public MonkeyspeakSyntaxException(Token token, string message) : base(message)
+        {
+            Token = token;
+        }
+
+        public MonkeyspeakSyntaxException(string message, Exception inner) : base(message, inner)
+        {
+        }
+
+        protected MonkeyspeakSyntaxException(
+          System.Runtime.Serialization.SerializationInfo info,
+          System.Runtime.Serialization.StreamingContext context) : base(info, context) { }
+
+        public Token Token { get; }
+    }
+
+    [Serializable]
     public class MonkeyspeakException : Exception
     {
         public MonkeyspeakException()

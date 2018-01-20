@@ -153,8 +153,7 @@
                           Style="{DynamicResource CustomGridSplitterStyle}" ShowsPreview="True" />
             <DockPanel Grid.Column="2" Margin="4 0 0 0">
                 <ComboBox Name="propertyGridComboBox" DockPanel.Dock="Top"
-				          SelectedIndex="3" SelectionChanged="propertyGridComboBoxSelectionChanged"
-                          Foreground="Black">
+				          SelectedIndex="3" SelectionChanged="propertyGridComboBoxSelectionChanged">
                     <ComboBoxItem>TextEditor</ComboBoxItem>
                     <ComboBoxItem>TextArea</ComboBoxItem>
                     <ComboBoxItem>Options</ComboBoxItem>
