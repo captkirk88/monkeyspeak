@@ -1,4 +1,5 @@
 ﻿using Monkeyspeak.Editor;
+using Monkeyspeak.Editor.Interfaces.Notifications;
 using Monkeyspeak.Editor.Interfaces.Plugins;
 using Monkeyspeak.Logging;
 using System;
@@ -21,6 +22,11 @@ namespace Monkeyspeak.Test.Plugin
         /// </summary>
         public override void Initialize()
         {
+        }
+
+        public override void AddNotifications(INotificationManager notificationManager)
+        {
+            notificationManager.AddNotification(new MyTimedFunNotification(notificationManager));
         }
 
         public override void OnEditorSaveCompleted(IEditor editor)

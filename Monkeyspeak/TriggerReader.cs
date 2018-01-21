@@ -212,7 +212,7 @@ namespace Monkeyspeak
         /// <exception cref="TriggerReaderException"></exception>
         public string ReadString(bool processVariables = true)
         {
-            if (contents == null || contents.Count == 0) throw new TriggerReaderException("Unexpected end of values");
+            if (contents == null || contents.Count == 0) throw new TriggerReaderException($"Expected string, got nothing");
             if (contents.Peek().GetType() != Expressions.Instance[TokenType.STRING_LITERAL]) throw new TriggerReaderException($"Expected string, got {contents.Peek().GetType().Name} at {contents.Peek().Position}");
             return (string)contents.Dequeue().Execute(page, contents, processVariables);
         }
@@ -253,7 +253,7 @@ namespace Monkeyspeak
         /// <exception cref="TriggerReaderException"></exception>
         public IVariable ReadVariable(bool addIfNotExist = false)
         {
-            if (contents == null || contents.Count == 0) throw new TriggerReaderException("Unexpected end of values");
+            if (contents == null || contents.Count == 0) throw new TriggerReaderException($"Expected variable, got nothing");
             if (contents.Peek().GetType() != Expressions.Instance[TokenType.VARIABLE] &&
                 contents.Peek().GetType() != Expressions.Instance[TokenType.TABLE]) throw new TriggerReaderException($"Expected variable, got {contents.Peek().GetType().Name} at {contents.Peek().Position}");
             return (IVariable)contents.Dequeue().Execute(page, contents, addIfNotExist);
@@ -284,7 +284,7 @@ namespace Monkeyspeak
         /// <exception cref="TriggerReaderException"></exception>
         public VariableTable ReadVariableTable(bool addIfNotExist = false)
         {
-            if (contents == null || contents.Count == 0) throw new TriggerReaderException("Unexpected end of values");
+            if (contents == null || contents.Count == 0) throw new TriggerReaderException($"Expected table, got nothing");
 
             if (contents.Peek().GetType() == Expressions.Instance[TokenType.VARIABLE])
             {
@@ -345,7 +345,7 @@ namespace Monkeyspeak
         /// <exception cref="TriggerReaderException"></exception>
         public double ReadNumber()
         {
-            if (contents.Count == 0) throw new TriggerReaderException("Unexpected end of values");
+            if (contents.Count == 0) throw new TriggerReaderException($"Expected number, got nothing");
 
             if (contents.Peek().GetType() == Expressions.Instance[TokenType.NUMBER])
             {

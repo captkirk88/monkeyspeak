@@ -16,10 +16,11 @@ using System.Threading.Tasks;
 using System.Windows.Controls;
 using Monkeyspeak.Extensions;
 using Monkeyspeak.Editor.Extensions;
+using System.Windows.Media;
 
 namespace Monkeyspeak.Editor.HelperClasses
 {
-    public sealed class TriggerCompletionData : ICompletionData
+    public sealed class TriggerCompletionData : ICompletionData, IComparable<TriggerCompletionData>
     {
         private readonly BaseLibrary lib;
         private readonly Trigger trigger = Trigger.Undefined;
@@ -49,13 +50,13 @@ namespace Monkeyspeak.Editor.HelperClasses
                         break;
 
                     case TriggerCategory.Flow:
-                        Indentation = 3;
+                        Indentation = 2;
                         break;
 
                     default:
                         break;
                 }
-                Text = page.GetTriggerDescription(trigger, true).Trim('\r', '\n');
+                Text = page.GetTriggerDescription(trigger, true).Trim('\t', '\r', '\n');
                 this.lib = lib;
             }
             highlightingDef = HighlightingManager.Instance.GetDefinition("Monkeyspeak");
@@ -64,7 +65,7 @@ namespace Monkeyspeak.Editor.HelperClasses
         public TriggerCompletionData(Page page, string line)
         {
             this.page = page;
-            line = line.Trim(' ');
+            line = line.Trim(' ', '\t', '\n');
             this.trigger = Trigger.Parse(MonkeyspeakRunner.Engine, line);
             if (trigger != Trigger.Undefined)
             {
@@ -83,13 +84,13 @@ namespace Monkeyspeak.Editor.HelperClasses
                         break;
 
                     case TriggerCategory.Flow:
-                        Indentation = 3;
+                        Indentation = 2;
                         break;
 
                     default:
                         break;
                 }
-                Text = page.GetTriggerDescription(trigger, true);
+                Text = page.GetTriggerDescription(trigger, true).Trim('\t', '\r', '\n'); ;
                 this.lib = page.Libraries.FirstOrDefault(lib => lib.Contains(trigger.Category, trigger.Id));
             }
             highlightingDef = HighlightingManager.Instance.GetDefinition("Monkeyspeak");
@@ -108,10 +109,7 @@ namespace Monkeyspeak.Editor.HelperClasses
         {
             get
             {
-                var label = new TextBlock { Text = Text };
-                label.Background = label.Background.ToThemeBackground();
-                label.Foreground = label.Foreground.ToThemeForeground();
-                return label;
+                return Text;
             }
         }
 
@@ -144,9 +142,12 @@ namespace Monkeyspeak.Editor.HelperClasses
                 {
                     descriptionViewer = new TextView();
                     descriptionViewer.Document = new TextDocument(sb.ToString());
-                    HighlightingColorizer colorizer = new HighlightingColorizer(highlightingDef);
-                    descriptionViewer.LineTransformers.Add(colorizer);
-                    descriptionViewer.EnsureVisualLines();
+                    if (highlightingDef != null)
+                    {
+                        HighlightingColorizer colorizer = new HighlightingColorizer(highlightingDef);
+                        descriptionViewer.LineTransformers.Add(colorizer);
+                        descriptionViewer.EnsureVisualLines();
+                    }
                     return descriptionViewer;
                 }
                 else return null;
@@ -183,9 +184,12 @@ namespace Monkeyspeak.Editor.HelperClasses
                 {
                     descriptionViewer = new TextView();
                     descriptionViewer.Document = new TextDocument(sb.ToString());
-                    HighlightingColorizer colorizer = new HighlightingColorizer(highlightingDef);
-                    descriptionViewer.LineTransformers.Add(colorizer);
-                    descriptionViewer.EnsureVisualLines();
+                    if (highlightingDef != null)
+                    {
+                        HighlightingColorizer colorizer = new HighlightingColorizer(highlightingDef);
+                        descriptionViewer.LineTransformers.Add(colorizer);
+                        descriptionViewer.EnsureVisualLines();
+                    }
                     return descriptionViewer;
                 }
                 else return null;
@@ -196,6 +200,8 @@ namespace Monkeyspeak.Editor.HelperClasses
         public double Priority => 0;
 
         public Trigger Trigger => trigger;
+
+        public BaseLibrary Library => lib;
 
         public string Prepare()
         {
@@ -210,6 +216,13 @@ namespace Monkeyspeak.Editor.HelperClasses
             var line = textArea.Document.GetLineByOffset(completionSegment.Offset);
             textArea.Document.Replace(line.Offset, line.Length, "");
             textArea.Document.Insert(line.Offset, Prepare());
+        }
+
+        public int CompareTo(TriggerCompletionData other)
+        {
+            if (this.Trigger.Id > other.Trigger.Id) return 1;
+            if (this.Trigger.Id < other.Trigger.Id) return -1;
+            return 0;
         }
     }
 }

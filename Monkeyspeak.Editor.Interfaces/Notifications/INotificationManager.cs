@@ -9,5 +9,7 @@ namespace Monkeyspeak.Editor.Interfaces.Notifications
     public interface INotificationManager
     {
         void AddNotification(INotification notification);
+
+        void RemoveNotification(INotification notification);
     }
 }

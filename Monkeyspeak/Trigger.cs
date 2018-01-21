@@ -254,28 +254,40 @@ namespace Monkeyspeak
 
         public static Trigger Parse(MonkeyspeakEngine engine, string str)
         {
-            var stream = new MemoryStream(Encoding.Default.GetBytes(str));
+            var stream = new MemoryStream(Encoding.UTF8.GetBytes(str));
             try
             {
                 Parser parser = new Parser(engine);
                 Lexer lexer = new Lexer(engine, new SStreamReader(stream));
-                return parser.Parse(lexer).First();
+                foreach (var trigger in parser.Parse(lexer))
+                {
+                    if (trigger != Trigger.Undefined) return trigger;
+                }
             }
-            catch { return Trigger.Undefined; }
+            catch { }
+            return Undefined;
         }
 
         public static bool TryParse(MonkeyspeakEngine engine, string str, out Trigger trigger)
         {
-            var stream = new MemoryStream(Encoding.Default.GetBytes(str));
+            trigger = Undefined;
+            var stream = new MemoryStream(Encoding.UTF8.GetBytes(str));
             try
             {
                 Parser parser = new Parser(engine);
                 Lexer lexer = new Lexer(engine, new SStreamReader(stream));
-                trigger = parser.Parse(lexer).First();
+                foreach (var t in parser.Parse(lexer))
+                {
+                    if (t != Undefined)
+                    {
+                        trigger = t;
+                        break;
+                    }
+                }
                 if (trigger != Undefined) return true;
             }
             catch { }
-            trigger = Trigger.Undefined;
+            trigger = Undefined;
             return false;
         }
     }

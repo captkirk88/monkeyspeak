@@ -78,7 +78,7 @@ namespace Monkeyspeak
 
         public string GetValue(AbstractLexer lexer)
         {
-            return new string(lexer.Read(valueStart, valueLength).ToArray());
+            return new string(lexer.Read(valueStart, valueLength + 1).ToArray());
         }
 
         public override string ToString()
