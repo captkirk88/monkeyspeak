@@ -63,20 +63,14 @@ namespace Monkeyspeak.Editor.Syntax
                 Lexer lexer = new Lexer(MonkeyspeakRunner.Engine, new SStreamReader(memory));
                 lexer.Error += ex => AddMarker(line == -1 ? ex.SourcePosition : pos, editor, ex.Message);
                 lexer.Error += ex => Error?.Invoke(editor, ex, line == -1 ? ex.SourcePosition : pos, Severity.Error);
-                foreach (var token in lexer.Read())
+                foreach (var trigger in parser.Parse(lexer))
                 {
                     if (line != -1)
-                        pos = new SourcePosition(line, token.Position.Column, token.Position.RawPosition);
-                    if (token.Type == TokenType.TRIGGER)
+                        pos = new SourcePosition(line, trigger.SourcePosition.Column, trigger.SourcePosition.RawPosition);
+                    if (page != null && !page.Libraries.Any(lib => lib.Contains(trigger.Category, trigger.Id)))
                     {
-                        if (Trigger.TryParse(MonkeyspeakRunner.Engine, token.GetValue(lexer), out var trigger))
-                        {
-                            if (page != null && !page.Libraries.Any(lib => lib.Contains(trigger.Category, trigger.Id)))
-                            {
-                                AddMarker(line == -1 ? token.Position : pos, editor, severity: Severity.Warning);
-                                Warning?.Invoke(editor, new MonkeyspeakException($"{token.GetValue(lexer)} does not have a handler associated to it that could be found."), line == -1 ? token.Position : pos, Severity.Warning);
-                            }
-                        }
+                        AddMarker(line == -1 ? trigger.SourcePosition : pos, editor, severity: Severity.Warning);
+                        Warning?.Invoke(editor, new MonkeyspeakException($"{trigger} does not have a handler associated to it that could be found."), line == -1 ? trigger.SourcePosition : pos, Severity.Warning);
                     }
                 }
             }

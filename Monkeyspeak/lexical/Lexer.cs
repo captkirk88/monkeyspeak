@@ -530,7 +530,6 @@ namespace Monkeyspeak
                 c = (char)currentChar;
                 if (!char.IsNumber(c))
                 {
-                    length--;
                     break;
                 }
             }

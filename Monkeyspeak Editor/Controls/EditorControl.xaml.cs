@@ -87,6 +87,8 @@ namespace Monkeyspeak.Editor.Controls
             SearchPanel.Install(textEditor);
             SyntaxChecker.Install(this);
 
+            propertyGrid.ShowSearchBox = true;
+
             textEditor.TextArea.Caret.PositionChanged += (sender, e) =>
                 textEditor.TextArea.TextView.InvalidateLayer(KnownLayer.Background);
             textEditor.TextChanged += (sender, args) =>
