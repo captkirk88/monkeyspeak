@@ -4,13 +4,17 @@ using MahApps.Metro.Controls;
 using MahApps.Metro.Controls.Dialogs;
 using Monkeyspeak.Editor.Commands;
 using Monkeyspeak.Editor.Controls;
+using Monkeyspeak.Editor.Extensions;
 using Monkeyspeak.Editor.HelperClasses;
 using Monkeyspeak.Editor.Interfaces.Plugins;
 using Monkeyspeak.Editor.Logging;
 using Monkeyspeak.Editor.Notifications;
 using Monkeyspeak.Editor.Notifications.Controls;
 using Monkeyspeak.Editor.Plugins;
+using Monkeyspeak.Editor.Syntax;
 using Monkeyspeak.Editor.Utils;
+using Monkeyspeak.Extensions;
+using Monkeyspeak.Lexical;
 using Monkeyspeak.Logging;
 using Octokit;
 using System;
@@ -23,6 +27,8 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Shapes;
 using System.Windows.Threading;
 
 namespace Monkeyspeak.Editor
@@ -34,12 +40,14 @@ namespace Monkeyspeak.Editor
     {
         private ConsoleWindow console;
 
-        public MainWindow(params string[] files)
+        public MainWindow(params string[] args)
         {
             InitializeComponent();
             //Logger.SuppressSpam = true;
             console = new ConsoleWindow();
             ((MultiLogOutput)Logger.LogOutput).Add(new NotificationPanelLogOutput(Level.Error), new ConsoleWindowLogOutput(console));
+
+            Github.Initialize("captkirk88", "monkeyspeak");
 
             NotificationManager.Instance.Added += notif => this.Dispatcher.Invoke(() =>
             {
@@ -69,8 +77,21 @@ namespace Monkeyspeak.Editor
             {
                 if (!docs.Items.Contains(editor)) docs.Items.Add(editor);
                 ((MetroAnimatedSingleRowTabControl)editor.Parent).SelectedItem = editor;
+                editor.LineAdded += (text, line) =>
+                {
+                    Dispatcher.InvokeAsync(() =>
+                    {
+                        int.TryParse(line_count.Text, out var count);
+                        if (Trigger.TryParse(MonkeyspeakRunner.Engine, text, out var trigger))
+                            count++;
+                        line_count.Text = count.ToString();
+                    });
+                };
             });
             Editors.Instance.Removed += editor => this.Dispatcher.Invoke(() => docs.Items.Remove(editor));
+
+            SyntaxChecker.Warning += SyntaxChecker_Event;
+            SyntaxChecker.Error += SyntaxChecker_Event;
 
             foreach (var col in Enum.GetNames(typeof(AppColor)))
             {
@@ -98,20 +119,114 @@ namespace Monkeyspeak.Editor
 
             Intellisense.Enabled = settings.Intellisense;
 
-            // Load files passed into the program and from last session
-            if (files != null && files.Length > 0)
-                foreach (var file in files)
-                {
-                    if (!string.IsNullOrEmpty(file) && System.IO.File.Exists(file))
-                        new OpenFileCommand().Execute(file);
-                }
-
             if (!string.IsNullOrWhiteSpace(settings.LastSession))
                 foreach (var file in settings.LastSession.Split(','))
                 {
                     if (!string.IsNullOrEmpty(file) && System.IO.File.Exists(file))
                         new OpenFileCommand().Execute(file);
                 }
+
+            // Load files passed into the program and from last session
+            if (args != null && args.Length > 0)
+            {
+                string lastFile = null;
+                foreach (var arg in args)
+                {
+                    if (System.IO.File.Exists(arg)) // is a file
+                    {
+                        if (!string.IsNullOrEmpty(arg) && System.IO.File.Exists(arg))
+                            new OpenFileCommand().Execute(arg);
+                    }
+                    else
+                    {
+                        if (arg.StartsWith("-l") && int.TryParse(arg.RightOf(':'), out var line))
+                        {
+                            var editor = Editors.Instance.Selected;
+                            var docLine = editor.textEditor.Document.GetLineByNumber(line);
+                            if (docLine != null)
+                            {
+                                editor.textEditor.TextArea.Caret.Line = line;
+                                editor.textEditor.ScrollToLine(line);
+                                editor.textEditor.Select(docLine.Offset, docLine.Length);
+                            }
+                        }
+                    }
+                    lastFile = arg;
+                }
+            }
+        }
+
+        private void SyntaxChecker_Event(EditorControl editor, MonkeyspeakException ex, SourcePosition sourcePosition, SyntaxChecker.Severity severity)
+        {
+            if (severity == SyntaxChecker.Severity.Warning && !Properties.Settings.Default.ShowWarnings) return;
+            Brush brush = Brushes.White;
+            switch (severity)
+            {
+                case SyntaxChecker.Severity.Error:
+                    brush = Brushes.Red;
+                    break;
+
+                case SyntaxChecker.Severity.Warning:
+                    brush = Brushes.Yellow;
+                    break;
+
+                case SyntaxChecker.Severity.Info:
+                    brush = Brushes.LightBlue;
+                    break;
+            }
+            ListViewItem item = new ListViewItem
+            {
+                BorderBrush = brush,
+                BorderThickness = new Thickness(2)
+            };
+            item.MouseDoubleClick += (sender, e) =>
+            {
+                editor.textEditor.TextArea.Caret.Line = sourcePosition.Line;
+                var line = editor.textEditor.Document.GetLineByOffset(editor.textEditor.CaretOffset);
+                editor.textEditor.ScrollToLine(sourcePosition.Line);
+                editor.textEditor.Select(line.Offset, line.Length);
+                e.Handled = true;
+            };
+            item.PreviewKeyDown += (sender, e) =>
+            {
+                if (e.Key == Key.Delete)
+                {
+                    errors_list.Items.Remove(item);
+                    if (errors_list.Items.Count == 0)
+                        errors_flyout.IsOpen = false;
+                    e.Handled = true;
+                }
+            };
+            item.ToolTip = "Double click to go to error.  Select item and press DELETE key to remove.";
+
+            StackPanel content = new StackPanel()
+            {
+                Orientation = Orientation.Horizontal
+            };
+            TextBlock lineInfo = new TextBlock { Text = $"Line {sourcePosition.Line}, Col {sourcePosition.Column}" };
+            TextBlock source = new TextBlock { Text = System.IO.Path.GetFileName(editor.CurrentFilePath ?? editor.Title), Foreground = brush };
+            content.Children.Add(lineInfo);
+            content.Children.Add(new Rectangle
+            {
+                VerticalAlignment = VerticalAlignment.Stretch,
+                Width = 1,
+                Margin = new Thickness(2),
+                Stroke = Brushes.White,
+                Fill = Brushes.White
+            });
+            content.Children.Add(source);
+            content.Children.Add(new Rectangle
+            {
+                VerticalAlignment = VerticalAlignment.Stretch,
+                Width = 2,
+                Margin = new Thickness(2),
+                Stroke = Brushes.White,
+                Fill = Brushes.White
+            });
+            content.Children.Add(new TextBlock { Text = ex.Message, Foreground = brush });
+            item.Content = content;
+            errors_list.Items.Add(item);
+            if (severity == SyntaxChecker.Severity.Error) errors_flyout.IsOpen = true;
         }
 
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)
@@ -310,6 +425,11 @@ namespace Monkeyspeak.Editor
         private void mainButton_Click(object sender, RoutedEventArgs e)
         {
             ((Button)sender).ContextMenu.IsOpen = true;
+        }
+
+        private void errors_flyout_button_Click(object sender, RoutedEventArgs e)
+        {
+            errors_flyout.IsOpen = !errors_flyout.IsOpen;
         }
     }
 }

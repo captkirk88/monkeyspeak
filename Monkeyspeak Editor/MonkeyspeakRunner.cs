@@ -26,9 +26,20 @@ namespace Monkeyspeak.Editor
             page.LoadAllLibraries();
         }
 
-        public static void LoadString(string code)
+        public static void WarmUp()
+        {
+        }
+
+        public static Page LoadFile(string filePath)
+        {
+            page = Engine.LoadFromFile(filePath);
+            return page;
+        }
+
+        public static Page LoadString(string code)
         {
             page = Engine.LoadFromString(code);
+            return page;
         }
 
         public static void Run(int id = 0)

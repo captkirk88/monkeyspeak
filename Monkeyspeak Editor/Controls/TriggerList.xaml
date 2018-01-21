@@ -19,7 +19,7 @@
                     <GridViewColumn>
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
-                                <Controls:ContentControlEx Content="{Binding Content}" />
+                                <ContentControl Content="{Binding Content}" />
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                         <GridViewColumnHeader Content="Triggers" Click="GridViewColumnHeader_Click" />
@@ -27,7 +27,7 @@
                     <GridViewColumn>
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
-                                <Controls:ContentControlEx Content="{Binding DescriptionWithoutTrigger}" />
+                                <ContentControl Content="{Binding DescriptionWithoutTrigger}" />
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                         <GridViewColumnHeader Content="Description" Click="GridViewColumnHeader_Click" />

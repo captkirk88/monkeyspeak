@@ -154,5 +154,17 @@ namespace Monkeyspeak.Editor.Properties {
                 this["OptionsSplitterPosition"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool ShowWarnings {
+            get {
+                return ((bool)(this["ShowWarnings"]));
+            }
+            set {
+                this["ShowWarnings"] = value;
+            }
+        }
     }
 }

@@ -17,9 +17,15 @@ another Variable, words, or numbers.  You cannot put a Variable Table inside ano
 Maybe in the future.  There is only one way to loop through a table and that is by 
 using the flow trigger:
 
-`(6:250) for each entry in table % put it into %,`
+`(6:250) for each entry in table %myTable put it into %entry,`
 
-Literally spells it out for you what it does.
+Wherever you can put a variable, you can put a variable table:
+
+```
+(5:250) create a table as %myTable.
+(5:251) with table %myTable put 123 in it at key {myNumber}.
+(5:102) print {%myTable[myNumber]} to the log.
+```
 
 #### Next Up
 > :book: [Strings](Strings.md)

@@ -522,19 +522,18 @@ namespace Monkeyspeak
 
             char c = (char)currentChar;
             if (!CheckIsDigit(c)) return Token.None;
-            while (char.IsDigit(c))
+            while (CheckIsDigit(c))
             {
                 if (!CheckEOF(currentChar)) return Token.None;
                 Next();
                 length++;
                 c = (char)currentChar;
-                if (!char.IsDigit(c))
+                if (!char.IsNumber(c))
                 {
                     length--;
                     break;
                 }
             }
-            //CheckIsDigit((char)LookBack(1));
             return new Token(TokenType.TRIGGER, startPos, length, sourcePos);
         }
 

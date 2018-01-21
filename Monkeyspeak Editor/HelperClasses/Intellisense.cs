@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -26,27 +27,26 @@ namespace Monkeyspeak.Editor.HelperClasses
         private static CompletionWindow triggerCompletionWindow;
         private static CompletionWindow variableCompletionWindow;
 
-        private static List<TriggerCompletionData> triggerCompletions = new List<TriggerCompletionData>();
+        private static ObservableCollection<TriggerCompletionData> triggerCompletions = new ObservableCollection<TriggerCompletionData>();
 
         private static Page page;
 
         public static bool Enabled { get; set; }
-
-        public static void InitializeTriggerListCompletion()
-        {
-            foreach (var lib in MonkeyspeakRunner.CurrentPage.Libraries)
-            {
-                foreach (var trigger in lib.Handlers.Select(handler => handler.Key))
-                {
-                    triggerCompletions.Add(new TriggerCompletionData(MonkeyspeakRunner.CurrentPage, lib, trigger));
-                }
-            }
-        }
+        public static ObservableCollection<TriggerCompletionData> TriggerCompletions { get => triggerCompletions; }
 
         public static void GenerateTriggerListCompletion(EditorControl editor)
         {
+            if (TriggerCompletions.Count == 0)
+            {
+                foreach (var lib in MonkeyspeakRunner.CurrentPage.Libraries.OrderByDescending(l => l.GetType().Name))
+                {
+                    foreach (var kv in lib.Handlers.OrderBy(kv => kv.Key.Id))
+                    {
+                        triggerCompletions.Add(new TriggerCompletionData(MonkeyspeakRunner.CurrentPage, lib, kv.Key));
+                    }
+                }
+            }
             if (!Enabled || editor == null) return;
-            if (triggerCompletions.Count == 0) InitializeTriggerListCompletion();
             if (triggerCompletionWindow != null)
             {
                 triggerCompletionWindow?.Close();
@@ -57,7 +57,8 @@ namespace Monkeyspeak.Editor.HelperClasses
             triggerCompletionWindow = new CompletionWindow(textEditor.TextArea)
             {
                 CloseAutomatically = false,
-                CloseWhenCaretAtBeginning = true
+                CloseWhenCaretAtBeginning = true,
+                Background = ThemeHelper.ToThemeBackground()
             };
             Style windowStyle = new Style(typeof(CompletionWindow), Application.Current.MainWindow.Style);
             windowStyle.Setters.Add(new Setter(CompletionWindow.WindowStyleProperty, WindowStyle.None));
@@ -66,10 +67,18 @@ namespace Monkeyspeak.Editor.HelperClasses
             triggerCompletionWindow.Style = windowStyle;
             var data = triggerCompletionWindow.CompletionList.CompletionData;
             var line = selected.CurrentLine.Trim(' ', '\t', '\n');
-            foreach (var tc in triggerCompletions.Where(tc => tc.Text.IndexOf(line, StringComparison.InvariantCultureIgnoreCase) >= 0 || line.CompareTo(tc.Text) == 0))
+            foreach (var tc in triggerCompletions
+                .Where(tc => tc.Text.IndexOf(line, StringComparison.InvariantCultureIgnoreCase) >= 0 || line.CompareTo(tc.Text) == 0)
+                .OrderBy(t => t.Trigger.Category))
             {
                 data.Add(tc);
             }
+
+            Style listBoxStyle = new Style(typeof(CompletionListBox), triggerCompletionWindow.CompletionList.ListBox.Style);
+            listBoxStyle.Setters.Add(new Setter(CompletionListBox.BackgroundProperty, ThemeHelper.ToThemeBackground()));
+            listBoxStyle.Setters.Add(new Setter(CompletionListBox.ForegroundProperty, ThemeHelper.ToThemeForeground()));
+            triggerCompletionWindow.CompletionList.ListBox.Style = listBoxStyle;
+
             triggerCompletionWindow.SizeToContent = SizeToContent.Width;
             if (data.Count > 0) triggerCompletionWindow.Show();
             triggerCompletionWindow.Closed += delegate

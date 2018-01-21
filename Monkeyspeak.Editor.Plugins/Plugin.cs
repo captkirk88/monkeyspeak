@@ -32,6 +32,12 @@ namespace Monkeyspeak.Editor.Plugins
         public abstract void Initialize();
 
         /// <summary>
+        /// Add your notifications in this method
+        /// </summary>
+        /// <param name="notificationManager">The notification manager.</param>
+        public abstract void AddNotifications(INotificationManager notificationManager);
+
+        /// <summary>
         /// Called when [editor selection changed].
         /// </summary>
         /// <param name="editor">The editor.</param>
