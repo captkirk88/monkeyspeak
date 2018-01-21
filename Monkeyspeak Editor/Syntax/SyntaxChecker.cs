@@ -61,7 +61,7 @@ namespace Monkeyspeak.Editor.Syntax
                 SourcePosition pos = new SourcePosition();
                 Parser parser = new Parser(MonkeyspeakRunner.Engine);
                 Lexer lexer = new Lexer(MonkeyspeakRunner.Engine, new SStreamReader(memory));
-                lexer.Error += ex => AddMarker(line == -1 ? ex.SourcePosition : pos, editor, ex.Message);
+                //lexer.Error += ex => AddMarker(line == -1 ? ex.SourcePosition : pos, editor, ex.Message);
                 lexer.Error += ex => Error?.Invoke(editor, ex, line == -1 ? ex.SourcePosition : pos, Severity.Error);
                 foreach (var trigger in parser.Parse(lexer))
                 {
@@ -69,7 +69,7 @@ namespace Monkeyspeak.Editor.Syntax
                         pos = new SourcePosition(line, trigger.SourcePosition.Column, trigger.SourcePosition.RawPosition);
                     if (page != null && !page.Libraries.Any(lib => lib.Contains(trigger.Category, trigger.Id)))
                     {
-                        AddMarker(line == -1 ? trigger.SourcePosition : pos, editor, severity: Severity.Warning);
+                        //AddMarker(line == -1 ? trigger.SourcePosition : pos, editor, severity: Severity.Warning);
                         Warning?.Invoke(editor, new MonkeyspeakException($"{trigger} does not have a handler associated to it that could be found."), line == -1 ? trigger.SourcePosition : pos, Severity.Warning);
                     }
                 }
