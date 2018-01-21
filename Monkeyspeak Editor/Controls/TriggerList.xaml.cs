@@ -35,9 +35,8 @@ namespace Monkeyspeak.Editor.Controls
             trigger_view.ItemsSource = Triggers;
         }
 
-        public void Add(Page page, Trigger trigger, TriggerHandler handler, BaseLibrary lib)
+        public void Add(TriggerCompletionData data)
         {
-            var data = new TriggerCompletionData(page, lib, trigger);
             Triggers.Add(data);
         }
 
@@ -54,16 +53,13 @@ namespace Monkeyspeak.Editor.Controls
 
         private void UserControl_Loaded(object sender, RoutedEventArgs e)
         {
-            this.Dispatcher.Invoke(() =>
+            foreach (var lib in MonkeyspeakRunner.CurrentPage.Libraries.OrderByDescending(l => l.GetType().Name))
             {
-                foreach (var lib in MonkeyspeakRunner.CurrentPage.Libraries)
+                foreach (var kv in lib.Handlers.Where(kv => kv.Key.Category == TriggerCategory).OrderBy(kv => kv.Key.Id))
                 {
-                    foreach (var kv in lib.Handlers.Where(h => h.Key.Category == TriggerCategory))
-                    {
-                        Add(page, kv.Key, kv.Value, lib);
-                    }
+                    Add(new TriggerCompletionData(MonkeyspeakRunner.CurrentPage, lib, kv.Key));
                 }
-            });
+            }
         }
 
         private ListSortDirection _lastDirection = ListSortDirection.Ascending;
@@ -71,6 +67,7 @@ namespace Monkeyspeak.Editor.Controls
 
         private void GridViewColumnHeader_Click(object sender, RoutedEventArgs e)
         {
+            return; // broken as of right now
             ListSortDirection direction;
             GridViewColumnHeader colHeader = (GridViewColumnHeader)e.OriginalSource;
             if (colHeader.Role == GridViewColumnHeaderRole.Padding) return;

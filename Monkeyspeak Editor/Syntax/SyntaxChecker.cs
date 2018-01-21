@@ -22,6 +22,10 @@ namespace Monkeyspeak.Editor.Syntax
         private static Dictionary<EditorControl, ITextMarkerService> textMarkers = new Dictionary<EditorControl, ITextMarkerService>();
         private static Page page;
 
+        public static event Action<EditorControl> PerformingOperation;
+
+        public static event Action<EditorControl, MonkeyspeakException, SourcePosition, Severity> Error, Warning, Info;
+
         public static void Install(EditorControl editor)
         {
             var textEditor = editor.textEditor;
@@ -36,6 +40,8 @@ namespace Monkeyspeak.Editor.Syntax
             textMarkers.Add(editor, textMarkerService);
 
             page = MonkeyspeakRunner.CurrentPage;
+
+            editor.LineAdded += (text, line) => Check(editor, line, text);
         }
 
         private static void Editor_Unloaded(object sender, System.Windows.RoutedEventArgs e)
@@ -44,52 +50,36 @@ namespace Monkeyspeak.Editor.Syntax
             textMarkers.Remove((EditorControl)sender);
         }
 
-        public static void Check(EditorControl editor)
+        public static void Check(EditorControl editor, int line = -1, string text = null)
         {
             ClearAllMarkers(editor);
-            var text = editor.textEditor.Text;
+            PerformingOperation?.Invoke(editor);
+            if (line == -1) text = editor.textEditor.Text;
             if (string.IsNullOrWhiteSpace(text)) return;
             using (var memory = new MemoryStream(Encoding.UTF8.GetBytes(text)))
             {
+                SourcePosition pos = new SourcePosition();
                 Parser parser = new Parser(MonkeyspeakRunner.Engine);
                 Lexer lexer = new Lexer(MonkeyspeakRunner.Engine, new SStreamReader(memory));
-                lexer.Error += ex => AddMarker(ex.SourcePosition, editor, ex.Message);
+                lexer.Error += ex => AddMarker(line == -1 ? ex.SourcePosition : pos, editor, ex.Message);
+                lexer.Error += ex => Error?.Invoke(editor, ex, line == -1 ? ex.SourcePosition : pos, Severity.Error);
                 foreach (var token in lexer.Read())
                 {
+                    if (line != -1)
+                        pos = new SourcePosition(line, token.Position.Column, token.Position.RawPosition);
                     if (token.Type == TokenType.TRIGGER)
                     {
-                        var trigger = Trigger.Parse(MonkeyspeakRunner.Engine, token.GetValue(lexer));
-                        if (trigger != Trigger.Undefined)
+                        if (Trigger.TryParse(MonkeyspeakRunner.Engine, token.GetValue(lexer), out var trigger))
                         {
                             if (page != null && !page.Libraries.Any(lib => lib.Contains(trigger.Category, trigger.Id)))
                             {
-                                AddMarker(token, editor, $"{trigger} does not have a handler associated to it that could be found.", Severity.Warning);
+                                AddMarker(line == -1 ? token.Position : pos, editor, severity: Severity.Warning);
+                                Warning?.Invoke(editor, new MonkeyspeakException($"{token.GetValue(lexer)} does not have a handler associated to it that could be found."), line == -1 ? token.Position : pos, Severity.Warning);
                             }
                         }
                     }
                 }
             }
-        }
-
-        public static bool MouseHover(EditorControl editor, MouseEventArgs e)
-        {
-            var pos = editor.textEditor.GetPositionFromPoint(Mouse.GetPosition(editor.textEditor));
-            bool inDocument = pos.HasValue;
-            if (inDocument)
-            {
-                TextLocation logicalPosition = pos.Value.Location;
-                int offset = editor.textEditor.Document.GetOffset(logicalPosition);
-
-                var markerAtOffset = textMarkers[editor].TextMarkers.FirstOrDefault(marker => marker.StartOffset >= offset && marker.EndOffset <= offset);
-                if (markerAtOffset != null && markerAtOffset.ToolTip != null)
-                {
-                    ToolTipManager.Target = editor.textEditor;
-                    ToolTipManager.Add(markerAtOffset.ToolTip);
-                    e.Handled = true;
-                    return true;
-                }
-            }
-            return false;
         }
 
         private static void AddMarker(Token token, EditorControl editor, string message = null, Severity severity = Severity.Error)
@@ -109,7 +99,7 @@ namespace Monkeyspeak.Editor.Syntax
 
                 case Severity.Warning:
                     marker.MarkerColor = Colors.OrangeRed;
-                    marker.MarkerTypes = TextMarkerTypes.NormalUnderline;
+                    marker.MarkerTypes = TextMarkerTypes.DottedUnderline;
                     break;
 
                 case Severity.Info:
@@ -143,7 +133,7 @@ namespace Monkeyspeak.Editor.Syntax
 
                 case Severity.Warning:
                     marker.MarkerColor = Colors.Orange;
-                    marker.MarkerTypes = TextMarkerTypes.NormalUnderline;
+                    marker.MarkerTypes = TextMarkerTypes.DottedUnderline;
                     break;
 
                 case Severity.Info:

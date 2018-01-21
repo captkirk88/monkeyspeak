@@ -72,6 +72,19 @@
                     </ListView>
                 </ScrollViewer>
             </Controls:Flyout>
+
+            <Controls:Flyout x:Name="errors_flyout" Position="Bottom" TitleVisibility="Visible" MaxHeight="300">
+                <ScrollViewer x:Name="errors_flyout_scroll">
+                    <ListView x:Name="errors_list">
+                        <ListView.ItemContainerStyle>
+                            <Style TargetType="{x:Type ListViewItem}">
+                                <Setter Property="Background" Value="Transparent" />
+                                <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+                            </Style>
+                        </ListView.ItemContainerStyle>
+                    </ListView>
+                </ScrollViewer>
+            </Controls:Flyout>
         </Controls:FlyoutsControl>
     </Controls:MetroWindow.Flyouts>
 
@@ -138,6 +151,7 @@
             <RowDefinition Height="175"
                            MinHeight="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Grid}}, Path=MinHeight}"
                            MaxHeight="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Grid}}, Path=ActualHeight}" />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
         <Controls:MetroAnimatedSingleRowTabControl x:Name="docs" Width="Auto" Height="Auto" Padding="10,10,10,10"
                                     Controls:TabControlHelper.IsUnderlined="True"
@@ -169,5 +183,19 @@
                 <ctr:TriggerList TriggerCategory="Flow" TriggerSelected="TriggerList_SelectionChanged" />
             </Controls:MetroTabItem>
         </Controls:MetroAnimatedSingleRowTabControl>
+
+        <StatusBar Grid.Row="3">
+            <StatusBarItem>
+                <Button x:Name="errors_flyout_button" Click="errors_flyout_button_Click">
+                    <iconPacks:Material Kind="Bug" />
+                </Button>
+            </StatusBarItem>
+            <StatusBarItem HorizontalAlignment="Right">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock>Triggers:</TextBlock>
+                    <TextBlock x:Name="line_count" />
+                </StackPanel>
+            </StatusBarItem>
+        </StatusBar>
     </Grid>
 </Controls:MetroWindow>

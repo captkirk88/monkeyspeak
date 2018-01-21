@@ -103,8 +103,6 @@ namespace Monkeyspeak.Utils
             }
             catch (ReflectionTypeLoadException e)
             {
-                foreach (var loaderEx in e.LoaderExceptions)
-                    loaderEx.LogMessage(Level.Debug);
                 return e.Types.Where(t => t != null);
             }
             return types;
@@ -123,10 +121,7 @@ namespace Monkeyspeak.Utils
             {
                 if (TryLoadAssemblyFromFile(asmFile, out var asm))
                 {
-                    if (all.AddIfUnique(asm))
-                    {
-                        Logger.Debug($"Caching: {asm.GetName().Name}");
-                    }
+                    all.AddIfUnique(asm);
                 }
             }
 
@@ -135,7 +130,7 @@ namespace Monkeyspeak.Utils
                 // avoid all the Microsoft and System assemblies.  All assesmblies it is looking for should be in the local path
                 if (asm.GlobalAssemblyCache) continue;
 
-                if (all.AddIfUnique(asm)) Logger.Debug($"Caching: {asm.GetName().Name}");
+                all.AddIfUnique(asm);
             }
             return all;
         }

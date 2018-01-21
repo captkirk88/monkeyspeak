@@ -10,9 +10,9 @@ using Monkeyspeak.Logging;
 
 namespace Monkeyspeak.Editor.Extensions
 {
-    public static class ThemeExtensions
+    public static class ThemeHelper
     {
-        public static Brush ToThemeBackground(this Brush brush)
+        public static Brush ToThemeBackground()
         {
             var theme = (Application.Current.MainWindow as MainWindow).GetTheme();
             if (theme == AppTheme.Dark)
@@ -20,7 +20,7 @@ namespace Monkeyspeak.Editor.Extensions
             else return Brushes.White;
         }
 
-        public static Brush ToThemeForeground(this Brush brush)
+        public static Brush ToThemeForeground()
         {
             var theme = (Application.Current.MainWindow as MainWindow).GetTheme();
             if (theme == AppTheme.Dark)

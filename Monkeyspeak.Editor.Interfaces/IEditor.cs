@@ -61,6 +61,14 @@ namespace Monkeyspeak.Editor
         int CaretLine { get; }
 
         /// <summary>
+        /// Gets the caret column, requires editor to have focus or 0.
+        /// </summary>
+        /// <value>
+        /// The caret column.
+        /// </value>
+        int CaretColumn { get; }
+
+        /// <summary>
         /// Gets a value indicating whether the editor has changes.
         /// </summary>
         /// <value>
@@ -119,13 +127,13 @@ namespace Monkeyspeak.Editor
         /// Adds the text at the end of the current editor.
         /// </summary>
         /// <param name="text">The text.</param>
-        void AddLine(string text);
+        void AddLine(string text, bool allowUndo = true);
 
         /// <summary>
         /// Adds the text at the end of the current editor.
         /// </summary>
         /// <param name="text">The text.</param>
-        void AddLine(string text, Color color);
+        void AddLine(string text, Color color, bool allowUndo = true);
 
         /// <summary>
         /// Sets the text color by navigating to the specified line and setting the color between the start and end position.

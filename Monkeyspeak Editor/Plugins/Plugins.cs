@@ -1,4 +1,5 @@
 ﻿using Monkeyspeak.Editor.Interfaces.Plugins;
+using Monkeyspeak.Editor.Notifications;
 using Monkeyspeak.Logging;
 using Monkeyspeak.Utils;
 using System;
@@ -8,6 +9,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 
 namespace Monkeyspeak.Editor.Plugins
 {
@@ -73,15 +75,19 @@ namespace Monkeyspeak.Editor.Plugins
         {
             foreach (var plugin in plugins)
             {
-                try
+                Application.Current.Dispatcher.Invoke(() =>
                 {
-                    plugin.Initialize();
-                }
-                catch (Exception ex)
-                {
-                    Logger.Error<Plugin>($"Failed to initialize {plugin.Name}");
-                    ex.Log<Plugin>();
-                }
+                    try
+                    {
+                        plugin.Initialize();
+                        plugin.AddNotifications(NotificationManager.Instance);
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.Error<Plugin>($"Failed to initialize {plugin.Name}");
+                        ex.Log<Plugin>();
+                    }
+                });
             }
         }
 
@@ -89,14 +95,17 @@ namespace Monkeyspeak.Editor.Plugins
         {
             foreach (var plugin in plugins)
             {
-                try
+                Application.Current.Dispatcher.Invoke(() =>
                 {
-                    plugin.OnEditorSaveCompleted(editor);
-                }
-                catch (Exception ex)
-                {
-                    ex.Log<Plugin>();
-                }
+                    try
+                    {
+                        plugin.OnEditorSaveCompleted(editor);
+                    }
+                    catch (Exception ex)
+                    {
+                        ex.Log<Plugin>();
+                    }
+                });
             }
         }
 
@@ -104,14 +113,17 @@ namespace Monkeyspeak.Editor.Plugins
         {
             foreach (var plugin in plugins)
             {
-                try
+                Application.Current.Dispatcher.Invoke(() =>
                 {
-                    plugin.OnEditorSelectionChanged(editor);
-                }
-                catch (Exception ex)
-                {
-                    ex.Log<Plugin>();
-                }
+                    try
+                    {
+                        plugin.OnEditorSelectionChanged(editor);
+                    }
+                    catch (Exception ex)
+                    {
+                        ex.Log<Plugin>();
+                    }
+                });
             }
         }
 
@@ -119,14 +131,17 @@ namespace Monkeyspeak.Editor.Plugins
         {
             foreach (var plugin in plugins)
             {
-                try
-                {
-                    plugin.OnEditorTextChanged(editor);
-                }
-                catch (Exception ex)
-                {
-                    ex.Log<Plugin>();
-                }
+                Application.Current.Dispatcher.Invoke(() =>
+                    {
+                        try
+                        {
+                            plugin.OnEditorTextChanged(editor);
+                        }
+                        catch (Exception ex)
+                        {
+                            ex.Log<Plugin>();
+                        }
+                    });
             }
         }
 
@@ -134,14 +149,17 @@ namespace Monkeyspeak.Editor.Plugins
         {
             foreach (var plugin in plugins)
             {
-                try
+                Application.Current.Dispatcher.Invoke(() =>
                 {
-                    plugin.Unload();
-                }
-                catch (Exception ex)
-                {
-                    ex.Log<Plugin>();
-                }
+                    try
+                    {
+                        plugin.Unload();
+                    }
+                    catch (Exception ex)
+                    {
+                        ex.Log<Plugin>();
+                    }
+                });
             }
         }
     }

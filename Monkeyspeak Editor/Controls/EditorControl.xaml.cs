@@ -74,6 +74,8 @@ namespace Monkeyspeak.Editor.Controls
 
         public event PropertyChangedEventHandler PropertyChanged;
 
+        public event Action<string, int> LineAdded;
+
         public EditorControl()
         {
             Logger.DebugEnabled = true;
@@ -111,8 +113,6 @@ namespace Monkeyspeak.Editor.Controls
                 if (!string.IsNullOrWhiteSpace(e.Text))
                 {
                     Intellisense.TextEntered(e);
-                    if (e.Text == " " || e.Text == "\n")
-                        SyntaxChecker.Check(this);
                 }
             };
             textEditor.KeyDown += (sender, e) =>
@@ -124,8 +124,7 @@ namespace Monkeyspeak.Editor.Controls
             textEditor.PreviewMouseHover += (sender, e) =>
             {
                 ToolTipManager.Clear();
-                if (!SyntaxChecker.MouseHover(this, e))
-                    Intellisense.MouseHover(this, sender, e);
+                Intellisense.MouseHover(this, sender, e);
             };
             textEditor.PreviewMouseMove += (sender, e) =>
             {
@@ -161,8 +160,8 @@ namespace Monkeyspeak.Editor.Controls
 
         private void PropertyGrid_PreparePropertyItem(object sender, Xceed.Wpf.Toolkit.PropertyGrid.PropertyItemEventArgs e)
         {
-            e.PropertyItem.Background = e.PropertyItem.Background.ToThemeBackground();
-            e.PropertyItem.Foreground = e.PropertyItem.Background.ToThemeForeground();
+            e.PropertyItem.Background = ThemeHelper.ToThemeBackground();
+            e.PropertyItem.Foreground = ThemeHelper.ToThemeForeground();
         }
 
         private void FileWatcher_Raised(object sender, FileSystemEventArgs e)
@@ -231,6 +230,11 @@ namespace Monkeyspeak.Editor.Controls
             get => textEditor.TextArea.Caret.Line;
         }
 
+        public int CaretColumn
+        {
+            get => textEditor.TextArea.Caret.Column;
+        }
+
         public bool HasChanges { get => _hasChanges; set => SetField(ref _hasChanges, value); }
 
         public void InsertAtCaretLine(string text)
@@ -244,27 +248,30 @@ namespace Monkeyspeak.Editor.Controls
             textEditor.Document.Insert(lineOffset, text + "\n", AnchorMovementType.AfterInsertion);
             EndUndoGroup();
             textEditor.CaretOffset = lineOffset;
+            LineAdded?.Invoke(text, textEditor.Document.GetLineByOffset(lineOffset).LineNumber);
         }
 
-        public void AddLine(string text)
+        public void AddLine(string text, bool allowUndo = true)
         {
             text = text.Replace(Environment.NewLine, "\n");
             var lastLine = textEditor.Document.Lines[textEditor.LineCount - 1];
-            BeginUndoGroup();
+            if (allowUndo) BeginUndoGroup();
             textEditor.Document.Replace(lastLine.Offset, 0, text + "\n", OffsetChangeMappingType.KeepAnchorBeforeInsertion);
-            EndUndoGroup();
+            if (allowUndo) EndUndoGroup();
             textEditor.CaretOffset = lastLine.Offset;
+            LineAdded?.Invoke(text, lastLine.LineNumber);
         }
 
-        public void AddLine(string text, Color color)
+        public void AddLine(string text, Color color, bool allowUndo = true)
         {
             var lastLine = textEditor.Document.Lines[textEditor.LineCount - 1];
             text = text.Replace(Environment.NewLine, "\n");
-            BeginUndoGroup();
+            if (allowUndo) BeginUndoGroup();
             textEditor.Document.Replace(lastLine.Offset, 0, text + "\n", OffsetChangeMappingType.KeepAnchorBeforeInsertion);
             SetTextColor(color, textEditor.LineCount, 0, text.Length);
-            EndUndoGroup();
+            if (allowUndo) EndUndoGroup();
             textEditor.CaretOffset = lastLine.Offset;
+            LineAdded?.Invoke(text, lastLine.LineNumber);
         }
 
         /// <summary>
@@ -317,6 +324,8 @@ namespace Monkeyspeak.Editor.Controls
             }
         }
 
+        public int LineCount { get => textEditor.Document.LineCount; }
+
         public int WordCount => textEditor.Text.Split(' ').Length;
 
         public string CurrentLine => Lines[textEditor.TextArea.Caret.Line - 1];
@@ -368,17 +377,20 @@ namespace Monkeyspeak.Editor.Controls
                 CurrentFilePath = dlg.FileName;
                 if (System.IO.Path.GetExtension(CurrentFilePath) == ".msx")
                 {
+                    Plugins.Plugins.AllEnabled = false;
                     var page = MonkeyspeakRunner.LoadCompiled(CurrentFilePath);
                     foreach (var trigger in page.Triggers)
                     {
-                        AddLine(trigger.RebuildToString(page.Engine.Options));
+                        AddLine(trigger.RebuildToString(page.Engine.Options), false);
                     }
+                    textEditor.SyntaxHighlighting = HighlightingManager.Instance.GetDefinitionByExtension(System.IO.Path.GetExtension(CurrentFilePath)) ??
+                            HighlightingManager.Instance.GetDefinition("Monkeyspeak");
                 }
                 else
                 {
                     Plugins.Plugins.AllEnabled = false;
-                    textEditor.Load(CurrentFilePath);
-                    textEditor.Text = TextUtilities.NormalizeNewLines(textEditor.Text, "\n");
+                    foreach (var line in File.ReadAllLines(CurrentFilePath))
+                        AddLine(line, false);
                     textEditor.SyntaxHighlighting =
                             HighlightingManager.Instance.GetDefinitionByExtension(System.IO.Path.GetExtension(CurrentFilePath)) ??
                             HighlightingManager.Instance.GetDefinition("Monkeyspeak");
