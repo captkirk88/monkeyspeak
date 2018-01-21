@@ -20,6 +20,8 @@ namespace Monkeyspeak
         private int lineNo = 1, columnNo, rawPos, currentChar;
         private char varDeclSym, stringBeginSym, stringEndSym, lineCommentSym;
 
+        public event Action<MonkeyspeakException> Error;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="Lexer"/> class.
         /// </summary>
@@ -163,14 +165,6 @@ namespace Monkeyspeak
                     lastToken = token;
                     tokens.Enqueue(token);
                 }
-
-                if (tokens.Count >= 1000)
-                {
-                    while (tokens.Count > 1000)
-                    {
-                        yield return tokens.Dequeue();
-                    }
-                }
             }
             while (tokens.Count > 0) yield return tokens.Dequeue();
         }
@@ -203,67 +197,81 @@ namespace Monkeyspeak
             return currentChar == c;
         }
 
-        public override void CheckMatch(string str)
+        public override bool CheckMatch(string str)
         {
             var found = LookAheadToString(str.Length);
             if (found != str)
             {
-                throw new MonkeyspeakException($"Expected '{str}' but got '{found}'", CurrentSourcePosition);
+                Error?.Invoke(new MonkeyspeakException($"Expected '{str}' but got '{found}'", CurrentSourcePosition));
+                return false;
             }
             else
             {
                 Next(str.Length);
+                return true;
             }
         }
 
-        public override void CheckMatch(char c)
+        public override bool CheckMatch(char c)
         {
             if (currentChar != c)
             {
-                throw new MonkeyspeakException(String.Format("Expected '{0}' but got '{1}'", c.EscapeForCSharp(), ((char)currentChar).EscapeForCSharp()), CurrentSourcePosition);
+                Error?.Invoke(new MonkeyspeakException(String.Format("Expected '{0}' but got '{1}'", c.EscapeForCSharp(), ((char)currentChar).EscapeForCSharp()), CurrentSourcePosition));
+                return false;
             }
+            return true;
         }
 
-        public override void CheckMatch(int c)
+        public override bool CheckMatch(int c)
         {
             int input = currentChar;
             if (input != c)
             {
                 string inputChar = (input != -1) ? ((char)input).ToString(CultureInfo.InvariantCulture) : "END_OF_FILE";
-                throw new MonkeyspeakException($"Expected '{((char)c).EscapeForCSharp()}' but got '{inputChar}'", CurrentSourcePosition);
+                Error?.Invoke(new MonkeyspeakException($"Expected '{((char)c).EscapeForCSharp()}' but got '{inputChar}'", CurrentSourcePosition));
+                return false;
             }
+            return true;
         }
 
-        public void CheckMatch(char a, char b)
+        public bool CheckMatch(char a, char b)
         {
             if (a != b)
             {
-                throw new MonkeyspeakException($"Expected '{b.EscapeForCSharp()}' but got '{a.EscapeForCSharp()}'", CurrentSourcePosition);
+                Error?.Invoke(new MonkeyspeakException($"Expected '{b.EscapeForCSharp()}' but got '{a.EscapeForCSharp()}'", CurrentSourcePosition));
+                return false;
             }
+            return true;
         }
 
-        public void CheckMatch(int a, int b)
+        public bool CheckMatch(int a, int b)
         {
             if (a != b)
             {
-                throw new MonkeyspeakException($"Expected '{((char)b).EscapeForCSharp()}' but got '{((char)a).EscapeForCSharp()}'", CurrentSourcePosition);
+                Error?.Invoke(new MonkeyspeakException($"Expected '{((char)b).EscapeForCSharp()}' but got '{((char)a).EscapeForCSharp()}'", CurrentSourcePosition));
+                return false;
             }
+            return true;
         }
 
-        public override void CheckIsDigit(char c = '\0')
+        public override bool CheckIsDigit(char c = '\0')
         {
             if (!char.IsDigit(c))
             {
-                throw new MonkeyspeakException($"Expected number but got '{c.EscapeForCSharp()}'", CurrentSourcePosition);
+                Error?.Invoke(new MonkeyspeakException($"Expected number but got '{c.EscapeForCSharp()}'", CurrentSourcePosition));
+                return false;
             }
+            return true;
         }
 
-        public override void CheckEOF(int c)
+        public override bool CheckEOF(int c)
         {
             if (c == -1)
             {
-                throw new MonkeyspeakException("Unexpected end of file", CurrentSourcePosition);
+                Error?.Invoke(new MonkeyspeakException("Unexpected end of file", CurrentSourcePosition));
+                return false;
             }
+            return true;
         }
 
         private Token CreateToken(TokenType type)
@@ -436,7 +444,7 @@ namespace Monkeyspeak
             bool @decimal = false;
             while (char.IsDigit(c))
             {
-                CheckEOF(currentChar);
+                if (!CheckEOF(currentChar)) return Token.None;
                 Next();
                 length++;
                 c = (char)currentChar;
@@ -473,23 +481,26 @@ namespace Monkeyspeak
         private Token MatchString()
         {
             Next();
-            CheckMatch(stringBeginSym);
+            if (!CheckMatch(stringBeginSym)) return Token.None;
             var stringLenLimit = Engine.Options.StringLengthLimit;
             var sourcePos = CurrentSourcePosition;
             long startPos = reader.Position;
             int length = 0;
             while (true)
             {
-                CheckEOF(currentChar);
+                if (!CheckEOF(currentChar)) return Token.None;
                 if (length >= stringLenLimit)
-                    throw new MonkeyspeakException($"String exceeded limit or was not terminated with a '{stringEndSym}'", CurrentSourcePosition);
+                {
+                    Error?.Invoke(new MonkeyspeakException($"String exceeded limit or was not terminated with a '{stringEndSym}'", sourcePos));
+                    return Token.None;
+                }
                 Next();
                 length++;
                 if (LookAhead(1) == stringEndSym)
                     break;
             }
             Next(); // hit string end sym
-            CheckMatch(stringEndSym);
+            if (!CheckMatch(stringEndSym)) return Token.None;
             return new Token(TokenType.STRING_LITERAL, startPos, length, sourcePos);
         }
 
@@ -503,17 +514,17 @@ namespace Monkeyspeak
             long startPos = reader.Position;
             int length = 1;
             Next(); // trigger category
-            CheckIsDigit((char)currentChar);
+            if (!CheckIsDigit((char)currentChar)) return Token.None;
             Next(); // seperator
             length++;
-            CheckMatch(':');
+            if (!CheckMatch(':')) return Token.None;
             Next();
 
             char c = (char)currentChar;
-            CheckIsDigit(c);
+            if (!CheckIsDigit(c)) return Token.None;
             while (char.IsDigit(c))
             {
-                CheckEOF(currentChar);
+                if (!CheckEOF(currentChar)) return Token.None;
                 Next();
                 length++;
                 c = (char)currentChar;
@@ -535,7 +546,7 @@ namespace Monkeyspeak
             length++;
             var sourcePos = CurrentSourcePosition;
 
-            CheckMatch(varDeclSym);
+            if (!CheckMatch(varDeclSym)) return Token.None;
 
             Next();
             length++;
@@ -547,7 +558,7 @@ namespace Monkeyspeak
                    || currentChar == '$' || currentChar == '#'
                    || currentChar == '&')
             {
-                CheckEOF(currentChar);
+                if (!CheckEOF(currentChar)) return Token.None;
 
                 Next();
                 length++;
@@ -566,7 +577,7 @@ namespace Monkeyspeak
                        || currentChar == '$' || currentChar == '#'
                        || currentChar == '&')
                 {
-                    CheckEOF(currentChar);
+                    if (!CheckEOF(currentChar)) return Token.None;
 
                     Next();
                     length++;
@@ -575,14 +586,15 @@ namespace Monkeyspeak
                         break;
                     }
                 }
-                CheckMatch(']');
+                if (!CheckMatch(']')) return Token.None;
                 length++;
                 return new Token(TokenType.TABLE, startPos, length, CurrentSourcePosition);
             }
 
             if (currentChar == -1)
             {
-                throw new MonkeyspeakException("Unexpected end of file", sourcePos);
+                Error?.Invoke(new MonkeyspeakException("Unexpected end of file", CurrentSourcePosition));
+                return Token.None;
             }
 
             return new Token(TokenType.VARIABLE, startPos, length, CurrentSourcePosition);
@@ -599,7 +611,7 @@ namespace Monkeyspeak
                 {
                     if (currentChar == -1)
                     {
-                        throw new MonkeyspeakException("Unexpected end of file", CurrentSourcePosition);
+                        break;
                     }
                     Next(bcommentEnd.Length);
                 }
@@ -609,7 +621,7 @@ namespace Monkeyspeak
         private void SkipLineComment()
         {
             Next();
-            CheckMatch(lineCommentSym);
+            if (!CheckMatch(lineCommentSym)) return;
             char c = (char)LookAhead(1);
             while (true)
             {
@@ -620,7 +632,7 @@ namespace Monkeyspeak
                 if (c == '\n') break;
             }
             if (currentChar != -1)
-                CheckMatch('\n');
+                if (!CheckMatch('\n')) return;
         }
 
         public override SourcePosition CurrentSourcePosition => new SourcePosition(lineNo, columnNo, rawPos);

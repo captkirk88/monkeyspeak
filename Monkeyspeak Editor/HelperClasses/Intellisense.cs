@@ -11,8 +11,11 @@ using System.Windows.Media;
 using ICSharpCode.AvalonEdit.CodeCompletion;
 using ICSharpCode.AvalonEdit.Document;
 using MahApps.Metro;
+using MahApps.Metro.Controls;
 using Monkeyspeak.Editor.Controls;
+using Monkeyspeak.Editor.Extensions;
 using Monkeyspeak.Editor.Syntax;
+using Monkeyspeak.Editor.Utils;
 using Monkeyspeak.Lexical.Expressions;
 using Monkeyspeak.Utils;
 
@@ -23,11 +26,11 @@ namespace Monkeyspeak.Editor.HelperClasses
         private static CompletionWindow triggerCompletionWindow;
         private static CompletionWindow variableCompletionWindow;
 
-        private static ToolTip triggerDescToolTip;
-
         private static List<TriggerCompletionData> triggerCompletions = new List<TriggerCompletionData>();
 
         private static Page page;
+
+        public static bool Enabled { get; set; }
 
         public static void InitializeTriggerListCompletion()
         {
@@ -42,7 +45,7 @@ namespace Monkeyspeak.Editor.HelperClasses
 
         public static void GenerateTriggerListCompletion(EditorControl editor)
         {
-            if (editor == null) return;
+            if (!Enabled || editor == null) return;
             if (triggerCompletions.Count == 0) InitializeTriggerListCompletion();
             if (triggerCompletionWindow != null)
             {
@@ -54,7 +57,13 @@ namespace Monkeyspeak.Editor.HelperClasses
             triggerCompletionWindow = new CompletionWindow(textEditor.TextArea)
             {
                 CloseAutomatically = false,
+                CloseWhenCaretAtBeginning = true
             };
+            Style windowStyle = new Style(typeof(CompletionWindow), Application.Current.MainWindow.Style);
+            windowStyle.Setters.Add(new Setter(CompletionWindow.WindowStyleProperty, WindowStyle.None));
+            windowStyle.Setters.Add(new Setter(CompletionWindow.ResizeModeProperty, ResizeMode.NoResize));
+            windowStyle.Setters.Add(new Setter(CompletionWindow.BorderThicknessProperty, new Thickness(0)));
+            triggerCompletionWindow.Style = windowStyle;
             var data = triggerCompletionWindow.CompletionList.CompletionData;
             var line = selected.CurrentLine.Trim(' ', '\t', '\n');
             foreach (var tc in triggerCompletions.Where(tc => tc.Text.IndexOf(line, StringComparison.InvariantCultureIgnoreCase) >= 0 || line.CompareTo(tc.Text) == 0))
@@ -75,7 +84,8 @@ namespace Monkeyspeak.Editor.HelperClasses
         /// <param name="e">The <see cref="TextCompositionEventArgs"/> instance containing the event data.</param>
         public static void TextEntered(TextCompositionEventArgs e)
         {
-            if (e.Text.Length > 0 && triggerCompletionWindow != null)
+            if (!Enabled) return;
+            if (triggerCompletionWindow != null)
             {
                 triggerCompletionWindow.CompletionList.RequestInsertion(e);
             }
@@ -83,57 +93,31 @@ namespace Monkeyspeak.Editor.HelperClasses
 
         public static bool MouseHover(EditorControl editor, object sender, MouseEventArgs e)
         {
-            if (triggerDescToolTip == null) triggerDescToolTip = new ToolTip() { Content = new StackPanel() { Orientation = Orientation.Vertical } };
+            if (!Enabled) return false;
 
-            var selected = editor;
-            var textEditor = selected.textEditor;
+            var textEditor = editor.textEditor;
 
             var textArea = textEditor.TextArea;
-            var pos = editor.textEditor.TextArea.TextView.GetPositionFloor(e.GetPosition(editor.textEditor.TextArea.TextView) + editor.textEditor.TextArea.TextView.ScrollOffset);
+            var pos = textEditor.GetPositionFromPoint(Mouse.GetPosition(textEditor));
             bool inDocument = pos.HasValue;
             if (inDocument)
             {
                 var line = pos.Value.Line;
-                var offset = textEditor.Document.GetOffset(line, 1);
-                if (offset >= textEditor.Document.TextLength) offset--;
-                if (offset <= 0) offset++;
-                var textAtOffset = textEditor.Document.GetText(textEditor.Document.GetLineByNumber(line));
+                var lineContents = textEditor.Document.GetLineByNumber(line);
+                var offset = lineContents.Offset;
+                var textAtOffset = textEditor.Document.GetText(lineContents).Trim(' ', '\t', '\n');
                 if (string.IsNullOrWhiteSpace(textAtOffset))
                 {
-                    triggerDescToolTip.IsOpen = false;
+                    ToolTipManager.Opened = false;
                     return false;
                 }
                 var completionData = new TriggerCompletionData(MonkeyspeakRunner.CurrentPage, textAtOffset);
-                if (completionData.IsValid)
-                {
-                    triggerDescToolTip.IsOpen = false;
-                    return false;
-                }
-                var tooltipContent = (StackPanel)triggerDescToolTip.Content;
-                tooltipContent.Children.Clear();
-                if (completionData.Description is UIElement)
-                    tooltipContent.Children.Add((UIElement)completionData.Description);
-                else tooltipContent.Children.Add(new TextBlock { Text = (string)completionData.Description });
-                triggerDescToolTip.PlacementTarget = selected;
-                triggerDescToolTip.IsOpen = true;
+                ToolTipManager.Add(completionData.Description);
+                ToolTipManager.Target = editor;
                 e.Handled = true;
                 return true;
             }
             return false;
-        }
-
-        public static void MouseMove(EditorControl editor, MouseEventArgs e)
-        {
-            if (triggerDescToolTip != null) triggerDescToolTip.IsOpen = false;
-        }
-
-        public static void AddToToolTip(object content)
-        {
-            if (triggerDescToolTip != null)
-            {
-                var tooltipContent = (StackPanel)triggerDescToolTip.Content;
-                tooltipContent.Children.Add(content is UIElement ? (UIElement)content : new TextBlock { Text = (string)content });
-            }
         }
 
         public static void Close()
@@ -142,8 +126,6 @@ namespace Monkeyspeak.Editor.HelperClasses
                 triggerCompletionWindow.Close();
             if (variableCompletionWindow != null)
                 variableCompletionWindow.Close();
-            if (triggerDescToolTip != null)
-                triggerDescToolTip.IsOpen = false;
         }
     }
 }

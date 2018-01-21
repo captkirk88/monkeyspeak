@@ -11,6 +11,7 @@ using System.Windows.Media;
 using ICSharpCode.AvalonEdit;
 using ICSharpCode.AvalonEdit.Document;
 using Monkeyspeak.Editor.Controls;
+using Monkeyspeak.Editor.Utils;
 using Monkeyspeak.Lexical;
 using Monkeyspeak.Logging;
 
@@ -20,7 +21,6 @@ namespace Monkeyspeak.Editor.Syntax
     {
         private static Dictionary<EditorControl, ITextMarkerService> textMarkers = new Dictionary<EditorControl, ITextMarkerService>();
         private static Page page;
-        private static ToolTip syntaxErrorToolTip;
 
         public static void Install(EditorControl editor)
         {
@@ -53,64 +53,53 @@ namespace Monkeyspeak.Editor.Syntax
             {
                 Parser parser = new Parser(MonkeyspeakRunner.Engine);
                 Lexer lexer = new Lexer(MonkeyspeakRunner.Engine, new SStreamReader(memory));
-                try
+                lexer.Error += ex => AddMarker(ex.SourcePosition, editor, ex.Message);
+                foreach (var token in lexer.Read())
                 {
-                    foreach (var trigger in parser.Parse(lexer))
+                    if (token.Type == TokenType.TRIGGER)
                     {
-                        if (page != null && !page.Libraries.Any(lib => lib.Contains(trigger.Category, trigger.Id)))
+                        var trigger = Trigger.Parse(MonkeyspeakRunner.Engine, token.GetValue(lexer));
+                        if (trigger != Trigger.Undefined)
                         {
-                            AddMarker(lexer.CurrentSourcePosition, editor, $"{trigger} does not have a handler associated to it that could be found.", Severity.Warning);
+                            if (page != null && !page.Libraries.Any(lib => lib.Contains(trigger.Category, trigger.Id)))
+                            {
+                                AddMarker(token, editor, $"{trigger} does not have a handler associated to it that could be found.", Severity.Warning);
+                            }
                         }
                     }
-                }
-                catch (MonkeyspeakException ex)
-                {
-                    var pos = ex.SourcePosition;
-                    AddMarker(ex.SourcePosition, editor, ex.Message);
                 }
             }
         }
 
         public static bool MouseHover(EditorControl editor, MouseEventArgs e)
         {
-            var pos = editor.textEditor.TextArea.TextView.GetPositionFloor(e.GetPosition(editor.textEditor.TextArea.TextView) + editor.textEditor.TextArea.TextView.ScrollOffset);
+            var pos = editor.textEditor.GetPositionFromPoint(Mouse.GetPosition(editor.textEditor));
             bool inDocument = pos.HasValue;
             if (inDocument)
             {
                 TextLocation logicalPosition = pos.Value.Location;
                 int offset = editor.textEditor.Document.GetOffset(logicalPosition);
 
-                var markersAtOffset = textMarkers[editor].GetMarkersAtOffset(offset);
-                ITextMarker markerWithToolTip = markersAtOffset.FirstOrDefault(marker => marker.ToolTip != null);
-
-                if (markerWithToolTip != null)
+                var markerAtOffset = textMarkers[editor].TextMarkers.FirstOrDefault(marker => marker.StartOffset >= offset && marker.EndOffset <= offset);
+                if (markerAtOffset != null && markerAtOffset.ToolTip != null)
                 {
-                    if (syntaxErrorToolTip == null)
-                    {
-                        syntaxErrorToolTip = new ToolTip();
-                        syntaxErrorToolTip.Closed += delegate
-                        { syntaxErrorToolTip = null; };
-                        syntaxErrorToolTip.PlacementTarget = editor.textEditor;
-                        syntaxErrorToolTip.Content = markerWithToolTip.ToolTip;
-                        syntaxErrorToolTip.IsOpen = true;
-                        e.Handled = true;
-                        return true;
-                    }
+                    ToolTipManager.Target = editor.textEditor;
+                    ToolTipManager.Add(markerAtOffset.ToolTip);
+                    e.Handled = true;
+                    return true;
                 }
             }
             return false;
         }
 
-        public static void MouseMove(EditorControl editor, MouseEventArgs e)
-        {
-            if (syntaxErrorToolTip != null) syntaxErrorToolTip.IsOpen = false;
-        }
-
         private static void AddMarker(Token token, EditorControl editor, string message = null, Severity severity = Severity.Error)
         {
+            if (token == Token.None) return;
             var line = editor.textEditor.Document.GetLineByNumber(token.Position.Line);
+            var startOffset = line.Offset + token.Position.Column;
             var textMarker = textMarkers[editor];
-            ITextMarker marker = textMarker.Create(line.Offset, line.Length);
+            if (textMarker.TextMarkers.Any(m => m.StartOffset == startOffset)) return;
+            ITextMarker marker = textMarker.Create(startOffset, token.Length);
             switch (severity)
             {
                 case Severity.Error:
@@ -143,6 +132,7 @@ namespace Monkeyspeak.Editor.Syntax
         {
             var line = editor.textEditor.Document.GetLineByNumber(pos.Line);
             var textMarker = textMarkers[editor];
+            if (textMarker.GetMarkersAtOffset(line.Offset).Count() > 0) return;
             ITextMarker marker = textMarker.Create(line.Offset, line.Length);
             switch (severity)
             {

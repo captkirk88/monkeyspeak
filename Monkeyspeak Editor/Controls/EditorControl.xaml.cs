@@ -31,6 +31,9 @@ using System.Xml;
 using Monkeyspeak.Extensions;
 using ICSharpCode.AvalonEdit.Search;
 using Monkeyspeak.Editor.Syntax;
+using Monkeyspeak.Editor.Utils;
+using MahApps.Metro;
+using Monkeyspeak.Editor.Extensions;
 
 namespace Monkeyspeak.Editor.Controls
 {
@@ -108,32 +111,25 @@ namespace Monkeyspeak.Editor.Controls
                 if (!string.IsNullOrWhiteSpace(e.Text))
                 {
                     Intellisense.TextEntered(e);
+                    if (e.Text == " " || e.Text == "\n")
+                        SyntaxChecker.Check(this);
                 }
             };
             textEditor.KeyDown += (sender, e) =>
             {
-                var settings = Properties.Settings.Default;
-
-                if (e.Key == Key.Return)
-                {
-                    textEditor.TextArea.IndentationStrategy.IndentLines(textEditor.Document, 0, textEditor.LineCount);
+                if (e.Key == Key.Space || e.Key == Key.Return)
                     SyntaxChecker.Check(this);
-                }
-                else if (e.Key == Key.Space)
-                {
-                    SyntaxChecker.Check(this);
-                }
             };
 
             textEditor.PreviewMouseHover += (sender, e) =>
             {
+                ToolTipManager.Clear();
                 if (!SyntaxChecker.MouseHover(this, e))
                     Intellisense.MouseHover(this, sender, e);
             };
             textEditor.PreviewMouseMove += (sender, e) =>
             {
-                SyntaxChecker.MouseMove(this, e);
-                Intellisense.MouseMove(this, e);
+                ToolTipManager.Opened = false;
             };
             textEditor.Options.AllowScrollBelowDocument = true;
             textEditor.Options.HighlightCurrentLine = true;
@@ -159,6 +155,14 @@ namespace Monkeyspeak.Editor.Controls
             // set this as the active editor since it was new
             Editors.Instance.Selected = this;
             Keyboard.Focus(textEditor);
+
+            propertyGrid.PreparePropertyItem += PropertyGrid_PreparePropertyItem;
+        }
+
+        private void PropertyGrid_PreparePropertyItem(object sender, Xceed.Wpf.Toolkit.PropertyGrid.PropertyItemEventArgs e)
+        {
+            e.PropertyItem.Background = e.PropertyItem.Background.ToThemeBackground();
+            e.PropertyItem.Foreground = e.PropertyItem.Background.ToThemeForeground();
         }
 
         private void FileWatcher_Raised(object sender, FileSystemEventArgs e)
