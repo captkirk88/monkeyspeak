@@ -100,7 +100,7 @@ namespace Monkeyspeak
             set { contents.AddRange(value); }
         }
 
-        internal SourcePosition SourcePosition { get; set; }
+        public SourcePosition SourcePosition { get; set; }
 
         public void Add(IExpression expr)
         {

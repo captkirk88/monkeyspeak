@@ -87,6 +87,8 @@ namespace Monkeyspeak.Editor.Controls
             SearchPanel.Install(textEditor);
             SyntaxChecker.Install(this);
 
+            propertyGrid.ShowSearchBox = true;
+
             textEditor.TextArea.Caret.PositionChanged += (sender, e) =>
                 textEditor.TextArea.TextView.InvalidateLayer(KnownLayer.Background);
             textEditor.TextChanged += (sender, args) =>
@@ -483,7 +485,8 @@ namespace Monkeyspeak.Editor.Controls
             else
             {
                 Plugins.Plugins.AllEnabled = false;
-                textEditor.Load(CurrentFilePath);
+                foreach (var line in File.ReadAllLines(CurrentFilePath))
+                    AddLine(line, false);
                 textEditor.Text = TextUtilities.NormalizeNewLines(textEditor.Text, "\n");
                 textEditor.SyntaxHighlighting =
                         HighlightingManager.Instance.GetDefinitionByExtension(System.IO.Path.GetExtension(CurrentFilePath)) ??
