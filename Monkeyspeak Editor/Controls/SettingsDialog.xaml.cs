@@ -34,7 +34,6 @@ namespace Monkeyspeak.Editor.Controls
 
         private void Apply_Click(object sender, RoutedEventArgs e)
         {
-            HotkeyManager.ApplyChangesToInputBindings();
             HotkeyManager.Save();
             Properties.Settings.Default.Save();
             Close();

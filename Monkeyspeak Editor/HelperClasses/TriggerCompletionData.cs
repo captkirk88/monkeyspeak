@@ -15,6 +15,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Controls;
 using Monkeyspeak.Extensions;
+using Monkeyspeak.Editor.Extensions;
 
 namespace Monkeyspeak.Editor.HelperClasses
 {
@@ -23,7 +24,7 @@ namespace Monkeyspeak.Editor.HelperClasses
         private readonly BaseLibrary lib;
         private readonly Trigger trigger = Trigger.Undefined;
         private readonly Page page;
-        private TextView text, syntaxViewer;
+        private TextView descriptionViewer = null;
         private DocumentHighlighter textHighlighter, syntaxViewerHighlighter;
         private IHighlightingDefinition highlightingDef;
 
@@ -58,8 +59,6 @@ namespace Monkeyspeak.Editor.HelperClasses
                 this.lib = lib;
             }
             highlightingDef = HighlightingManager.Instance.GetDefinition("Monkeyspeak");
-            this.text = new TextView();
-            syntaxViewer = new TextView();
         }
 
         public TriggerCompletionData(Page page, string line)
@@ -94,8 +93,6 @@ namespace Monkeyspeak.Editor.HelperClasses
                 this.lib = page.Libraries.FirstOrDefault(lib => lib.Contains(trigger.Category, trigger.Id));
             }
             highlightingDef = HighlightingManager.Instance.GetDefinition("Monkeyspeak");
-            this.text = new TextView();
-            syntaxViewer = new TextView();
         }
 
         public bool IsValid => lib != null;
@@ -111,7 +108,10 @@ namespace Monkeyspeak.Editor.HelperClasses
         {
             get
             {
-                return Text;
+                var label = new TextBlock { Text = Text };
+                label.Background = label.Background.ToThemeBackground();
+                label.Foreground = label.Foreground.ToThemeForeground();
+                return label;
             }
         }
 
@@ -119,6 +119,7 @@ namespace Monkeyspeak.Editor.HelperClasses
         {
             get
             {
+                if (descriptionViewer != null) return descriptionViewer;
                 var sb = new StringBuilder();
                 if (lib != null)
                 {
@@ -141,11 +142,12 @@ namespace Monkeyspeak.Editor.HelperClasses
                 }
                 if (sb.Length > 0)
                 {
-                    syntaxViewer.Document = new TextDocument(sb.ToString());
+                    descriptionViewer = new TextView();
+                    descriptionViewer.Document = new TextDocument(sb.ToString());
                     HighlightingColorizer colorizer = new HighlightingColorizer(highlightingDef);
-                    syntaxViewer.LineTransformers.Add(colorizer);
-                    syntaxViewer.EnsureVisualLines();
-                    return syntaxViewer;
+                    descriptionViewer.LineTransformers.Add(colorizer);
+                    descriptionViewer.EnsureVisualLines();
+                    return descriptionViewer;
                 }
                 else return null;
             }
@@ -155,6 +157,7 @@ namespace Monkeyspeak.Editor.HelperClasses
         {
             get
             {
+                if (descriptionViewer != null) return descriptionViewer;
                 var sb = new StringBuilder();
                 if (lib != null)
                 {
@@ -178,11 +181,12 @@ namespace Monkeyspeak.Editor.HelperClasses
                 }
                 if (sb.Length > 0)
                 {
-                    syntaxViewer.Document = new TextDocument(sb.ToString());
+                    descriptionViewer = new TextView();
+                    descriptionViewer.Document = new TextDocument(sb.ToString());
                     HighlightingColorizer colorizer = new HighlightingColorizer(highlightingDef);
-                    syntaxViewer.LineTransformers.Add(colorizer);
-                    syntaxViewer.EnsureVisualLines();
-                    return syntaxViewer;
+                    descriptionViewer.LineTransformers.Add(colorizer);
+                    descriptionViewer.EnsureVisualLines();
+                    return descriptionViewer;
                 }
                 else return null;
             }
