@@ -268,7 +268,7 @@ namespace Monkeyspeak.Editor
                 HotkeyManager.ApplyChangesToInputBindings();
 
                 NotificationManager.Instance.AddNotification(new WelcomeNotification());
-                Plugins.Plugins.Initialize();
+                Plugins.PluginsManager.Initialize();
             });
             Dispatcher.Invoke(async () => await Check());
         }
@@ -423,8 +423,8 @@ namespace Monkeyspeak.Editor
 
         private void RestorePlugins_Click(object sender, RoutedEventArgs e)
         {
-            Plugins.Plugins.Unload();
-            Plugins.Plugins.Initialize();
+            Plugins.PluginsManager.Unload();
+            Plugins.PluginsManager.Initialize();
         }
 
         private void settingsDialog_Click(object sender, RoutedEventArgs e)

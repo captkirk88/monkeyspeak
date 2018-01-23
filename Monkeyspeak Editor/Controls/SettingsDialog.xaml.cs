@@ -16,6 +16,7 @@ using ICSharpCode.AvalonEdit.Highlighting;
 using MahApps.Metro;
 using MahApps.Metro.Controls;
 using Monkeyspeak.Editor.HelperClasses;
+using Monkeyspeak.Editor.Plugins;
 
 namespace Monkeyspeak.Editor.Controls
 {
@@ -29,12 +30,30 @@ namespace Monkeyspeak.Editor.Controls
             InitializeComponent();
             DataContext = this;
             settingsProps.AdvancedOptionsMenu = null;
-            settingsProps.SelectedObject = Properties.Settings.Default;
             syntaxProps.AdvancedOptionsMenu = null;
+            pluginProps.AdvancedOptionsMenu = null;
+
+            settingsProps.SelectedObject = Properties.Settings.Default;
             foreach (var item in HighlightingManager.Instance.HighlightingDefinitions)
                 syntax_categories.Items.Add(item.Name);
             syntax_categories.SelectionChanged += Syntax_categories_SelectionChanged;
-            HotkeyManager.Populate(this, hotkeysContainer, hotkeysContainer.FirstChild as StackPanel, hotkeysContainer.SecondChild as StackPanel);
+
+            foreach (var plugin in PluginsManager.All)
+                plugin_list.Items.Add(plugin.Name);
+            plugin_list.SelectionChanged += Plugin_list_SelectionChanged;
+            VisibilityHelper.SetIsVisible(plugin_tab, plugin_list.HasItems);
+
+            VisibilityHelper.SetIsVisible(syntax_tab, false);
+
+            HotkeyManager.PopulateKeybindingsConfiguration(this, hotkeysContainer, hotkeysContainer.FirstChild as StackPanel, hotkeysContainer.SecondChild as StackPanel);
+        }
+
+        private void Plugin_list_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            var item = e.AddedItems[0];
+            var plugin = PluginsManager.All.FirstOrDefault(p => p.Name == (string)item);
+            if (plugin != null)
+                pluginProps.SelectedObject = plugin;
         }
 
         private void Syntax_categories_SelectionChanged(object sender, SelectionChangedEventArgs e)

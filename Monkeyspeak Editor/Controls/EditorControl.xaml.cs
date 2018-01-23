@@ -95,8 +95,8 @@ namespace Monkeyspeak.Editor.Controls
             textEditor.TextChanged += (sender, args) =>
             {
                 HasChanges = true;
-                Plugins.Plugins.AllEnabled = true;
-                Plugins.Plugins.OnEditorTextChanged(this);
+                Plugins.PluginsManager.AllEnabled = true;
+                Plugins.PluginsManager.OnEditorTextChanged(this);
             };
             textEditor.TextArea.SelectionChanged += (sender, args) =>
             {
@@ -104,8 +104,8 @@ namespace Monkeyspeak.Editor.Controls
                 SelectedText = textEditor.SelectedText;
                 //if (!string.IsNullOrWhiteSpace(SelectedText))
                 //HighlightAllOccurances(SelectedText);
-                Plugins.Plugins.AllEnabled = true;
-                Plugins.Plugins.OnEditorSelectionChanged(this);
+                Plugins.PluginsManager.AllEnabled = true;
+                Plugins.PluginsManager.OnEditorSelectionChanged(this);
             };
             textEditor.Document.PropertyChanged += (sender, e) =>
             {
@@ -450,7 +450,7 @@ namespace Monkeyspeak.Editor.Controls
                 CurrentFilePath = dlg.FileName;
                 if (System.IO.Path.GetExtension(CurrentFilePath) == ".msx")
                 {
-                    Plugins.Plugins.AllEnabled = false;
+                    Plugins.PluginsManager.AllEnabled = false;
                     var page = MonkeyspeakRunner.LoadCompiled(CurrentFilePath);
                     foreach (var trigger in page.Triggers)
                     {
@@ -461,7 +461,7 @@ namespace Monkeyspeak.Editor.Controls
                 }
                 else
                 {
-                    Plugins.Plugins.AllEnabled = false;
+                    Plugins.PluginsManager.AllEnabled = false;
                     foreach (var line in File.ReadAllLines(CurrentFilePath))
                         AddLine(line, false);
                     textEditor.SyntaxHighlighting =
@@ -505,8 +505,8 @@ namespace Monkeyspeak.Editor.Controls
             textEditor.Save(CurrentFilePath);
             HasChanges = false;
             fileWatcher.EnableRaisingEvents = true;
-            Plugins.Plugins.AllEnabled = true;
-            Plugins.Plugins.OnEditorSaveCompleted(this);
+            Plugins.PluginsManager.AllEnabled = true;
+            Plugins.PluginsManager.OnEditorSaveCompleted(this);
         }
 
         public void SaveAs(string fileName = null)
@@ -528,8 +528,8 @@ namespace Monkeyspeak.Editor.Controls
             }
             textEditor.Save(CurrentFilePath);
             HasChanges = false;
-            Plugins.Plugins.AllEnabled = true;
-            Plugins.Plugins.OnEditorSaveCompleted(this);
+            Plugins.PluginsManager.AllEnabled = true;
+            Plugins.PluginsManager.OnEditorSaveCompleted(this);
         }
 
         public async Task Reload()
@@ -555,7 +555,7 @@ namespace Monkeyspeak.Editor.Controls
             }
             else
             {
-                Plugins.Plugins.AllEnabled = false;
+                Plugins.PluginsManager.AllEnabled = false;
                 foreach (var line in File.ReadAllLines(CurrentFilePath))
                     AddLine(line, false);
                 textEditor.Text = TextUtilities.NormalizeNewLines(textEditor.Text, "\n");
@@ -564,7 +564,7 @@ namespace Monkeyspeak.Editor.Controls
                         HighlightingManager.Instance.GetDefinition("Monkeyspeak");
             }
             HasChanges = false;
-            Plugins.Plugins.AllEnabled = true;
+            Plugins.PluginsManager.AllEnabled = true;
         }
 
         public async Task<bool> CloseAsync()
@@ -606,10 +606,6 @@ namespace Monkeyspeak.Editor.Controls
                     break;
 
                 case 3:
-                    propertyGrid.SelectedObject = Plugins.Plugins.All;
-                    break;
-
-                case 4:
                     propertyGrid.SelectedObject = MonkeyspeakRunner.Options;
                     break;
             }
