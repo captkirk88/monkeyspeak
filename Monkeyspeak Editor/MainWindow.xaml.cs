@@ -49,6 +49,7 @@ namespace Monkeyspeak.Editor
 
             Github.Initialize("captkirk88", "monkeyspeak");
 
+            AllowDrop = true;
             PreviewDrop += (sender, e) =>
             {
                 if (e.Data.GetDataPresent(DataFormats.FileDrop))
@@ -58,6 +59,7 @@ namespace Monkeyspeak.Editor
                     {
                         MonkeyspeakCommands.Open.Execute(file);
                     }
+                    e.Handled = true;
                 }
             };
 
