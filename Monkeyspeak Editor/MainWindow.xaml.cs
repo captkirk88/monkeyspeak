@@ -49,6 +49,18 @@ namespace Monkeyspeak.Editor
 
             Github.Initialize("captkirk88", "monkeyspeak");
 
+            PreviewDrop += (sender, e) =>
+            {
+                if (e.Data.GetDataPresent(DataFormats.FileDrop))
+                {
+                    var files = (string[])e.Data.GetData(DataFormats.FileDrop);
+                    foreach (var file in files)
+                    {
+                        MonkeyspeakCommands.Open.Execute(file);
+                    }
+                }
+            };
+
             NotificationManager.Instance.Added += notif => this.Dispatcher.Invoke(() =>
             {
                 var count = NotificationManager.Instance.Count;
