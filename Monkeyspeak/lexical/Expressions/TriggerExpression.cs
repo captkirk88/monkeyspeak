@@ -51,5 +51,10 @@ namespace Monkeyspeak.Lexical.Expressions
         {
             return null;
         }
+
+        public override string ToString()
+        {
+            return GetValue<Trigger>().ToString();
+        }
     }
 }

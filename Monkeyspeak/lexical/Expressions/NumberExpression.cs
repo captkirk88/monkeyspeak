@@ -27,5 +27,10 @@ namespace Monkeyspeak.Lexical.Expressions
         {
             return GetValue<double>();
         }
+
+        public override string ToString()
+        {
+            return GetValue<double>().ToString();
+        }
     }
 }

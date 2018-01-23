@@ -295,7 +295,7 @@ namespace MonkeyspeakTests
             Logger.Debug(default(Trigger));
             var engine = new MonkeyspeakEngine();
             //engine.Options.Debug = true;
-            using (var stream = new MemoryStream(Encoding.UTF8.GetBytes(File.ReadAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "justin.ms")))))
+            using (var stream = new MemoryStream(Encoding.Default.GetBytes(tableScript)))
             using (Lexer lexer = new Lexer(engine, new SStreamReader(stream)))
             {
                 Parser parser = new Parser(engine);

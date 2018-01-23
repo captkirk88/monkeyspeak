@@ -57,7 +57,7 @@ namespace Monkeyspeak.Lexical.Expressions
                                 {
                                     if (var is VariableTable)
                                     {
-                                        value = (var as VariableTable)[val.Substring(val.IndexOf('[') + 1).TrimEnd(']')];
+                                        value = (var as VariableTable)[val.RightOf('[').LeftOf(']')];
                                     }
                                 }
                                 else
@@ -74,6 +74,11 @@ namespace Monkeyspeak.Lexical.Expressions
                 Logger.Error<TriggerReader>(ex);
                 throw new TriggerReaderException($"No value found at {Position}");
             }
+        }
+
+        public override string ToString()
+        {
+            return GetValue<string>();
         }
     }
 }

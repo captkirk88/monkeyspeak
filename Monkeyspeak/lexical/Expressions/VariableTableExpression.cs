@@ -9,19 +9,31 @@ using System.Threading.Tasks;
 
 namespace Monkeyspeak.Lexical.Expressions
 {
+    /// <summary>
+    ///
+    /// </summary>
+    /// <seealso cref="Monkeyspeak.Lexical.Expressions.VariableExpression" />
     public sealed class VariableTableExpression : VariableExpression
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="VariableTableExpression"/> class.
+        /// </summary>
+        /// <param name="pos">The position.</param>
+        /// <param name="varRef">The variable reference.</param>
         public VariableTableExpression(SourcePosition pos, string varRef) : base(pos, varRef.Substring(0, varRef.IndexOf('[')))
         {
-            Indexer = varRef.Substring(varRef.IndexOf('[') + 1).TrimEnd(']');
+            Indexer = varRef.RightOf('[').LeftOf(']');
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="VariableTableExpression"/> class.
+        /// </summary>
         public VariableTableExpression()
         {
         }
 
         public string Indexer { get; private set; }
-        public bool HasIndex { get => string.IsNullOrWhiteSpace(Indexer); }
+        public bool HasIndex { get => !string.IsNullOrWhiteSpace(Indexer); }
 
         public override void Write(BinaryWriter writer)
         {
@@ -41,15 +53,21 @@ namespace Monkeyspeak.Lexical.Expressions
         {
             try
             {
-                var var = VariableTable.Empty;
                 string varRef = GetValue<string>();
-                if (!page.HasVariable(varRef, out var))
+                if (!page.HasVariable(varRef, out IVariable var))
                     if (addToPage)
                     {
                         var = page.CreateVariableTable(varRef, false);
                     }
-                if (HasIndex) var.ActiveIndexer = Indexer;
-                return var as VariableTable ?? VariableTable.Empty;
+                if (HasIndex)
+                {
+                    if (var is VariableTable table)
+                    {
+                        table.ActiveIndexer = Indexer;
+                        return table;
+                    }
+                }
+                return var;
             }
             catch (Exception ex)
             {
