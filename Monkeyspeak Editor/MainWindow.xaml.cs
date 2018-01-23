@@ -77,21 +77,15 @@ namespace Monkeyspeak.Editor
             {
                 if (!docs.Items.Contains(editor)) docs.Items.Add(editor);
                 ((MetroAnimatedSingleRowTabControl)editor.Parent).SelectedItem = editor;
-                editor.LineAdded += (text, line) =>
-                {
-                    Dispatcher.InvokeAsync(() =>
-                    {
-                        int.TryParse(line_count.Text, out var count);
-                        if (Trigger.TryParse(MonkeyspeakRunner.Engine, text, out var trigger))
-                            count++;
-                        line_count.Text = count.ToString();
-                    });
-                };
+                editor.LineAdded += delegate { line_count.Text = editor.TriggerCount.ToString(); };
             });
             Editors.Instance.Removed += editor => this.Dispatcher.Invoke(() => docs.Items.Remove(editor));
+            Editors.Instance.SelectionChanged += editor => this.Dispatcher.Invoke(() => line_count.Text = editor.TriggerCount.ToString());
 
+            SyntaxChecker.Info += SyntaxChecker_Event;
             SyntaxChecker.Warning += SyntaxChecker_Event;
             SyntaxChecker.Error += SyntaxChecker_Event;
+
             errors_list.SelectionMode = SelectionMode.Extended;
             errors_list.PreviewKeyDown += (sender, e) =>
             {
@@ -133,7 +127,7 @@ namespace Monkeyspeak.Editor
                 foreach (var file in settings.LastSession.Split(','))
                 {
                     if (!string.IsNullOrEmpty(file) && System.IO.File.Exists(file))
-                        new OpenFileCommand().Execute(file);
+                        MonkeyspeakCommands.Open.Execute(file);
                 }
 
             // Load files passed into the program and from last session
@@ -145,7 +139,7 @@ namespace Monkeyspeak.Editor
                     if (System.IO.File.Exists(arg)) // is a file
                     {
                         if (!string.IsNullOrEmpty(arg) && System.IO.File.Exists(arg))
-                            new OpenFileCommand().Execute(arg);
+                            MonkeyspeakCommands.Open.Execute(arg);
                     }
                     else
                     {
@@ -323,6 +317,8 @@ namespace Monkeyspeak.Editor
             if (Enum.TryParse(style_chooser.SelectedItem.ToString(), out AppColor col))
             {
                 SetColor(col);
+                Properties.Settings.Default.Color = col;
+                Properties.Settings.Default.Save();
             }
         }
 
@@ -331,6 +327,8 @@ namespace Monkeyspeak.Editor
             if (Enum.TryParse(theme_chooser.SelectedItem.ToString(), out AppTheme theme))
             {
                 SetTheme(theme);
+                Properties.Settings.Default.Theme = theme;
+                Properties.Settings.Default.Save();
             }
         }
 

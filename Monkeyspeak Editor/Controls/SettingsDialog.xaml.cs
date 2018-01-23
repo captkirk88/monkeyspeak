@@ -28,9 +28,20 @@ namespace Monkeyspeak.Editor.Controls
         {
             InitializeComponent();
             DataContext = this;
+            settingsProps.AdvancedOptionsMenu = null;
             settingsProps.SelectedObject = Properties.Settings.Default;
-            syntaxProps.SelectedObject = new { TODO = "TODO!" };
+            syntaxProps.AdvancedOptionsMenu = null;
+            foreach (var item in HighlightingManager.Instance.HighlightingDefinitions)
+                syntax_categories.Items.Add(item.Name);
+            syntax_categories.SelectionChanged += Syntax_categories_SelectionChanged;
             HotkeyManager.Populate(this, hotkeysContainer, hotkeysContainer.FirstChild as StackPanel, hotkeysContainer.SecondChild as StackPanel);
+        }
+
+        private void Syntax_categories_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            var item = e.AddedItems[0];
+            var def = HighlightingManager.Instance.HighlightingDefinitions.First(d => d.Name == (string)item);
+            syntaxProps.SelectedObject = new DictionaryPropertyGridAdapter<string, string>(def.Properties);
         }
 
         private void Apply_Click(object sender, RoutedEventArgs e)

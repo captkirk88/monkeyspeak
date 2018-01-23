@@ -38,7 +38,11 @@
                 </ScrollViewer>
             </Controls:MetroTabItem>
             <Controls:MetroTabItem Header="Monkeyspeak Syntax Coloring"  Controls:ControlsHelper.HeaderFontSize="14">
-                <xctk:PropertyGrid x:Name="syntaxProps" Height="Auto" VerticalAlignment="Stretch" AutoGenerateProperties="True" IsMiscCategoryLabelHidden="True" />
+                <DockPanel Margin="4 0 0 0">
+                    <ComboBox x:Name="syntax_categories" DockPanel.Dock="Top">
+                    </ComboBox>
+                    <xctk:PropertyGrid x:Name="syntaxProps" DockPanel.Dock="Left" Height="Auto" VerticalAlignment="Stretch" AutoGenerateProperties="True" IsMiscCategoryLabelHidden="True" />
+                </DockPanel>
             </Controls:MetroTabItem>
         </Controls:MetroAnimatedTabControl>
         <Button Content="Apply" Height="32" Grid.Row="1" Click="Apply_Click" />

@@ -34,6 +34,7 @@ using Monkeyspeak.Editor.Syntax;
 using Monkeyspeak.Editor.Utils;
 using MahApps.Metro;
 using Monkeyspeak.Editor.Extensions;
+using Monkeyspeak.Editor.Commands;
 
 namespace Monkeyspeak.Editor.Controls
 {
@@ -74,7 +75,7 @@ namespace Monkeyspeak.Editor.Controls
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public event Action<string, int> LineAdded;
+        public event Action<string, int> LineAdded, LineRemoved;
 
         public EditorControl()
         {
@@ -106,6 +107,23 @@ namespace Monkeyspeak.Editor.Controls
                 Plugins.Plugins.AllEnabled = true;
                 Plugins.Plugins.OnEditorSelectionChanged(this);
             };
+            textEditor.Document.PropertyChanged += (sender, e) =>
+            {
+                if (e.PropertyName == "LineCount")
+                {
+                }
+            };
+            textEditor.PreviewDrop += (sender, e) =>
+            {
+                if (e.Data.GetDataPresent(DataFormats.FileDrop))
+                {
+                    var files = (string[])e.Data.GetData(DataFormats.FileDrop);
+                    foreach (var file in files)
+                    {
+                        MonkeyspeakCommands.Open.Execute(file);
+                    }
+                }
+            };
             textEditor.TextArea.TextEntered += (sender, e) =>
             {
                 Intellisense.GenerateTriggerListCompletion(this);
@@ -120,7 +138,30 @@ namespace Monkeyspeak.Editor.Controls
             textEditor.KeyDown += (sender, e) =>
             {
                 if (e.Key == Key.Space || e.Key == Key.Return)
+                {
                     SyntaxChecker.Check(this);
+                    if (e.Key == Key.Return)
+                    {
+                        if (Trigger.TryParse(MonkeyspeakRunner.Engine, PreviousLine, out var trigger)) TriggerCount++;
+                        LineAdded?.Invoke(CurrentLine, CaretLine);
+                    }
+                }
+
+                if (e.Key == Key.Back || e.Key == Key.Delete)
+                {
+                    if (CaretColumn > 0 && !Trigger.TryParse(MonkeyspeakRunner.Engine, CurrentLine, out var trigger)) TriggerCount--;
+                }
+            };
+
+            LineAdded += (text, line) =>
+            {
+                // if it was a trigger that was added
+                if (Trigger.TryParse(MonkeyspeakRunner.Engine, text, out var trigger)) TriggerCount++;
+            };
+            LineRemoved += (text, line) =>
+            {
+                // if it was a trigger that was removed
+                if (Trigger.TryParse(MonkeyspeakRunner.Engine, text, out var trigger)) TriggerCount--;
             };
 
             textEditor.PreviewMouseHover += (sender, e) =>
@@ -326,11 +367,41 @@ namespace Monkeyspeak.Editor.Controls
             }
         }
 
+        public int TriggerCount { get; private set; }
         public int LineCount { get => textEditor.Document.LineCount; }
 
         public int WordCount => textEditor.Text.Split(' ').Length;
 
-        public string CurrentLine => Lines[textEditor.TextArea.Caret.Line - 1];
+        public string PreviousLine
+        {
+            get
+            {
+                var line = textEditor.Document.GetLineByOffset(textEditor.TextArea.Caret.Offset).PreviousLine;
+                if (line != null)
+                    return textEditor.Document.GetText(line.Offset, line.Length);
+                return string.Empty;
+            }
+        }
+
+        public string CurrentLine
+        {
+            get
+            {
+                var line = textEditor.Document.GetLineByOffset(textEditor.TextArea.Caret.Offset);
+                return textEditor.Document.GetText(line.Offset, line.Length);
+            }
+        }
+
+        public string NextLine
+        {
+            get
+            {
+                var line = textEditor.Document.GetLineByOffset(textEditor.TextArea.Caret.Offset).NextLine;
+                if (line != null)
+                    return textEditor.Document.GetText(line.Offset, line.Length);
+                return string.Empty;
+            }
+        }
 
         public string SelectedText { get; private set; }
 
@@ -559,8 +630,7 @@ namespace Monkeyspeak.Editor.Controls
         {
             if (Editors.Instance.Selected == this) return;
             Editors.Instance.Selected = this;
-            Keyboard.Focus(textEditor);
-            Mouse.Capture(textEditor);
+            textEditor.TextArea.Caret.Line = 1;
         }
 
         private void OnLostFocus(object sender, RoutedEventArgs e)
