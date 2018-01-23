@@ -12,6 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using ICSharpCode.AvalonEdit.Highlighting;
 using MahApps.Metro;
 using MahApps.Metro.Controls;
 using Monkeyspeak.Editor.HelperClasses;
@@ -28,7 +29,7 @@ namespace Monkeyspeak.Editor.Controls
             InitializeComponent();
             DataContext = this;
             settingsProps.SelectedObject = Properties.Settings.Default;
-
+            syntaxProps.SelectedObject = new { TODO = "TODO!" };
             HotkeyManager.Populate(this, hotkeysContainer, hotkeysContainer.FirstChild as StackPanel, hotkeysContainer.SecondChild as StackPanel);
         }
 

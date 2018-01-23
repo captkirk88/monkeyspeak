@@ -92,6 +92,16 @@ namespace Monkeyspeak.Editor
 
             SyntaxChecker.Warning += SyntaxChecker_Event;
             SyntaxChecker.Error += SyntaxChecker_Event;
+            errors_list.SelectionMode = SelectionMode.Extended;
+            errors_list.PreviewKeyDown += (sender, e) =>
+            {
+                if (e.Key == Key.Delete)
+                {
+                    foreach (var item in errors_list.SelectedItems)
+                        errors_list.Items.Remove(item);
+                    e.Handled = true;
+                }
+            };
 
             foreach (var col in Enum.GetNames(typeof(AppColor)))
             {
@@ -139,7 +149,7 @@ namespace Monkeyspeak.Editor
                     }
                     else
                     {
-                        if (arg.StartsWith("-l") && int.TryParse(arg.RightOf(':'), out var line))
+                        if ((arg.StartsWith("-l") || arg.StartsWith("--line")) && int.TryParse(arg.RightOf(':'), out var line))
                         {
                             var editor = Editors.Instance.Selected;
                             var docLine = editor.textEditor.Document.GetLineByNumber(line);
@@ -189,11 +199,12 @@ namespace Monkeyspeak.Editor
             };
             item.PreviewKeyDown += (sender, e) =>
             {
-                if (e.Key == Key.Delete)
+                if (e.Key == Key.Enter)
                 {
-                    errors_list.Items.Remove(item);
-                    if (errors_list.Items.Count == 0)
-                        errors_flyout.IsOpen = false;
+                    editor.textEditor.TextArea.Caret.Line = sourcePosition.Line;
+                    var line = editor.textEditor.Document.GetLineByOffset(editor.textEditor.CaretOffset);
+                    editor.textEditor.ScrollToLine(sourcePosition.Line);
+                    editor.textEditor.Select(line.Offset, line.Length);
                     e.Handled = true;
                 }
             };
@@ -204,14 +215,15 @@ namespace Monkeyspeak.Editor
                 Orientation = Orientation.Horizontal
             };
             TextBlock lineInfo = new TextBlock { Text = $"Line {sourcePosition.Line}, Col {sourcePosition.Column}" };
-            TextBlock source = new TextBlock { Text = System.IO.Path.GetFileName(editor.CurrentFilePath ?? editor.Title), Foreground = brush };
+            TextBlock source = new TextBlock { Text = System.IO.Path.GetFileName(editor.CurrentFilePath ?? editor.Title), Foreground = Brushes.DarkCyan };
             content.Children.Add(lineInfo);
             content.Children.Add(new Rectangle
             {
                 VerticalAlignment = VerticalAlignment.Stretch,
-                Width = 1,
+                Width = 2,
                 Margin = new Thickness(2),
-                Stroke = Brushes.White,
+                StrokeThickness = 4,
+                Stroke = Brushes.Transparent,
                 Fill = Brushes.White
             });
             content.Children.Add(source);
@@ -220,13 +232,18 @@ namespace Monkeyspeak.Editor
                 VerticalAlignment = VerticalAlignment.Stretch,
                 Width = 2,
                 Margin = new Thickness(2),
-                Stroke = Brushes.White,
+                StrokeThickness = 4,
+                Stroke = Brushes.Transparent,
                 Fill = Brushes.White
             });
             content.Children.Add(new TextBlock { Text = ex.Message, Foreground = brush });
             item.Content = content;
             errors_list.Items.Add(item);
-            if (severity == SyntaxChecker.Severity.Error) errors_flyout.IsOpen = true;
+            if (severity == SyntaxChecker.Severity.Error ||
+                (severity == SyntaxChecker.Severity.Warning &&
+                Properties.Settings.Default.AutoOpenOnWarning &&
+                Properties.Settings.Default.ShowWarnings))
+                errors_flyout.IsOpen = true;
         }
 
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)

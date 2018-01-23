@@ -37,6 +37,9 @@
                     </local:SplitContainer>
                 </ScrollViewer>
             </Controls:MetroTabItem>
+            <Controls:MetroTabItem Header="Monkeyspeak Syntax Coloring"  Controls:ControlsHelper.HeaderFontSize="14">
+                <xctk:PropertyGrid x:Name="syntaxProps" Height="Auto" VerticalAlignment="Stretch" AutoGenerateProperties="True" IsMiscCategoryLabelHidden="True" />
+            </Controls:MetroTabItem>
         </Controls:MetroAnimatedTabControl>
         <Button Content="Apply" Height="32" Grid.Row="1" Click="Apply_Click" />
         <Button Content="Cancel" Height="32" Grid.Row="2"  Click="Cancel_Click" />

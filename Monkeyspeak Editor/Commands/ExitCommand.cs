@@ -27,7 +27,8 @@ namespace Monkeyspeak.Editor.Commands
             List<string> session = new List<string>();
             for (int i = editors.Length - 1; i >= 0; i--)
             {
-                if (File.Exists(editors[i].CurrentFilePath))
+                if (!string.IsNullOrWhiteSpace(editors[i].CurrentFilePath) &&
+                    File.Exists(editors[i].CurrentFilePath))
                     session.Add(editors[i].CurrentFilePath);
                 if (!await editors[i].CloseAsync())
                 {
@@ -36,12 +37,12 @@ namespace Monkeyspeak.Editor.Commands
             }
             if (settings.RememberWindowPosition)
             {
-                settings.WindowState = window.WindowState;
+                settings["WindowState"] = window.WindowState;
                 if (settings.WindowState != WindowState.Maximized)
                 {
-                    settings.WindowPosition = new System.Drawing.Point((int)window.Left, (int)window.Top);
-                    settings.WindowSizeWidth = window.Width;
-                    settings.WindowSizeHeight = window.Height;
+                    settings["WindowPosition"] = new System.Drawing.Point((int)window.Left, (int)window.Top);
+                    settings["WindowSizeWidth"] = window.Width;
+                    settings["WindowSizeHeight"] = window.Height;
                 }
             }
             settings.LastSession = string.Join(",", session);
