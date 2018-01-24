@@ -13,11 +13,11 @@ using System.Windows;
 
 namespace Monkeyspeak.Editor.Plugins
 {
-    internal static class Plugins
+    internal static class PluginsManager
     {
         private static ObservableCollection<IPlugin> plugins;
 
-        static Plugins()
+        static PluginsManager()
         {
             plugins = new ObservableCollection<IPlugin>();
             foreach (var plugin in GetAllPlugins()) plugins.Add(plugin);

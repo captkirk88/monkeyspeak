@@ -56,7 +56,7 @@ namespace Monkeyspeak.Editor.HelperClasses
             Load();
         }
 
-        internal static void Populate(MetroWindow window, SplitContainer hotkeysContainer, StackPanel panel1, StackPanel panel2)
+        internal static void PopulateKeybindingsConfiguration(MetroWindow window, SplitContainer hotkeysContainer, StackPanel panel1, StackPanel panel2)
         {
             foreach (var kv in Defaults)
             {

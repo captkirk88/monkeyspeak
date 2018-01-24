@@ -25,5 +25,10 @@ namespace Monkeyspeak.Lexical.Expressions
         public NullExpression(SourcePosition pos, object value) : base(pos, null)
         {
         }
+
+        public override string ToString()
+        {
+            return "null";
+        }
     }
 }

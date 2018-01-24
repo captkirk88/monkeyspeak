@@ -59,63 +59,48 @@ namespace Monkeyspeak.Editor.Properties {
             }
         }
         
-        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("True")]
         public bool RememberWindowPosition {
             get {
                 return ((bool)(this["RememberWindowPosition"]));
             }
-            set {
-                this["RememberWindowPosition"] = value;
-            }
         }
         
-        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("0, 0")]
         public global::System.Drawing.Point WindowPosition {
             get {
                 return ((global::System.Drawing.Point)(this["WindowPosition"]));
             }
-            set {
-                this["WindowPosition"] = value;
-            }
         }
         
-        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("Normal")]
         public global::System.Windows.WindowState WindowState {
             get {
                 return ((global::System.Windows.WindowState)(this["WindowState"]));
             }
-            set {
-                this["WindowState"] = value;
-            }
         }
         
-        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("600")]
         public double WindowSizeHeight {
             get {
                 return ((double)(this["WindowSizeHeight"]));
             }
-            set {
-                this["WindowSizeHeight"] = value;
-            }
         }
         
-        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("800")]
         public double WindowSizeWidth {
             get {
                 return ((double)(this["WindowSizeWidth"]));
-            }
-            set {
-                this["WindowSizeWidth"] = value;
             }
         }
         
@@ -131,27 +116,21 @@ namespace Monkeyspeak.Editor.Properties {
             }
         }
         
-        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("-1")]
         public int TriggerSplitterPosition {
             get {
                 return ((int)(this["TriggerSplitterPosition"]));
             }
-            set {
-                this["TriggerSplitterPosition"] = value;
-            }
         }
         
-        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("-1")]
         public int OptionsSplitterPosition {
             get {
                 return ((int)(this["OptionsSplitterPosition"]));
-            }
-            set {
-                this["OptionsSplitterPosition"] = value;
             }
         }
         
@@ -164,6 +143,18 @@ namespace Monkeyspeak.Editor.Properties {
             }
             set {
                 this["ShowWarnings"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool AutoOpenOnWarning {
+            get {
+                return ((bool)(this["AutoOpenOnWarning"]));
+            }
+            set {
+                this["AutoOpenOnWarning"] = value;
             }
         }
     }

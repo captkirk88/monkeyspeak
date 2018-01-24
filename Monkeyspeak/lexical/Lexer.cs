@@ -199,7 +199,12 @@ namespace Monkeyspeak
 
         public override bool CheckMatch(string str)
         {
-            var found = LookAheadToString(str.Length);
+            if (currentChar != str[0])
+            {
+                Error?.Invoke(new MonkeyspeakException($"Expected '{str}' but got '{((char)currentChar).EscapeForCSharp()}'", CurrentSourcePosition));
+                return false;
+            }
+            var found = LookAheadToString(str.Length - 1);
             if (found != str)
             {
                 Error?.Invoke(new MonkeyspeakException($"Expected '{str}' but got '{found}'", CurrentSourcePosition));
@@ -586,14 +591,10 @@ namespace Monkeyspeak
                 }
                 if (!CheckMatch(']')) return Token.None;
                 length++;
-                return new Token(TokenType.TABLE, startPos, length, CurrentSourcePosition);
+                return new Token(TokenType.TABLE, startPos, length, sourcePos);
             }
 
-            if (currentChar == -1)
-            {
-                Error?.Invoke(new MonkeyspeakException("Unexpected end of file", CurrentSourcePosition));
-                return Token.None;
-            }
+            if (!CheckEOF((char)currentChar)) return Token.None;
 
             return new Token(TokenType.VARIABLE, startPos, length, CurrentSourcePosition);
         }
@@ -602,18 +603,18 @@ namespace Monkeyspeak
         {
             var bcommentBegin = Engine.Options.BlockCommentBeginSymbol;
             var bcommentEnd = Engine.Options.BlockCommentEndSymbol;
-
-            if (IsMatch(bcommentBegin))
+            Next();
+            if (!CheckMatch(bcommentBegin)) return;
+            char c = (char)LookAhead(1);
+            while (true)
             {
-                while (LookAheadToString(bcommentEnd.Length) != bcommentEnd)
-                {
-                    if (currentChar == -1)
-                    {
-                        break;
-                    }
-                    Next(bcommentEnd.Length);
-                }
+                if (!CheckEOF(c)) return;
+                Next();
+                c = (char)currentChar;
+                if (LookAheadToString(1) == bcommentEnd) break;
             }
+            if (!CheckEOF((char)currentChar)) return;
+            CheckMatch(bcommentEnd);
         }
 
         private void SkipLineComment()

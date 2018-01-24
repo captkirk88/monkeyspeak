@@ -104,6 +104,7 @@
   <ItemGroup>
     <Compile Include="Commands\CompletionCommand.cs" />
     <Compile Include="Extensions\ThemeExtensions.cs" />
+    <Compile Include="HelperClasses\DictionaryPropertyGridAdapter.cs" />
     <Compile Include="Syntax\ITextMarker.cs" />
     <Compile Include="Syntax\SyntaxChecker.cs" />
     <Compile Include="Syntax\TextMarkerService.cs" />

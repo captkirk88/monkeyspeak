@@ -649,7 +649,7 @@ namespace Monkeyspeak
             if (name[0] != engine.Options.VariableDeclarationSymbol)
                 name = engine.Options.VariableDeclarationSymbol + name;
             if (name.IndexOf('[') != -1)
-                name = name.Substring(0, name.IndexOf('[') - 1);
+                name = name.LeftOf('[');
 
             lock (syncObj)
             {
@@ -670,7 +670,7 @@ namespace Monkeyspeak
             if (name[0] != engine.Options.VariableDeclarationSymbol)
                 name = engine.Options.VariableDeclarationSymbol + name;
             if (name.IndexOf('[') != -1)
-                name = name.Substring(0, name.IndexOf('[') - 1);
+                name = name.LeftOf('[');
 
             lock (syncObj)
             {

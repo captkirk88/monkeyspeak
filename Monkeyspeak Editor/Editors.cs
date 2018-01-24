@@ -20,10 +20,9 @@ namespace Monkeyspeak.Editor
         public static Editors Instance = new Editors();
         private ObservableCollection<EditorControl> s_all;
         private int docCount = 0;
+        private EditorControl _selected;
 
-        public event Action<EditorControl> Added;
-
-        public event Action<EditorControl> Removed;
+        public event Action<EditorControl> Added, Removed, SelectionChanged;
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -38,7 +37,7 @@ namespace Monkeyspeak.Editor
             OnPropertyChanged("All");
         }
 
-        public EditorControl Selected { get; set; }
+        public EditorControl Selected { get => _selected; set { _selected = value; SelectionChanged?.Invoke(_selected); } }
 
         public ObservableCollection<EditorControl> All { get => s_all; set => SetField(ref s_all, value); }
 
