@@ -230,21 +230,8 @@ namespace Monkeyspeak
                     var expr = contents[i];
                     var tokenType = Expressions.GetTokenTypeFor(contents[i].GetType());
                     if (tokenType == null) continue;
-                    switch (tokenType)
-                    {
-                        case TokenType.TABLE:
-                        case TokenType.VARIABLE:
-                            sb.Append(expr.GetValue<string>());
-                            break;
-
-                        case TokenType.NUMBER:
-                            sb.Append(expr.GetValue<double>());
-                            break;
-
-                        case TokenType.STRING_LITERAL:
-                            sb.Append(options.StringBeginSymbol).Append(expr.GetValue<string>()).Append(options.StringEndSymbol);
-                            break;
-                    }
+                    sb.Append(tokenType);
+                    sb.Append(expr.ToString());
                     if (includeSourcePos) sb.Append(' ').Append(expr.Position);
                     if (i != contents.Count - 1) sb.Append(' ');
                 }
