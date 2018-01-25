@@ -218,7 +218,7 @@ namespace Monkeyspeak.Editor
             };
             item.ToolTip = "Double click to go to error.  Select item and press DELETE key to remove.";
 
-            StackPanel content = new StackPanel()
+            VirtualizingStackPanel content = new VirtualizingStackPanel()
             {
                 Orientation = Orientation.Horizontal
             };

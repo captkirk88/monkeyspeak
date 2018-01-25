@@ -13,7 +13,7 @@ namespace Monkeyspeak.Editor.Commands
     {
         public override async void Execute(object parameter)
         {
-            await Editors.Instance.Selected?.CloseAsync();
+            await Editors.Instance.Selected?.Close();
             if (Editors.Instance.IsEmpty)
             {
                 Application.Current.Shutdown();

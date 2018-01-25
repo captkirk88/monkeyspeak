@@ -39,5 +39,10 @@ namespace Monkeyspeak.Lexical.Expressions
                     var = page.SetVariable(varRef, null, false);
             return var;
         }
+
+        public override string ToString()
+        {
+            return GetValue<string>();
+        }
     }
 }

@@ -1,6 +1,3 @@
-
-<img src="https://github.com/captkirk88/monkeyspeak/blob/master/images/ms_edit.png" width="800" height="600" />
-
 # Monkeyspeak
 Linux/Mono | Windows
 ------------ | ---------
@@ -31,13 +28,13 @@ Monkeyspeak aims to give the end-user a very easy to use scripting language.
 + Tables (Dictionary objects with a configurable limit)
 
 - [Core Library]
-! Sys (triggers that support core Monkeyspeak tasks like setting variables)
++ Sys (triggers that support core Monkeyspeak tasks like setting variables)
 ! Math (very basic math operations + - / *)
 ! StringOperations (very basic string operations)
 ! IO (basic file operations)
-! Timers (basic timer support with optional delay)
++ Timers (basic timer support with optional delay)
 ! Tables (supports the for each trigger)
-! Loops (supports while loop and possibly more in the future)
++ Loops (supports while loop and possibly more in the future)
 ```
 
 ### Basics

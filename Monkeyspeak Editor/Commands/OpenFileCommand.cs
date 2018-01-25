@@ -23,7 +23,7 @@ namespace Monkeyspeak.Editor.Commands
             }
             else
             {
-                if (!editor.Open()) await editor.CloseAsync();
+                if (!editor.Open()) await editor.Close();
             }
             //Application.Current.Dispatcher.Invoke(() => ((MahApps.Metro.Controls.MetroAnimatedSingleRowTabControl)editor.Parent).SelectedItem = editor);
             editor.HasChanges = false;

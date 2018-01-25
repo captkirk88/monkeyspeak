@@ -436,6 +436,7 @@ namespace Monkeyspeak.Editor.Controls
 
         public bool Open()
         {
+            Plugins.PluginsManager.AllEnabled = false;
             OpenFileDialog dlg = new OpenFileDialog
             {
                 CheckFileExists = true,
@@ -450,7 +451,6 @@ namespace Monkeyspeak.Editor.Controls
                 CurrentFilePath = dlg.FileName;
                 if (System.IO.Path.GetExtension(CurrentFilePath) == ".msx")
                 {
-                    Plugins.PluginsManager.AllEnabled = false;
                     var page = MonkeyspeakRunner.LoadCompiled(CurrentFilePath);
                     foreach (var trigger in page.Triggers)
                     {
@@ -461,7 +461,6 @@ namespace Monkeyspeak.Editor.Controls
                 }
                 else
                 {
-                    Plugins.PluginsManager.AllEnabled = false;
                     foreach (var line in File.ReadAllLines(CurrentFilePath))
                         AddLine(line, false);
                     textEditor.SyntaxHighlighting =
@@ -470,6 +469,7 @@ namespace Monkeyspeak.Editor.Controls
                 }
                 textEditor.Document.UndoStack.MarkAsOriginalFile();
             }
+            Plugins.PluginsManager.AllEnabled = true;
             return opened ?? false;
         }
 
@@ -543,6 +543,7 @@ namespace Monkeyspeak.Editor.Controls
                 if (result == MessageDialogResult.Affirmative) Save();
                 else if (result == MessageDialogResult.FirstAuxiliary) return;
             }
+            Plugins.PluginsManager.AllEnabled = false;
 
             if (System.IO.Path.GetExtension(CurrentFilePath) == ".msx")
             {
@@ -555,9 +556,10 @@ namespace Monkeyspeak.Editor.Controls
             }
             else
             {
-                Plugins.PluginsManager.AllEnabled = false;
                 foreach (var line in File.ReadAllLines(CurrentFilePath))
+                {
                     AddLine(line, false);
+                }
                 textEditor.Text = TextUtilities.NormalizeNewLines(textEditor.Text, "\n");
                 textEditor.SyntaxHighlighting =
                         HighlightingManager.Instance.GetDefinitionByExtension(System.IO.Path.GetExtension(CurrentFilePath)) ??
@@ -567,7 +569,7 @@ namespace Monkeyspeak.Editor.Controls
             Plugins.PluginsManager.AllEnabled = true;
         }
 
-        public async Task<bool> CloseAsync()
+        public async Task<bool> Close()
         {
             if (HasChanges)
             {

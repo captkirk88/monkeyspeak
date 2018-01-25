@@ -57,75 +57,56 @@ page.RemoveLibrary(typeof(MyLibrary));
 
 #### Current Default Triggers
 ```
-Loops
-(5:450) exit the current loop.
-(6:450) while variable % is not #,
-(6:451) while variable % is #,
-(6:452) while variable % is not {...},
-(6:453) while variable % is {...},
-(6:454) after the loop is done,
-
-Tables
-(1:250) and variable % is a table,
-(1:251) and variable % is not a table,
-(5:250) create a table as %.
-(5:251) with table % put # in it at key {...}.
-(5:252) with table % put {...} in it at key {...}.
-(5:253) with table % get key {...} put it in into variable %.
-(5:254) with table % remove all entries in it.
-(6:250) for each entry in table % put it into %,
-(6:251) for each key/value pair in table % put them into % and %,
-
-IO
-(1:200) and the file {...} exists,
-(1:201) and the file {...} does not exist,
-(1:202) and the file {...} can be read from,
-(1:203) and the file {...} can be written to,
-(5:200) append {...} to file {...}.
-(5:201) read from file {...} and put it into variable %.
-(5:202) delete file {...}.
-(5:203) create file {...}.
-
-Math
-(1:150) and variable % is greater than #,
-(1:151) and variable % is greater than or equal to #,
-(1:152) and variable % is less than #,
-(1:153) and variable % is less than or equal to #,
-(5:150) take variable % and add # to it.
-(5:151) take variable % and subtract # from it.
-(5:152) take variable % and multiply it by #.
-(5:153) take variable % and divide it by #.
-
-StringOperations
-(5:400) with {...} get word count and set it to variable %.
-(5:401) with {...} set it to variable %.
-(5:402) with {...} get words starting at # to # and set it to variable %.
-(5:403) with {...} get index of {...} and set it to variable %.
-
-Sys
 (0:100) when job # is called put arguments into table % (optional),
 (1:100) and variable % is defined,
+(5:100) set variable % to {...}.
 (1:101) and variable % is not defined,
+(5:101) set variable % to #.
 (1:102) and variable % equals #,
+(5:102) print {...} to the log.
 (1:103) and variable % does not equal #,
+(5:103) get the environment variable named {...} and put it into %, (ex: PATH)
 (1:104) and variable % equals {...},
+(5:104) create random number and put it into variable %.
 (1:105) and variable % does not equal {...},
 (1:106) and variable % is constant,
 (1:107) and variable % is not constant,
-(5:100) set variable % to {...}.
-(5:101) set variable % to #.
-(5:102) print {...} to the log.
-(5:103) get the environment variable named {...} and put it into %, (ex: PATH)
-(5:104) create random number and put it into variable %.
 (5:107) delete variable %.
 (5:110) load library from file {...}. (example Monkeyspeak.dll)
+(5:111) unload library {...}. (example Sys)
+(5:112) get all loaded libraries and put them into table %.
 (5:115) call job # with (add strings, variables, numbers here) arguments.
-
-Timers
+(1:150) and variable % is greater than #,
+(5:150) take variable % and add # to it.
+(1:151) and variable % is greater than or equal to #,
+(5:151) take variable % and subtract # from it.
+(1:152) and variable % is less than #,
+(5:152) take variable % and multiply it by #.
+(1:153) and variable % is less than or equal to #,
+(5:153) take variable % and divide it by #.
+(1:200) and the file {...} exists,
+(5:200) append {...} to file {...}.
+(1:201) and the file {...} does not exist,
+(5:201) read from file {...} and put it into variable %.
+(1:202) and the file {...} can be read from,
+(5:202) delete file {...}.
+(1:203) and the file {...} can be written to,
+(5:203) create file {...}.
+(1:250) and variable % is a table,
+(5:250) create a table as %.
+(6:250) for each entry in table % put it into %,
+(1:251) and variable % is not a table,
+(5:251) with table % remove all entries in it.
+(6:251) for each key/value pair in table % put them into % and %,
+(1:252) and table % contains {...}
+(5:252) with table % remove key {...}
+(1:253) and table % does not contain {...}
+(1:254) and table % contains #
+(1:255) and table % does not contain #
 (0:300) when timer # goes off,
 (1:300) and timer # is running,
-(1:301) and timer # is not running,
 (5:300) create timer # to go off every # second(s) with a start delay of # second(s).
+(1:301) and timer # is not running,
 (5:301) stop timer #.
 (5:302) get current timer and put the id into variable %.
 (5:303) pause script execution for # seconds.
@@ -140,6 +121,16 @@ Timers
 (5:312) set the time zone to {...}
 (5:313) get univeral time zone and put it into variable %
 (5:314) get the available time zones and put it into table %
+(5:400) with {...} get word count and set it to variable %.
+(5:401) with {...} add it to variable %.
+(5:402) with {...} get words starting at # to # and set it to variable %.
+(5:403) with {...} get index of {...} and set it to variable %.
+(5:450) exit the current loop.
+(6:450) while variable % is not #,
+(6:451) while variable % is #,
+(6:452) while variable % is not {...},
+(6:453) while variable % is {...},
+(6:454) after the loop is done,
 ```
 
 #### Next Up

@@ -230,8 +230,16 @@ namespace Monkeyspeak
                     var expr = contents[i];
                     var tokenType = Expressions.GetTokenTypeFor(contents[i].GetType());
                     if (tokenType == null) continue;
-                    sb.Append(tokenType);
-                    sb.Append(expr.ToString());
+                    switch (tokenType)
+                    {
+                        case TokenType.STRING_LITERAL:
+                            sb.Append(options.StringBeginSymbol).Append(expr.ToString()).Append(options.StringEndSymbol);
+                            break;
+
+                        default:
+                            sb.Append(expr.ToString());
+                            break;
+                    }
                     if (includeSourcePos) sb.Append(' ').Append(expr.Position);
                     if (i != contents.Count - 1) sb.Append(' ');
                 }
@@ -248,7 +256,7 @@ namespace Monkeyspeak
                 Lexer lexer = new Lexer(engine, new SStreamReader(stream));
                 foreach (var trigger in parser.Parse(lexer))
                 {
-                    if (trigger != Trigger.Undefined) return trigger;
+                    if (trigger != Undefined) return trigger;
                 }
             }
             catch { }

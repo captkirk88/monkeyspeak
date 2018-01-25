@@ -30,7 +30,7 @@ namespace Monkeyspeak.Editor.Commands
                 if (!string.IsNullOrWhiteSpace(editors[i].CurrentFilePath) &&
                     File.Exists(editors[i].CurrentFilePath))
                     session.Add(editors[i].CurrentFilePath);
-                if (!await editors[i].CloseAsync())
+                if (!await editors[i].Close())
                 {
                     return;
                 }
