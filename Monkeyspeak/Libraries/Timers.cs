@@ -111,11 +111,12 @@ namespace Monkeyspeak.Libraries
         /// <summary>
         /// Default Timer Library.
         /// </summary>
-        public Timers(uint? timersLimit = null, TimeZoneInfo timeZoneInfo = default(TimeZoneInfo))
+        public Timers(uint timersLimit = 10, TimeZoneInfo timeZoneInfo = default(TimeZoneInfo))
         {
             if (timersLimit == 0) timersLimit = 10;
             if (timeZoneInfo == default(TimeZoneInfo)) timeZoneInfo = TimeZoneInfo.Local;
-            this.timersLimit = timersLimit.GetValueOrDefault(10);
+            timeZone = timeZoneInfo;
+            this.timersLimit = timersLimit;
         }
 
         public override void Initialize(params object[] args)
