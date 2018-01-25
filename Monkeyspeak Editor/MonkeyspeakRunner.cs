@@ -10,7 +10,14 @@ namespace Monkeyspeak.Editor
 {
     public static class MonkeyspeakRunner
     {
-        private static MonkeyspeakEngine engine = new MonkeyspeakEngine();
+        private static MonkeyspeakEngine engine = new MonkeyspeakEngine()
+        {
+            Options = new Options()
+            {
+                TriggerLimit = int.MaxValue
+            }
+        };
+
         private static Page page = new Page(Engine);
 
         [Browsable(false)]
