@@ -15,6 +15,7 @@ using System.Windows.Shapes;
 using ICSharpCode.AvalonEdit.Highlighting;
 using MahApps.Metro;
 using MahApps.Metro.Controls;
+using Monkeyspeak.Editor.Extensions;
 using Monkeyspeak.Editor.HelperClasses;
 using Monkeyspeak.Editor.Plugins;
 
@@ -29,6 +30,13 @@ namespace Monkeyspeak.Editor.Controls
         {
             InitializeComponent();
             DataContext = this;
+            settingsProps.Foreground = ThemeHelper.ToThemeForeground();
+            settingsProps.Background = ThemeHelper.ToThemeBackground();
+            syntaxProps.Foreground = ThemeHelper.ToThemeForeground();
+            syntaxProps.Background = ThemeHelper.ToThemeBackground();
+            pluginProps.Foreground = ThemeHelper.ToThemeForeground();
+            pluginProps.Background = ThemeHelper.ToThemeBackground();
+
             settingsProps.AdvancedOptionsMenu = null;
             syntaxProps.AdvancedOptionsMenu = null;
             pluginProps.AdvancedOptionsMenu = null;

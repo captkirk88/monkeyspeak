@@ -71,18 +71,5 @@ namespace Monkeyspeak.Editor
             }
             return false;
         }
-
-        public static Page LoadCompiled(string filePath)
-        {
-            try
-            {
-                return Engine.LoadCompiledFile(filePath);
-            }
-            catch (Exception ex)
-            {
-                ex.Log();
-            }
-            return null;
-        }
     }
 }

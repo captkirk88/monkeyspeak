@@ -78,7 +78,7 @@ namespace Monkeyspeak.Lexical
         {
             //using (var compressed = new DeflateStream(stream, CompressionMode.Compress))
             Trigger[] triggers = triggerBlocks.SelectMany(block => block.ToArray()).ToArray();
-            using (var writer = new BinaryWriter(stream))
+            using (var writer = new BinaryWriter(stream, Encoding.UTF8, true))
             {
                 writer.Write(version.Major);
                 writer.Write(version.Minor);
