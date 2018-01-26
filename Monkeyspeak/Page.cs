@@ -216,7 +216,7 @@ namespace Monkeyspeak
         }
 
         /// <summary>
-        /// Loads the compiled stream.
+        /// Loads the compiled stream.  *DOES NOT CLOSE THE STREAM!*
         /// </summary>
         /// <param name="stream">The stream.</param>
         public void LoadCompiledStream(Stream stream)
@@ -224,8 +224,7 @@ namespace Monkeyspeak
             try
             {
                 Compiler compiler = new Compiler(engine);
-                using (stream)
-                    AddBlocks(compiler.DecompileFromStream(stream));
+                AddBlocks(compiler.DecompileFromStream(stream));
             }
             catch (Exception ex)
             {
@@ -247,13 +246,17 @@ namespace Monkeyspeak
             }
         }
 
+        /// <summary>
+        /// Compiles to stream.  *DOES NOT CLOSE THE STREAM!*
+        /// </summary>
+        /// <param name="stream">The stream.</param>
+        /// <exception cref="MonkeyspeakException">Error compiling to stream.</exception>
         public void CompileToStream(Stream stream)
         {
             try
             {
                 Compiler compiler = new Compiler(engine);
-                using (stream)
-                    compiler.CompileToStream(triggerBlocks, stream);
+                compiler.CompileToStream(triggerBlocks, stream);
             }
             catch (Exception ex)
             {

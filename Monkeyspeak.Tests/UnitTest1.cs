@@ -388,7 +388,7 @@ namespace MonkeyspeakTests
             // Set the trigger limit to int.MaxValue to prevent TriggerLimit reached exceptions
             engine.Options.TriggerLimit = int.MaxValue;
 
-            Page page = engine.LoadFromFile("testBIG.ms");
+            Page page = engine.LoadFromFile(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "testBIG.ms"));
 
             page.LoadAllLibraries();
             page.Error += DebugAllErrors;
@@ -406,7 +406,7 @@ namespace MonkeyspeakTests
             // Set the trigger limit to int.MaxValue to prevent TriggerLimit reached exceptions
             engine.Options.TriggerLimit = int.MaxValue;
 
-            Page page = await engine.LoadFromFileAsync("testBIG.ms");
+            Page page = await engine.LoadFromFileAsync(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "testBIG.ms"));
 
             page.Debug = true;
 
