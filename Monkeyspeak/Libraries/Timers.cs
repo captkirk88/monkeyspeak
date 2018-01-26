@@ -12,7 +12,7 @@ namespace Monkeyspeak.Libraries
     /// <summary>
     /// A TimerTask object contains Timer and Page Owner.  Timer is not started from a TimerTask constructor.
     /// </summary>
-    internal sealed class TimerTask
+    internal sealed class TimerTask : IEquatable<TimerTask>
     {
         public double Interval { get; set; }
 
@@ -77,6 +77,7 @@ namespace Monkeyspeak.Libraries
                         timerTask.Start();
                     }
                     Timers.CurrentTimer = timerTask.Id;
+                    //while (!timerTask.Owner.CanExecute) Thread.Sleep(100);
                     timerTask.Owner.Execute(300, timerTask.Id);
                     Timers.CurrentTimer = 0;
                 }
@@ -85,6 +86,11 @@ namespace Monkeyspeak.Libraries
             {
                 // Eat the exception.. yummy!
             }
+        }
+
+        public bool Equals(TimerTask other)
+        {
+            return other.Id == Id;
         }
     }
 
@@ -180,6 +186,8 @@ namespace Monkeyspeak.Libraries
                 "get the available time zones and put it into table %");
         }
 
+        [TriggerDescription("Gets the universal time zone and puts it into a variable")]
+        [TriggerVariableParameter]
         private bool GetUTCTimeZone(TriggerReader reader)
         {
             var var = reader.ReadVariable(true);
@@ -187,6 +195,8 @@ namespace Monkeyspeak.Libraries
             return true;
         }
 
+        [TriggerDescription("Gets all time zones available to the system and puts them into a table")]
+        [TriggerVariableParameter]
         private bool GetAllTimeZones(TriggerReader reader)
         {
             var table = reader.ReadVariableTable(true);
@@ -206,6 +216,8 @@ namespace Monkeyspeak.Libraries
 
         private TimeZoneInfo timeZone = TimeZoneInfo.Local;
 
+        [TriggerDescription("Sets the time zone.  Any triggers before this will use the time zone set by the application.")]
+        [TriggerStringParameter]
         private bool SetTheTimeZone(TriggerReader reader)
         {
             try
@@ -221,6 +233,8 @@ namespace Monkeyspeak.Libraries
             return true;
         }
 
+        [TriggerDescription("Gets the current year and puts it into a variable")]
+        [TriggerVariableParameter]
         private bool GetCurrentYearIntoVar(TriggerReader reader)
         {
             var var = reader.ReadVariable(true);
@@ -228,6 +242,8 @@ namespace Monkeyspeak.Libraries
             return true;
         }
 
+        [TriggerDescription("Gets the current month and puts it into a variable")]
+        [TriggerVariableParameter]
         private bool GetCurrentMonthIntoVar(TriggerReader reader)
         {
             var var = reader.ReadVariable(true);
@@ -235,6 +251,8 @@ namespace Monkeyspeak.Libraries
             return true;
         }
 
+        [TriggerDescription("Gets the current day of the month and puts it into a variable")]
+        [TriggerVariableParameter]
         private bool GetCurrentDayOfMonthIntoVar(TriggerReader reader)
         {
             var var = reader.ReadVariable(true);
@@ -242,6 +260,8 @@ namespace Monkeyspeak.Libraries
             return true;
         }
 
+        [TriggerDescription("Gets the current seconds and puts it into a variable")]
+        [TriggerVariableParameter]
         private bool GetCurrentSecondsIntoVar(TriggerReader reader)
         {
             var var = reader.ReadVariable(true);
@@ -249,6 +269,8 @@ namespace Monkeyspeak.Libraries
             return true;
         }
 
+        [TriggerDescription("Gets the current minutes and puts it into a variable")]
+        [TriggerVariableParameter]
         private bool GetCurrentMinutesIntoVar(TriggerReader reader)
         {
             var var = reader.ReadVariable(true);
@@ -256,6 +278,8 @@ namespace Monkeyspeak.Libraries
             return true;
         }
 
+        [TriggerDescription("Gets the current hour and puts it into a variable")]
+        [TriggerVariableParameter]
         private bool GetCurrentHourIntoVar(TriggerReader reader)
         {
             var var = reader.ReadVariable(true);
@@ -263,6 +287,8 @@ namespace Monkeyspeak.Libraries
             return true;
         }
 
+        [TriggerDescription("Gets the application uptime and puts it into a variable")]
+        [TriggerVariableParameter]
         private bool GetCurrentUpTimeIntoVar(TriggerReader reader)
         {
             var var = reader.ReadVariable(true);
@@ -270,11 +296,14 @@ namespace Monkeyspeak.Libraries
             return true;
         }
 
+        [TriggerDescription("Pauses script execution")]
         private bool PauseScriptExecution(TriggerReader reader)
         {
-            double delay = reader.ReadNumber();
-
-            Thread.Sleep(TimeSpan.FromSeconds(delay));
+            double duration = reader.ReadNumber();
+            reader.Page.CanExecute = false;
+            reader.Page.CanExecute = false;
+            Thread.Sleep(TimeSpan.FromSeconds(duration > 0 ? duration : 0));
+            reader.Page.CanExecute = true;
             return true;
         }
 
@@ -331,7 +360,6 @@ namespace Monkeyspeak.Libraries
                 var existing = timers.FirstOrDefault(task => task.Id == id);
                 if (existing != null)
                 {
-#warning Replacing existing timer may cause any triggers dependent on that timer to behave differently
                     existing.Dispose();
                     timers.Remove(existing);
                 }

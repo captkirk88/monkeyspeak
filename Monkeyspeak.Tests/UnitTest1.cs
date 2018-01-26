@@ -394,7 +394,7 @@ namespace MonkeyspeakTests
             page.Error += DebugAllErrors;
 
             Console.WriteLine("Trigger Count: " + page.Size);
-            //page.Execute(0);
+            page.Execute();
             Logger.Debug($"Trigger Count: {page.Size}");
         }
 
@@ -427,9 +427,10 @@ namespace MonkeyspeakTests
 
             // Set the trigger limit to int.MaxValue to prevent TriggerLimit reached exceptions
             engine.Options.TriggerLimit = int.MaxValue;
-
+            engine.Options.Debug = false;
+            Logger.InfoEnabled = false;
             var sb = new StringBuilder();
-            for (int i = 0; i < 100; i++)
+            for (int i = 0; i < 1000; i++)
             {
                 sb.AppendLine();
                 sb.AppendLine("(0:0) when the script is started,");
@@ -442,29 +443,22 @@ namespace MonkeyspeakTests
                 sb.AppendLine();
             }
             //Logger.Info(sb.ToString());
+            Stopwatch timer = Stopwatch.StartNew();
             Page page = engine.LoadFromString(sb.ToString());
+            timer.Stop();
+            Logger.InfoEnabled = true;
+            Logger.Info($"Elapsed (loading): {timer.ElapsedMilliseconds}ms");
             page.LoadAllLibraries();
-
-            var sb2 = new StringBuilder();
-            for (int i = 0; i < 5; i++)
-            {
-                sb.AppendLine();
-                sb.AppendLine("(0:0) when the script is started,");
-                sb.AppendLine("(5:100) set %hello to {Hello World}.");
-                sb.AppendLine("(1:104) and variable %hello equals {this will be false move on to next condition}");
-                sb.AppendLine("(5:102) print {hello = %hello helloNum = % helloNum} to the console.");
-                sb.AppendLine("(1:104) and variable %hello equals {Hello World}");
-                sb.AppendLine("(5:101) set %helloNum to 5.");
-                sb.AppendLine("(5:102) print {hello = %hello helloNum = % helloNum} to the console.");
-                sb.AppendLine();
-            }
-
-            engine.LoadFromString(page, sb2.ToString());
 
             page.Error += DebugAllErrors;
 
-            page.Execute();
             Logger.Info($"Triggers: {page.Size}");
+            Logger.InfoEnabled = false;
+            timer.Restart();
+            page.Execute();
+            timer.Stop();
+            Logger.InfoEnabled = true;
+            Logger.Info($"Elapsed (executing): {timer.ElapsedMilliseconds}ms");
         }
 
         [Test]
@@ -612,7 +606,7 @@ namespace MonkeyspeakTests
             page.LoadAllLibraries();
 
             page.Execute(0);
-            System.Threading.Thread.Sleep(10000);
+            Thread.Sleep(10000);
             page.Dispose();
         }
 

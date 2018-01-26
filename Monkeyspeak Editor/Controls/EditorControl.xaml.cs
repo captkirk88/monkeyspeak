@@ -451,7 +451,7 @@ namespace Monkeyspeak.Editor.Controls
                 CurrentFilePath = dlg.FileName;
                 if (System.IO.Path.GetExtension(CurrentFilePath) == ".msx")
                 {
-                    var page = MonkeyspeakRunner.LoadCompiled(CurrentFilePath);
+                    var page = MonkeyspeakRunner.LoadFile(CurrentFilePath);
                     foreach (var trigger in page.Triggers)
                     {
                         AddLine(trigger.RebuildToString(page.Engine.Options), false);
@@ -548,7 +548,7 @@ namespace Monkeyspeak.Editor.Controls
             if (System.IO.Path.GetExtension(CurrentFilePath) == ".msx")
             {
                 textEditor.Text = string.Empty;
-                var page = MonkeyspeakRunner.LoadCompiled(CurrentFilePath);
+                var page = MonkeyspeakRunner.LoadFile(CurrentFilePath);
                 foreach (var trigger in page.Triggers)
                 {
                     AddLine(trigger.RebuildToString(page.Engine.Options));
