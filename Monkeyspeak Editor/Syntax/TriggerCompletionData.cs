@@ -18,7 +18,7 @@ using Monkeyspeak.Extensions;
 using Monkeyspeak.Editor.Extensions;
 using System.Windows.Media;
 
-namespace Monkeyspeak.Editor.HelperClasses
+namespace Monkeyspeak.Editor.Syntax
 {
     public sealed class TriggerCompletionData : ICompletionData, IComparable<TriggerCompletionData>
     {

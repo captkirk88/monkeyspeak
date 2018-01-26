@@ -3,6 +3,7 @@ using MahApps.Metro.Controls;
 using Monkeyspeak.Editor.Commands;
 using Monkeyspeak.Editor.HelperClasses;
 using Monkeyspeak.Editor.Interfaces.Notifications;
+using Monkeyspeak.Editor.Keybindings;
 using System;
 using System.Collections.Generic;
 using System.Linq;

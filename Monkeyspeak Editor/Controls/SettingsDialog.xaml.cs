@@ -17,6 +17,7 @@ using MahApps.Metro;
 using MahApps.Metro.Controls;
 using Monkeyspeak.Editor.Extensions;
 using Monkeyspeak.Editor.HelperClasses;
+using Monkeyspeak.Editor.Keybindings;
 using Monkeyspeak.Editor.Plugins;
 
 namespace Monkeyspeak.Editor.Controls

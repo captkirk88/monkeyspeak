@@ -1,4 +1,5 @@
 ﻿using Monkeyspeak.Editor.HelperClasses;
+using Monkeyspeak.Editor.Syntax;
 using Monkeyspeak.Libraries;
 using Monkeyspeak.Utils;
 using System;

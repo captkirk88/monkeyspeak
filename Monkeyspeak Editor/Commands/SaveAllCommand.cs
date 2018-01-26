@@ -12,10 +12,14 @@ namespace Monkeyspeak.Editor.Commands
         public override void Execute(object parameter)
         {
             foreach (var editor in Editors.Instance.All)
+            {
+                if (Properties.Settings.Default.AutoCompileScriptsOnSave)
+                    MonkeyspeakCommands.Compile.Execute(editor);
                 if (editor.HasChanges) editor.Save();
+            }
         }
 
-        public override object ToolTip => "Saves all open documents";
+        public override object ToolTip => "Saves all open documents and compiles them if the option is enabled";
     }
 
     public sealed class ForceSaveAllCommand : BaseCommand

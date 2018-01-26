@@ -9,6 +9,8 @@ namespace Monkeyspeak.Editor.Commands
 {
     public static class MonkeyspeakCommands
     {
+        public static SyntaxCheckCommand SyntaxCheck = new SyntaxCheckCommand();
+
         public static CompletionCommand Completion = new CompletionCommand();
 
         public static NewEditorCommand New = new NewEditorCommand();

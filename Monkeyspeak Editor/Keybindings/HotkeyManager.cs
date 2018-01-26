@@ -18,7 +18,7 @@ using Monkeyspeak.Logging;
 
 using System.Linq;
 
-namespace Monkeyspeak.Editor.HelperClasses
+namespace Monkeyspeak.Editor.Keybindings
 {
     public class HotKeyWithDefault : HotKey
     {
@@ -116,7 +116,7 @@ namespace Monkeyspeak.Editor.HelperClasses
             keyInput.Height = 32;
             TextBoxHelper.SetAutoWatermark(keyInput, true);
             TextBoxHelper.SetWatermark(keyInput, "Type keys then press enter");
-            Keyboard.Focus(keyInput);
+            keyInput.Focus();
 
             keyInput.PreviewKeyDown += async (sender, e) =>
             {

@@ -100,18 +100,13 @@ namespace Monkeyspeak.Editor.Controls
             };
             textEditor.TextArea.SelectionChanged += (sender, args) =>
             {
-                SelectedLine = Lines[textEditor.TextArea.Caret.Line - 1];
+                var line = textEditor.Document.GetLineByNumber(textEditor.TextArea.Selection.StartPosition.Line);
+                SelectedLine = textEditor.Document.GetText(line.Offset, line.Length);
                 SelectedText = textEditor.SelectedText;
                 //if (!string.IsNullOrWhiteSpace(SelectedText))
                 //HighlightAllOccurances(SelectedText);
                 Plugins.PluginsManager.AllEnabled = true;
                 Plugins.PluginsManager.OnEditorSelectionChanged(this);
-            };
-            textEditor.Document.PropertyChanged += (sender, e) =>
-            {
-                if (e.PropertyName == "LineCount")
-                {
-                }
             };
             textEditor.PreviewDrop += (sender, e) =>
             {
@@ -132,25 +127,36 @@ namespace Monkeyspeak.Editor.Controls
             {
                 if (!string.IsNullOrWhiteSpace(e.Text))
                 {
-                    Intellisense.TextEntered(e);
-                }
-            };
-            textEditor.KeyDown += (sender, e) =>
-            {
-                if (e.Key == Key.Space || e.Key == Key.Return)
-                {
-                    SyntaxChecker.Check(this);
-                    if (e.Key == Key.Return)
+                    if (e.Text == " ")
                     {
-                        if (Trigger.TryParse(MonkeyspeakRunner.Engine, PreviousLine, out var trigger)) TriggerCount++;
-                        LineAdded?.Invoke(CurrentLine, CaretLine);
+                        Intellisense.TextEntered(e);
+                        SyntaxChecker.Check(this);
                     }
                 }
+            };
+            textEditor.PreviewKeyDown += (sender, e) =>
+            {
+                // avoid common keybindings like Ctrl + Space
+                if (e.Key == Key.LeftCtrl || e.Key == Key.RightCtrl ||
+                    e.Key == Key.LeftShift || e.Key == Key.RightShift ||
+                    e.Key == Key.LeftAlt || e.Key == Key.LeftAlt) return;
 
                 if (e.Key == Key.Back || e.Key == Key.Delete)
                 {
                     if (CaretColumn > 0 && !Trigger.TryParse(MonkeyspeakRunner.Engine, CurrentLine, out var trigger)) TriggerCount--;
                 }
+
+                if (e.Key == Key.Space)
+                    SyntaxChecker.Check(this);
+
+                if (e.Key == Key.Return)
+                {
+                    SyntaxChecker.Check(this);
+                    Intellisense.Close();
+                    if (Trigger.TryParse(MonkeyspeakRunner.Engine, PreviousLine, out var trigger)) TriggerCount++;
+                    LineAdded?.Invoke(CurrentLine, CaretLine);
+                }
+                e.Handled = false;
             };
 
             LineAdded += (text, line) =>
