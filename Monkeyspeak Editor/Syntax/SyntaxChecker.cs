@@ -74,6 +74,7 @@ namespace Monkeyspeak.Editor.Syntax
                     }
                 }
             }
+            editor.textEditor.Focus();
         }
 
         private static void AddMarker(Token token, EditorControl editor, string message = null, Severity severity = Severity.Error)

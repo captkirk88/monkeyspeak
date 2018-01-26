@@ -16,10 +16,9 @@ namespace Monkeyspeak.Editor.HelperClasses
         private Lexer lexer;
         private Parser parser;
 
-        public MonkeyspeakIndentationStrategy(Page page)
+        public MonkeyspeakIndentationStrategy()
         {
-            this.page = page;
-            parser = new Parser(page.Engine);
+            parser = new Parser(MonkeyspeakRunner.Engine);
         }
 
         public void IndentLine(TextDocument document, DocumentLine line)
@@ -48,7 +47,7 @@ namespace Monkeyspeak.Editor.HelperClasses
                                 break;
 
                             case TriggerCategory.Flow:
-                                indentCount = 4;
+                                indentCount = 2;
                                 break;
                         }
                         var sb = new StringBuilder();

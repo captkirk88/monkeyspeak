@@ -50,7 +50,7 @@ namespace Monkeyspeak.Editor.Syntax
                         break;
 
                     case TriggerCategory.Flow:
-                        Indentation = 2;
+                        Indentation = 1;
                         break;
 
                     default:
@@ -84,7 +84,7 @@ namespace Monkeyspeak.Editor.Syntax
                         break;
 
                     case TriggerCategory.Flow:
-                        Indentation = 2;
+                        Indentation = 1;
                         break;
 
                     default:

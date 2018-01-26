@@ -103,24 +103,25 @@ namespace Monkeyspeak.Editor
             SyntaxChecker.Cleared += editor =>
             {
                 errors_list.Items.Clear();
-                errors_flyout.IsOpen = false;
+                errors_flyout_button.Foreground = Brushes.Black;
             };
             errors_list.SelectionMode = SelectionMode.Extended;
             errors_list.PreviewKeyDown += (sender, e) =>
             {
                 if (e.Key == Key.Delete)
                 {
-                    var items = errors_list.SelectedItems;
-                    if (items.Count > 0)
+                    var items = errors_list.SelectedItems.Cast<object>().ToArray();
+                    if (items.Length > 0)
                     {
-                        foreach (var item in items) errors_list.Items.Remove(item);
+                        foreach (var item in items)
+                        {
+                            errors_list.Items.Remove(item);
+                        }
+                        if (errors_list.Items.Count == 0)
+                            errors_flyout_button.Foreground = Brushes.Black;
                         e.Handled = true;
                     }
                 }
-            };
-            errors_flyout.IsOpenChanged += (sender, e) =>
-            {
-                Editors.Instance.Selected?.textEditor.Focus();
             };
             errors_flyout.GotFocus += (sender, e) => errors_flyout.IsAutoCloseEnabled = false;
             errors_flyout.LostFocus += (sender, e) => errors_flyout.IsAutoCloseEnabled = true;
@@ -262,11 +263,13 @@ namespace Monkeyspeak.Editor
             content.Children.Add(new TextBlock { Text = ex.Message, Foreground = brush });
             item.Content = content;
             errors_list.Items.Add(item);
-            if (severity == SyntaxChecker.Severity.Error ||
+            if (errors_flyout.IsOpen == false && severity == SyntaxChecker.Severity.Error ||
                 (severity == SyntaxChecker.Severity.Warning &&
                 Properties.Settings.Default.AutoOpenOnWarning &&
                 Properties.Settings.Default.ShowWarnings))
-                errors_flyout.IsOpen = true;
+            {
+                errors_flyout_button.Foreground = brush;
+            }
         }
 
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)
