@@ -10,7 +10,7 @@ using ICSharpCode.AvalonEdit.Highlighting;
 using ICSharpCode.AvalonEdit.Rendering;
 using Monkeyspeak.Libraries;
 
-namespace Monkeyspeak.Editor.HelperClasses
+namespace Monkeyspeak.Editor.Syntax
 {
     internal class VariableCompletionData : ICompletionData
     {

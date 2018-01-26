@@ -73,7 +73,7 @@
                 </ScrollViewer>
             </Controls:Flyout>
 
-            <Controls:Flyout x:Name="errors_flyout" Position="Bottom" TitleVisibility="Visible" MaxHeight="200">
+            <Controls:Flyout x:Name="errors_flyout" Position="Bottom" TitleVisibility="Visible" MaxHeight="200" AutoCloseInterval="4000" IsAutoCloseEnabled="True">
                 <ScrollViewer x:Name="errors_flyout_scroll">
                     <ListView x:Name="errors_list">
                         <ListView.ItemsPanel>

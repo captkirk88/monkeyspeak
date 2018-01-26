@@ -20,7 +20,7 @@ using Monkeyspeak.Editor.Utils;
 using Monkeyspeak.Lexical.Expressions;
 using Monkeyspeak.Utils;
 
-namespace Monkeyspeak.Editor.HelperClasses
+namespace Monkeyspeak.Editor.Syntax
 {
     public static class Intellisense
     {
@@ -132,6 +132,7 @@ namespace Monkeyspeak.Editor.HelperClasses
                 e.Handled = true;
                 return true;
             }
+            ToolTipManager.Opened = false;
             return false;
         }
 

@@ -22,7 +22,7 @@ namespace Monkeyspeak.Editor.Syntax
         private static Dictionary<EditorControl, ITextMarkerService> textMarkers = new Dictionary<EditorControl, ITextMarkerService>();
         private static Page page;
 
-        public static event Action<EditorControl> PerformingOperation;
+        public static event Action<EditorControl> PerformingOperation, Cleared;
 
         public static event Action<EditorControl, MonkeyspeakException, SourcePosition, Severity> Error, Warning, Info;
 
@@ -61,7 +61,7 @@ namespace Monkeyspeak.Editor.Syntax
                 SourcePosition pos = new SourcePosition();
                 Parser parser = new Parser(MonkeyspeakRunner.Engine);
                 Lexer lexer = new Lexer(MonkeyspeakRunner.Engine, new SStreamReader(memory));
-                //lexer.Error += ex => AddMarker(line == -1 ? ex.SourcePosition : pos, editor, ex.Message);
+                lexer.Error += ex => AddMarker(line == -1 ? ex.SourcePosition : pos, editor, ex.Message);
                 lexer.Error += ex => Error?.Invoke(editor, ex, line == -1 ? ex.SourcePosition : pos, Severity.Error);
                 foreach (var trigger in parser.Parse(lexer))
                 {
@@ -69,7 +69,7 @@ namespace Monkeyspeak.Editor.Syntax
                         pos = new SourcePosition(line, trigger.SourcePosition.Column, trigger.SourcePosition.RawPosition);
                     if (page != null && !page.Libraries.Any(lib => lib.Contains(trigger.Category, trigger.Id)))
                     {
-                        //AddMarker(line == -1 ? trigger.SourcePosition : pos, editor, severity: Severity.Warning);
+                        AddMarker(line == -1 ? trigger.SourcePosition : pos, editor, severity: Severity.Warning);
                         Warning?.Invoke(editor, new MonkeyspeakException($"{trigger} does not have a handler associated to it that could be found."), line == -1 ? trigger.SourcePosition : pos, Severity.Warning);
                     }
                 }
@@ -157,6 +157,7 @@ namespace Monkeyspeak.Editor.Syntax
         {
             var textMarker = textMarkers[editor];
             textMarker.RemoveAll(marker => true);
+            Cleared?.Invoke(editor);
         }
 
         public enum Severity

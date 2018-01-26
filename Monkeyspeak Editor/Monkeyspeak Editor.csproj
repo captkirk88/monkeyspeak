@@ -103,6 +103,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Commands\CompletionCommand.cs" />
+    <Compile Include="Commands\SyntaxCheckCommand.cs" />
     <Compile Include="Extensions\ThemeExtensions.cs" />
     <Compile Include="HelperClasses\DictionaryPropertyGridAdapter.cs" />
     <Compile Include="Syntax\ITextMarker.cs" />
@@ -141,13 +142,13 @@
     <Compile Include="HelperClasses\FileAssociations.cs" />
     <Compile Include="HelperClasses\Github.cs" />
     <Compile Include="HelperClasses\HighlightSelectedColorizer.cs" />
-    <Compile Include="HelperClasses\HotkeyManager.cs" />
-    <Compile Include="HelperClasses\Intellisense.cs" />
+    <Compile Include="Keybindings\HotkeyManager.cs" />
+    <Compile Include="Syntax\Intellisense.cs" />
     <Compile Include="HelperClasses\MonkeyspeakIndentationStrategy.cs" />
     <Compile Include="HelperClasses\SecureStringProtectedConfigurationProvider.cs" />
     <Compile Include="HelperClasses\SerializableString.cs" />
-    <Compile Include="HelperClasses\TriggerCompletionData.cs" />
-    <Compile Include="HelperClasses\VariableCompletionData.cs" />
+    <Compile Include="Syntax\TriggerCompletionData.cs" />
+    <Compile Include="Syntax\VariableCompletionData.cs" />
     <Compile Include="HelperClasses\WordColorizer.cs" />
     <Compile Include="MonkeyspeakRunner.cs" />
     <Compile Include="Notifications\NotificationWithIcon.cs" />

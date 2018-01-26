@@ -13,6 +13,8 @@ namespace Monkeyspeak.Editor.Commands
             var selected = Editors.Instance.Selected;
             if (selected != null)
             {
+                if (Properties.Settings.Default.AutoCompileScriptsOnSave)
+                    MonkeyspeakCommands.Compile.Execute(selected);
                 selected.SaveAs();
             }
         }

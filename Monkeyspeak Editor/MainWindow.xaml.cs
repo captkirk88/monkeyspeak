@@ -7,6 +7,7 @@ using Monkeyspeak.Editor.Controls;
 using Monkeyspeak.Editor.Extensions;
 using Monkeyspeak.Editor.HelperClasses;
 using Monkeyspeak.Editor.Interfaces.Plugins;
+using Monkeyspeak.Editor.Keybindings;
 using Monkeyspeak.Editor.Logging;
 using Monkeyspeak.Editor.Notifications;
 using Monkeyspeak.Editor.Notifications.Controls;
@@ -99,17 +100,30 @@ namespace Monkeyspeak.Editor
             SyntaxChecker.Info += SyntaxChecker_Event;
             SyntaxChecker.Warning += SyntaxChecker_Event;
             SyntaxChecker.Error += SyntaxChecker_Event;
-
+            SyntaxChecker.Cleared += editor =>
+            {
+                errors_list.Items.Clear();
+                errors_flyout.IsOpen = false;
+            };
             errors_list.SelectionMode = SelectionMode.Extended;
             errors_list.PreviewKeyDown += (sender, e) =>
             {
                 if (e.Key == Key.Delete)
                 {
-                    foreach (var item in errors_list.SelectedItems)
-                        errors_list.Items.Remove(item);
-                    e.Handled = true;
+                    var items = errors_list.SelectedItems;
+                    if (items.Count > 0)
+                    {
+                        foreach (var item in items) errors_list.Items.Remove(item);
+                        e.Handled = true;
+                    }
                 }
             };
+            errors_flyout.IsOpenChanged += (sender, e) =>
+            {
+                Editors.Instance.Selected?.textEditor.Focus();
+            };
+            errors_flyout.GotFocus += (sender, e) => errors_flyout.IsAutoCloseEnabled = false;
+            errors_flyout.LostFocus += (sender, e) => errors_flyout.IsAutoCloseEnabled = true;
 
             foreach (var col in Enum.GetNames(typeof(AppColor)))
             {
