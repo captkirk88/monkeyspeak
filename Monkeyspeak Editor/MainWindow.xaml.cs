@@ -125,6 +125,7 @@ namespace Monkeyspeak.Editor
 
             // Settings
             var settings = Properties.Settings.Default;
+            settings.Reload();
             Left = settings.WindowPosition.X;
             Top = settings.WindowPosition.Y;
             Width = settings.WindowSizeWidth;
@@ -218,7 +219,7 @@ namespace Monkeyspeak.Editor
             };
             item.ToolTip = "Double click to go to error.  Select item and press DELETE key to remove.";
 
-            StackPanel content = new StackPanel()
+            VirtualizingStackPanel content = new VirtualizingStackPanel()
             {
                 Orientation = Orientation.Horizontal
             };
@@ -330,9 +331,11 @@ namespace Monkeyspeak.Editor
         {
             if (Enum.TryParse(style_chooser.SelectedItem.ToString(), out AppColor col))
             {
-                SetColor(col);
-                Properties.Settings.Default.Color = col;
-                Properties.Settings.Default.Save();
+                var settings = Properties.Settings.Default;
+                settings.Color = col;
+                settings.SettingsSaving += Settings_Saving;
+                settings.Save();
+                settings.Reload();
             }
         }
 
@@ -340,9 +343,11 @@ namespace Monkeyspeak.Editor
         {
             if (Enum.TryParse(theme_chooser.SelectedItem.ToString(), out AppTheme theme))
             {
-                SetTheme(theme);
-                Properties.Settings.Default.Theme = theme;
-                Properties.Settings.Default.Save();
+                var settings = Properties.Settings.Default;
+                settings.Theme = theme;
+                settings.SettingsSaving += Settings_Saving;
+                settings.Save();
+                settings.Reload();
             }
         }
 
@@ -365,6 +370,7 @@ namespace Monkeyspeak.Editor
                                         ThemeManager.GetAccent(Enum.GetName(typeof(AppColor), color)),
                                         appStyle.Item1);
             });
+            style_chooser.SelectedItem = color;
         }
 
         public AppColor GetColor()
@@ -384,6 +390,7 @@ namespace Monkeyspeak.Editor
                                         appStyle.Item2,
                                         ThemeManager.GetAppTheme($"Base{Enum.GetName(typeof(AppTheme), accent)}"));
             });
+            style_chooser.SelectedItem = accent;
         }
 
         public AppTheme GetTheme()
@@ -432,15 +439,13 @@ namespace Monkeyspeak.Editor
             SettingsDialog dialog = new SettingsDialog();
             var settings = dialog.settingsProps.SelectedObject as Properties.Settings;
             settings.SettingsSaving += Settings_Saving;
-            if (dialog.ShowDialog() ?? true)
-            {
-                settings.SettingsSaving -= Settings_Saving;
-            }
+            dialog.ShowDialog();
         }
 
         private void Settings_Saving(object sender, System.ComponentModel.CancelEventArgs e)
         {
             var settings = sender as Properties.Settings;
+            settings.SettingsSaving -= Settings_Saving;
             SetColor(settings.Color);
             SetTheme(settings.Theme);
             WindowState = settings.WindowState;

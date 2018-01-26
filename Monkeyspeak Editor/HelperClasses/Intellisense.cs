@@ -34,7 +34,7 @@ namespace Monkeyspeak.Editor.HelperClasses
         public static bool Enabled { get; set; }
         public static ObservableCollection<TriggerCompletionData> TriggerCompletions { get => triggerCompletions; }
 
-        public static void GenerateTriggerListCompletion(EditorControl editor)
+        public static void Initialize()
         {
             if (TriggerCompletions.Count == 0)
             {
@@ -46,6 +46,12 @@ namespace Monkeyspeak.Editor.HelperClasses
                     }
                 }
             }
+        }
+
+        public static void GenerateTriggerListCompletion(EditorControl editor)
+        {
+            Initialize();
+
             if (!Enabled || editor == null) return;
             if (triggerCompletionWindow != null)
             {

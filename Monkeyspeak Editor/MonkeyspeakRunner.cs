@@ -10,7 +10,14 @@ namespace Monkeyspeak.Editor
 {
     public static class MonkeyspeakRunner
     {
-        private static MonkeyspeakEngine engine = new MonkeyspeakEngine();
+        private static MonkeyspeakEngine engine = new MonkeyspeakEngine()
+        {
+            Options = new Options()
+            {
+                TriggerLimit = int.MaxValue
+            }
+        };
+
         private static Page page = new Page(Engine);
 
         [Browsable(false)]
@@ -63,19 +70,6 @@ namespace Monkeyspeak.Editor
                 ex.Log();
             }
             return false;
-        }
-
-        public static Page LoadCompiled(string filePath)
-        {
-            try
-            {
-                return Engine.LoadCompiledFile(filePath);
-            }
-            catch (Exception ex)
-            {
-                ex.Log();
-            }
-            return null;
         }
     }
 }

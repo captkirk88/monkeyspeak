@@ -431,45 +431,49 @@ namespace Monkeyspeak.Logging
 
         public static void Debug(object msg, [CallerMemberName]string memberName = "")
         {
+            if (!DebugEnabled) return;
             Log(LogMessage.From(Level.Debug, $"System{(LogCallingMethod && !memberName.IsNullOrBlank() ? $" ({memberName})" : "")}: {(msg != null ? msg.ToString() : "null")}", MessagesExpire));
         }
 
         public static void Debug<T>(object msg, [CallerMemberName]string memberName = "")
         {
-            if (TypeCheck(typeof(T), out string typeName))
+            if (DebugEnabled && TypeCheck(typeof(T), out string typeName))
                 Log(LogMessage.From(Level.Debug, $"{typeName}{(LogCallingMethod && !memberName.IsNullOrBlank() ? $" ({memberName})" : "")}: {msg}", MessagesExpire));
         }
 
         public static void Info(object msg, [CallerMemberName]string memberName = "")
         {
+            if (!InfoEnabled) return;
             Log(LogMessage.From(Level.Info, $"System{(LogCallingMethod && !memberName.IsNullOrBlank() ? $" ({memberName})" : "")}: {(msg != null ? msg.ToString() : "null")}", MessagesExpire));
         }
 
         public static void Info<T>(object msg, [CallerMemberName]string memberName = "")
         {
-            if (TypeCheck(typeof(T), out string typeName))
+            if (InfoEnabled && TypeCheck(typeof(T), out string typeName))
                 Log(LogMessage.From(Level.Info, $"{typeName}{(LogCallingMethod && !memberName.IsNullOrBlank() ? $" ({memberName})" : "")}: {msg}", MessagesExpire));
         }
 
         public static void Error(object msg, [CallerMemberName]string memberName = "")
         {
+            if (!ErrorEnabled) return;
             Log(LogMessage.From(Level.Error, $"System{(LogCallingMethod && !memberName.IsNullOrBlank() ? $" ({memberName})" : "")}: {(msg != null ? msg.ToString() : "null")}", MessagesExpire));
         }
 
         public static void Error<T>(object msg, [CallerMemberName]string memberName = "")
         {
-            if (TypeCheck(typeof(T), out string typeName))
+            if (ErrorEnabled && TypeCheck(typeof(T), out string typeName))
                 Log(LogMessage.From(Level.Error, $"{typeName}{(LogCallingMethod && !memberName.IsNullOrBlank() ? $" ({memberName})" : "")}: {msg}", MessagesExpire));
         }
 
         public static void Warn(object msg, [CallerMemberName]string memberName = "")
         {
+            if (!WarningEnabled) return;
             Log(LogMessage.From(Level.Warning, $"System{(LogCallingMethod && !memberName.IsNullOrBlank() ? $" ({memberName})" : "")}: {(msg != null ? msg.ToString() : "null")}", MessagesExpire));
         }
 
         public static void Warn<T>(object msg, [CallerMemberName]string memberName = "")
         {
-            if (TypeCheck(typeof(T), out string typeName))
+            if (WarningEnabled && TypeCheck(typeof(T), out string typeName))
                 Log(LogMessage.From(Level.Warning, $"{typeName}{(LogCallingMethod && !memberName.IsNullOrBlank() ? $" ({memberName})" : "")}: {msg}", MessagesExpire));
         }
     }

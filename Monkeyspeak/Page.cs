@@ -93,7 +93,7 @@ namespace Monkeyspeak
         internal TokenVisitorHandler VisitingToken;
 
         /// <summary>
-        /// Called when an Exception is raised during execution
+        /// Called when a Monkeyspeak exception is raised during execution
         /// </summary>
         public event TriggerHandlerErrorEvent Error;
 
@@ -103,22 +103,20 @@ namespace Monkeyspeak
         public event TriggerAddedEventHandler TriggerAdded;
 
         /// <summary>
-        /// Called before the Trigger's TriggerHandler is called.  If there is no TriggerHandler for that Trigger
-        /// then this event is not raised.
-        /// </summary>
-        public event TriggerHandledEventHandler BeforeTriggerHandled;
-
-        /// <summary>
         /// Called after the Trigger's TriggerHandler is called.  If there is no TriggerHandler for that Trigger
         /// then this event is not raised.
         /// </summary>
-        public event TriggerHandledEventHandler AfterTriggerHandled;
+        public event TriggerHandledEventHandler TriggerHandled;
 
-        public IEnumerable<Trigger> Triggers
+        public IReadOnlyCollection<Trigger> Triggers
         {
-            get => triggerBlocks.SelectMany(block => block);
+            get => new ReadOnlyCollection<Trigger>(triggerBlocks.SelectMany(block => block).ToArray());
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Page"/> class.
+        /// </summary>
+        /// <param name="engine">The engine.</param>
         public Page(MonkeyspeakEngine engine)
         {
             this.engine = engine;
@@ -126,6 +124,7 @@ namespace Monkeyspeak
             triggerBlocks = new List<TriggerBlock>();
             scope = new Dictionary<string, IVariable>();
             libraries = new HashSet<BaseLibrary>();
+            CanExecute = true;
             Initiate();
         }
 
@@ -205,18 +204,27 @@ namespace Monkeyspeak
                    value is double;
         }
 
+        /// <summary>
+        /// Gets the engine.
+        /// </summary>
+        /// <value>
+        /// The engine.
+        /// </value>
         public MonkeyspeakEngine Engine
         {
             get { return engine; }
         }
 
+        /// <summary>
+        /// Loads the compiled stream.  *DOES NOT CLOSE THE STREAM!*
+        /// </summary>
+        /// <param name="stream">The stream.</param>
         public void LoadCompiledStream(Stream stream)
         {
             try
             {
                 Compiler compiler = new Compiler(engine);
-                using (stream)
-                    AddBlocks(compiler.DecompileFromStream(stream));
+                AddBlocks(compiler.DecompileFromStream(stream));
             }
             catch (Exception ex)
             {
@@ -238,13 +246,17 @@ namespace Monkeyspeak
             }
         }
 
+        /// <summary>
+        /// Compiles to stream.  *DOES NOT CLOSE THE STREAM!*
+        /// </summary>
+        /// <param name="stream">The stream.</param>
+        /// <exception cref="MonkeyspeakException">Error compiling to stream.</exception>
         public void CompileToStream(Stream stream)
         {
             try
             {
                 Compiler compiler = new Compiler(engine);
-                using (stream)
-                    compiler.CompileToStream(triggerBlocks, stream);
+                compiler.CompileToStream(triggerBlocks, stream);
             }
             catch (Exception ex)
             {
@@ -381,9 +393,9 @@ namespace Monkeyspeak
         /// Loads Monkeyspeak Timer Library into this Page
         /// </summary>
         /// <param name="timersLimit">the timer limit, if null or 0, defaults to 10</param>
-        public void LoadTimerLibrary(uint? timersLimit = null)
+        public void LoadTimerLibrary(uint timersLimit = 10, TimeZoneInfo timeZoneInfo = default(TimeZoneInfo))
         {
-            LoadLibrary(new Libraries.Timers(timersLimit));
+            LoadLibrary(new Timers(timersLimit, timeZoneInfo));
         }
 
         /// <summary>
@@ -782,6 +794,8 @@ namespace Monkeyspeak
         /// </value>
         public IEnumerable<BaseLibrary> Libraries { get => libraries; }
 
+        public bool CanExecute { get; set; }
+
         // Changed id to array for multiple Trigger processing.
         // This Compensates for a Design Flaw Lothus Marque spotted - Gerolkae
 
@@ -807,7 +821,7 @@ namespace Monkeyspeak
             try
             {
                 bool canContinue = handler != null ? handler(reader) : false;
-                if (AfterTriggerHandled != null && !AfterTriggerHandled(current)) return;
+                if (TriggerHandled != null && !TriggerHandled(current)) return;
                 Logger.Debug<Page>($"{GetTriggerDescription(current, true)} returned {canContinue}");
                 if (reader.CurrentBlockIndex != index)
                 {
@@ -821,61 +835,25 @@ namespace Monkeyspeak
                     switch (current.Category)
                     {
                         case TriggerCategory.Cause:
-                            // skip ahead for another condition to meet
-                            Trigger possibleCause = Trigger.Undefined;
-                            for (int i = index + 1; i <= triggerBlock.Count - 1; i++)
-                            {
-                                possibleCause = triggerBlock[i];
-                                if (possibleCause.Category == TriggerCategory.Cause)
-                                {
-                                    index = i - 1; // set the current index of the outer loop
-                                    found = true;
-                                    break;
-                                }
-                            }
-                            if (possibleCause.Category == TriggerCategory.Undefined) return;
+                            // skip ahead for another cause to meet
+                            index = triggerBlock.IndexOfTrigger(TriggerCategory.Cause, startIndex: index + 1);
+                            found = index != -1;
                             break;
 
                         case TriggerCategory.Condition:
                             // skip ahead for another condition to meet
-                            for (int i = index + 1; i <= triggerBlock.Count - 1; i++)
-                            {
-                                Trigger possibleCondition = triggerBlock[i];
-                                if (possibleCondition.Category == TriggerCategory.Condition)
-                                {
-                                    index = i - 1; // set the current index of the outer loop
-                                    found = true;
-                                    break;
-                                }
-                            }
+                            index = triggerBlock.IndexOfTrigger(TriggerCategory.Condition, startIndex: index + 1);
+                            found = index != -1;
                             break;
 
                         case TriggerCategory.Flow:
                             // skip ahead for another flow trigger to meet
-                            for (int i = index + 1; i <= triggerBlock.Count - 1; i++)
-                            {
-                                Trigger possibleFlow = triggerBlock[i];
-                                if (possibleFlow.Category == TriggerCategory.Flow)
-                                {
-                                    index = i - 1; // set the current index of the outer loop
-                                    found = true;
-                                    break;
-                                }
-                            }
+                            index = triggerBlock.IndexOfTrigger(TriggerCategory.Flow, startIndex: index + 1);
+                            found = index != -1;
                             break;
 
                         case TriggerCategory.Effect:
-                            for (int i = index + 1; i <= triggerBlock.Count - 1; i++)
-                            {
-                                Trigger possibleFlow = triggerBlock[i];
-                                if (possibleFlow.Category == TriggerCategory.Effect)
-                                {
-                                    index = i - 1; // set the current index of the outer loop
-                                    found = true;
-                                    break;
-                                }
-                            }
-                            //found = true;
+                            found = true;
                             break;
                     }
                     if (!found) index = triggerBlock.Count;
@@ -958,6 +936,7 @@ namespace Monkeyspeak
         /// <param name="args"></param>
         public void Execute(int id = 0, params object[] args)
         {
+            if (!CanExecute) return;
             try
             {
                 lock (syncObj)
@@ -989,6 +968,7 @@ namespace Monkeyspeak
         /// <param name="args"></param>
         public void Execute(int[] ids, params object[] args)
         {
+            if (!CanExecute) return;
             try
             {
                 lock (syncObj)
@@ -1027,6 +1007,7 @@ namespace Monkeyspeak
         /// <returns></returns>
         public async Task ExecuteAsync(IEnumerable<int> ids, CancellationToken cancellationToken = default(CancellationToken), params object[] args)
         {
+            if (!CanExecute) return;
             foreach (var id in ids)
             {
                 try
@@ -1058,6 +1039,7 @@ namespace Monkeyspeak
         /// <returns></returns>
         public async Task ExecuteAsync(int id = 0, CancellationToken cancellationToken = default(CancellationToken), params object[] args)
         {
+            if (!CanExecute) return;
             try
             {
                 await Task.Run(() =>

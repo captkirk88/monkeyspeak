@@ -321,10 +321,14 @@ namespace Monkeyspeak
 
                 if (string.IsNullOrWhiteSpace(ActiveIndexer))
                     ActiveIndexer = "value";
-                if (value is IVariable)
-                    this[ActiveIndexer] = (value as IVariable).Value;
+
+                object newValue = null;
+                if (value is IVariable var)
+                    newValue = var.Value;
                 else
-                    this[ActiveIndexer] = value;
+                    newValue = value;
+
+                this[ActiveIndexer] = newValue;
             }
         }
 
@@ -345,10 +349,15 @@ namespace Monkeyspeak
 
                 if (value != null && IsConstant)
                     throw new VariableIsConstantException($"Attempt to assign a value to constant '{Name}'");
-                if (value is IVariable)
-                    values[key] = (value as IVariable).Value;
+                object newValue = null;
+                if (value is IVariable var)
+                    newValue = var.Value;
                 else
-                    values[key] = value;
+                    newValue = value;
+
+                if (!values.ContainsKey(key))
+                    values.Add(key, newValue);
+                else values[key] = newValue;
             }
         }
 
@@ -364,13 +373,13 @@ namespace Monkeyspeak
 
         public bool IsConstant { get; private set; }
 
-        public ICollection<string> Keys => values.Keys;
+        ICollection<string> IDictionary<string, object>.Keys => new ReadOnlyCollection<string>(values.Keys.ToArray());
 
-        public ICollection<object> Values => values.Values;
+        ICollection<object> IDictionary<string, object>.Values => new ReadOnlyCollection<object>(values.Values.ToArray());
 
-        bool ICollection<KeyValuePair<string, object>>.IsReadOnly => ((IDictionary<string, object>)values).IsReadOnly;
+        bool ICollection<KeyValuePair<string, object>>.IsReadOnly => values.IsReadOnly;
 
-        object IDictionary<string, object>.this[string key] { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        object IDictionary<string, object>.this[string key] { get => this[key]; set => this[key] = value; }
 
         public VariableTable(string name, bool isConstant = false, int limit = 100)
         {
@@ -397,10 +406,16 @@ namespace Monkeyspeak
 
             if (value != null && IsConstant)
                 throw new VariableIsConstantException($"Attempt to assign a value to constant '{Name}'");
-            if (value is IVariable)
-                values[key] = (value as IVariable).Value;
+
+            object newValue = null;
+            if (value is IVariable var)
+                newValue = var.Value;
             else
-                values[key] = value;
+                newValue = value;
+
+            if (!values.ContainsKey(key))
+                values.Add(key, newValue);
+            else values[key] = newValue;
         }
 
         public void Add(object value)
@@ -413,15 +428,21 @@ namespace Monkeyspeak
             if (value != null && IsConstant)
                 throw new VariableIsConstantException($"Attempt to assign a value to constant '{Name}'");
             var key = (values.Count + 1).ToString();
-            if (value is IVariable)
-                values[key] = (value as IVariable).Value;
+
+            object newValue = null;
+            if (value is IVariable var)
+                newValue = var.Value;
             else
-                values[key] = value;
+                newValue = value;
+
+            if (!values.ContainsKey(key))
+                values.Add(key, newValue);
+            else values[key] = newValue;
         }
 
-        public bool Contains(string index)
+        public bool Contains(object value)
         {
-            return values.ContainsKey(index);
+            return values.Values.Contains(value);
         }
 
         private KeyValuePair<string, object> At(int index)
@@ -524,7 +545,7 @@ namespace Monkeyspeak
 
         public void CopyTo(KeyValuePair<string, object>[] array, int arrayIndex)
         {
-            ((IDictionary<string, object>)values).CopyTo(array, arrayIndex);
+            values.CopyTo(array, arrayIndex);
         }
 
         public bool Remove(KeyValuePair<string, object> item)

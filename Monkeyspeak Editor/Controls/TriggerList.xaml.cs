@@ -17,14 +17,7 @@ namespace Monkeyspeak.Editor.Controls
     /// </summary>
     public partial class TriggerList : UserControl
     {
-        private static MonkeyspeakEngine engine = null;
-        private static Page page = MonkeyspeakRunner.CurrentPage;
-
-        private ToolTip selectedToolTip;
-
         public event Action<TriggerCompletionData> TriggerSelected;
-
-        private ObservableCollection<TriggerCompletionData> Triggers = new ObservableCollection<TriggerCompletionData>();
 
         public TriggerList()
 
@@ -32,12 +25,6 @@ namespace Monkeyspeak.Editor.Controls
             InitializeComponent();
             this.DataContext = this;
             trigger_view.SelectionMode = SelectionMode.Single;
-            trigger_view.ItemsSource = Triggers;
-        }
-
-        public void Add(TriggerCompletionData data)
-        {
-            Triggers.Add(data);
         }
 
         public TriggerCategory TriggerCategory { get; set; }
@@ -53,12 +40,12 @@ namespace Monkeyspeak.Editor.Controls
 
         private void UserControl_Loaded(object sender, RoutedEventArgs e)
         {
-            foreach (var lib in MonkeyspeakRunner.CurrentPage.Libraries.OrderByDescending(l => l.GetType().Name))
+            trigger_view.Items.Clear();
+            Intellisense.Initialize();
+            foreach (var item in Intellisense.TriggerCompletions.Where(data => data.Trigger.Category == TriggerCategory))
             {
-                foreach (var kv in lib.Handlers.Where(kv => kv.Key.Category == TriggerCategory).OrderBy(kv => kv.Key.Id))
-                {
-                    Add(new TriggerCompletionData(MonkeyspeakRunner.CurrentPage, lib, kv.Key));
-                }
+                if (item.IsValid)
+                    trigger_view.Items.Add(item);
             }
         }
 

@@ -80,7 +80,7 @@ namespace MonkeyspeakTests
             Console.WriteLine($"Compiled in {watch.ElapsedMilliseconds} ms");
             watch.Restart();
 
-            var page = engine.LoadCompiledFile(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), "test.msx"));
+            var page = engine.LoadFromFile(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), "test.msx"));
             page.RemoveLibrary<MyLibrary>();
             watch.Stop();
             Console.WriteLine($"Loaded compiled in {watch.ElapsedMilliseconds} ms");
@@ -90,6 +90,57 @@ namespace MonkeyspeakTests
             page.Execute();
             page.Dispose();
             oldPage.Dispose();
+        }
+
+        [Test]
+        public void TestBigCompiledScript()
+        {
+            var engine = new MonkeyspeakEngine();
+
+            // Set the trigger limit to int.MaxValue to prevent TriggerLimit reached exceptions
+            engine.Options.TriggerLimit = int.MaxValue;
+            engine.Options.Debug = false;
+            Logger.InfoEnabled = false;
+            var sb = new StringBuilder();
+            for (int i = 0; i < 1000; i++)
+            {
+                sb.AppendLine();
+                sb.AppendLine("(0:0) when the script is started,");
+                sb.AppendLine("(5:100) set %hello to {Hello World}.");
+                sb.AppendLine("(1:104) and variable %hello equals {this will be false move on to next condition}");
+                sb.AppendLine("(5:102) print {hello = %hello helloNum = % helloNum} to the console.");
+                sb.AppendLine("(1:104) and variable %hello equals {Hello World}");
+                sb.AppendLine("(5:101) set %helloNum to 5.");
+                sb.AppendLine("(5:102) print {hello = %hello helloNum = %helloNum} to the console.");
+                sb.AppendLine();
+            }
+            //Logger.Info(sb.ToString());
+            Stopwatch timer = Stopwatch.StartNew();
+            Page page = engine.LoadFromString(sb.ToString());
+            Logger.InfoEnabled = true;
+            Logger.Info($"Elapsed (loading): {timer.ElapsedMilliseconds}ms");
+            page.LoadAllLibraries();
+
+            Logger.Info($"Triggers: {page.Size}");
+            Logger.InfoEnabled = false;
+            timer.Restart();
+
+            var memory = new MemoryStream();
+            page.CompileToStream(memory);
+
+            memory.Seek(0, SeekOrigin.Begin);
+            var compiled = engine.LoadCompiledStream(memory);
+            timer.Stop();
+            Logger.InfoEnabled = true;
+            Logger.Info($"Elapsed (compiled load): {timer.ElapsedMilliseconds}ms");
+
+            compiled.LoadAllLibraries();
+            Logger.InfoEnabled = false;
+            timer.Restart();
+            compiled.Execute();
+            timer.Stop();
+            Logger.InfoEnabled = true;
+            Logger.Info($"Elapsed (compiled execute): {timer.ElapsedMilliseconds}ms");
         }
 
         [Test]

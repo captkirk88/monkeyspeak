@@ -204,23 +204,18 @@ namespace Monkeyspeak
         {
             if (!File.Exists(filePath))
             {
-                // small fix for NUnit cases where the path is a temp location, also useful when passing simple file names to this method
-                var path = Path.GetDirectoryName(Uri.UnescapeDataString(new UriBuilder(Assembly.GetExecutingAssembly()?.CodeBase).Path));
-                path = Path.Combine(path, filePath);
-                if (File.Exists(path))
-                    filePath = path;
-                else throw new IOException($"{path} does not exist");
+                throw new IOException($"{filePath} does not exist");
             }
-            using (var reader = new SStreamReader(filePath))
+            using (Stream stream = new FileStream(filePath, FileMode.Open, FileAccess.Read))
             {
-                Page page = new Page(this);
-                using (var lexer = new Lexer(this, reader))
+                if (Path.GetExtension(filePath) == "msx")
                 {
-                    page.VisitingToken = VisitTokens;
-                    page.GenerateBlocks(lexer);
-                    page.VisitingToken = null;
+                    return LoadCompiledStream(stream);
                 }
-                return page;
+                else
+                {
+                    return LoadFromStream(stream);
+                }
             }
         }
 
@@ -411,48 +406,24 @@ namespace Monkeyspeak
         }
 
         /// <summary>
-        /// Loads compiled script from file
-        /// </summary>
-        /// <param name="filePath"></param>
-        /// <returns></returns>
-        public Page LoadCompiledFile(string filePath)
-        {
-            try
-            {
-                // small fix for NUnit cases where the path is a temp location, also useful when passing simple file names to this method
-                var path = Path.GetDirectoryName(Uri.UnescapeDataString(new UriBuilder(Assembly.GetExecutingAssembly().CodeBase).Path));
-                filePath = Path.Combine(path, filePath);
-                using (Stream stream = new FileStream(filePath, FileMode.Open, FileAccess.Read))
-                {
-                    return LoadCompiledStream(stream);
-                }
-            }
-            catch (Exception ex)
-            {
-                Logger.Debug<MonkeyspeakEngine>(ex);
-            }
-            return new Page(this);
-        }
-
-        /// <summary>
         /// Loads a compiled script from stream
         /// </summary>
         /// <param name="stream"></param>
         /// <returns></returns>
         public Page LoadCompiledStream(Stream stream)
         {
+            var page = new Page(this);
             try
             {
-                var page = new Page(this);
-                var compiler = new Compiler(this);
-                page.LoadCompiledStream(stream);
-                return page;
+                Compiler compiler = new Compiler(this);
+                using (stream)
+                    page.AddBlocks(compiler.DecompileFromStream(stream));
             }
             catch (Exception ex)
             {
-                Logger.Debug<MonkeyspeakEngine>(ex);
+                throw new MonkeyspeakException("Error reading compiled stream.", ex);
             }
-            return new Page(this);
+            return page;
         }
     }
 }

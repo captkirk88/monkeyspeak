@@ -1,4 +1,5 @@
-﻿using Monkeyspeak.Logging;
+﻿using Monkeyspeak.Extensions;
+using Monkeyspeak.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,26 +23,103 @@ namespace Monkeyspeak.Libraries
             Add(TriggerCategory.Effect, CreateTable,
                 "create a table as %.");
 
-            Add(TriggerCategory.Effect, PutNumIntoTable,
-                "with table % put # in it at key {...}.");
-
-            Add(TriggerCategory.Effect, PutStringIntoTable,
-                "with table % put {...} in it at key {...}.");
-
-            Add(TriggerCategory.Effect, GetTableKeyIntoVar,
-                "with table % get key {...} put it in into variable %.");
-
             Add(TriggerCategory.Effect, ClearTable,
                 "with table % remove all entries in it.");
+
+            Add(TriggerCategory.Effect, ClearTableEntry,
+                "with table % remove key {...}");
 
             Add(TriggerCategory.Condition, VariableIsTable,
                 "and variable % is a table,");
 
             Add(TriggerCategory.Condition, VariableIsNotTable,
                 "and variable % is not a table,");
+
+            Add(TriggerCategory.Condition, TableContains,
+                "and table % contains {...}");
+
+            Add(TriggerCategory.Condition, TableNotContains,
+                "and table % does not contain {...}");
+
+            Add(TriggerCategory.Condition, TableContainsNumber,
+                "and table % contains #");
+
+            Add(TriggerCategory.Condition, TableNotContainsNumber,
+                "and table % does not contain #");
         }
 
-        [TriggerDescription("Clears the table")]
+        [TriggerDescription("Determines if the table does not contain the number")]
+        [TriggerVariableParameter]
+        [TriggerStringParameter]
+        private bool TableNotContainsNumber(TriggerReader reader)
+        {
+            var var = reader.ReadVariableTable();
+            var key = reader.ReadNumber();
+            foreach (var entry in var)
+            {
+                if (entry.Value.AsDouble() == key)
+                    return false;
+            }
+            return true;
+        }
+
+        [TriggerDescription("Determines if the table does not contain the number")]
+        [TriggerVariableParameter]
+        [TriggerStringParameter]
+        private bool TableContainsNumber(TriggerReader reader)
+        {
+            var var = reader.ReadVariableTable();
+            var key = reader.ReadNumber();
+            foreach (var entry in var)
+            {
+                if (entry.Value.AsDouble() == key)
+                    return true;
+            }
+            return false;
+        }
+
+        [TriggerDescription("Determines if the table does not contain the string")]
+        [TriggerVariableParameter]
+        [TriggerStringParameter]
+        private bool TableNotContains(TriggerReader reader)
+        {
+            var var = reader.ReadVariableTable();
+            var key = reader.ReadString();
+            foreach (var entry in var)
+            {
+                if (entry.Value.AsString() == key)
+                    return false;
+            }
+            return true;
+        }
+
+        [TriggerDescription("Determines if the table contains the string")]
+        [TriggerVariableParameter]
+        [TriggerStringParameter]
+        private bool TableContains(TriggerReader reader)
+        {
+            var var = reader.ReadVariableTable();
+            var key = reader.ReadString();
+            foreach (var entry in var)
+            {
+                if (entry.Value.AsString() == key)
+                    return true;
+            }
+            return false;
+        }
+
+        [TriggerDescription("Removes the key from the table")]
+        [TriggerVariableParameter]
+        [TriggerStringParameter]
+        private bool ClearTableEntry(TriggerReader reader)
+        {
+            var var = reader.ReadVariableTable();
+            var key = reader.ReadString();
+            var.Remove(key);
+            return true;
+        }
+
+        [TriggerDescription("Removes everything from the table")]
         [TriggerVariableParameter]
         private bool ClearTable(TriggerReader reader)
         {
@@ -97,44 +175,6 @@ namespace Monkeyspeak.Libraries
                 return false;
             }
             var.Value = keyVal;
-            return true;
-        }
-
-        [TriggerDescription("Gets the key in a table and puts it into a variable")]
-        [TriggerStringParameter]
-        [TriggerVariableParameter]
-        private bool GetTableKeyIntoVar(TriggerReader reader)
-        {
-            var var = reader.ReadVariableTable();
-            var key = reader.ReadString();
-            var into = reader.ReadVariable(true);
-            into.Value = var[key];
-            return true;
-        }
-
-        [TriggerDescription("Puts the string into a table at the specified key, if the key doesn't exist, it will be created")]
-        [TriggerVariableParameter]
-        [TriggerStringParameter]
-        [TriggerStringParameter]
-        private bool PutStringIntoTable(TriggerReader reader)
-        {
-            var var = reader.ReadVariableTable(true);
-            var value = reader.ReadString();
-            var key = reader.ReadString();
-            var.Add(key, value);
-            return true;
-        }
-
-        [TriggerDescription("Puts the number into a table at the specified key, if the key doesn't exist, it will be created")]
-        [TriggerVariableParameter]
-        [TriggerNumberParameter]
-        [TriggerStringParameter]
-        private bool PutNumIntoTable(TriggerReader reader)
-        {
-            var var = reader.ReadVariableTable(true);
-            var value = reader.ReadNumber();
-            var key = reader.ReadString();
-            var.Add(key, value);
             return true;
         }
 
