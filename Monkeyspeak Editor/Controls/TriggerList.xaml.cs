@@ -40,8 +40,8 @@ namespace Monkeyspeak.Editor.Controls
 
         private void UserControl_Loaded(object sender, RoutedEventArgs e)
         {
-            if (Intellisense.TriggerCompletions.Count == 0)
-                Intellisense.GenerateTriggerListCompletion(Editors.Instance.Selected);
+            trigger_view.Items.Clear();
+            Intellisense.Initialize();
             foreach (var item in Intellisense.TriggerCompletions.Where(data => data.Trigger.Category == TriggerCategory))
             {
                 if (item.IsValid)

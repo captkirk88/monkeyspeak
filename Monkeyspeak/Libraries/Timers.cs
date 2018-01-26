@@ -106,6 +106,17 @@ namespace Monkeyspeak.Libraries
 
         public override int BaseId => 300;
 
+        public TimeZoneInfo TimeZone
+        {
+            get => timeZone;
+            set
+            {
+                if (value == default(TimeZoneInfo))
+                    timeZone = TimeZoneInfo.Local;
+                else timeZone = value;
+            }
+        }
+
         /// <summary>
         /// Default Timer Library.
         /// </summary>
@@ -307,6 +318,8 @@ namespace Monkeyspeak.Libraries
             return true;
         }
 
+        [TriggerDescription("Gets the triggered timer id and puts it into a variable")]
+        [TriggerVariableParameter]
         private bool GetCurrentTimerIntoVar(TriggerReader reader)
         {
             if (reader.Parameters.Length > 0)
@@ -327,11 +340,15 @@ namespace Monkeyspeak.Libraries
             }
         }
 
+        [TriggerDescription("Gets whether the timer is not running")]
+        [TriggerNumberParameter]
         private bool AndTimerIsNotRunning(TriggerReader reader)
         {
             return !AndTimerIsRunning(reader);
         }
 
+        [TriggerDescription("Gets whether the timer is running")]
+        [TriggerNumberParameter]
         private bool AndTimerIsRunning(TriggerReader reader)
         {
             if (!TryGetTimerFrom(reader, out TimerTask timerTask))
@@ -339,6 +356,8 @@ namespace Monkeyspeak.Libraries
             return timerTask.Timer.Enabled;
         }
 
+        [TriggerDescription("Creates a timer with the specified id")]
+        [TriggerNumberParameter]
         private bool CreateTimer(TriggerReader reader)
         {
             if (timers.Count >= timersLimit)
@@ -370,6 +389,8 @@ namespace Monkeyspeak.Libraries
             return true;
         }
 
+        [TriggerDescription("Starts the timer")]
+        [TriggerNumberParameter]
         private bool StartTimer(TriggerReader reader)
         {
             if (TryGetTimerFrom(reader, out TimerTask timer))
@@ -380,6 +401,8 @@ namespace Monkeyspeak.Libraries
             return false;
         }
 
+        [TriggerDescription("Stops the timer")]
+        [TriggerNumberParameter]
         private bool StopTimer(TriggerReader reader)
         {
             if (TryGetTimerFrom(reader, out TimerTask timer))
@@ -403,6 +426,8 @@ namespace Monkeyspeak.Libraries
             return false;
         }
 
+        [TriggerDescription("Triggered when a timer goes off with the specified id")]
+        [TriggerNumberParameter]
         private bool WhenTimerGoesOff(TriggerReader reader)
         {
             if (TryGetTimerFrom(reader, out TimerTask timerTask))
