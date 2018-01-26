@@ -11,9 +11,13 @@ namespace Monkeyspeak.Editor.Commands
     {
         public override void Execute(object parameter)
         {
-            Editors.Instance.Selected?.Save();
+            var selected = Editors.Instance.Selected;
+            if (selected == null) return;
+            if (Properties.Settings.Default.AutoCompileScriptsOnSave)
+                MonkeyspeakCommands.Compile.Execute(selected);
+            selected.Save();
         }
 
-        public override object ToolTip => "Saves the current document";
+        public override object ToolTip => "Saves the current document and compiles if the option is enabled";
     }
 }

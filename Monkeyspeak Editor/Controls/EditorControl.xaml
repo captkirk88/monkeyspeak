@@ -90,6 +90,10 @@
                     IsEnabled="True">
                 <ip:PackIconFontAwesome Kind="ArrowCircleRightSolid" />
             </Button>
+            <Button Command="{x:Static commands:MonkeyspeakCommands.SyntaxCheck}" ToolTip="{Binding RelativeSource={RelativeSource Self}, Path=Command.ToolTip}"
+                    IsEnabled="True">
+                <ip:Material Kind="FileCheck" />
+            </Button>
             <Separator />
             <Button Command="Cut" ToolTip="{Binding RelativeSource={RelativeSource Self}, Path=Command}">
                 <ip:PackIconFontAwesome Kind="CutSolid" />

@@ -157,5 +157,17 @@ namespace Monkeyspeak.Editor.Properties {
                 this["AutoOpenOnWarning"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool AutoCompileScriptsOnSave {
+            get {
+                return ((bool)(this["AutoCompileScriptsOnSave"]));
+            }
+            set {
+                this["AutoCompileScriptsOnSave"] = value;
+            }
+        }
     }
 }

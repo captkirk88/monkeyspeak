@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Monkeyspeak.Editor.HelperClasses;
+using Monkeyspeak.Editor.Syntax;
 
 namespace Monkeyspeak.Editor.Commands
 {
