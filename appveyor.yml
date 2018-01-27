@@ -1,4 +1,4 @@
-version: 7.0.6600.35900
+version: 7.0.6600.37606
 branches:
   only:
   - master
@@ -46,7 +46,7 @@ build:
   project: Monkeyspeak.sln
   publish_nuget: false
   include_nuget_references: false
-  parallel: true
+  parallel: false
   verbosity: minimal
 
 

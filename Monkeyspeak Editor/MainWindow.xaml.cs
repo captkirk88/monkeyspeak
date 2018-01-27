@@ -271,7 +271,7 @@ namespace Monkeyspeak.Editor
                 Stroke = Brushes.Transparent,
                 Fill = Brushes.White
             });
-            content.Children.Add(new TextBlock { Text = ex.Message, FontWeight = FontWeights.Bold, Foreground = brush });
+            content.Children.Add(new TextBlock { IsHyphenationEnabled = true, Text = ex.Message, FontWeight = FontWeights.Bold, FontStyle = FontStyles.Italic, Foreground = brush });
             item.Content = content;
             errors_list.Items.Add(item);
             if (errors_flyout.IsOpen == false && severity == SyntaxChecker.Severity.Error ||

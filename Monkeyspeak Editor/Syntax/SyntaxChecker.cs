@@ -55,19 +55,22 @@ namespace Monkeyspeak.Editor.Syntax
         private static void Editor_Unloaded(object sender, System.Windows.RoutedEventArgs e)
         {
             ((EditorControl)sender).Unloaded -= Editor_Unloaded;
+            ClearAllMarkers((EditorControl)sender);
             textMarkers.Remove((EditorControl)sender);
         }
 
         public static void Check(EditorControl editor, int line = -1, string text = null)
         {
             if (!Enabled) return;
-            ClearAllMarkers(editor);
             PerformingOperation?.Invoke(editor);
             if (line == -1) text = editor.textEditor.Text;
+            else text = editor.textEditor.Document.GetText(editor.textEditor.Document.GetLineByNumber(line));
             if (string.IsNullOrWhiteSpace(text)) return;
-            using (var memory = new MemoryStream(Encoding.UTF8.GetBytes(text)))
+            using (var memory = new MemoryStream(Encoding.Default.GetBytes(text)))
             {
-                SourcePosition pos = new SourcePosition();
+                SourcePosition pos = new SourcePosition(line, 1, line + 1);
+                if (line == -1) ClearAllMarkers(editor);
+                else ClearMarker(pos, editor);
                 Parser parser = new Parser(MonkeyspeakRunner.Engine);
                 Lexer lexer = new Lexer(MonkeyspeakRunner.Engine, new SStreamReader(memory));
                 lexer.Error += ex => AddMarker(line == -1 ? ex.SourcePosition : pos, editor, ex.Message);
@@ -162,7 +165,7 @@ namespace Monkeyspeak.Editor.Syntax
         {
             var line = editor.textEditor.Document.GetLineByNumber(sourcePosition.Line);
             var textMarker = textMarkers[editor];
-            textMarker.RemoveAll(marker => marker.StartOffset == line.Offset);
+            textMarker.RemoveAll(marker => marker.StartOffset >= line.Offset && marker.EndOffset <= line.EndOffset);
         }
 
         public static void ClearAllMarkers(EditorControl editor)

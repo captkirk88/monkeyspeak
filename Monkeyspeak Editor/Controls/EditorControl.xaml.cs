@@ -122,7 +122,7 @@ namespace Monkeyspeak.Editor.Controls
             {
                 if (!string.IsNullOrWhiteSpace(e.Text))
                 {
-                    SyntaxChecker.Check(this);
+                    SyntaxChecker.Check(this, CaretLine);
                     Intellisense.GenerateTriggerListCompletion(this);
                 }
             };
@@ -141,7 +141,7 @@ namespace Monkeyspeak.Editor.Controls
             {
                 // if it was a trigger that was added
                 if (Trigger.TryParse(MonkeyspeakRunner.Engine, text, out var trigger)) TriggerCount++;
-                SyntaxChecker.Check(this, line, text);
+                SyntaxChecker.Check(this);
             };
             LineRemoved += (text, line) =>
             {
@@ -155,7 +155,7 @@ namespace Monkeyspeak.Editor.Controls
             {
                 if (e.Key == Key.Back)
                 {
-                    SyntaxChecker.Check(this);
+                    SyntaxChecker.Check(this, CaretLine);
                 }
                 e.Handled = false;
             };
@@ -277,14 +277,14 @@ namespace Monkeyspeak.Editor.Controls
         public void InsertAtCaretLine(string text)
         {
             var curLine = textEditor.Document.GetLineByOffset(textEditor.CaretOffset);
-            int lineOffset = curLine.Offset;
             if (curLine.NextLine != null)
-                lineOffset = curLine.NextLine.Offset;
+                curLine = curLine.NextLine;
             text = text.Replace("\n", string.Empty);
             BeginUndoGroup();
-            textEditor.Document.Insert(lineOffset, text + "\n", AnchorMovementType.AfterInsertion);
+            textEditor.Document.Insert(curLine.Offset, text + "\n", AnchorMovementType.AfterInsertion);
             EndUndoGroup();
-            textEditor.CaretOffset = lineOffset;
+            textEditor.CaretOffset = curLine.Offset;
+            OnLineAdded(text, curLine.LineNumber);
         }
 
         public void AddLine(string text, bool allowUndo = true)
@@ -683,6 +683,11 @@ namespace Monkeyspeak.Editor.Controls
                 if (Editors.Instance.Selected == this) return;
                 Editors.Instance.Selected = this;
             }
+        }
+
+        private void MetroTabItem_Unloaded(object sender, RoutedEventArgs e)
+        {
+            Intellisense.Close();
         }
 
         public void GetObjectData(SerializationInfo info, StreamingContext context)
