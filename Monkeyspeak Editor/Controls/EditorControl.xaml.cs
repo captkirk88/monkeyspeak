@@ -141,7 +141,7 @@ namespace Monkeyspeak.Editor.Controls
             {
                 // if it was a trigger that was added
                 if (Trigger.TryParse(MonkeyspeakRunner.Engine, text, out var trigger)) TriggerCount++;
-                SyntaxChecker.Check(this);
+                SyntaxChecker.Check(this, line, text);
             };
             LineRemoved += (text, line) =>
             {
@@ -151,6 +151,14 @@ namespace Monkeyspeak.Editor.Controls
 
             textEditor.Document.LineTrackers.Add(new LineAddedOrRemovedTracker(this));
 
+            textEditor.PreviewKeyUp += (sender, e) =>
+            {
+                if (e.Key == Key.Back)
+                {
+                    SyntaxChecker.Check(this);
+                }
+                e.Handled = false;
+            };
             textEditor.PreviewMouseHover += (sender, e) =>
             {
                 ToolTipManager.Clear();
@@ -572,6 +580,7 @@ namespace Monkeyspeak.Editor.Controls
 
         private void highlightingComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            HighlighterLanguage = e.AddedItems[0].ToString();
         }
 
         private void propertyGridComboBoxSelectionChanged(object sender, SelectionChangedEventArgs e)

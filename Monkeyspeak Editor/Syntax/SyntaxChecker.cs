@@ -17,6 +17,14 @@ using Monkeyspeak.Logging;
 
 namespace Monkeyspeak.Editor.Syntax
 {
+    public class SyntaxError
+    {
+        public EditorControl Editor { get; set; }
+        public Exception Exception { get; set; }
+        public SourcePosition SourcePosition { get; set; }
+        public Syntax.SyntaxChecker.Severity Severity { get; set; }
+    }
+
     public class SyntaxChecker
     {
         private static Dictionary<EditorControl, ITextMarkerService> textMarkers = new Dictionary<EditorControl, ITextMarkerService>();
@@ -40,8 +48,6 @@ namespace Monkeyspeak.Editor.Syntax
             textMarkers.Add(editor, textMarkerService);
 
             page = MonkeyspeakRunner.CurrentPage;
-
-            editor.LineAdded += (text, line) => Check(editor, line, text);
         }
 
         private static void Editor_Unloaded(object sender, System.Windows.RoutedEventArgs e)
