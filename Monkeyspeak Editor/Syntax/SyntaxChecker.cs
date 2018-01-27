@@ -17,6 +17,14 @@ using Monkeyspeak.Logging;
 
 namespace Monkeyspeak.Editor.Syntax
 {
+    public class SyntaxError
+    {
+        public EditorControl Editor { get; set; }
+        public Exception Exception { get; set; }
+        public SourcePosition SourcePosition { get; set; }
+        public Syntax.SyntaxChecker.Severity Severity { get; set; }
+    }
+
     public class SyntaxChecker
     {
         private static Dictionary<EditorControl, ITextMarkerService> textMarkers = new Dictionary<EditorControl, ITextMarkerService>();
@@ -25,6 +33,8 @@ namespace Monkeyspeak.Editor.Syntax
         public static event Action<EditorControl> PerformingOperation, Cleared;
 
         public static event Action<EditorControl, MonkeyspeakException, SourcePosition, Severity> Error, Warning, Info;
+
+        public static bool Enabled => Properties.Settings.Default.SyntaxCheckingEnabled;
 
         public static void Install(EditorControl editor)
         {
@@ -40,25 +50,27 @@ namespace Monkeyspeak.Editor.Syntax
             textMarkers.Add(editor, textMarkerService);
 
             page = MonkeyspeakRunner.CurrentPage;
-
-            editor.LineAdded += (text, line) => Check(editor, line, text);
         }
 
         private static void Editor_Unloaded(object sender, System.Windows.RoutedEventArgs e)
         {
             ((EditorControl)sender).Unloaded -= Editor_Unloaded;
+            ClearAllMarkers((EditorControl)sender);
             textMarkers.Remove((EditorControl)sender);
         }
 
         public static void Check(EditorControl editor, int line = -1, string text = null)
         {
-            ClearAllMarkers(editor);
+            if (!Enabled) return;
             PerformingOperation?.Invoke(editor);
             if (line == -1) text = editor.textEditor.Text;
+            else text = editor.textEditor.Document.GetText(editor.textEditor.Document.GetLineByNumber(line));
             if (string.IsNullOrWhiteSpace(text)) return;
-            using (var memory = new MemoryStream(Encoding.UTF8.GetBytes(text)))
+            using (var memory = new MemoryStream(Encoding.Default.GetBytes(text)))
             {
-                SourcePosition pos = new SourcePosition();
+                SourcePosition pos = new SourcePosition(line, 1, line + 1);
+                if (line == -1) ClearAllMarkers(editor);
+                else ClearMarker(pos, editor);
                 Parser parser = new Parser(MonkeyspeakRunner.Engine);
                 Lexer lexer = new Lexer(MonkeyspeakRunner.Engine, new SStreamReader(memory));
                 lexer.Error += ex => AddMarker(line == -1 ? ex.SourcePosition : pos, editor, ex.Message);
@@ -74,10 +86,12 @@ namespace Monkeyspeak.Editor.Syntax
                     }
                 }
             }
+            editor.textEditor.Focus();
         }
 
         private static void AddMarker(Token token, EditorControl editor, string message = null, Severity severity = Severity.Error)
         {
+            if (!Enabled) return;
             if (token == Token.None) return;
             var line = editor.textEditor.Document.GetLineByNumber(token.Position.Line);
             var startOffset = line.Offset + token.Position.Column;
@@ -114,6 +128,7 @@ namespace Monkeyspeak.Editor.Syntax
 
         private static void AddMarker(SourcePosition pos, EditorControl editor, string message = null, Severity severity = Severity.Error)
         {
+            if (!Enabled) return;
             var line = editor.textEditor.Document.GetLineByNumber(pos.Line);
             var textMarker = textMarkers[editor];
             if (textMarker.GetMarkersAtOffset(line.Offset).Count() > 0) return;
@@ -150,7 +165,7 @@ namespace Monkeyspeak.Editor.Syntax
         {
             var line = editor.textEditor.Document.GetLineByNumber(sourcePosition.Line);
             var textMarker = textMarkers[editor];
-            textMarker.RemoveAll(marker => marker.StartOffset == line.Offset);
+            textMarker.RemoveAll(marker => marker.StartOffset >= line.Offset && marker.EndOffset <= line.EndOffset);
         }
 
         public static void ClearAllMarkers(EditorControl editor)

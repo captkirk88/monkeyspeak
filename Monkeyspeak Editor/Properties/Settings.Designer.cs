@@ -169,5 +169,17 @@ namespace Monkeyspeak.Editor.Properties {
                 this["AutoCompileScriptsOnSave"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool SyntaxCheckingEnabled {
+            get {
+                return ((bool)(this["SyntaxCheckingEnabled"]));
+            }
+            set {
+                this["SyntaxCheckingEnabled"] = value;
+            }
+        }
     }
 }

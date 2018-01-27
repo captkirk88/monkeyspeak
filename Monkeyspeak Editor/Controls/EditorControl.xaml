@@ -16,6 +16,7 @@
                        Width="Auto" Height="Auto"
                        Controls:TabControlHelper.Transition="LeftReplace"
                        CloseButtonEnabled="False"
+                       Unloaded="MetroTabItem_Unloaded"
                        GotFocus="OnGotFocus" LostFocus="OnLostFocus" MouseDown="OnMouseButtonDown"
                        LostMouseCapture="OnLostMouseCapture" PreviewLostKeyboardFocus="OnPreviewLostKeyboardFocus">
 

@@ -13,6 +13,12 @@
     <ListView x:Name="trigger_view" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
               Grid.IsSharedSizeScope="True"
               MouseDoubleClick="Content_MouseDoubleClick">
+        <ListView.ItemsPanel>
+            <ItemsPanelTemplate>
+                <VirtualizingStackPanel>
+                </VirtualizingStackPanel>
+            </ItemsPanelTemplate>
+        </ListView.ItemsPanel>
         <ListView.View>
             <GridView>
                 <GridView.Columns>

@@ -50,7 +50,7 @@ namespace Monkeyspeak.Editor.Syntax
                         break;
 
                     case TriggerCategory.Flow:
-                        Indentation = 2;
+                        Indentation = 1;
                         break;
 
                     default:
@@ -84,7 +84,7 @@ namespace Monkeyspeak.Editor.Syntax
                         break;
 
                     case TriggerCategory.Flow:
-                        Indentation = 2;
+                        Indentation = 1;
                         break;
 
                     default:
@@ -180,10 +180,14 @@ namespace Monkeyspeak.Editor.Syntax
                     else sb.AppendLine("No description found."); // should never happen
                     sb.AppendLine($"Library: {lib.GetType().Name}");
                 }
+                else sb.AppendLine("No description found.");
+
                 if (sb.Length > 0)
                 {
-                    descriptionViewer = new TextView();
-                    descriptionViewer.Document = new TextDocument(sb.ToString());
+                    descriptionViewer = new TextView
+                    {
+                        Document = new TextDocument(sb.ToString())
+                    };
                     if (highlightingDef != null)
                     {
                         HighlightingColorizer colorizer = new HighlightingColorizer(highlightingDef);
