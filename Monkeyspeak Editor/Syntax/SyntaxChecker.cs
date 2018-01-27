@@ -34,6 +34,8 @@ namespace Monkeyspeak.Editor.Syntax
 
         public static event Action<EditorControl, MonkeyspeakException, SourcePosition, Severity> Error, Warning, Info;
 
+        public static bool Enabled => Properties.Settings.Default.SyntaxCheckingEnabled;
+
         public static void Install(EditorControl editor)
         {
             var textEditor = editor.textEditor;
@@ -58,6 +60,7 @@ namespace Monkeyspeak.Editor.Syntax
 
         public static void Check(EditorControl editor, int line = -1, string text = null)
         {
+            if (!Enabled) return;
             ClearAllMarkers(editor);
             PerformingOperation?.Invoke(editor);
             if (line == -1) text = editor.textEditor.Text;
@@ -85,6 +88,7 @@ namespace Monkeyspeak.Editor.Syntax
 
         private static void AddMarker(Token token, EditorControl editor, string message = null, Severity severity = Severity.Error)
         {
+            if (!Enabled) return;
             if (token == Token.None) return;
             var line = editor.textEditor.Document.GetLineByNumber(token.Position.Line);
             var startOffset = line.Offset + token.Position.Column;
@@ -121,6 +125,7 @@ namespace Monkeyspeak.Editor.Syntax
 
         private static void AddMarker(SourcePosition pos, EditorControl editor, string message = null, Severity severity = Severity.Error)
         {
+            if (!Enabled) return;
             var line = editor.textEditor.Document.GetLineByNumber(pos.Line);
             var textMarker = textMarkers[editor];
             if (textMarker.GetMarkersAtOffset(line.Offset).Count() > 0) return;
