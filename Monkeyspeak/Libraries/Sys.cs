@@ -103,6 +103,7 @@ namespace Monkeyspeak.Libraries
         }
 
         [TriggerDescription("Occurs when a job number is called")]
+        [TriggerNumberParameter]
         private bool JobCalled(TriggerReader reader)
         {
             double jobNumber = 0;

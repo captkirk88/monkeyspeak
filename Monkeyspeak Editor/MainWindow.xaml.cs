@@ -103,7 +103,7 @@ namespace Monkeyspeak.Editor
             SyntaxChecker.Cleared += editor =>
             {
                 errors_list.Items.Clear();
-                errors_flyout_button.Foreground = Brushes.Black;
+                errors_flyout.IsOpen = false;
             };
             errors_list.SelectionMode = SelectionMode.Extended;
             errors_list.PreviewKeyDown += (sender, e) =>
@@ -123,8 +123,13 @@ namespace Monkeyspeak.Editor
                     }
                 }
             };
-            errors_flyout.GotFocus += (sender, e) => errors_flyout.IsAutoCloseEnabled = false;
-            errors_flyout.LostFocus += (sender, e) => errors_flyout.IsAutoCloseEnabled = true;
+            errors_flyout.IsOpenChanged += (sender, e) =>
+            {
+                if (errors_flyout.IsOpen)
+                    Editors.Instance.Selected?.textEditor?.Focus();
+                else if (Intellisense.IsOpen)
+                    Intellisense.GenerateTriggerListCompletion(Editors.Instance.Selected);
+            };
 
             foreach (var col in Enum.GetNames(typeof(AppColor)))
             {
@@ -268,7 +273,7 @@ namespace Monkeyspeak.Editor
                 Properties.Settings.Default.AutoOpenOnWarning &&
                 Properties.Settings.Default.ShowWarnings))
             {
-                errors_flyout_button.Foreground = brush;
+                errors_flyout.IsOpen = true;
             }
         }
 

@@ -100,8 +100,7 @@ namespace Monkeyspeak.Editor.Controls
             };
             textEditor.TextArea.SelectionChanged += (sender, args) =>
             {
-                var line = textEditor.Document.GetLineByNumber(textEditor.TextArea.Selection.StartPosition.Line);
-                SelectedLine = textEditor.Document.GetText(line.Offset, line.Length);
+                SelectedLine = CurrentLine;
                 SelectedText = textEditor.SelectedText;
                 //if (!string.IsNullOrWhiteSpace(SelectedText))
                 //HighlightAllOccurances(SelectedText);
