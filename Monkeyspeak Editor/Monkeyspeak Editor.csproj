@@ -19,7 +19,7 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
+    <OutputPath>..\..\build\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -28,7 +28,7 @@
     <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
+    <OutputPath>..\..\build\Release\</OutputPath>
     <DefineConstants>
     </DefineConstants>
     <ErrorReport>prompt</ErrorReport>
@@ -282,24 +282,7 @@ rar a -r -x*.tmp -x*.rar -x*.tt "$(TargetDir)$(TargetName)_$(ConfigurationName)_
 </PostBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
-    <PostBuildEvent>powershell -NoLogo -NonInteractive -ExecutionPolicy Unrestricted -Command $(SolutionDir)patchAppVeyorVersion.ps1 -SolutionDir '$(SolutionDir)' -ProjectDir '$(ProjectDir)' -TargetDir '$(TargetDir)' -TargetPath '$(TargetPath)' -ConfigurationName '$(ConfigurationName)'
-
-REM powershell -NoLogo -NonInteractive -ExecutionPolicy Unrestricted -Command $(SolutionDir)protectAppConfig.ps1 -SolutionDir '$(SolutionDir)' -ProjectDir '$(ProjectDir)' -TargetDir '$(TargetDir)' -TargetPath '$(TargetPath)' -ConfigurationName '$(ConfigurationName)'
-
-REM DEL old files
-cd $(TargetDir)
-del "$(TargetDir)$(TargetName)_$(ConfigurationName)_$(PlatformName)_Src.rar"
-del "$(TargetDir)$(TargetName)_$(ConfigurationName)_$(PlatformName)_Binaries.rar"
-
-REM set path to WinRAR for rar command
-set path="C:\Program Files\WinRAR\";%25path%25
-
-REM Create the BIN rar
-rar a -r -x*\.svn\* -x*\bin\* -x*\obj\* -x*.tmp -x*.rar -x*.tt -x*.user "$(TargetDir)$(TargetName)_$(ConfigurationName)_$(PlatformName)_Binaries.rar" *.*
-
-REM Create the SRC rar
-cd $(ProjectDir)
-rar a -r -x*\.svn\* -x*\bin\* -x*\obj\* -x*.tmp -x*.rar -x*.tt -x*.user  "$(TargetDir)$(TargetName)_$(PlatformName)_Src.rar" *.*
-	</PostBuildEvent>
+    <PostBuildEvent>
+    </PostBuildEvent>
   </PropertyGroup>
 </Project>

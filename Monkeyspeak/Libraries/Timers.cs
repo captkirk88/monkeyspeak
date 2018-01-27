@@ -106,7 +106,7 @@ namespace Monkeyspeak.Libraries
 
         public override int BaseId => 300;
 
-        public TimeZoneInfo TimeZone
+        public static TimeZoneInfo TimeZone
         {
             get => timeZone;
             set
@@ -225,7 +225,7 @@ namespace Monkeyspeak.Libraries
             return true;
         }
 
-        private TimeZoneInfo timeZone = TimeZoneInfo.Local;
+        private static TimeZoneInfo timeZone = TimeZoneInfo.Local;
 
         [TriggerDescription("Sets the time zone.  Any triggers before this will use the time zone set by the application.")]
         [TriggerStringParameter]
