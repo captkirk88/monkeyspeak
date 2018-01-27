@@ -13,7 +13,6 @@ namespace Monkeyspeak.Extensions
                 switch (c)
                 {
                     case '\'':
-                    case '"':
                     case '\\':
                         sb.Append(c.EscapeForCSharp());
                         break;
@@ -34,9 +33,6 @@ namespace Monkeyspeak.Extensions
             {
                 case '\'':
                     return @"\'";
-
-                case '"':
-                    return "\\\"";
 
                 case '\\':
                     return @"\\";

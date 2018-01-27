@@ -100,8 +100,7 @@ namespace Monkeyspeak.Editor.Controls
             };
             textEditor.TextArea.SelectionChanged += (sender, args) =>
             {
-                var line = textEditor.Document.GetLineByNumber(textEditor.TextArea.Selection.StartPosition.Line);
-                SelectedLine = textEditor.Document.GetText(line.Offset, line.Length);
+                SelectedLine = CurrentLine;
                 SelectedText = textEditor.SelectedText;
                 //if (!string.IsNullOrWhiteSpace(SelectedText))
                 //HighlightAllOccurances(SelectedText);
@@ -121,7 +120,11 @@ namespace Monkeyspeak.Editor.Controls
             };
             textEditor.TextArea.TextEntered += (sender, e) =>
             {
-                Intellisense.GenerateTriggerListCompletion(this);
+                if (!string.IsNullOrWhiteSpace(e.Text))
+                {
+                    SyntaxChecker.Check(this, CaretLine);
+                    Intellisense.GenerateTriggerListCompletion(this);
+                }
             };
             textEditor.TextArea.TextEntering += (sender, e) =>
             {
@@ -130,39 +133,15 @@ namespace Monkeyspeak.Editor.Controls
                     if (e.Text == " ")
                     {
                         Intellisense.TextEntered(e);
-                        SyntaxChecker.Check(this);
                     }
                 }
-            };
-            textEditor.PreviewKeyDown += (sender, e) =>
-            {
-                // avoid common keybindings like Ctrl + Space
-                if (e.Key == Key.LeftCtrl || e.Key == Key.RightCtrl ||
-                    e.Key == Key.LeftShift || e.Key == Key.RightShift ||
-                    e.Key == Key.LeftAlt || e.Key == Key.LeftAlt) return;
-
-                if (e.Key == Key.Back || e.Key == Key.Delete)
-                {
-                    if (CaretColumn > 0 && !Trigger.TryParse(MonkeyspeakRunner.Engine, CurrentLine, out var trigger)) TriggerCount--;
-                }
-
-                if (e.Key == Key.Space)
-                    SyntaxChecker.Check(this);
-
-                if (e.Key == Key.Return)
-                {
-                    SyntaxChecker.Check(this);
-                    Intellisense.Close();
-                    if (Trigger.TryParse(MonkeyspeakRunner.Engine, PreviousLine, out var trigger)) TriggerCount++;
-                    LineAdded?.Invoke(CurrentLine, CaretLine);
-                }
-                e.Handled = false;
             };
 
             LineAdded += (text, line) =>
             {
                 // if it was a trigger that was added
                 if (Trigger.TryParse(MonkeyspeakRunner.Engine, text, out var trigger)) TriggerCount++;
+                SyntaxChecker.Check(this);
             };
             LineRemoved += (text, line) =>
             {
@@ -170,6 +149,16 @@ namespace Monkeyspeak.Editor.Controls
                 if (Trigger.TryParse(MonkeyspeakRunner.Engine, text, out var trigger)) TriggerCount--;
             };
 
+            textEditor.Document.LineTrackers.Add(new LineAddedOrRemovedTracker(this));
+
+            textEditor.PreviewKeyUp += (sender, e) =>
+            {
+                if (e.Key == Key.Back)
+                {
+                    SyntaxChecker.Check(this, CaretLine);
+                }
+                e.Handled = false;
+            };
             textEditor.PreviewMouseHover += (sender, e) =>
             {
                 ToolTipManager.Clear();
@@ -186,7 +175,7 @@ namespace Monkeyspeak.Editor.Controls
             textEditor.Options.CutCopyWholeLine = true;
             textEditor.Options.InheritWordWrapIndentation = false;
             textEditor.ShowLineNumbers = true;
-            //textEditor.TextArea.IndentationStrategy = new MonkeyspeakIndentationStrategy(page);
+            textEditor.TextArea.IndentationStrategy = new MonkeyspeakIndentationStrategy();
 
             Visibility = Visibility.Visible;
 
@@ -203,6 +192,7 @@ namespace Monkeyspeak.Editor.Controls
             // set this as the active editor since it was new
             Editors.Instance.Selected = this;
             Keyboard.Focus(textEditor);
+            textEditor.Focus();
 
             propertyGrid.PreparePropertyItem += PropertyGrid_PreparePropertyItem;
         }
@@ -269,8 +259,6 @@ namespace Monkeyspeak.Editor.Controls
             {
                 textEditor.SyntaxHighlighting = HighlightingManager.Instance.GetDefinition(value) ??
               HighlightingManager.Instance.GetDefinition("Monkeyspeak");
-                if (textEditor.SyntaxHighlighting.Name == "Monkeyspeak")
-                    textEditor.TextArea.IndentationStrategy = new MonkeyspeakIndentationStrategy(page);
             }
         }
 
@@ -289,15 +277,14 @@ namespace Monkeyspeak.Editor.Controls
         public void InsertAtCaretLine(string text)
         {
             var curLine = textEditor.Document.GetLineByOffset(textEditor.CaretOffset);
-            int lineOffset = curLine.Offset;
             if (curLine.NextLine != null)
-                lineOffset = curLine.NextLine.Offset;
+                curLine = curLine.NextLine;
             text = text.Replace("\n", string.Empty);
             BeginUndoGroup();
-            textEditor.Document.Insert(lineOffset, text + "\n", AnchorMovementType.AfterInsertion);
+            textEditor.Document.Insert(curLine.Offset, text + "\n", AnchorMovementType.AfterInsertion);
             EndUndoGroup();
-            textEditor.CaretOffset = lineOffset;
-            LineAdded?.Invoke(text, textEditor.Document.GetLineByOffset(lineOffset).LineNumber);
+            textEditor.CaretOffset = curLine.Offset;
+            OnLineAdded(text, curLine.LineNumber);
         }
 
         public void AddLine(string text, bool allowUndo = true)
@@ -308,7 +295,7 @@ namespace Monkeyspeak.Editor.Controls
             textEditor.Document.Replace(lastLine.Offset, 0, text + "\n", OffsetChangeMappingType.KeepAnchorBeforeInsertion);
             if (allowUndo) EndUndoGroup();
             textEditor.CaretOffset = lastLine.Offset;
-            LineAdded?.Invoke(text, lastLine.LineNumber);
+            OnLineAdded(text, lastLine.LineNumber);
         }
 
         public void AddLine(string text, Color color, bool allowUndo = true)
@@ -320,7 +307,7 @@ namespace Monkeyspeak.Editor.Controls
             SetTextColor(color, textEditor.LineCount, 0, text.Length);
             if (allowUndo) EndUndoGroup();
             textEditor.CaretOffset = lastLine.Offset;
-            LineAdded?.Invoke(text, lastLine.LineNumber);
+            OnLineAdded(text, lastLine.LineNumber);
         }
 
         /// <summary>
@@ -593,6 +580,7 @@ namespace Monkeyspeak.Editor.Controls
 
         private void highlightingComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            HighlighterLanguage = e.AddedItems[0].ToString();
         }
 
         private void propertyGridComboBoxSelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -647,6 +635,16 @@ namespace Monkeyspeak.Editor.Controls
             Intellisense.Close();
         }
 
+        internal void OnLineRemoved(string line, int lineNumber)
+        {
+            LineRemoved?.Invoke(line, lineNumber);
+        }
+
+        internal void OnLineAdded(string line, int lineNumber)
+        {
+            LineAdded?.Invoke(line, lineNumber);
+        }
+
         protected bool SetField<T>(ref T field, T value, [CallerMemberName] string propertyName = null)
         {
             if (EqualityComparer<T>.Default.Equals(field, value)) return false;
@@ -687,10 +685,49 @@ namespace Monkeyspeak.Editor.Controls
             }
         }
 
+        private void MetroTabItem_Unloaded(object sender, RoutedEventArgs e)
+        {
+            Intellisense.Close();
+        }
+
         public void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             info.AddValue("CurrentFilePath", CurrentFilePath);
             //info.AddValue("Content", textEditor.Text);
+        }
+    }
+
+    internal class LineAddedOrRemovedTracker : ILineTracker
+    {
+        private readonly EditorControl parent;
+
+        public LineAddedOrRemovedTracker(EditorControl parent)
+        {
+            this.parent = parent;
+        }
+
+        public void BeforeRemoveLine(DocumentLine line)
+        {
+            var text = parent.textEditor.Document.GetText(line);
+            parent.OnLineRemoved(text, line.LineNumber);
+        }
+
+        public void ChangeComplete(DocumentChangeEventArgs e)
+        {
+        }
+
+        public void LineInserted(DocumentLine insertionPos, DocumentLine newLine)
+        {
+            var text = parent.textEditor.Document.GetText(insertionPos);
+            parent.OnLineRemoved(text, insertionPos.LineNumber);
+        }
+
+        public void RebuildDocument()
+        {
+        }
+
+        public void SetLineLength(DocumentLine line, int newTotalLength)
+        {
         }
     }
 }

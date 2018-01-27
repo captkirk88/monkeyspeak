@@ -102,28 +102,37 @@ namespace Monkeyspeak.Editor
             SyntaxChecker.Error += SyntaxChecker_Event;
             SyntaxChecker.Cleared += editor =>
             {
-                errors_list.Items.Clear();
-                errors_flyout.IsOpen = false;
+                if (editor != Editors.Instance.Selected) return;
+                var items = errors_list.Items.Cast<ListViewItem>().Where(i => ((SyntaxError)i.Tag).Editor == editor).ToArray();
+                foreach (var item in items)
+                    errors_list.Items.Remove(item);
+                if (errors_list.Items.Count == 0) errors_flyout.IsOpen = false;
             };
             errors_list.SelectionMode = SelectionMode.Extended;
             errors_list.PreviewKeyDown += (sender, e) =>
             {
                 if (e.Key == Key.Delete)
                 {
-                    var items = errors_list.SelectedItems;
-                    if (items.Count > 0)
+                    var items = errors_list.SelectedItems.Cast<object>().ToArray();
+                    if (items.Length > 0)
                     {
-                        foreach (var item in items) errors_list.Items.Remove(item);
+                        foreach (var item in items)
+                        {
+                            errors_list.Items.Remove(item);
+                        }
+                        if (errors_list.Items.Count == 0)
+                            errors_flyout.IsOpen = false;
                         e.Handled = true;
                     }
                 }
             };
             errors_flyout.IsOpenChanged += (sender, e) =>
             {
-                Editors.Instance.Selected?.textEditor.Focus();
+                if (errors_flyout.IsOpen)
+                    Editors.Instance.Selected?.textEditor?.Focus();
+                else if (Intellisense.IsOpen)
+                    Intellisense.GenerateTriggerListCompletion(Editors.Instance.Selected);
             };
-            errors_flyout.GotFocus += (sender, e) => errors_flyout.IsAutoCloseEnabled = false;
-            errors_flyout.LostFocus += (sender, e) => errors_flyout.IsAutoCloseEnabled = true;
 
             foreach (var col in Enum.GetNames(typeof(AppColor)))
             {
@@ -214,6 +223,7 @@ namespace Monkeyspeak.Editor
             };
             item.MouseDoubleClick += (sender, e) =>
             {
+                editor.Focus();
                 editor.textEditor.TextArea.Caret.Line = sourcePosition.Line;
                 var line = editor.textEditor.Document.GetLineByOffset(editor.textEditor.CaretOffset);
                 editor.textEditor.ScrollToLine(sourcePosition.Line);
@@ -224,6 +234,7 @@ namespace Monkeyspeak.Editor
             {
                 if (e.Key == Key.Enter)
                 {
+                    editor.Focus();
                     editor.textEditor.TextArea.Caret.Line = sourcePosition.Line;
                     var line = editor.textEditor.Document.GetLineByOffset(editor.textEditor.CaretOffset);
                     editor.textEditor.ScrollToLine(sourcePosition.Line);
@@ -232,6 +243,7 @@ namespace Monkeyspeak.Editor
                 }
             };
             item.ToolTip = "Double click to go to error.  Select item and press DELETE key to remove.";
+            item.Tag = new SyntaxError { Editor = editor, Exception = ex, SourcePosition = sourcePosition, Severity = severity };
 
             VirtualizingStackPanel content = new VirtualizingStackPanel()
             {
@@ -259,14 +271,16 @@ namespace Monkeyspeak.Editor
                 Stroke = Brushes.Transparent,
                 Fill = Brushes.White
             });
-            content.Children.Add(new TextBlock { Text = ex.Message, Foreground = brush });
+            content.Children.Add(new TextBlock { IsHyphenationEnabled = true, Text = ex.Message, FontWeight = FontWeights.Bold, FontStyle = FontStyles.Italic, Foreground = brush });
             item.Content = content;
             errors_list.Items.Add(item);
-            if (severity == SyntaxChecker.Severity.Error ||
+            if (errors_flyout.IsOpen == false && severity == SyntaxChecker.Severity.Error ||
                 (severity == SyntaxChecker.Severity.Warning &&
                 Properties.Settings.Default.AutoOpenOnWarning &&
                 Properties.Settings.Default.ShowWarnings))
+            {
                 errors_flyout.IsOpen = true;
+            }
         }
 
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)

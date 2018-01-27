@@ -28,13 +28,9 @@ namespace Monkeyspeak.Editor
         [Browsable(false)]
         public static MonkeyspeakEngine Engine { get => engine; }
 
-        static MonkeyspeakRunner()
-        {
-            page.LoadAllLibraries();
-        }
-
         public static void WarmUp()
         {
+            page.LoadAllLibraries();
         }
 
         public static Page LoadFile(string filePath)

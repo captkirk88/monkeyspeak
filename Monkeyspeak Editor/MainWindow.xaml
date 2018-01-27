@@ -73,7 +73,7 @@
                 </ScrollViewer>
             </Controls:Flyout>
 
-            <Controls:Flyout x:Name="errors_flyout" Position="Bottom" TitleVisibility="Visible" MaxHeight="200" AutoCloseInterval="4000" IsAutoCloseEnabled="True">
+            <Controls:Flyout x:Name="errors_flyout" Position="Bottom" TitleVisibility="Visible" MaxHeight="200" Focusable="False">
                 <ScrollViewer x:Name="errors_flyout_scroll">
                     <ListView x:Name="errors_list">
                         <ListView.ItemsPanel>
@@ -195,7 +195,7 @@
 
         <StatusBar Grid.Row="3">
             <StatusBarItem>
-                <Button x:Name="errors_flyout_button" Click="errors_flyout_button_Click">
+                <Button x:Name="errors_flyout_button" Background="{DynamicResource AccentColorBrush}" Click="errors_flyout_button_Click">
                     <iconPacks:Material Kind="Bug" />
                 </Button>
             </StatusBarItem>

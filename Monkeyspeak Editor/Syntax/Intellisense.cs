@@ -27,15 +27,17 @@ namespace Monkeyspeak.Editor.Syntax
         private static CompletionWindow triggerCompletionWindow;
         private static CompletionWindow variableCompletionWindow;
 
-        private static ObservableCollection<TriggerCompletionData> triggerCompletions = new ObservableCollection<TriggerCompletionData>();
+        private static List<TriggerCompletionData> triggerCompletions = new List<TriggerCompletionData>();
 
         private static Page page;
 
         public static bool Enabled { get; set; }
-        public static ObservableCollection<TriggerCompletionData> TriggerCompletions { get => triggerCompletions; }
+        public static List<TriggerCompletionData> TriggerCompletions { get => triggerCompletions; }
+        public static bool IsOpen { get => triggerCompletionWindow != null && triggerCompletionWindow.IsVisible; }
 
         public static void Initialize()
         {
+            MonkeyspeakRunner.WarmUp();
             if (TriggerCompletions.Count == 0)
             {
                 foreach (var lib in MonkeyspeakRunner.CurrentPage.Libraries.OrderByDescending(l => l.GetType().Name))
@@ -53,25 +55,25 @@ namespace Monkeyspeak.Editor.Syntax
             Initialize();
 
             if (!Enabled || editor == null) return;
-            if (triggerCompletionWindow != null)
-            {
-                triggerCompletionWindow?.Close();
-            }
 
             var selected = editor;
             var textEditor = selected.textEditor;
-            triggerCompletionWindow = new CompletionWindow(textEditor.TextArea)
+            if (triggerCompletionWindow == null)
             {
-                CloseAutomatically = false,
-                CloseWhenCaretAtBeginning = true,
-                Background = ThemeHelper.ToThemeBackground()
-            };
-            Style windowStyle = new Style(typeof(CompletionWindow), Application.Current.MainWindow.Style);
-            windowStyle.Setters.Add(new Setter(CompletionWindow.WindowStyleProperty, WindowStyle.None));
-            windowStyle.Setters.Add(new Setter(CompletionWindow.ResizeModeProperty, ResizeMode.NoResize));
-            windowStyle.Setters.Add(new Setter(CompletionWindow.BorderThicknessProperty, new Thickness(0)));
-            triggerCompletionWindow.Style = windowStyle;
+                triggerCompletionWindow = new CompletionWindow(textEditor.TextArea)
+                {
+                    CloseAutomatically = false,
+                    CloseWhenCaretAtBeginning = true,
+                    Background = ThemeHelper.ToThemeBackground()
+                };
+                Style windowStyle = new Style(typeof(CompletionWindow), Application.Current.MainWindow.Style);
+                windowStyle.Setters.Add(new Setter(CompletionWindow.WindowStyleProperty, WindowStyle.None));
+                windowStyle.Setters.Add(new Setter(CompletionWindow.ResizeModeProperty, ResizeMode.NoResize));
+                windowStyle.Setters.Add(new Setter(CompletionWindow.BorderThicknessProperty, new Thickness(0)));
+                triggerCompletionWindow.Style = windowStyle;
+            }
             var data = triggerCompletionWindow.CompletionList.CompletionData;
+            data.Clear();
             var line = selected.CurrentLine.Trim(' ', '\t', '\n');
             foreach (var tc in triggerCompletions
                 .Where(tc => tc.Text.IndexOf(line, StringComparison.InvariantCultureIgnoreCase) >= 0 || line.CompareTo(tc.Text) == 0)
