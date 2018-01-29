@@ -501,10 +501,12 @@ namespace Monkeyspeak
                 }
                 Next();
                 length++;
-                if (LookAhead(1) == stringEndSym)
+                if (currentChar == stringEndSym)
+                {
+                    length--;
                     break;
+                }
             }
-            Next(); // hit string end sym
             if (!CheckMatch(stringEndSym)) return Token.None;
             return new Token(TokenType.STRING_LITERAL, startPos, length, sourcePos);
         }

@@ -78,6 +78,7 @@ namespace Monkeyspeak
 
                     case TokenType.STRING_LITERAL:
                         if (value.Length > Engine.Options.StringLengthLimit) throw new MonkeyspeakException("String length limit exceeded.", sourcePos);
+                        if (string.IsNullOrEmpty(value)) value = string.Empty;
                         expr = Expressions.Create(tokenType, sourcePos, value);
                         break;
 

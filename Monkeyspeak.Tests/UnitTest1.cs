@@ -265,12 +265,13 @@ namespace MonkeyspeakTests
             var testScript = @"
 (0:90) When the bot enters a Dream,
 (0:1) When the bot logs into furcadia,
-(5:6) whisper {Bot active in dream %DREAMNAME} to {%BOTCONTROLLER}.
+
+(5:6) whisper {Bot active in dream %DREAMNAME} to {}.
 
 (0:10) When someone shouts something with {fuck} in it,
 (5:5) whisper {Please do not swear in shouts! Thank you #SA} to the triggering furre.
 ";
-            using (var stream = new MemoryStream(Encoding.UTF8.GetBytes(File.ReadAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "justin.ms")))))
+            using (var stream = new MemoryStream(Encoding.UTF8.GetBytes(testScript)))
             using (Lexer lexer = new Lexer(new MonkeyspeakEngine(), new SStreamReader(stream)))
             {
                 foreach (var token in lexer.Read())

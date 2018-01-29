@@ -34,7 +34,7 @@ namespace Monkeyspeak.Logging
         }
     }
 
-    public struct LogMessage
+    public struct LogMessage : IEquatable<LogMessage>
     {
         public string message;
         private readonly DateTime expires, timeStamp;
@@ -101,17 +101,6 @@ namespace Monkeyspeak.Logging
         }
 
         /// <summary>
-        /// Returns a hash code for this instance.
-        /// </summary>
-        /// <returns>
-        /// A hash code for this instance, suitable for use in hashing algorithms and data structures like a hash table.
-        /// </returns>
-        public override int GetHashCode()
-        {
-            return curThread.ManagedThreadId + message.GetHashCode();
-        }
-
-        /// <summary>
         /// Determines whether the specified <see cref="System.Object" />, is equal to this instance.
         /// </summary>
         /// <param name="obj">The <see cref="System.Object" /> to compare with this instance.</param>
@@ -120,7 +109,7 @@ namespace Monkeyspeak.Logging
         /// </returns>
         public override bool Equals(object obj)
         {
-            return obj != null && obj is LogMessage && GetHashCode() == ((LogMessage)obj).GetHashCode();
+            return obj != null && obj is LogMessage lm && Equals(lm);
         }
 
         /// <summary>
@@ -132,6 +121,25 @@ namespace Monkeyspeak.Logging
         public override string ToString()
         {
             return message;
+        }
+
+        public bool Equals(LogMessage other)
+        {
+            return message == other.message &&
+                   timeStamp == other.timeStamp &&
+                   level == other.level &&
+                   EqualityComparer<Thread>.Default.Equals(curThread, other.curThread);
+        }
+
+        public override int GetHashCode()
+        {
+            var hashCode = -975352547;
+            hashCode = hashCode * -1521134295 + base.GetHashCode();
+            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(message);
+            hashCode = hashCode * -1521134295 + timeStamp.GetHashCode();
+            hashCode = hashCode * -1521134295 + level.GetHashCode();
+            hashCode = hashCode * -1521134295 + EqualityComparer<Thread>.Default.GetHashCode(curThread);
+            return hashCode;
         }
     }
 
