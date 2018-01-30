@@ -35,6 +35,18 @@
             <TextBlock Text="{Binding Title}" FontSize="18"
                     HorizontalAlignment="Center"
                     VerticalAlignment="Center">
+                <TextBlock.Style>
+                    <Style TargetType="TextBlock">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding HasChanges}" Value="True">
+                                <Setter Property="FontWeight" Value="Bold" />
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding HasChanges}" Value="False">
+                                <Setter Property="FontWeight" Value="Normal" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </TextBlock.Style>
             </TextBlock>
             <!-- Close button -->
             <Button  BorderThickness="0" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}"
