@@ -26,7 +26,7 @@ namespace Monkeyspeak.Editor
         {
             InitializeComponent();
             Logger.LogCallingMethod = false;
-            Logger.LogOutput = new MultiLogOutput(new FileLogger(), new FileLogger(Level.Debug));
+            Logger.LogOutput = new MultiLogOutput(new FileLogOutput(), new FileLogOutput(Level.Debug));
             Exception lastException = null;
             DispatcherUnhandledException += (sender, e) =>
             {

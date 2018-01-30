@@ -27,7 +27,7 @@ namespace Monkeyspeak.Editor.Notifications
             countdown = new ProgressBar
             {
                 Maximum = (end - DateTime.Now).TotalSeconds,
-                Minimum = 0d
+                Minimum = 0d,
             };
             container = new DockPanel();
             timer = new Timer(200)
