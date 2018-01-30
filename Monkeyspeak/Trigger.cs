@@ -221,7 +221,8 @@ namespace Monkeyspeak
         public string RebuildToString(Options options, bool includeSourcePos = false)
         {
             StringBuilder sb = new StringBuilder();
-            sb.Append($"({(int)category}:{id})").Append(includeSourcePos ? SourcePosition.ToString() : "");
+            sb.Append($"({(int)category}:{id})");
+            if (includeSourcePos) sb.Append(' ').Append(SourcePosition);
             if (contents != null && contents.Count > 0)
             {
                 sb.Append(' ');
