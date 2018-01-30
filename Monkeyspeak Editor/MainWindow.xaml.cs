@@ -64,7 +64,7 @@ namespace Monkeyspeak.Editor
                 }
             };
 
-            NotificationManager.Instance.Added += notif => this.Dispatcher.Invoke(() =>
+            NotificationManager.Instance.Added += notif => Dispatcher.Invoke(() =>
             {
                 var count = NotificationManager.Instance.Count;
                 if (count == 0)
@@ -309,7 +309,7 @@ namespace Monkeyspeak.Editor
 
                 HotkeyManager.ApplyChangesToInputBindings();
 
-                NotificationManager.Instance.AddNotification(new WelcomeNotification());
+                NotificationManager.Instance.AddNotification(new WelcomeNotification(NotificationManager.Instance));
                 Plugins.PluginsManager.Initialize();
             });
             Dispatcher.Invoke(async () => await Check());

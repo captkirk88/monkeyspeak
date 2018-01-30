@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Timers;
 using System.Windows;
 using System.Windows.Controls;
 using Monkeyspeak.Editor.Interfaces.Notifications;
@@ -14,28 +15,33 @@ namespace Monkeyspeak.Editor.Notifications
     {
         private readonly INotificationManager manager;
         private DateTime end;
-        private MahApps.Metro.Controls.MetroProgressBar ring;
-        private StackPanel container;
+        private ProgressBar countdown;
+        private DockPanel container;
         private UIElement content;
+        private Timer timer;
 
-        protected TimedNotification(INotificationManager manager, TimeSpan timeToRemove)
+        public TimedNotification(INotificationManager manager, TimeSpan timeToRemove)
         {
+            if (timeToRemove.TotalSeconds < 1d) timeToRemove = TimeSpan.FromSeconds(1);
             end = DateTime.Now.Add(timeToRemove);
-            ring = new MahApps.Metro.Controls.MetroProgressBar
+            countdown = new ProgressBar
             {
-                Minimum = TimeSpan.Zero.TotalSeconds,
-                Maximum = timeToRemove.TotalSeconds
+                Maximum = (end - DateTime.Now).TotalSeconds,
+                Minimum = 0d
             };
-            container = new StackPanel();
-            ring.Dispatcher.InvokeAsync(UpdateProgress);
+            container = new DockPanel();
+            timer = new Timer(200)
+            {
+                AutoReset = true
+            };
+            timer.Elapsed += (sender, e) => container.Dispatcher.Invoke(UpdateProgress);
+            timer.Start();
             this.manager = manager;
         }
 
-        public void SetContent(object content)
+        public virtual object SetContent()
         {
-            if (content is UIElement element)
-                this.content = element;
-            else this.content = new TextBlock { Text = content.ToString() };
+            return null;
         }
 
         public override object Content
@@ -43,9 +49,19 @@ namespace Monkeyspeak.Editor.Notifications
             get
             {
                 container.Children.Clear();
-                container.Children.Add(ring);
-                container.Children.Add(content);
-                ring.Dispatcher.InvokeAsync(UpdateProgress);
+                DockPanel.SetDock(countdown, Dock.Top);
+                container.Children.Add(countdown);
+                var content = SetContent();
+                if (content != null)
+                {
+                    var element = content as UIElement;
+                    if (element == null)
+                    {
+                        element = new TextBlock { Text = content.ToString() };
+                    }
+                    DockPanel.SetDock(element, Dock.Bottom);
+                    container.Children.Add(element);
+                }
                 return container;
             }
         }
@@ -53,12 +69,16 @@ namespace Monkeyspeak.Editor.Notifications
         private void UpdateProgress()
         {
             var now = DateTime.Now;
-            while (end < now)
+            if (end > now)
             {
-                now = DateTime.Now;
-                ring.Value = (end - now).TotalSeconds;
+                countdown.Value = (end - now).TotalSeconds;
             }
-            manager.RemoveNotification(this);
+            else
+            {
+                manager.RemoveNotification(this);
+                timer.Stop();
+                timer.Dispose();
+            }
         }
     }
 }
