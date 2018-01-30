@@ -1,8 +1,7 @@
 ﻿<Application x:Class="Monkeyspeak.Editor.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:local="clr-namespace:Monkeyspeak.Editor"
-             Startup="Application_Startup">
+             xmlns:local="clr-namespace:Monkeyspeak.Editor">
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>

@@ -169,31 +169,44 @@ namespace Monkeyspeak.Editor
                 }
 
             // Load files passed into the program and from last session
+            ProcessArguments(args);
+        }
+
+        public void ProcessArguments(string[] args)
+        {
+            // Load files passed into the program and from last session
             if (args != null && args.Length > 0)
             {
-                string lastFile = null;
                 foreach (var arg in args)
                 {
-                    if (System.IO.File.Exists(arg)) // is a file
+                    bool hasLineNumber = arg.ToLowerInvariant().IndexOf(":L") != -1;
+                    string filePath = null;
+                    if (hasLineNumber) filePath = arg.LeftOf(":L");
+                    else filePath = arg;
+                    if (!string.IsNullOrWhiteSpace(filePath) && System.IO.File.Exists(filePath)) // is a file
                     {
-                        if (!string.IsNullOrEmpty(arg) && System.IO.File.Exists(arg))
+                        if (!Editors.Instance.All.Any(e => e.CurrentFilePath == filePath))
                             MonkeyspeakCommands.Open.Execute(arg);
                     }
-                    else
+                    if (hasLineNumber)
                     {
-                        if ((arg.StartsWith("-l") || arg.StartsWith("--line")) && int.TryParse(arg.RightOf(':'), out var line))
+                        var lineStr = arg.RightOf(":L");
+                        if (int.TryParse(lineStr, out var line))
                         {
-                            var editor = Editors.Instance.Selected;
-                            var docLine = editor.textEditor.Document.GetLineByNumber(line);
-                            if (docLine != null)
+                            // find the editor with the file name
+                            var editor = Editors.Instance.All.FirstOrDefault(e => e.CurrentFilePath == filePath);
+                            if (editor != null)
                             {
-                                editor.textEditor.TextArea.Caret.Line = line;
-                                editor.textEditor.ScrollToLine(line);
-                                editor.textEditor.Select(docLine.Offset, docLine.Length);
+                                var docLine = editor.textEditor.Document.GetLineByNumber(line);
+                                if (docLine != null)
+                                {
+                                    editor.textEditor.TextArea.Caret.Line = line;
+                                    editor.textEditor.ScrollToLine(line);
+                                    editor.textEditor.Select(docLine.Offset, docLine.Length);
+                                }
                             }
                         }
                     }
-                    lastFile = arg;
                 }
             }
         }
