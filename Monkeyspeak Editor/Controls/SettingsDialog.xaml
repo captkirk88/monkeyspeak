@@ -51,6 +51,13 @@
                     <xctk:PropertyGrid x:Name="pluginProps" DockPanel.Dock="Left" Height="Auto" VerticalAlignment="Stretch" AutoGenerateProperties="True" IsMiscCategoryLabelHidden="True" />
                 </DockPanel>
             </Controls:MetroTabItem>
+            <Controls:MetroTabItem x:Name="editorOptions_tab" Header="Editor"  Controls:ControlsHelper.HeaderFontSize="14">
+                <DockPanel Margin="4 0 0 0">
+                    <ComboBox x:Name="options_list" DockPanel.Dock="Top">
+                    </ComboBox>
+                    <xctk:PropertyGrid x:Name="optionsProps" DockPanel.Dock="Left" Height="Auto" VerticalAlignment="Stretch" AutoGenerateProperties="True" IsMiscCategoryLabelHidden="True" />
+                </DockPanel>
+            </Controls:MetroTabItem>
         </Controls:MetroAnimatedTabControl>
         <Button Content="Apply" Height="32" Grid.Row="1" Click="Apply_Click" />
         <Button Content="Cancel" Height="32" Grid.Row="2"  Click="Cancel_Click" />

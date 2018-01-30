@@ -88,8 +88,6 @@ namespace Monkeyspeak.Editor.Controls
             SearchPanel.Install(textEditor);
             SyntaxChecker.Install(this);
 
-            propertyGrid.ShowSearchBox = true;
-
             textEditor.TextArea.Caret.PositionChanged += (sender, e) =>
                 textEditor.TextArea.TextView.InvalidateLayer(KnownLayer.Background);
             textEditor.TextChanged += (sender, args) =>
@@ -193,14 +191,6 @@ namespace Monkeyspeak.Editor.Controls
             Editors.Instance.Selected = this;
             Keyboard.Focus(textEditor);
             textEditor.Focus();
-
-            propertyGrid.PreparePropertyItem += PropertyGrid_PreparePropertyItem;
-        }
-
-        private void PropertyGrid_PreparePropertyItem(object sender, Xceed.Wpf.Toolkit.PropertyGrid.PropertyItemEventArgs e)
-        {
-            e.PropertyItem.Background = ThemeHelper.ToThemeBackground();
-            e.PropertyItem.Foreground = ThemeHelper.ToThemeForeground();
         }
 
         private void FileWatcher_Raised(object sender, FileSystemEventArgs e)
@@ -581,30 +571,6 @@ namespace Monkeyspeak.Editor.Controls
         private void highlightingComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             HighlighterLanguage = e.AddedItems[0].ToString();
-        }
-
-        private void propertyGridComboBoxSelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (propertyGrid == null)
-                return;
-            switch (propertyGridComboBox.SelectedIndex)
-            {
-                case 0:
-                    propertyGrid.SelectedObject = textEditor;
-                    break;
-
-                case 1:
-                    propertyGrid.SelectedObject = textEditor.TextArea;
-                    break;
-
-                case 2:
-                    propertyGrid.SelectedObject = textEditor.Options;
-                    break;
-
-                case 3:
-                    propertyGrid.SelectedObject = MonkeyspeakRunner.Options;
-                    break;
-            }
         }
 
         private void GotKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)

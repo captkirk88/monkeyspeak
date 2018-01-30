@@ -27,6 +27,8 @@ namespace Monkeyspeak.Editor.Controls
     /// </summary>
     public partial class SettingsDialog : MetroWindow
     {
+        private ICSharpCode.AvalonEdit.TextEditor editorTemplate;
+
         public SettingsDialog()
         {
             InitializeComponent();
@@ -37,22 +39,28 @@ namespace Monkeyspeak.Editor.Controls
             syntaxProps.Background = ThemeHelper.ToThemeBackground();
             pluginProps.Foreground = ThemeHelper.ToThemeForeground();
             pluginProps.Background = ThemeHelper.ToThemeBackground();
+            optionsProps.Foreground = ThemeHelper.ToThemeForeground();
+            optionsProps.Background = ThemeHelper.ToThemeBackground();
 
             settingsProps.AdvancedOptionsMenu = null;
             syntaxProps.AdvancedOptionsMenu = null;
             pluginProps.AdvancedOptionsMenu = null;
+            optionsProps.AdvancedOptionsMenu = null;
 
             settingsProps.SelectedObject = Properties.Settings.Default;
             foreach (var item in HighlightingManager.Instance.HighlightingDefinitions)
                 syntax_categories.Items.Add(item.Name);
             syntax_categories.SelectionChanged += Syntax_categories_SelectionChanged;
+            VisibilityHelper.SetIsVisible(syntax_tab, false);
 
             foreach (var plugin in PluginsManager.All)
                 plugin_list.Items.Add(plugin.Name);
             plugin_list.SelectionChanged += Plugin_list_SelectionChanged;
             VisibilityHelper.SetIsVisible(plugin_tab, plugin_list.HasItems);
 
-            VisibilityHelper.SetIsVisible(syntax_tab, false);
+            editorTemplate = new ICSharpCode.AvalonEdit.TextEditor();
+            editorTemplate.Visibility = Visibility.Hidden;
+            optionsProps.SelectedObject = editorTemplate.Options;
 
             HotkeyManager.PopulateKeybindingsConfiguration(this, hotkeysContainer, hotkeysContainer.FirstChild as StackPanel, hotkeysContainer.SecondChild as StackPanel);
         }
@@ -74,6 +82,10 @@ namespace Monkeyspeak.Editor.Controls
 
         private void Apply_Click(object sender, RoutedEventArgs e)
         {
+            foreach (var editor in Editors.Instance.All)
+            {
+                editor.textEditor.Options = editorTemplate.Options;
+            }
             HotkeyManager.Save();
             Properties.Settings.Default.Save();
             Close();

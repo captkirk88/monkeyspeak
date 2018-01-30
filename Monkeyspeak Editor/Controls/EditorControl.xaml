@@ -145,9 +145,6 @@
         <Grid GotKeyboardFocus="GotKeyboardFocus" Width="Auto">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="1*" />
-                <ColumnDefinition Width="150"
-                        MinWidth="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type DockPanel}}, Path=MinWidth}"
-                        MaxWidth="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type DockPanel}}, Path=MaxWidth}" />
             </Grid.ColumnDefinitions>
             <avalonEdit:TextEditor
 				Name="textEditor"
@@ -166,18 +163,6 @@
                     </ContextMenu>
                 </avalonEdit:TextEditor.ContextMenu>
             </avalonEdit:TextEditor>
-            <GridSplitter Grid.Row="1" Width="5" VerticalAlignment="Stretch" Background="{DynamicResource AccentColorBrush}"
-                          Style="{DynamicResource CustomGridSplitterStyle}" ShowsPreview="True" />
-            <DockPanel Grid.Column="2" Margin="4 0 0 0">
-                <ComboBox Name="propertyGridComboBox" DockPanel.Dock="Top"
-				          SelectedIndex="3" SelectionChanged="propertyGridComboBoxSelectionChanged">
-                    <ComboBoxItem>TextEditor</ComboBoxItem>
-                    <ComboBoxItem>TextArea</ComboBoxItem>
-                    <ComboBoxItem>Options</ComboBoxItem>
-                    <ComboBoxItem>Monkeyspeak Options</ComboBoxItem>
-                </ComboBox>
-                <xc:PropertyGrid x:Name="propertyGrid" DockPanel.Dock="Right" />
-            </DockPanel>
         </Grid>
     </DockPanel>
 </Controls:MetroTabItem>
