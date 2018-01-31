@@ -19,12 +19,12 @@ namespace Monkeyspeak.Logging
         {
             if (Assembly.GetEntryAssembly() != null)
             {
-                filePath = Path.Combine(Assembly.GetEntryAssembly().Location, $"{Assembly.GetCallingAssembly()?.GetName().Name}.{level}.log");
+                filePath = Path.Combine(Assembly.GetEntryAssembly().Location, $"{Assembly.GetEntryAssembly().GetName().Name}.{level}.log");
                 if (!IOPermissions.HasAccess(filePath))
-                    filePath = Path.Combine(Path.GetFullPath(Environment.GetFolderPath(Environment.SpecialFolder.Personal)), Path.GetFileName(filePath));
+                    filePath = Path.Combine(Path.GetFullPath(Environment.GetFolderPath(Environment.SpecialFolder.Personal)), $"{Assembly.GetEntryAssembly()?.GetName().Name}.{level}.log");
             }
             else
-                filePath = Path.Combine(Path.GetFullPath(Environment.GetFolderPath(Environment.SpecialFolder.Personal)), Path.GetFileName(filePath));
+                filePath = Path.Combine(Path.GetFullPath(Environment.GetFolderPath(Environment.SpecialFolder.Personal)), $"{Assembly.GetExecutingAssembly()?.GetName().Name}.{level}.log");
 
             if (File.Exists(filePath)) File.WriteAllText(filePath, ""); // make sure it is a clean file
             this.level = level;
