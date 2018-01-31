@@ -162,7 +162,7 @@ namespace Monkeyspeak.Editor
             Intellisense.Enabled = settings.Intellisense;
 
             if (!string.IsNullOrWhiteSpace(settings.LastSession))
-                foreach (var file in settings.LastSession.Split(','))
+                foreach (var file in settings.LastSession.Split(';'))
                 {
                     if (!string.IsNullOrEmpty(file) && System.IO.File.Exists(file))
                         MonkeyspeakCommands.Open.Execute(file);
@@ -321,7 +321,7 @@ namespace Monkeyspeak.Editor
             console.Close();
             if (sender is MainWindow)
             {
-                new ExitCommand().Execute(null);
+                MonkeyspeakCommands.Exit.Execute(null);
             }
         }
 

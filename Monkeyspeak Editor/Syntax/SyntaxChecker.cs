@@ -30,7 +30,7 @@ namespace Monkeyspeak.Editor.Syntax
         private static Dictionary<EditorControl, ITextMarkerService> textMarkers = new Dictionary<EditorControl, ITextMarkerService>();
         private static Page page;
 
-        public static event Action<EditorControl> PerformingOperation, Cleared;
+        public static event Action<EditorControl> Cleared;
 
         public static event Action<EditorControl, MonkeyspeakException, SourcePosition, Severity> Error, Warning, Info;
 
@@ -62,31 +62,33 @@ namespace Monkeyspeak.Editor.Syntax
         public static void Check(EditorControl editor, int line = -1, string text = null)
         {
             if (!Enabled) return;
-            PerformingOperation?.Invoke(editor);
-            if (line == -1) text = editor.textEditor.Text;
-            else text = editor.textEditor.Document.GetText(editor.textEditor.Document.GetLineByNumber(line));
-            if (string.IsNullOrWhiteSpace(text)) return;
-            using (var memory = new MemoryStream(Encoding.Default.GetBytes(text)))
+            editor.Dispatcher.Invoke(() =>
             {
-                SourcePosition pos = new SourcePosition(line, 1, line + 1);
-                if (line == -1) ClearAllMarkers(editor);
-                else ClearMarker(pos, editor);
-                Parser parser = new Parser(MonkeyspeakRunner.Engine);
-                Lexer lexer = new Lexer(MonkeyspeakRunner.Engine, new SStreamReader(memory));
-                lexer.Error += ex => AddMarker(line == -1 ? ex.SourcePosition : pos, editor, ex.Message);
-                lexer.Error += ex => Error?.Invoke(editor, ex, line == -1 ? ex.SourcePosition : pos, Severity.Error);
-                foreach (var trigger in parser.Parse(lexer))
+                if (line == -1) text = editor.textEditor.Text;
+                else text = editor.textEditor.Document.GetText(editor.textEditor.Document.GetLineByNumber(line));
+                if (string.IsNullOrWhiteSpace(text)) return;
+                using (var memory = new MemoryStream(Encoding.Default.GetBytes(text)))
                 {
-                    if (line != -1)
-                        pos = new SourcePosition(line, trigger.SourcePosition.Column, trigger.SourcePosition.RawPosition);
-                    if (page != null && !page.Libraries.Any(lib => lib.Contains(trigger.Category, trigger.Id)))
+                    SourcePosition pos = new SourcePosition(line, 1, line + 1);
+                    if (line == -1) ClearAllMarkers(editor);
+                    else ClearMarker(pos, editor);
+                    Parser parser = new Parser(MonkeyspeakRunner.Engine);
+                    Lexer lexer = new Lexer(MonkeyspeakRunner.Engine, new SStreamReader(memory));
+                    lexer.Error += ex => AddMarker(line == -1 ? ex.SourcePosition : pos, editor, ex.Message);
+                    lexer.Error += ex => Error?.Invoke(editor, ex, line == -1 ? ex.SourcePosition : pos, Severity.Error);
+                    foreach (var trigger in parser.Parse(lexer))
                     {
-                        AddMarker(line == -1 ? trigger.SourcePosition : pos, editor, severity: Severity.Warning);
-                        Warning?.Invoke(editor, new MonkeyspeakException($"{trigger} does not have a handler associated to it that could be found."), line == -1 ? trigger.SourcePosition : pos, Severity.Warning);
+                        if (line != -1)
+                            pos = new SourcePosition(line, trigger.SourcePosition.Column, trigger.SourcePosition.RawPosition);
+                        if (page != null && !page.Libraries.Any(lib => lib.Contains(trigger.Category, trigger.Id)))
+                        {
+                            AddMarker(line == -1 ? trigger.SourcePosition : pos, editor, severity: Severity.Warning);
+                            Warning?.Invoke(editor, new MonkeyspeakException($"{trigger} does not have a handler associated to it that could be found."), line == -1 ? trigger.SourcePosition : pos, Severity.Warning);
+                        }
                     }
                 }
-            }
-            editor.textEditor.Focus();
+                editor.textEditor.Focus();
+            });
         }
 
         private static void AddMarker(Token token, EditorControl editor, string message = null, Severity severity = Severity.Error)

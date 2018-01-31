@@ -77,6 +77,8 @@ namespace Monkeyspeak.Editor.Controls
 
         public event Action<string, int> LineAdded, LineRemoved;
 
+        public event Action<EditorControl> Closing;
+
         public EditorControl()
         {
             Logger.DebugEnabled = true;
@@ -139,7 +141,7 @@ namespace Monkeyspeak.Editor.Controls
             {
                 // if it was a trigger that was added
                 if (Trigger.TryParse(MonkeyspeakRunner.Engine, text, out var trigger)) TriggerCount++;
-                SyntaxChecker.Check(this);
+                SyntaxChecker.Check(this, line, text);
             };
             LineRemoved += (text, line) =>
             {
@@ -269,35 +271,32 @@ namespace Monkeyspeak.Editor.Controls
             var curLine = textEditor.Document.GetLineByOffset(textEditor.CaretOffset);
             if (curLine.NextLine != null)
                 curLine = curLine.NextLine;
-            text = text.Replace("\n", string.Empty);
+            text = TextUtilities.NormalizeNewLines(text, "\n").Replace("\n", string.Empty);
             BeginUndoGroup();
             textEditor.Document.Insert(curLine.Offset, text + "\n", AnchorMovementType.AfterInsertion);
             EndUndoGroup();
             textEditor.CaretOffset = curLine.Offset;
-            OnLineAdded(text, curLine.LineNumber);
         }
 
         public void AddLine(string text, bool allowUndo = true)
         {
-            text = text.Replace(Environment.NewLine, "\n");
+            text = TextUtilities.NormalizeNewLines(text, "\n");
             var lastLine = textEditor.Document.Lines[textEditor.LineCount - 1];
             if (allowUndo) BeginUndoGroup();
             textEditor.Document.Replace(lastLine.Offset, 0, text + "\n", OffsetChangeMappingType.KeepAnchorBeforeInsertion);
             if (allowUndo) EndUndoGroup();
             textEditor.CaretOffset = lastLine.Offset;
-            OnLineAdded(text, lastLine.LineNumber);
         }
 
         public void AddLine(string text, Color color, bool allowUndo = true)
         {
             var lastLine = textEditor.Document.Lines[textEditor.LineCount - 1];
-            text = text.Replace(Environment.NewLine, "\n");
+            text = TextUtilities.NormalizeNewLines(text, "\n");
             if (allowUndo) BeginUndoGroup();
             textEditor.Document.Replace(lastLine.Offset, 0, text + "\n", OffsetChangeMappingType.KeepAnchorBeforeInsertion);
             SetTextColor(color, textEditor.LineCount, 0, text.Length);
             if (allowUndo) EndUndoGroup();
             textEditor.CaretOffset = lastLine.Offset;
-            OnLineAdded(text, lastLine.LineNumber);
         }
 
         /// <summary>
@@ -554,6 +553,7 @@ namespace Monkeyspeak.Editor.Controls
 
         public async Task<bool> Close()
         {
+            Closing?.Invoke(this);
             if (HasChanges)
             {
                 var result = await DialogManager.ShowMessageAsync((MetroWindow)Application.Current.MainWindow,
@@ -666,26 +666,46 @@ namespace Monkeyspeak.Editor.Controls
     internal class LineAddedOrRemovedTracker : ILineTracker
     {
         private readonly EditorControl parent;
+        private bool skipProcessing = false;
 
         public LineAddedOrRemovedTracker(EditorControl parent)
         {
             this.parent = parent;
+            this.parent.Closing += Parent_Unloaded;
+            Application.Current.Exit += Application_Exit;
+        }
+
+        private void Parent_Unloaded(EditorControl editor)
+        {
+            skipProcessing = true;
+        }
+
+        private void Application_Exit(object sender, ExitEventArgs e)
+        {
+            skipProcessing = true;
         }
 
         public void BeforeRemoveLine(DocumentLine line)
         {
-            var text = parent.textEditor.Document.GetText(line);
-            parent.OnLineRemoved(text, line.LineNumber);
         }
 
         public void ChangeComplete(DocumentChangeEventArgs e)
         {
+            if (skipProcessing) return;
+            if (!string.IsNullOrWhiteSpace(e.InsertedText.Text) && e.InsertedText.Text.EndsWith("\n"))
+            {
+                var line = parent.textEditor.Document.GetLineByOffset(e.Offset);
+                parent.OnLineAdded(e.InsertedText.Text, line.LineNumber);
+            }
+            else if (!string.IsNullOrWhiteSpace(e.RemovedText.Text) && e.RemovedText.Text.EndsWith("\n"))
+            {
+                var line = parent.textEditor.Document.GetLineByOffset(e.Offset);
+                parent.OnLineRemoved(e.RemovedText.Text, line.LineNumber);
+            }
         }
 
         public void LineInserted(DocumentLine insertionPos, DocumentLine newLine)
         {
-            var text = parent.textEditor.Document.GetText(insertionPos);
-            parent.OnLineRemoved(text, insertionPos.LineNumber);
         }
 
         public void RebuildDocument()

@@ -18,9 +18,6 @@ namespace Monkeyspeak.Editor.Commands
         public override async void Execute(object parameter)
         {
             var window = (MetroWindow)Application.Current.MainWindow;
-            var dialog = await DialogManager.GetCurrentDialogAsync<BaseMetroDialog>(window);
-            if (dialog != null)
-                await DialogManager.HideMetroDialogAsync(window, dialog);
 
             var editors = Editors.Instance.All.ToArray();
             var settings = Properties.Settings.Default;
@@ -45,9 +42,10 @@ namespace Monkeyspeak.Editor.Commands
                     settings["WindowSizeHeight"] = window.Height;
                 }
             }
-            settings.LastSession = string.Join(",", session);
+            settings.LastSession = string.Join(";", session);
             settings.Save();
             Application.Current.Shutdown();
+            Environment.Exit(0);
         }
 
         public override object ToolTip => "Prompts for save changes, then exits the program";

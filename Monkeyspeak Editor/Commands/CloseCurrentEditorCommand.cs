@@ -16,7 +16,7 @@ namespace Monkeyspeak.Editor.Commands
             await Editors.Instance.Selected?.Close();
             if (Editors.Instance.IsEmpty)
             {
-                Application.Current.Shutdown();
+                MonkeyspeakCommands.Exit.Execute(null);
             }
         }
 

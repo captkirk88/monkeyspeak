@@ -39,7 +39,14 @@ namespace Monkeyspeak.Editor
                 }
                 lastException = e.Exception;
             };
-            Current.ShutdownMode = ShutdownMode.OnMainWindowClose;
+            Startup += App_Startup;
+            Current.ShutdownMode = ShutdownMode.OnExplicitShutdown;
+        }
+
+        private void App_Startup(object sender, StartupEventArgs e)
+        {
+            MainWindow = new MainWindow(e.Args);
+            MainWindow.Show();
         }
 
         public bool SignalExternalCommandLineArgs(IList<string> args)
@@ -58,7 +65,7 @@ namespace Monkeyspeak.Editor
             {
                 AppDomain.CurrentDomain.UnhandledException += (sender, e) => Logger.Error($"{sender.GetType().Name}: {e.ExceptionObject}");
                 var app = new App();
-                app.Run(new MainWindow(Environment.GetCommandLineArgs().Skip(1).ToArray()));
+                app.Run();
 
                 SingleInstance<App>.Cleanup();
             }
