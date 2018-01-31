@@ -5,6 +5,12 @@ Linux/Mono | Windows
 
 [![Waffle.io](https://badge.waffle.io/captkirk88/monkeyspeak.svg?columns=inbox,In%20Progress&style=plastic)](https://waffle.io/captkirk88/monkeyspeak) 
 
+[![forthebadge](http://forthebadge.com/images/badges/60-percent-of-the-time-works-every-time.svg)](http://forthebadge.com)
+
+[![forthebadge](http://forthebadge.com/images/badges/winter-is-coming.svg)](http://forthebadge.com)
+
+[![GitHub release](https://img.shields.io/github/release/captkirk88/monkeyspeak.svg)](https://gitHub.com/captkirk88/monkeyspeak/releases/)
+
 Monkeyspeak aims to give the end-user a very easy to use scripting language.  
 
 ### Progress v7.0
