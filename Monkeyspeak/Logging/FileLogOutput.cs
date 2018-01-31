@@ -76,7 +76,7 @@ namespace Monkeyspeak.Logging
               .Append("Thread+" + msg.Thread.ManagedThreadId)
               .Append(' ')
               //.Append(msg.TimeStamp.ToString("dd-MMM-yyyy")).Append(' ')
-              .Append((msg.TimeStamp - Process.GetCurrentProcess().StartTime).ToString("hh:mm:ss:fff"))
+              .Append((msg.TimeStamp - Process.GetCurrentProcess().StartTime).ToString(@"hh\:mm\:ss\:fff"))
               .Append(" - ")
               .Append(text);
             msg.message = sb.ToString();
