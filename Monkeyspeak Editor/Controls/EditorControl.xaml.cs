@@ -77,7 +77,9 @@ namespace Monkeyspeak.Editor.Controls
 
         public event Action<string, int> LineAdded, LineRemoved;
 
-        public event Action<EditorControl> Closing;
+        public event Action<IEditor> Closing;
+
+        public event Action<IEditor, string, int> Typing;
 
         public EditorControl()
         {
@@ -124,6 +126,8 @@ namespace Monkeyspeak.Editor.Controls
                 {
                     SyntaxChecker.Check(this, CaretLine);
                     Intellisense.GenerateTriggerListCompletion(this);
+
+                    Typing?.Invoke(this, e.Text, CaretLine);
                 }
             };
             textEditor.TextArea.TextEntering += (sender, e) =>

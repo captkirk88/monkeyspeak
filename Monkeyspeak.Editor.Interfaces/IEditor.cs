@@ -44,6 +44,20 @@ namespace Monkeyspeak.Editor
     /// </summary>
     public interface IEditor
     {
+        event Action<IEditor> Closing;
+
+        event Action<string, int> LineAdded, LineRemoved;
+
+        event Action<IEditor, string, int> Typing;
+
+        /// <summary>
+        /// Gets the title.
+        /// </summary>
+        /// <value>
+        /// The title.
+        /// </value>
+        string Title { get; }
+
         /// <summary>
         /// Gets the syntax highlighter language.
         /// </summary>
