@@ -3,6 +3,7 @@ using Monkeyspeak.Editor.Syntax;
 using Monkeyspeak.Libraries;
 using Monkeyspeak.Utils;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
@@ -20,20 +21,55 @@ namespace Monkeyspeak.Editor.Controls
     {
         public event Action<TriggerCompletionData> TriggerSelected;
 
+        private List<TriggerCompletionData> triggers = new List<TriggerCompletionData>();
+
         public TriggerList()
 
         {
             InitializeComponent();
             this.DataContext = this;
             trigger_view.SelectionMode = SelectionMode.Single;
+
+            searchBox.TextChanged += SearchBox_TextChanged;
+            searchBox.KeyUp += SearchBox_KeyUp;
         }
 
-        public TriggerCategory TriggerCategory { get; set; }
+        private void SearchBox_KeyUp(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Back)
+            {
+                triggers.Clear();
+                trigger_view.Items.Clear();
+                triggers.AddRange(Intellisense.GetTriggerCompletionData().Where(data => data.Trigger.Category == TriggerCategory && data.IsValid));
+                foreach (var trigger in triggers)
+                    trigger_view.Items.Add(trigger);
+            }
+        }
+
+        private void SearchBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            triggers.Clear();
+            trigger_view.Items.Clear();
+            if (string.IsNullOrWhiteSpace(searchBox.Text))
+                triggers.AddRange(Intellisense.GetTriggerCompletionData().Where(data => data.Trigger.Category == TriggerCategory && data.IsValid));
+            else
+                triggers.AddRange(Intellisense.GetTriggerCompletionData().Where(data => data.Trigger.Category == TriggerCategory && data.IsValid && data.Text.IndexOf(searchBox.Text, StringComparison.InvariantCultureIgnoreCase) >= 0 || searchBox.Text.CompareTo(data.Text) == 0));
+            foreach (var trigger in triggers)
+                trigger_view.Items.Add(trigger);
+        }
+
+        public TriggerCategory TriggerCategory
+        {
+            get => _triggerCategory;
+            set
+            {
+                _triggerCategory = value;
+            }
+        }
 
         private void Content_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
-            var item = trigger_view.SelectedItem as TriggerCompletionData;
-            if (item != null)
+            if (trigger_view.SelectedItem is TriggerCompletionData item)
             {
                 TriggerSelected?.Invoke(item);
             }
@@ -42,16 +78,14 @@ namespace Monkeyspeak.Editor.Controls
         private void UserControl_Loaded(object sender, RoutedEventArgs e)
         {
             trigger_view.Items.Clear();
-            Intellisense.Initialize();
-            foreach (var item in Intellisense.TriggerCompletions.Where(data => data.Trigger.Category == TriggerCategory))
-            {
-                if (item.IsValid)
-                    trigger_view.Items.Add(item);
-            }
+            triggers.AddRange(Intellisense.GetTriggerCompletionData().Where(data => data.Trigger.Category == TriggerCategory && data.IsValid));
+            foreach (var trigger in triggers)
+                trigger_view.Items.Add(trigger);
         }
 
         private ListSortDirection _lastDirection = ListSortDirection.Ascending;
         private GridViewColumnHeader lastHeaderClicked = null;
+        private TriggerCategory _triggerCategory;
 
         private void GridViewColumnHeader_Click(object sender, RoutedEventArgs e)
         {

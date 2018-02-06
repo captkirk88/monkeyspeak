@@ -2,35 +2,34 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace Monkeyspeak.Editor.Collaborate.Packets
 {
-    public sealed class RequestToJoin : IPacket
+    public sealed class ChatMessage : IPacket
     {
-        public RequestToJoin()
+        public ChatMessage()
         {
         }
 
-        public RequestToJoin(IEditor editor)
+        public ChatMessage(string text)
         {
-            EditorId = editor.GetHashCode();
+            Text = text;
         }
 
-        public int EditorId { get; private set; }
+        public PacketType Type => throw new NotImplementedException();
 
-        public PacketType Type => PacketType.Join;
+        public string Text { get; private set; }
 
         public void Read(BinaryReader reader)
         {
-            EditorId = reader.ReadInt32();
+            Text = reader.ReadString();
         }
 
         public void Write(BinaryWriter writer)
         {
-            writer.Write(EditorId);
+            writer.Write(Text);
         }
     }
 }

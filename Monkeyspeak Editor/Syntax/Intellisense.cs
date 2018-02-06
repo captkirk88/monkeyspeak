@@ -35,7 +35,7 @@ namespace Monkeyspeak.Editor.Syntax
         public static List<TriggerCompletionData> TriggerCompletions { get => triggerCompletions; }
         public static bool IsOpen { get => triggerCompletionWindow != null && triggerCompletionWindow.IsVisible; }
 
-        public static void Initialize()
+        public static IEnumerable<TriggerCompletionData> GetTriggerCompletionData()
         {
             MonkeyspeakRunner.WarmUp();
             if (TriggerCompletions.Count == 0)
@@ -44,7 +44,7 @@ namespace Monkeyspeak.Editor.Syntax
                 {
                     foreach (var kv in lib.Handlers.OrderBy(kv => kv.Key.Id))
                     {
-                        triggerCompletions.Add(new TriggerCompletionData(MonkeyspeakRunner.CurrentPage, lib, kv.Key));
+                        yield return new TriggerCompletionData(MonkeyspeakRunner.CurrentPage, lib, kv.Key);
                     }
                 }
             }
@@ -52,7 +52,8 @@ namespace Monkeyspeak.Editor.Syntax
 
         public static void GenerateTriggerListCompletion(EditorControl editor)
         {
-            Initialize();
+            if (TriggerCompletions.Count == 0)
+                TriggerCompletions.AddRange(GetTriggerCompletionData());
 
             if (!Enabled || editor == null) return;
 

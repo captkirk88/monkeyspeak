@@ -15,6 +15,8 @@ using NUnit.Framework;
 using Monkeyspeak.Lexical.Expressions;
 using System.Collections.Generic;
 using Monkeyspeak.Lexical;
+using System.Net.NetworkInformation;
+using System.Net;
 
 namespace MonkeyspeakTests
 
@@ -210,6 +212,17 @@ namespace MonkeyspeakTests
         [Test]
         public async Task DemoTest()
         {
+            var mac = string.Join(string.Empty, NetworkInterface.GetAllNetworkInterfaces()
+    .Where(i => i.OperationalStatus == OperationalStatus.Up && i.NetworkInterfaceType != NetworkInterfaceType.Loopback)
+    .Select(nic => Convert.ToBase64String(nic.GetPhysicalAddress().GetAddressBytes()))
+    .ToArray());
+            IPHostEntry host = Dns.GetHostEntry(Dns.GetHostName());
+
+            var localIP = host
+                .AddressList
+                .FirstOrDefault(ip => ip.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork);
+            var mappedId = string.Join(string.Empty, mac, Convert.ToBase64String(localIP.GetAddressBytes()));
+            Logger.Info(mappedId);
             var engine = new MonkeyspeakEngine();
             engine.Options.Debug = true;
             //Logger.LogOutput = new MultiLogOutput(new FileLogger(Level.Debug), new FileLogger(), new FileLogger(Level.Info));

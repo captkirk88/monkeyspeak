@@ -30,6 +30,8 @@ namespace Monkeyspeak.Editor.Notifications
                 Minimum = 0d,
             };
             container = new DockPanel();
+            container.MouseEnter += (sender, e) => timer.Enabled = false;
+            container.MouseLeave += (sender, e) => timer.Enabled = true;
             timer = new Timer(200)
             {
                 AutoReset = true

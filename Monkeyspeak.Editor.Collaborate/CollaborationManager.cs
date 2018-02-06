@@ -3,19 +3,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Peer2Net;
 using Monkeyspeak.Extensions;
 using System.IO;
 using Monkeyspeak.Editor.Collaborate.Packets;
+using Monkeyspeak.Logging;
 
 namespace Monkeyspeak.Editor.Collaborate
 {
     public class CollaborationManager
     {
         private static bool isOwner = false, connected = false;
-        private static Dictionary<IEditor, CollaboratingTcpListener> listeners = new Dictionary<IEditor, CollaboratingTcpListener>();
-        private static int port;
-        private static Dictionary<IEditor, CommunicationManager> comms = new Dictionary<IEditor, CommunicationManager>();
 
         private static List<Collaborator> collaborators = new List<Collaborator>();
 
@@ -23,28 +20,19 @@ namespace Monkeyspeak.Editor.Collaborate
 
         public static event Action<Collaborator> Added, Removed;
 
-        public static void Initialize(IEditor editor)
+        public static void Create(IEditor editor)
         {
-            collaborators = new List<Collaborator>();
-            var listener = new CollaboratingTcpListener(GetFreePort());
-            var comm = new CommunicationManager(listener);
-            comm.ConnectionClosed += Comm_ConnectionClosed;
-            comm.PeerConnected += Comm_PeerConnected;
-            comm.PeerDataReceived += Comm_PeerDataReceived;
-            comm.ConnectionFailed += Comm_ConnectionFailed;
-            if (listeners.ContainsKey(editor) == false)
-            {
-                listeners.Add(editor, listener);
-                comms.Add(editor, comm);
-                editor.Closing += Shutdown;
-
-                listener.Start();
-            }
+            throw new NotImplementedException("patience!");
         }
 
-        private static void Comm_PeerDataReceived(object sender, Peer2Net.EventArgs.PeerDataEventArgs e)
+        public static bool Open(IEditor editor, string joinCode)
         {
-            var mem = new MemoryStream(e.Data);
+            throw new NotImplementedException("patience!");
+        }
+
+        private static void OnMessage(object sender, byte[] data, IEditor editor)
+        {
+            var mem = new MemoryStream(data);
             var reader = new BinaryReader(mem);
             IPacket packet = null;
             var type = (PacketType)reader.ReadByte();
@@ -58,50 +46,19 @@ namespace Monkeyspeak.Editor.Collaborate
             if (packet != null) packet.Read(reader);
         }
 
+        public static void Send(IEditor editor, IPacket packet)
+        {
+            throw new NotImplementedException("patience!");
+        }
+
+        public static void Disconnect(Collaborator collab)
+        {
+            throw new NotImplementedException("patience!");
+        }
+
         public static void Shutdown(IEditor editor)
         {
-            try
-            {
-                if (!comms.TryGetValue(editor, out var comm)) return;
-                foreach (var collaborator in collaborators.Where(c => c.Editor == editor))
-                {
-                    comm.Disconnect(collaborator.Peer.EndPoint);
-                }
-                if (listeners.TryGetValue(editor, out var listener))
-                    listener.Stop();
-            }
-            catch { }
-        }
-
-        private static void Comm_ConnectionFailed(object sender, Peer2Net.EventArgs.ConnectionEventArgs e)
-        {
-            RemoveCollaborator(e.EndPoint);
-        }
-
-        private static void Comm_PeerConnected(object sender, Peer2Net.EventArgs.PeerEventArgs e)
-        {
-            AddCollaborator(e.Peer);
-        }
-
-        private static void Comm_ConnectionClosed(object sender, Peer2Net.EventArgs.ConnectionEventArgs e)
-        {
-            RemoveCollaborator(e.EndPoint);
-        }
-
-        private static void AddCollaborator(Peer peer)
-        {
-            var collaborator = collaborators.Find(c => c.Peer.EndPoint == peer.EndPoint);
-            if (collaborator == null) collaborators.Add(new Collaborator(peer));
-        }
-
-        private static void RemoveCollaborator(System.Net.IPEndPoint endPoint)
-        {
-            var collaborator = collaborators.FirstOrDefault(c => c.Peer.EndPoint == endPoint);
-            if (collaborator != null)
-            {
-                collaborators.Remove(collaborator);
-                Removed?.Invoke(collaborator);
-            }
+            throw new NotImplementedException("patience!");
         }
 
         private static int GetFreePort()

@@ -100,10 +100,12 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Commands\CollaborateCommands.cs" />
     <Compile Include="Commands\CompletionCommand.cs" />
     <Compile Include="Commands\SyntaxCheckCommand.cs" />
     <Compile Include="Extensions\ThemeExtensions.cs" />
     <Compile Include="HelperClasses\DictionaryPropertyGridAdapter.cs" />
+    <Compile Include="HelperClasses\ErrorManager.cs" />
     <Compile Include="Syntax\ITextMarker.cs" />
     <Compile Include="Syntax\SyntaxChecker.cs" />
     <Compile Include="Syntax\TextMarkerService.cs" />
@@ -240,6 +242,10 @@
     <None Include="TODO.md" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Monkeyspeak.Editor.Collaborate\Monkeyspeak.Editor.Collaborate.csproj">
+      <Project>{d2d53365-7195-41b7-adc8-38fd2de476cc}</Project>
+      <Name>Monkeyspeak.Editor.Collaborate</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Monkeyspeak.Editor.Interfaces\Monkeyspeak.Editor.Interfaces.csproj">
       <Project>{CF6EA88D-BEE4-4DEB-A4D1-CA6D6E263AC6}</Project>
       <Name>Monkeyspeak.Editor.Interfaces</Name>

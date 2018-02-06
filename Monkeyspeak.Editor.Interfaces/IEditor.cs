@@ -99,6 +99,14 @@ namespace Monkeyspeak.Editor
         IList<string> Lines { get; }
 
         /// <summary>
+        /// Gets the text.
+        /// </summary>
+        /// <value>
+        /// The text.
+        /// </value>
+        string Text { get; }
+
+        /// <summary>
         /// Gets the word count.
         /// </summary>
         /// <value>
@@ -131,11 +139,27 @@ namespace Monkeyspeak.Editor
         string CurrentLine { get; }
 
         /// <summary>
+        /// Gets a value indicating whether this instance has a file or it is a new blank editor.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if this instance has file; otherwise, <c>false</c>.
+        /// </value>
+        bool HasFile { get; }
+        string CurrentFilePath { get; }
+
+        /// <summary>
         /// Inserts the text at the caret's line, moving any lines below it down.
         /// </summary>
         /// <param name="line">The line.</param>
         /// <param name="text">The text.</param>
         void InsertAtCaretLine(string text);
+
+        /// <summary>
+        /// Inserts the text at the given line, moving any lines below it down.
+        /// </summary>
+        /// <param name="line">The line.</param>
+        /// <param name="text">The text.</param>
+        void InsertAtLine(string text, int line);
 
         /// <summary>
         /// Adds the text at the end of the current editor.

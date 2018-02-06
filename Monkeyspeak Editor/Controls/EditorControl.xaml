@@ -76,6 +76,11 @@
             <MenuItem Header="Open" Command="{x:Static commands:MonkeyspeakCommands.Open}" ToolTip="{Binding RelativeSource={RelativeSource Self}, Path=Command.ToolTip}" />
             <MenuItem Header="Navigate to Document in Explorer" Command="{x:Static commands:MonkeyspeakCommands.NavigateTo}" ToolTip="{Binding RelativeSource={RelativeSource Self}, Path=Command.ToolTip}" />
             <Separator />
+            <MenuItem Header="Collaborate">
+                <MenuItem Header="Create" />
+                <MenuItem Header="Open" />
+            </MenuItem>
+            <Separator />
             <MenuItem Header="Close" Command="{x:Static commands:MonkeyspeakCommands.Close}" ToolTip="{Binding RelativeSource={RelativeSource Self}, Path=Command.ToolTip}" />
         </ContextMenu>
     </Controls:MetroTabItem.ContextMenu>

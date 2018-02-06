@@ -64,14 +64,20 @@ namespace Monkeyspeak.Editor.Syntax
             if (!Enabled) return;
             editor.Dispatcher.Invoke(() =>
             {
-                if (line == -1) text = editor.textEditor.Text;
-                else text = editor.textEditor.Document.GetText(editor.textEditor.Document.GetLineByNumber(line));
+                SourcePosition pos = new SourcePosition(line, 1, line + 1);
+                if (line == -1)
+                {
+                    ClearAllMarkers(editor);
+                    text = editor.textEditor.Text;
+                }
+                else
+                {
+                    ClearMarker(pos, editor);
+                    text = editor.textEditor.Document.GetText(editor.textEditor.Document.GetLineByNumber(line));
+                }
                 if (string.IsNullOrWhiteSpace(text)) return;
                 using (var memory = new MemoryStream(Encoding.Default.GetBytes(text)))
                 {
-                    SourcePosition pos = new SourcePosition(line, 1, line + 1);
-                    if (line == -1) ClearAllMarkers(editor);
-                    else ClearMarker(pos, editor);
                     Parser parser = new Parser(MonkeyspeakRunner.Engine);
                     Lexer lexer = new Lexer(MonkeyspeakRunner.Engine, new SStreamReader(memory));
                     lexer.Error += ex => AddMarker(line == -1 ? ex.SourcePosition : pos, editor, ex.Message);

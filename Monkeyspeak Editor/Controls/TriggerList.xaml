@@ -10,36 +10,43 @@
              mc:Ignorable="d"
              Loaded="UserControl_Loaded"
              d:DesignHeight="300" d:DesignWidth="300">
-    <ListView x:Name="trigger_view" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="1*" />
+        </Grid.RowDefinitions>
+        <TextBox x:Name="searchBox" Grid.Row="0" AcceptsReturn="False" Width="300" MaxWidth ="300" HorizontalAlignment="Left" Controls:TextBoxHelper.Watermark="Type here to search" Controls:TextBoxHelper.AutoWatermark="True" />
+        <ListView x:Name="trigger_view" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
               Grid.IsSharedSizeScope="True"
               MouseDoubleClick="Content_MouseDoubleClick">
-        <ListView.ItemsPanel>
-            <ItemsPanelTemplate>
-                <VirtualizingStackPanel>
-                </VirtualizingStackPanel>
-            </ItemsPanelTemplate>
-        </ListView.ItemsPanel>
-        <ListView.View>
-            <GridView>
-                <GridView.Columns>
-                    <GridViewColumn>
-                        <GridViewColumn.CellTemplate>
-                            <DataTemplate>
-                                <ContentControl Content="{Binding Content}" />
-                            </DataTemplate>
-                        </GridViewColumn.CellTemplate>
-                        <GridViewColumnHeader Content="Triggers" Click="GridViewColumnHeader_Click" />
-                    </GridViewColumn>
-                    <GridViewColumn>
-                        <GridViewColumn.CellTemplate>
-                            <DataTemplate>
-                                <ContentControl Content="{Binding DescriptionWithoutTrigger}" />
-                            </DataTemplate>
-                        </GridViewColumn.CellTemplate>
-                        <GridViewColumnHeader Content="Description" Click="GridViewColumnHeader_Click" />
-                    </GridViewColumn>
-                </GridView.Columns>
-            </GridView>
-        </ListView.View>
-    </ListView>
+            <ListView.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <VirtualizingStackPanel>
+                    </VirtualizingStackPanel>
+                </ItemsPanelTemplate>
+            </ListView.ItemsPanel>
+            <ListView.View>
+                <GridView>
+                    <GridView.Columns>
+                        <GridViewColumn>
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate>
+                                    <ContentControl Content="{Binding Content}" />
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                            <GridViewColumnHeader Content="Triggers" Click="GridViewColumnHeader_Click" />
+                        </GridViewColumn>
+                        <GridViewColumn>
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate>
+                                    <ContentControl Content="{Binding DescriptionWithoutTrigger}" />
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                            <GridViewColumnHeader Content="Description" Click="GridViewColumnHeader_Click" />
+                        </GridViewColumn>
+                    </GridView.Columns>
+                </GridView>
+            </ListView.View>
+        </ListView>
+    </Grid>
 </UserControl>

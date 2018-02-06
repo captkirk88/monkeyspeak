@@ -9,7 +9,7 @@ namespace Monkeyspeak.Editor.Collaborate.Packets
 {
     public enum PacketType : byte
     {
-        None, AddText, RemoveText, Join, Leave
+        None, LoadEditor, AddText, RemoveText, Join, Leave
     }
 
     public interface IPacket
