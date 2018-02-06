@@ -101,14 +101,9 @@ namespace Monkeyspeak.Editor
             SyntaxChecker.Info += SyntaxChecker_Event;
             SyntaxChecker.Warning += SyntaxChecker_Event;
             SyntaxChecker.Error += SyntaxChecker_Event;
-            SyntaxChecker.Cleared += editor =>
-            {
-                if (editor != Editors.Instance.Selected) return;
-                var items = errors_list.Items.Cast<ListViewItem>().Where(i => ((SyntaxError)i.Tag).Editor == editor).ToArray();
-                foreach (var item in items)
-                    errors_list.Items.Remove(item);
-                if (errors_list.Items.Count == 0) errors_flyout.IsOpen = false;
-            };
+            SyntaxChecker.Cleared += SyntaxChecker_Cleared;
+            SyntaxChecker.ClearedLine += SyntaxChecker_ClearedLine;
+
             errors_list.SelectionMode = SelectionMode.Extended;
             errors_list.PreviewKeyDown += (sender, e) =>
             {
@@ -146,28 +141,6 @@ namespace Monkeyspeak.Editor
             }
 
             Loaded += MainWindow_Loaded;
-
-            // Settings
-            var settings = Properties.Settings.Default;
-            settings.Reload();
-            Left = settings.WindowPosition.X;
-            Top = settings.WindowPosition.Y;
-            Width = settings.WindowSizeWidth;
-            Height = settings.WindowSizeHeight;
-            WindowState = settings.WindowState;
-            SetColor(settings.Color);
-            SetTheme(settings.Theme);
-            if (settings.TriggerSplitterPosition > 0)
-                TopRow.Height = new GridLength(settings.TriggerSplitterPosition);
-
-            Intellisense.Enabled = settings.Intellisense;
-
-            if (!string.IsNullOrWhiteSpace(settings.LastSession))
-                foreach (var file in settings.LastSession.Split(';'))
-                {
-                    if (!string.IsNullOrEmpty(file) && System.IO.File.Exists(file))
-                        MonkeyspeakCommands.Open.Execute(file);
-                }
 
             // Load files passed into the program and from last session
             ProcessArguments(args);
@@ -212,11 +185,32 @@ namespace Monkeyspeak.Editor
             }
         }
 
-        private void SyntaxChecker_Event(EditorControl editor, MonkeyspeakException ex, SourcePosition sourcePosition, SyntaxChecker.Severity severity)
+        private void SyntaxChecker_Cleared(EditorControl editor)
         {
-            if (severity == SyntaxChecker.Severity.Warning && !Properties.Settings.Default.ShowWarnings) return;
+            errors_list.Items.Clear();
+            errors_flyout.IsOpen = false;
+        }
+
+        private void SyntaxChecker_ClearedLine(EditorControl editor, int line)
+        {
+            var toClear = errors_list.Items.Cast<ListViewItem>().Where(item =>
+            {
+                if (item.Tag is SyntaxError error)
+                {
+                    if (error.Editor == editor && error.SourcePosition.Line == line)
+                        return true;
+                }
+                return false;
+            }).ToArray();
+            foreach (var item in toClear) errors_list.Items.Remove(item);
+            if (errors_list.Items.Count == 0) errors_flyout.IsOpen = false;
+        }
+
+        private void SyntaxChecker_Event(EditorControl editor, SyntaxError error)
+        {
+            if (error.Severity == SyntaxChecker.Severity.Warning && !Properties.Settings.Default.ShowWarnings) return;
             Brush brush = Brushes.White;
-            switch (severity)
+            switch (error.Severity)
             {
                 case SyntaxChecker.Severity.Error:
                     brush = Brushes.Red;
@@ -238,9 +232,9 @@ namespace Monkeyspeak.Editor
             item.MouseDoubleClick += (sender, e) =>
             {
                 editor.Focus();
-                editor.textEditor.TextArea.Caret.Line = sourcePosition.Line;
+                editor.textEditor.TextArea.Caret.Line = error.SourcePosition.Line;
                 var line = editor.textEditor.Document.GetLineByOffset(editor.textEditor.CaretOffset);
-                editor.textEditor.ScrollToLine(sourcePosition.Line);
+                editor.textEditor.ScrollToLine(error.SourcePosition.Line);
                 editor.textEditor.Select(line.Offset, line.Length);
                 e.Handled = true;
             };
@@ -249,21 +243,21 @@ namespace Monkeyspeak.Editor
                 if (e.Key == Key.Enter)
                 {
                     editor.Focus();
-                    editor.textEditor.TextArea.Caret.Line = sourcePosition.Line;
+                    editor.textEditor.TextArea.Caret.Line = error.SourcePosition.Line;
                     var line = editor.textEditor.Document.GetLineByOffset(editor.textEditor.CaretOffset);
-                    editor.textEditor.ScrollToLine(sourcePosition.Line);
+                    editor.textEditor.ScrollToLine(error.SourcePosition.Line);
                     editor.textEditor.Select(line.Offset, line.Length);
                     e.Handled = true;
                 }
             };
             item.ToolTip = "Double click to go to error.  Select item and press DELETE key to remove.";
-            item.Tag = new SyntaxError { Editor = editor, Exception = ex, SourcePosition = sourcePosition, Severity = severity };
+            item.Tag = error;
 
             VirtualizingStackPanel content = new VirtualizingStackPanel()
             {
                 Orientation = Orientation.Horizontal
             };
-            TextBlock lineInfo = new TextBlock { Text = $"Line {sourcePosition.Line}, Col {sourcePosition.Column}" };
+            TextBlock lineInfo = new TextBlock { Text = $"Line {error.SourcePosition.Line}, Col {error.SourcePosition.Column}" };
             TextBlock source = new TextBlock { Text = System.IO.Path.GetFileName(editor.CurrentFilePath ?? editor.Title), Foreground = Brushes.DarkCyan };
             content.Children.Add(lineInfo);
             content.Children.Add(new Rectangle
@@ -285,11 +279,11 @@ namespace Monkeyspeak.Editor
                 Stroke = Brushes.Transparent,
                 Fill = Brushes.White
             });
-            content.Children.Add(new TextBlock { IsHyphenationEnabled = true, Text = ex.Message, FontWeight = FontWeights.Bold, FontStyle = FontStyles.Italic, Foreground = brush });
+            content.Children.Add(new TextBlock { IsHyphenationEnabled = true, Text = error.Exception.Message, FontWeight = FontWeights.Bold, FontStyle = FontStyles.Italic, Foreground = brush });
             item.Content = content;
             errors_list.Items.Add(item);
-            if (errors_flyout.IsOpen == false && severity == SyntaxChecker.Severity.Error ||
-                (severity == SyntaxChecker.Severity.Warning &&
+            if (errors_flyout.IsOpen == false && error.Severity == SyntaxChecker.Severity.Error ||
+                (error.Severity == SyntaxChecker.Severity.Warning &&
                 Properties.Settings.Default.AutoOpenOnWarning &&
                 Properties.Settings.Default.ShowWarnings))
             {
@@ -302,6 +296,31 @@ namespace Monkeyspeak.Editor
             Dispatcher.Invoke(() =>
             {
                 e.Handled = true;
+                // Settings
+                var settings = Properties.Settings.Default;
+                settings.Upgrade();
+                Left = settings.WindowPosition.X;
+                Top = settings.WindowPosition.Y;
+                Width = settings.WindowSizeWidth;
+                Height = settings.WindowSizeHeight;
+                WindowState = settings.WindowState;
+                SetColor(settings.Color);
+                SetTheme(settings.Theme);
+                theme_chooser.SelectedItem = settings.Theme;
+                style_chooser.SelectedItem = settings.Color;
+
+                if (settings.TriggerSplitterPosition > 0)
+                    TopRow.Height = new GridLength(settings.TriggerSplitterPosition);
+                else settings["TriggerSplitterPosition"] = TopRow.Height.Value;
+                Intellisense.Enabled = settings.Intellisense;
+
+                if (!string.IsNullOrWhiteSpace(settings.LastSession))
+                    foreach (var file in settings.LastSession.Split(';'))
+                    {
+                        if (!string.IsNullOrEmpty(file) && System.IO.File.Exists(file))
+                            MonkeyspeakCommands.Open.Execute(file);
+                    }
+
                 notifs_flyout.AutoCloseInterval = 3000;
                 notifs_flyout.IsAutoCloseEnabled = false;
 
@@ -319,7 +338,14 @@ namespace Monkeyspeak.Editor
         private void MetroWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             e.Cancel = true;
-            console.Close();
+            if (console != null) console.Close();
+
+            // save some application settings
+            var settings = Properties.Settings.Default;
+            settings.Upgrade();
+            settings["TriggerSplitterPosition"] = TopRow.Height.Value;
+            settings.Save();
+
             if (sender is MainWindow)
             {
                 MonkeyspeakCommands.Exit.Execute(null);
@@ -374,10 +400,10 @@ namespace Monkeyspeak.Editor
             if (Enum.TryParse(style_chooser.SelectedItem.ToString(), out AppColor col))
             {
                 var settings = Properties.Settings.Default;
+                settings.Upgrade();
                 settings.Color = col;
                 settings.SettingsSaving += Settings_Saving;
                 settings.Save();
-                settings.Reload();
             }
         }
 
@@ -386,10 +412,10 @@ namespace Monkeyspeak.Editor
             if (Enum.TryParse(theme_chooser.SelectedItem.ToString(), out AppTheme theme))
             {
                 var settings = Properties.Settings.Default;
+                settings.Upgrade();
                 settings.Theme = theme;
                 settings.SettingsSaving += Settings_Saving;
                 settings.Save();
-                settings.Reload();
             }
         }
 
@@ -486,7 +512,8 @@ namespace Monkeyspeak.Editor
 
         private void Settings_Saving(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            var settings = sender as Properties.Settings;
+            e.Cancel = false;
+            var settings = Properties.Settings.Default;
             settings.SettingsSaving -= Settings_Saving;
             SetColor(settings.Color);
             SetTheme(settings.Theme);
@@ -495,6 +522,7 @@ namespace Monkeyspeak.Editor
             Height = settings.WindowSizeHeight;
             WindowState = settings.WindowState;
             Intellisense.Enabled = settings.Intellisense;
+
             HotkeyManager.ApplyChangesToInputBindings();
         }
 

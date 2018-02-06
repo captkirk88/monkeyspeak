@@ -119,9 +119,9 @@ namespace Monkeyspeak.Editor.Properties {
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("-1")]
-        public int TriggerSplitterPosition {
+        public double TriggerSplitterPosition {
             get {
-                return ((int)(this["TriggerSplitterPosition"]));
+                return ((double)(this["TriggerSplitterPosition"]));
             }
         }
         

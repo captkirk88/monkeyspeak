@@ -39,9 +39,7 @@ namespace Monkeyspeak.Editor.Syntax
 
         public TextMarkerService(TextDocument document)
         {
-            if (document == null)
-                throw new ArgumentNullException("document");
-            this.document = document;
+            this.document = document ?? throw new ArgumentNullException("document");
             this.markers = new TextSegmentCollection<TextMarker>(document);
         }
 

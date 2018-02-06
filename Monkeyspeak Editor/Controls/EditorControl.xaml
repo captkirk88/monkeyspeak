@@ -94,7 +94,7 @@
                 <ip:PackIconMaterial Kind="ContentSaveOutline" />
             </Button>
             <Button Command="{x:Static commands:MonkeyspeakCommands.SaveAll}" ToolTip="{Binding RelativeSource={RelativeSource Self}, Path=Command.ToolTip}"
-                    IsEnabled="{Binding Source={x:Static local:Editors.Instance}, Path=AnyHasChanges}">
+                    IsEnabled="True">
                 <ip:PackIconMaterial Kind="ContentSaveAll" />
             </Button>
             <Button Command="{x:Static commands:MonkeyspeakCommands.New}" ToolTip="{Binding RelativeSource={RelativeSource Self}, Path=Command.ToolTip}">
