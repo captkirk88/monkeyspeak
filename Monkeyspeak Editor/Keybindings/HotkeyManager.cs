@@ -201,7 +201,7 @@ namespace Monkeyspeak.Editor.Keybindings
 
         public static void Save()
         {
-            string dir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "monkeyspeak");
+            string dir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Monkeyspeak");
             string filePath = Path.Combine(dir, "keybindings.conf");
             if (Directory.Exists(dir) == false) Directory.CreateDirectory(dir);
 
@@ -225,7 +225,7 @@ namespace Monkeyspeak.Editor.Keybindings
 
         public static void Load()
         {
-            string dir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "monkeyspeak");
+            string dir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Monkeyspeak");
             string filePath = Path.Combine(dir, "keybindings.conf");
             if (File.Exists(filePath) == false) return;
 

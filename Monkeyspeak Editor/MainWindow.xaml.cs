@@ -67,6 +67,9 @@ namespace Monkeyspeak.Editor
 
             NotificationManager.Instance.Added += notif => Dispatcher.Invoke(() =>
             {
+                notifs_list.Items.Add(new NotificationPanel(notif));
+                notifs_flyout_scroll.ScrollToBottom();
+
                 var count = NotificationManager.Instance.Count;
                 if (count == 0)
                 {
@@ -75,15 +78,18 @@ namespace Monkeyspeak.Editor
                 }
                 else notif_badge.Badge = count;
 
-                notifs_list.Items.Add(new NotificationPanel(notif));
-                notifs_flyout_scroll.ScrollToBottom();
+                if (notif is Interfaces.Notifications.ICriticalNotification)
+                    notifs_flyout.IsOpen = true;
             });
             NotificationManager.Instance.Removed += notif => Dispatcher.Invoke(() =>
             {
                 var count = NotificationManager.Instance.Count;
                 if (count == 0)
                 {
-                    notifs_flyout.IsOpen = false;
+                    if (!NotificationManager.Instance.HasCriticalNotifications)
+                    {
+                        notifs_flyout.IsOpen = false;
+                    }
                     notif_badge.Badge = "";
                 }
                 else notif_badge.Badge = count;
@@ -130,25 +136,48 @@ namespace Monkeyspeak.Editor
                     Intellisense.GenerateTriggerListCompletion(Editors.Instance.Selected);
             };
 
-            foreach (var col in Enum.GetNames(typeof(AppColor)))
-            {
-                style_chooser.Items.Add(col);
-            }
-
-            foreach (var theme in Enum.GetNames(typeof(AppTheme)))
-            {
-                theme_chooser.Items.Add(theme);
-            }
-
             Loaded += MainWindow_Loaded;
 
-            // Load files passed into the program and from last session
             ProcessArguments(args);
+
+            Settings.SettingChanged += (setting, value) => Logger.Debug<Settings>($"Changed {setting} to {value}");
+
+            Dispatcher.Invoke(() =>
+            {
+                // Settings
+                Settings.Load();
+                Left = Settings.WindowPositionX;
+                Top = Settings.WindowPositionY;
+                Width = Settings.WindowSizeWidth;
+                Height = Settings.WindowSizeHeight;
+                WindowState = Settings.WindowState;
+
+                if (Settings.TriggerSplitterPosition > 0d)
+                    TopRow.Height = new GridLength(Settings.TriggerSplitterPosition);
+                else Settings.TriggerSplitterPosition = TopRow.Height.Value;
+
+                if (!string.IsNullOrWhiteSpace(Settings.LastSession))
+                    foreach (var file in Settings.LastSession.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries))
+                    {
+                        if (!string.IsNullOrEmpty(file) && System.IO.File.Exists(file))
+                            MonkeyspeakCommands.Open.Execute(file);
+                    }
+
+                notifs_flyout.AutoCloseInterval = 3000;
+                notifs_flyout.IsAutoCloseEnabled = false;
+
+                if (Editors.Instance.IsEmpty)
+                    new NewEditorCommand().Execute(null);
+
+                HotkeyManager.ApplyChangesToInputBindings();
+
+                NotificationManager.Instance.AddNotification(new WelcomeNotification());
+                Plugins.PluginsManager.Initialize();
+            });
         }
 
         public void ProcessArguments(string[] args)
         {
-            // Load files passed into the program and from last session
             if (args != null && args.Length > 0)
             {
                 foreach (var arg in args)
@@ -208,7 +237,7 @@ namespace Monkeyspeak.Editor
 
         private void SyntaxChecker_Event(EditorControl editor, SyntaxError error)
         {
-            if (error.Severity == SyntaxChecker.Severity.Warning && !Properties.Settings.Default.ShowWarnings) return;
+            if (error.Severity == SyntaxChecker.Severity.Warning && !Settings.ShowWarnings) return;
             Brush brush = Brushes.White;
             switch (error.Severity)
             {
@@ -284,8 +313,8 @@ namespace Monkeyspeak.Editor
             errors_list.Items.Add(item);
             if (errors_flyout.IsOpen == false && error.Severity == SyntaxChecker.Severity.Error ||
                 (error.Severity == SyntaxChecker.Severity.Warning &&
-                Properties.Settings.Default.AutoOpenOnWarning &&
-                Properties.Settings.Default.ShowWarnings))
+                Settings.AutoOpenOnWarning &&
+                Settings.ShowWarnings))
             {
                 errors_flyout.IsOpen = true;
             }
@@ -293,45 +322,11 @@ namespace Monkeyspeak.Editor
 
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
-            Dispatcher.Invoke(() =>
-            {
-                e.Handled = true;
-                // Settings
-                var settings = Properties.Settings.Default;
-                settings.Upgrade();
-                Left = settings.WindowPosition.X;
-                Top = settings.WindowPosition.Y;
-                Width = settings.WindowSizeWidth;
-                Height = settings.WindowSizeHeight;
-                WindowState = settings.WindowState;
-                SetColor(settings.Color);
-                SetTheme(settings.Theme);
-                theme_chooser.SelectedItem = settings.Theme;
-                style_chooser.SelectedItem = settings.Color;
+            e.Handled = true;
 
-                if (settings.TriggerSplitterPosition > 0)
-                    TopRow.Height = new GridLength(settings.TriggerSplitterPosition);
-                else settings["TriggerSplitterPosition"] = TopRow.Height.Value;
-                Intellisense.Enabled = settings.Intellisense;
+            Settings.Saving += Settings_Saving;
+            Settings.Save();
 
-                if (!string.IsNullOrWhiteSpace(settings.LastSession))
-                    foreach (var file in settings.LastSession.Split(';'))
-                    {
-                        if (!string.IsNullOrEmpty(file) && System.IO.File.Exists(file))
-                            MonkeyspeakCommands.Open.Execute(file);
-                    }
-
-                notifs_flyout.AutoCloseInterval = 3000;
-                notifs_flyout.IsAutoCloseEnabled = false;
-
-                if (Editors.Instance.IsEmpty)
-                    new NewEditorCommand().Execute(null);
-
-                HotkeyManager.ApplyChangesToInputBindings();
-
-                NotificationManager.Instance.AddNotification(new WelcomeNotification(NotificationManager.Instance));
-                Plugins.PluginsManager.Initialize();
-            });
             Dispatcher.Invoke(async () => await Check());
         }
 
@@ -341,11 +336,16 @@ namespace Monkeyspeak.Editor
             if (console != null) console.Close();
 
             // save some application settings
-            var settings = Properties.Settings.Default;
-            settings.Upgrade();
-            settings["TriggerSplitterPosition"] = TopRow.Height.Value;
-            settings.Save();
-
+            Settings.TriggerSplitterPosition = TopRow.Height.Value;
+            if (Settings.RememberWindowPosition)
+            {
+                Settings.WindowState = WindowState;
+                Settings.WindowPositionX = Left;
+                Settings.WindowPositionY = Top;
+            }
+            Settings.WindowSizeWidth = Width;
+            Settings.WindowSizeHeight = Height;
+            Settings.Save();
             if (sender is MainWindow)
             {
                 MonkeyspeakCommands.Exit.Execute(null);
@@ -359,9 +359,7 @@ namespace Monkeyspeak.Editor
 
         private void Notifications_Click(object sender, RoutedEventArgs e)
         {
-            if (NotificationManager.Instance.Count > 0)
-                notifs_flyout.IsOpen = true;
-            else notifs_flyout.IsOpen = false;
+            notifs_flyout.IsOpen = !notifs_flyout.IsOpen;
         }
 
         private void Notifications_MouseDown(object sender, MouseButtonEventArgs e)
@@ -370,8 +368,9 @@ namespace Monkeyspeak.Editor
             {
                 this.Dispatcher.Invoke(() =>
                 {
-                    notifs_flyout.IsOpen = false;
                     NotificationManager.Instance.Clear();
+                    if (!NotificationManager.Instance.HasCriticalNotifications)
+                        notifs_flyout.IsOpen = false;
                 });
             }
         }
@@ -395,30 +394,6 @@ namespace Monkeyspeak.Editor
             System.Diagnostics.Process.Start("https://github.com/captkirk88/monkeyspeak");
         }
 
-        private void style_chooser_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (Enum.TryParse(style_chooser.SelectedItem.ToString(), out AppColor col))
-            {
-                var settings = Properties.Settings.Default;
-                settings.Upgrade();
-                settings.Color = col;
-                settings.SettingsSaving += Settings_Saving;
-                settings.Save();
-            }
-        }
-
-        private void theme_chooser_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (Enum.TryParse(theme_chooser.SelectedItem.ToString(), out AppTheme theme))
-            {
-                var settings = Properties.Settings.Default;
-                settings.Upgrade();
-                settings.Theme = theme;
-                settings.SettingsSaving += Settings_Saving;
-                settings.Save();
-            }
-        }
-
         private void MetroAnimatedTabControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             Dispatcher.Invoke(() =>
@@ -438,7 +413,7 @@ namespace Monkeyspeak.Editor
                                         ThemeManager.GetAccent(Enum.GetName(typeof(AppColor), color)),
                                         appStyle.Item1);
             });
-            style_chooser.SelectedItem = color;
+            Settings.Color = color;
         }
 
         public AppColor GetColor()
@@ -449,16 +424,16 @@ namespace Monkeyspeak.Editor
             else return AppColor.Brown;
         }
 
-        public void SetTheme(AppTheme accent)
+        public void SetTheme(AppTheme theme)
         {
             Dispatcher.Invoke(() =>
             {
                 Tuple<MahApps.Metro.AppTheme, Accent> appStyle = ThemeManager.DetectAppStyle(System.Windows.Application.Current);
                 ThemeManager.ChangeAppStyle(System.Windows.Application.Current.Resources,
                                         appStyle.Item2,
-                                        ThemeManager.GetAppTheme($"Base{Enum.GetName(typeof(AppTheme), accent)}"));
+                                        ThemeManager.GetAppTheme($"Base{Enum.GetName(typeof(AppTheme), theme)}"));
             });
-            style_chooser.SelectedItem = accent;
+            Settings.Theme = theme;
         }
 
         public AppTheme GetTheme()
@@ -505,24 +480,25 @@ namespace Monkeyspeak.Editor
         private void settingsDialog_Click(object sender, RoutedEventArgs e)
         {
             SettingsDialog dialog = new SettingsDialog();
-            var settings = dialog.settingsProps.SelectedObject as Properties.Settings;
-            settings.SettingsSaving += Settings_Saving;
+            Settings.Saving += Settings_Saving;
             dialog.ShowDialog();
         }
 
-        private void Settings_Saving(object sender, System.ComponentModel.CancelEventArgs e)
+        private void Settings_Saving()
         {
-            e.Cancel = false;
-            var settings = Properties.Settings.Default;
-            settings.SettingsSaving -= Settings_Saving;
-            SetColor(settings.Color);
-            SetTheme(settings.Theme);
-            WindowState = settings.WindowState;
-            Width = settings.WindowSizeWidth;
-            Height = settings.WindowSizeHeight;
-            WindowState = settings.WindowState;
-            Intellisense.Enabled = settings.Intellisense;
+            Settings.Saving -= Settings_Saving;
+            SetColor(Settings.Color);
+            SetTheme(Settings.Theme);
 
+            if (Settings.RememberWindowPosition)
+            {
+                WindowState = Settings.WindowState;
+                Left = Settings.WindowPositionX;
+                Top = Settings.WindowPositionY;
+            }
+            Width = Settings.WindowSizeWidth;
+            Height = Settings.WindowSizeHeight;
+            TopRow.Height = new GridLength(Settings.TriggerSplitterPosition);
             HotkeyManager.ApplyChangesToInputBindings();
         }
 

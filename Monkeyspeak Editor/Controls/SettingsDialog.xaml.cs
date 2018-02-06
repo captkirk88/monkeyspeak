@@ -19,6 +19,7 @@ using Monkeyspeak.Editor.Extensions;
 using Monkeyspeak.Editor.HelperClasses;
 using Monkeyspeak.Editor.Keybindings;
 using Monkeyspeak.Editor.Plugins;
+using Xceed.Wpf.Toolkit.PropertyGrid;
 
 namespace Monkeyspeak.Editor.Controls
 {
@@ -33,6 +34,8 @@ namespace Monkeyspeak.Editor.Controls
         {
             InitializeComponent();
             DataContext = this;
+            UpdateDefaultStyle();
+
             settingsProps.Foreground = ThemeHelper.ToThemeForeground();
             settingsProps.Background = ThemeHelper.ToThemeBackground();
             syntaxProps.Foreground = ThemeHelper.ToThemeForeground();
@@ -47,7 +50,9 @@ namespace Monkeyspeak.Editor.Controls
             pluginProps.AdvancedOptionsMenu = null;
             optionsProps.AdvancedOptionsMenu = null;
 
-            settingsProps.SelectedObject = Properties.Settings.Default;
+            //settingsProps.AutoGenerateProperties = false;
+            settingsProps.SelectedObject = new DictionaryPropertyGridAdapter<string, object>(Settings.Dictionary);
+
             foreach (var item in HighlightingManager.Instance.HighlightingDefinitions)
                 syntax_categories.Items.Add(item.Name);
             syntax_categories.SelectionChanged += Syntax_categories_SelectionChanged;
@@ -58,8 +63,11 @@ namespace Monkeyspeak.Editor.Controls
             plugin_list.SelectionChanged += Plugin_list_SelectionChanged;
             VisibilityHelper.SetIsVisible(plugin_tab, plugin_list.HasItems);
 
-            editorTemplate = new ICSharpCode.AvalonEdit.TextEditor();
-            editorTemplate.Visibility = Visibility.Hidden;
+            editorTemplate = new ICSharpCode.AvalonEdit.TextEditor
+            {
+                Visibility = Visibility.Hidden,
+                IsEnabled = false,
+            };
             optionsProps.SelectedObject = editorTemplate.Options;
 
             HotkeyManager.PopulateKeybindingsConfiguration(this, hotkeysContainer, hotkeysContainer.FirstChild as StackPanel, hotkeysContainer.SecondChild as StackPanel);
@@ -87,7 +95,7 @@ namespace Monkeyspeak.Editor.Controls
                 editor.textEditor.Options = editorTemplate.Options;
             }
             HotkeyManager.Save();
-            Properties.Settings.Default.Save();
+            Settings.Save();
             Close();
         }
 

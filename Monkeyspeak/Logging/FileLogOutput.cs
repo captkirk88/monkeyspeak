@@ -10,22 +10,20 @@ using System.Threading.Tasks;
 
 namespace Monkeyspeak.Logging
 {
+    /// <summary>
+    ///
+    /// </summary>
+    /// <seealso cref="ILogOutput" />
+    /// <seealso cref="System.IEquatable{Logging.FileLogOutput}" />
     public class FileLogOutput : ILogOutput, IEquatable<FileLogOutput>
     {
         private readonly Level level;
         private readonly string filePath;
 
-        public FileLogOutput(Level level = Level.Error)
+        public FileLogOutput(string rootFolder, Level level = Level.Error)
         {
-            if (Assembly.GetEntryAssembly() != null)
-            {
-                filePath = Path.Combine(Assembly.GetEntryAssembly().Location, $"{Assembly.GetEntryAssembly().GetName().Name}.{level}.log");
-                if (!IOPermissions.HasAccess(filePath))
-                    filePath = Path.Combine(Path.GetFullPath(Environment.GetFolderPath(Environment.SpecialFolder.Personal)), $"{Assembly.GetEntryAssembly()?.GetName().Name}.{level}.log");
-            }
-            else
-                filePath = Path.Combine(Path.GetFullPath(Environment.GetFolderPath(Environment.SpecialFolder.Personal)), $"{Assembly.GetExecutingAssembly()?.GetName().Name}.{level}.log");
-
+            filePath = Path.Combine(rootFolder, $"{Assembly.GetEntryAssembly().GetName().Name}.{level}.log");
+            if (!Directory.Exists(Path.GetDirectoryName(filePath))) Directory.CreateDirectory(Path.GetDirectoryName(filePath));
             if (File.Exists(filePath)) File.WriteAllText(filePath, ""); // make sure it is a clean file
             this.level = level;
         }

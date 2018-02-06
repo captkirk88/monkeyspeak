@@ -26,7 +26,8 @@ namespace Monkeyspeak.Editor
         {
             InitializeComponent();
             Logger.LogCallingMethod = false;
-            Logger.LogOutput = new MultiLogOutput(new FileLogOutput(), new FileLogOutput(Level.Debug));
+            var localAppDataPath = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Monkeyspeak", "logs");
+            Logger.LogOutput = new MultiLogOutput(new FileLogOutput(localAppDataPath), new FileLogOutput(localAppDataPath, Level.Debug));
             Exception lastException = null;
             DispatcherUnhandledException += (sender, e) =>
             {

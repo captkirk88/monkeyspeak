@@ -15,6 +15,7 @@ using MahApps.Metro;
 using MahApps.Metro.Controls;
 using Monkeyspeak.Editor.Controls;
 using Monkeyspeak.Editor.Extensions;
+using Monkeyspeak.Editor.HelperClasses;
 using Monkeyspeak.Editor.Syntax;
 using Monkeyspeak.Editor.Utils;
 using Monkeyspeak.Lexical.Expressions;
@@ -31,7 +32,7 @@ namespace Monkeyspeak.Editor.Syntax
 
         private static Page page;
 
-        public static bool Enabled { get; set; }
+        public static bool Enabled => Settings.Intellisense;
         public static List<TriggerCompletionData> TriggerCompletions { get => triggerCompletions; }
         public static bool IsOpen { get => triggerCompletionWindow != null && triggerCompletionWindow.IsVisible; }
 

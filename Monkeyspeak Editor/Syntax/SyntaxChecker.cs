@@ -11,6 +11,7 @@ using System.Windows.Media;
 using ICSharpCode.AvalonEdit;
 using ICSharpCode.AvalonEdit.Document;
 using Monkeyspeak.Editor.Controls;
+using Monkeyspeak.Editor.HelperClasses;
 using Monkeyspeak.Editor.Utils;
 using Monkeyspeak.Lexical;
 using Monkeyspeak.Logging;
@@ -37,7 +38,7 @@ namespace Monkeyspeak.Editor.Syntax
 
         public static event Action<EditorControl, SyntaxError> Error, Warning, Info;
 
-        public static bool Enabled => Properties.Settings.Default.SyntaxCheckingEnabled;
+        public static bool Enabled => Settings.SyntaxCheckingEnabled;
 
         public static void Install(EditorControl editor)
         {

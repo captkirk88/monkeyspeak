@@ -2,6 +2,7 @@
 using Monkeyspeak.Editor.Interfaces.Notifications;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Windows;
 
 namespace Monkeyspeak.Editor.Notifications
@@ -14,7 +15,9 @@ namespace Monkeyspeak.Editor.Notifications
 
         public event Action<INotification> Added, Removed;
 
-        public int Count => notifs.Count;
+        public int Count => notifs.Count(n => !(n is ICriticalNotification));
+
+        public bool HasCriticalNotifications => notifs.Count(n => n is ICriticalNotification) > 0;
 
         public void AddNotification(INotification notif)
         {
@@ -24,6 +27,7 @@ namespace Monkeyspeak.Editor.Notifications
 
         public void RemoveNotification(INotification notif)
         {
+            if (notif is ICriticalNotification) return;
             if (notifs.Remove(notif))
                 Removed?.Invoke(notif);
         }
@@ -34,8 +38,7 @@ namespace Monkeyspeak.Editor.Notifications
         {
             foreach (var notif in notifs)
             {
-                if (notifs.Remove(notif))
-                    Removed?.Invoke(notif);
+                RemoveNotification(notif);
             }
         }
     }

@@ -85,8 +85,6 @@ namespace Monkeyspeak.Editor.Controls
             textEditor.TextChanged += (sender, args) =>
             {
                 HasChanges = true;
-                Plugins.PluginsManager.AllEnabled = true;
-                Plugins.PluginsManager.OnEditorTextChanged(this);
             };
             textEditor.TextArea.SelectionChanged += (sender, args) =>
             {
@@ -116,6 +114,9 @@ namespace Monkeyspeak.Editor.Controls
                     Intellisense.GenerateTriggerListCompletion(this);
 
                     Typing?.Invoke(this, e.Text, CaretLine);
+
+                    Plugins.PluginsManager.AllEnabled = true;
+                    Plugins.PluginsManager.OnEditorTextChanged(this);
                 }
             };
             textEditor.TextArea.TextEntering += (sender, e) =>
@@ -261,7 +262,7 @@ namespace Monkeyspeak.Editor.Controls
 
         public bool HasChanges { get => _hasChanges; set => SetField(ref _hasChanges, value); }
 
-        public bool HasFile => currentFilePath != Title;
+        public bool HasFile => !string.IsNullOrWhiteSpace(currentFilePath) && File.Exists(currentFilePath);
 
         public void InsertAtCaretLine(string text)
         {

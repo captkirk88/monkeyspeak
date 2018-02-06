@@ -50,7 +50,9 @@ namespace Monkeyspeak.Editor.Logging
             sb.AppendLine(logMsg.message);
             try
             {
-                NotificationManager.Instance.AddNotification(new NotificationWithIcon(icon, sb.ToString()));
+                if (logMsg.Level == Level.Error)
+                    NotificationManager.Instance.AddNotification(ExceptionNotification.Instance);
+                else NotificationManager.Instance.AddNotification(new NotificationWithIcon(icon, sb.ToString()));
             }
             catch { }
         }

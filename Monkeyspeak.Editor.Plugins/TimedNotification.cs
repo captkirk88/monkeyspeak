@@ -20,6 +20,8 @@ namespace Monkeyspeak.Editor.Notifications
         private UIElement content;
         private Timer timer;
 
+        private DateTime pauseStart;
+
         public TimedNotification(INotificationManager manager, TimeSpan timeToRemove)
         {
             if (timeToRemove.TotalSeconds < 1d) timeToRemove = TimeSpan.FromSeconds(1);
@@ -30,9 +32,17 @@ namespace Monkeyspeak.Editor.Notifications
                 Minimum = 0d,
             };
             container = new DockPanel();
-            container.MouseEnter += (sender, e) => timer.Enabled = false;
-            container.MouseLeave += (sender, e) => timer.Enabled = true;
-            timer = new Timer(200)
+            container.MouseEnter += (sender, e) =>
+            {
+                timer.Stop();
+                pauseStart = DateTime.Now;
+            };
+            container.MouseLeave += (sender, e) =>
+            {
+                end = DateTime.Now.Add(end - pauseStart);
+                timer.Start();
+            };
+            timer = new Timer(100)
             {
                 AutoReset = true
             };

@@ -60,6 +60,9 @@
     <Reference Include="Octokit, Version=0.28.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Octokit.0.28.0\lib\net45\Octokit.dll</HintPath>
     </Reference>
+    <Reference Include="SharpYaml, Version=1.6.2.0, Culture=neutral, PublicKeyToken=1ced8108e942bc02, processorArchitecture=MSIL">
+      <HintPath>..\packages\SharpYaml.1.6.2\lib\net45\SharpYaml.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Data" />
@@ -105,12 +108,14 @@
     <Compile Include="Commands\SyntaxCheckCommand.cs" />
     <Compile Include="Extensions\ThemeExtensions.cs" />
     <Compile Include="HelperClasses\DictionaryPropertyGridAdapter.cs" />
-    <Compile Include="HelperClasses\ErrorManager.cs" />
+    <Compile Include="HelperClasses\Settings.cs" />
+    <Compile Include="Notifications\ExceptionNotification.cs" />
     <Compile Include="Syntax\ITextMarker.cs" />
     <Compile Include="Syntax\SyntaxChecker.cs" />
     <Compile Include="Syntax\TextMarkerService.cs" />
     <Compile Include="Utils\SingleInstance.cs" />
     <Compile Include="Utils\ToolTipManager.cs" />
+    <Compile Include="Utils\YAML.cs" />
     <Page Include="App.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -223,11 +228,6 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <Compile Include="Properties\Settings.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Settings.settings</DependentUpon>
-      <DesignTimeSharedInput>True</DesignTimeSharedInput>
-    </Compile>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
@@ -235,10 +235,6 @@
     <EmbeddedResource Include="MonkeyspeakSyntax_default.xshd" />
     <None Include="app.config" />
     <None Include="packages.config" />
-    <None Include="Properties\Settings.settings">
-      <Generator>SettingsSingleFileGenerator</Generator>
-      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
-    </None>
     <None Include="TODO.md" />
   </ItemGroup>
   <ItemGroup>

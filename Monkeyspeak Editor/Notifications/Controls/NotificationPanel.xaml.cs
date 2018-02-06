@@ -34,7 +34,16 @@ namespace Monkeyspeak.Editor.Notifications.Controls
 
         public NotificationPanel(INotification notif) : this()
         {
-            this.notif = notif;
+            if (notif != null && notif.Content != null)
+            {
+                this.notif = notif;
+                if (notif is ICriticalNotification)
+                {
+                    DismissButton.Visibility = Visibility.Hidden;
+                    Container.Children.Remove(DismissButton);
+                    UpdateLayout();
+                }
+            }
         }
 
         public void Delete()

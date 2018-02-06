@@ -18,33 +18,6 @@
                       GlowBrush="{DynamicResource AccentColorBrush}"
                       BorderThickness="2" WindowStartupLocation="CenterScreen">
 
-    <Controls:MetroWindow.Resources>
-        <Style x:Key="GridSplitterPreviewStyle">
-            <Setter Property="Control.Template">
-                <Setter.Value>
-                    <ControlTemplate>
-                        <Rectangle Fill="#80000000" />
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-        <Style x:Key="CustomGridSplitterStyle" TargetType="{x:Type GridSplitter}">
-            <Setter Property="Background"
-                    Value="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" />
-            <Setter Property="PreviewStyle" Value="{StaticResource GridSplitterPreviewStyle}" />
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="{x:Type GridSplitter}">
-                        <Border BorderBrush="{TemplateBinding BorderBrush}"
-                                BorderThickness="{TemplateBinding BorderThickness}"
-                                Background="{TemplateBinding Background}"
-                                CornerRadius="5">
-                        </Border>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-    </Controls:MetroWindow.Resources>
     <Controls:MetroWindow.InputBindings>
         <KeyBinding Key="N" Modifiers="Ctrl" Command="{x:Static commands:MonkeyspeakCommands.New}" />
         <KeyBinding Key="S" Modifiers="Ctrl" Command="{x:Static commands:MonkeyspeakCommands.Save}" />
@@ -121,11 +94,6 @@
 
     <Controls:MetroWindow.RightWindowCommands>
         <Controls:WindowCommands>
-            <Controls:SplitButton x:Name="theme_chooser" Width="Auto" SelectionChanged="theme_chooser_SelectionChanged" SelectedItem="Light"
-                                  ToolTip="Select a Theme Light/Dark" />
-            <Controls:SplitButton x:Name="style_chooser" Width="Auto" SelectionChanged="style_chooser_SelectionChanged" SelectedItem="Brown"
-                                  ToolTip="Select a color" />
-            <Separator />
             <Button Content="Console" Click="Console_Click" ToolTip="Displays/hides the console window" />
             <Controls:Badged x:Name="notif_badge" BadgePlacementMode="BottomRight" Badge="">
                 <Controls:Badged.ToolTip>
@@ -139,7 +107,7 @@
                     <iconPacks:PackIconModern Kind="Notification" />
                 </Button>
             </Controls:Badged>
-            <Button Click="settingsDialog_Click">
+            <Button Click="settingsDialog_Click" ToolTip="Configuration options for the editor and keybindings">
                 <iconPacks:PackIconMaterial Kind="Settings" />
             </Button>
             <Button Click="githubButton_Click">
@@ -152,48 +120,8 @@
             </Button>
         </Controls:WindowCommands>
     </Controls:MetroWindow.RightWindowCommands>
-
-    <Grid Width="Auto" Height="Auto">
-        <Grid.RowDefinitions>
-            <RowDefinition x:Name="TopRow" Height="*" />
-            <RowDefinition Height="5" />
-            <RowDefinition Height="175"
-                           MinHeight="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Grid}}, Path=MinHeight}"
-                           MaxHeight="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Grid}}, Path=ActualHeight}" />
-            <RowDefinition Height="Auto" />
-        </Grid.RowDefinitions>
-        <Controls:MetroAnimatedSingleRowTabControl x:Name="docs" Width="Auto" Height="Auto" Padding="10,10,10,10"
-                                    Controls:TabControlHelper.IsUnderlined="True"
-                                    Controls:TabControlHelper.Underlined="SelectedTabItem"
-                                    Controls:TabControlHelper.UnderlineSelectedBrush="{DynamicResource AccentColorBrush}">
-            <Controls:MetroAnimatedSingleRowTabControl.ItemTemplate>
-                <DataTemplate>
-                    <TextBlock Text="{Binding Title}" />
-                </DataTemplate>
-            </Controls:MetroAnimatedSingleRowTabControl.ItemTemplate>
-        </Controls:MetroAnimatedSingleRowTabControl>
-        <GridSplitter x:Name="splitter" Grid.Row="1" Width="Auto" HorizontalAlignment="Stretch" ResizeDirection="Rows" Background="{DynamicResource AccentColorBrush}"
-                      Style="{StaticResource CustomGridSplitterStyle}" ShowsPreview="True" />
-        <Controls:MetroAnimatedSingleRowTabControl  Width="Auto" Height="Auto" Grid.Row="2"
-                                          Controls:TabControlHelper.IsUnderlined="True"
-                                          Controls:TabControlHelper.Underlined="SelectedTabItem"
-                                          Controls:TabControlHelper.UnderlineSelectedBrush="{DynamicResource AccentColorBrush}"
-                                          SelectionChanged="MetroAnimatedTabControl_SelectionChanged">
-            <Controls:MetroTabItem Header="Causes" Controls:ControlsHelper.HeaderFontSize="18"  Width="Auto" Height="Auto" CloseButtonEnabled="False">
-                <ctr:TriggerList TriggerCategory="Cause" TriggerSelected="TriggerList_SelectionChanged" />
-            </Controls:MetroTabItem>
-            <Controls:MetroTabItem Header="Conditions" Controls:ControlsHelper.HeaderFontSize="18"  Width="Auto" Height="Auto" CloseButtonEnabled="False">
-                <ctr:TriggerList TriggerCategory="Condition" TriggerSelected="TriggerList_SelectionChanged" />
-            </Controls:MetroTabItem>
-            <Controls:MetroTabItem Header="Effects" Controls:ControlsHelper.HeaderFontSize="18"  Width="Auto" Height="Auto" CloseButtonEnabled="False">
-                <ctr:TriggerList TriggerCategory="Effect" TriggerSelected="TriggerList_SelectionChanged" />
-            </Controls:MetroTabItem>
-            <Controls:MetroTabItem Header="Flows" Controls:ControlsHelper.HeaderFontSize="18"  Width="Auto" Height="Auto" CloseButtonEnabled="False">
-                <ctr:TriggerList TriggerCategory="Flow" TriggerSelected="TriggerList_SelectionChanged" />
-            </Controls:MetroTabItem>
-        </Controls:MetroAnimatedSingleRowTabControl>
-
-        <StatusBar Grid.Row="3">
+    <DockPanel>
+        <StatusBar DockPanel.Dock="Bottom">
             <StatusBarItem>
                 <Button x:Name="errors_flyout_button" Background="{DynamicResource AccentColorBrush}" Click="errors_flyout_button_Click">
                     <iconPacks:Material Kind="Bug" />
@@ -206,5 +134,42 @@
                 </StackPanel>
             </StatusBarItem>
         </StatusBar>
-    </Grid>
+        <Grid Name="gridContainer" Width="Auto" Height="Auto" ClipToBounds="True">
+            <Grid.RowDefinitions>
+                <RowDefinition x:Name="TopRow" MinHeight="300" Height="Auto" MaxHeight="{Binding ActualHeight, ElementName=gridContainer}" />
+                <RowDefinition Height="5" />
+                <RowDefinition Height="250" MinHeight="250" />
+            </Grid.RowDefinitions>
+            <Controls:MetroAnimatedSingleRowTabControl x:Name="docs" Width="Auto" Height="Auto" Padding="10,10,10,10"
+                                    Controls:TabControlHelper.IsUnderlined="True"
+                                    Controls:TabControlHelper.Underlined="SelectedTabItem"
+                                    Controls:TabControlHelper.UnderlineSelectedBrush="{DynamicResource AccentColorBrush}">
+                <Controls:MetroAnimatedSingleRowTabControl.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding Title}" />
+                    </DataTemplate>
+                </Controls:MetroAnimatedSingleRowTabControl.ItemTemplate>
+            </Controls:MetroAnimatedSingleRowTabControl>
+            <GridSplitter x:Name="splitter" Grid.Row="1" Width="Auto" HorizontalAlignment="Stretch" ResizeDirection="Rows" Background="{DynamicResource AccentColorBrush}"
+                       ShowsPreview="False" />
+            <Controls:MetroAnimatedSingleRowTabControl  Width="Auto" MinHeight="250" Grid.Row="2"
+                                          Controls:TabControlHelper.IsUnderlined="True"
+                                          Controls:TabControlHelper.Underlined="SelectedTabItem"
+                                          Controls:TabControlHelper.UnderlineSelectedBrush="{DynamicResource AccentColorBrush}"
+                                          SelectionChanged="MetroAnimatedTabControl_SelectionChanged">
+                <Controls:MetroTabItem Header="Causes" Controls:ControlsHelper.HeaderFontSize="18"  Width="Auto" Height="Auto" CloseButtonEnabled="False">
+                    <ctr:TriggerList TriggerCategory="Cause" TriggerSelected="TriggerList_SelectionChanged" />
+                </Controls:MetroTabItem>
+                <Controls:MetroTabItem Header="Conditions" Controls:ControlsHelper.HeaderFontSize="18"  Width="Auto" Height="Auto" CloseButtonEnabled="False">
+                    <ctr:TriggerList TriggerCategory="Condition" TriggerSelected="TriggerList_SelectionChanged" />
+                </Controls:MetroTabItem>
+                <Controls:MetroTabItem Header="Effects" Controls:ControlsHelper.HeaderFontSize="18"  Width="Auto" Height="Auto" CloseButtonEnabled="False">
+                    <ctr:TriggerList TriggerCategory="Effect" TriggerSelected="TriggerList_SelectionChanged" />
+                </Controls:MetroTabItem>
+                <Controls:MetroTabItem Header="Flows" Controls:ControlsHelper.HeaderFontSize="18"  Width="Auto" Height="Auto" CloseButtonEnabled="False">
+                    <ctr:TriggerList TriggerCategory="Flow" TriggerSelected="TriggerList_SelectionChanged" />
+                </Controls:MetroTabItem>
+            </Controls:MetroAnimatedSingleRowTabControl>
+        </Grid>
+    </DockPanel>
 </Controls:MetroWindow>

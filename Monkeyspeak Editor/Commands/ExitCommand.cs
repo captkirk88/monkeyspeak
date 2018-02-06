@@ -17,33 +17,21 @@ namespace Monkeyspeak.Editor.Commands
     {
         public override async void Execute(object parameter)
         {
-            var window = (MetroWindow)Application.Current.MainWindow;
+            var window = (MainWindow)Application.Current.MainWindow;
 
             var editors = Editors.Instance.All.ToArray();
-            var settings = Properties.Settings.Default;
             List<string> session = new List<string>();
             for (int i = editors.Length - 1; i >= 0; i--)
             {
-                if (!string.IsNullOrWhiteSpace(editors[i].CurrentFilePath) &&
-                    File.Exists(editors[i].CurrentFilePath))
+                if (editors[i].HasFile)
                     session.Add(editors[i].CurrentFilePath);
                 if (!await editors[i].Close())
                 {
                     return;
                 }
             }
-            if (settings.RememberWindowPosition)
-            {
-                settings["WindowState"] = window.WindowState;
-                if (settings.WindowState != WindowState.Maximized)
-                {
-                    settings["WindowPosition"] = new System.Drawing.Point((int)window.Left, (int)window.Top);
-                    settings["WindowSizeWidth"] = window.Width;
-                    settings["WindowSizeHeight"] = window.Height;
-                }
-            }
-            settings.LastSession = string.Join(";", session);
-            settings.Save();
+            Settings.LastSession = string.Join(";", session);
+            Settings.Save();
             Application.Current.Shutdown();
             Environment.Exit(0);
         }

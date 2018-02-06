@@ -161,7 +161,7 @@ namespace Monkeyspeak.Editor.HelperClasses
 
             public override string DisplayName => this.attributeDictionary?[this.key].DisplayName ?? base.DisplayName;
 
-            public override bool IsReadOnly => this.attributeDictionary?[this.key].IsReadOnly ?? false;
+            public override bool IsReadOnly => this.key.ToString().StartsWith("!") || (this.attributeDictionary?[this.key].IsReadOnly ?? false);
 
             public override Type PropertyType => this.valueDictionary[this.key].GetType();
 

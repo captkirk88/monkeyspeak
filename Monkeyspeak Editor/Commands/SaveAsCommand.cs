@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Monkeyspeak.Editor.HelperClasses;
 
 namespace Monkeyspeak.Editor.Commands
 {
@@ -13,7 +14,7 @@ namespace Monkeyspeak.Editor.Commands
             var selected = Editors.Instance.Selected;
             if (selected != null)
             {
-                if (Properties.Settings.Default.AutoCompileScriptsOnSave)
+                if (Settings.AutoCompileScriptsOnSave)
                     MonkeyspeakCommands.Compile.Execute(selected);
                 selected.SaveAs();
             }

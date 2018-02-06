@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using Monkeyspeak.Editor.HelperClasses;
 
 namespace Monkeyspeak.Editor.Commands
 {
@@ -13,7 +14,7 @@ namespace Monkeyspeak.Editor.Commands
         {
             foreach (var editor in Editors.Instance.All)
             {
-                if (Properties.Settings.Default.AutoCompileScriptsOnSave)
+                if (Settings.AutoCompileScriptsOnSave)
                     MonkeyspeakCommands.Compile.Execute(editor);
                 if (editor.HasChanges) editor.Save();
             }
