@@ -204,7 +204,6 @@ namespace MonkeyspeakTests
                 Options = { TriggerLimit = int.MaxValue }
             };
             engine.Options.Debug = true;
-            Logger.LogOutput = new FileLogOutput();
             var page = engine.LoadFromString(ioTestString);
 
             page.LoadAllLibraries();
