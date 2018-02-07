@@ -40,6 +40,7 @@ namespace Monkeyspeak.Editor.HelperClasses
             SaveSession = true;
             LastSession = string.Empty;
             TriggerSplitterPosition = 250;
+            ResetSplitterPosition = false;
 #if DEBUG
             Debug = true;
 #else

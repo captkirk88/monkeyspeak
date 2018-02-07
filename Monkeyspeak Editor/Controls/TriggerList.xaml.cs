@@ -64,6 +64,11 @@ namespace Monkeyspeak.Editor.Controls
             set
             {
                 _triggerCategory = value;
+                triggers.Clear();
+                trigger_view.Items.Clear();
+                triggers.AddRange(Intellisense.GetTriggerCompletionData().Where(data => data.Trigger.Category == TriggerCategory && data.IsValid));
+                foreach (var trigger in triggers)
+                    trigger_view.Items.Add(trigger);
             }
         }
 
@@ -77,10 +82,6 @@ namespace Monkeyspeak.Editor.Controls
 
         private void UserControl_Loaded(object sender, RoutedEventArgs e)
         {
-            trigger_view.Items.Clear();
-            triggers.AddRange(Intellisense.GetTriggerCompletionData().Where(data => data.Trigger.Category == TriggerCategory && data.IsValid));
-            foreach (var trigger in triggers)
-                trigger_view.Items.Add(trigger);
         }
 
         private ListSortDirection _lastDirection = ListSortDirection.Ascending;

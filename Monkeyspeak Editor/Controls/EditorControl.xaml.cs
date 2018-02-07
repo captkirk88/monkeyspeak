@@ -311,11 +311,12 @@ namespace Monkeyspeak.Editor.Controls
         }
 
         /// <summary>
-        /// Sets the text <seealso cref="Color"/> by navigating to the specified line and setting the color between the start and end position.
+        /// Sets the text <seealso cref="Color"/> by navigating to the specified line and setting the
+        /// color between the start and end position.
         /// </summary>
-        /// <param name="line">The line.</param>
+        /// <param name="line"> The line.</param>
         /// <param name="start">The start.</param>
-        /// <param name="end">The end.</param>
+        /// <param name="end">  The end.</param>
         /// <param name="color">Text color to set</param>
         public void SetTextColor(Color color, int line, int start, int end)
         {
@@ -327,12 +328,13 @@ namespace Monkeyspeak.Editor.Controls
         }
 
         /// <summary>
-        /// Sets the text <seealso cref="FontWeight"/> by navigating to the specified line and setting the color between the start and end position.
+        /// Sets the text <seealso cref="FontWeight"/> by navigating to the specified line and
+        /// setting the color between the start and end position.
         /// </summary>
         /// <param name="weight">The weight.</param>
-        /// <param name="line">The line.</param>
-        /// <param name="start">The start.</param>
-        /// <param name="end">The end.</param>
+        /// <param name="line">  The line.</param>
+        /// <param name="start"> The start.</param>
+        /// <param name="end">   The end.</param>
         public void SetTextWeight(FontWeight weight, int line, int start, int end)
         {
             if (start < 0 || end < 0) return;
@@ -401,17 +403,14 @@ namespace Monkeyspeak.Editor.Controls
         /// <summary>
         /// Gets the selected line without the ending newline character.
         /// </summary>
-        /// <value>
-        /// The selected line.
-        /// </value>
+        /// <value>The selected line.</value>
         public string SelectedLine { get; private set; }
 
         /// <summary>
-        /// Gets a value indicating whether this instance is the active editor, the one with the editor open.
+        /// Gets a value indicating whether this instance is the active editor, the one with the
+        /// editor open.
         /// </summary>
-        /// <value>
-        ///   <c>true</c> if this instance is active editor; otherwise, <c>false</c>.
-        /// </value>
+        /// <value><c>true</c> if this instance is active editor; otherwise, <c>false</c>.</value>
         public bool IsActiveEditor { get => Editors.Instance.Selected == this; }
 
         public string CurrentFilePath
@@ -469,7 +468,7 @@ namespace Monkeyspeak.Editor.Controls
         public void Save(bool forced = false)
         {
             fileWatcher.EnableRaisingEvents = false;
-            if (CurrentFilePath == null)
+            if (!HasFile)
             {
                 SaveFileDialog dlg = new SaveFileDialog
                 {
