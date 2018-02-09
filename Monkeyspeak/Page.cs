@@ -43,11 +43,12 @@ namespace Monkeyspeak
     /// Used for handling triggers at runtime.
     /// </summary>
     /// <param name="reader"></param>
-    /// <returns>True = Continue to the Next Trigger, False = Stop executing current block of Triggers</returns>
+    /// <returns>
+    /// True = Continue to the Next Trigger, False = Stop executing current block of Triggers
+    /// </returns>
     public delegate bool TriggerHandler(TriggerReader reader);
 
     /// <summary>
-    ///
     /// </summary>
     /// <param name="trigger">The trigger.</param>
     /// <param name="handler">The handler.</param>
@@ -56,15 +57,13 @@ namespace Monkeyspeak
     public delegate bool TriggerHandledEventHandler(Trigger trigger);
 
     /// <summary>
-    /// Event for any errors that occur during execution
-    /// If not assigned Exceptions will be thrown.
+    /// Event for any errors that occur during execution If not assigned Exceptions will be thrown.
     /// </summary>
     /// <param name="trigger"></param>
-    /// <param name="ex"></param>
+    /// <param name="ex">     </param>
     public delegate void TriggerHandlerErrorEvent(Page page, TriggerHandler handler, Trigger trigger, Exception ex);
 
     /// <summary>
-    ///
     /// </summary>
     /// <param name="token">The token.</param>
     /// <returns></returns>
@@ -86,7 +85,7 @@ namespace Monkeyspeak
         public event Action Resetting;
 
         /// <summary>
-        /// Occurs when [initiating].  Best to call your variable additions in the event.
+        /// Occurs when [initiating]. Best to call your variable additions in the event.
         /// </summary>
         public event Action<Page> Initiating;
 
@@ -103,8 +102,8 @@ namespace Monkeyspeak
         public event TriggerAddedEventHandler TriggerAdded;
 
         /// <summary>
-        /// Called after the Trigger's TriggerHandler is called.  If there is no TriggerHandler for that Trigger
-        /// then this event is not raised.
+        /// Called after the Trigger's TriggerHandler is called. If there is no TriggerHandler for
+        /// that Trigger then this event is not raised.
         /// </summary>
         public event TriggerHandledEventHandler TriggerHandled;
 
@@ -207,16 +206,14 @@ namespace Monkeyspeak
         /// <summary>
         /// Gets the engine.
         /// </summary>
-        /// <value>
-        /// The engine.
-        /// </value>
+        /// <value>The engine.</value>
         public MonkeyspeakEngine Engine
         {
             get { return engine; }
         }
 
         /// <summary>
-        /// Loads the compiled stream.  *DOES NOT CLOSE THE STREAM!*
+        /// Loads the compiled stream. *DOES NOT CLOSE THE STREAM!*
         /// </summary>
         /// <param name="stream">The stream.</param>
         public void LoadCompiledStream(Stream stream)
@@ -247,7 +244,7 @@ namespace Monkeyspeak
         }
 
         /// <summary>
-        /// Compiles to stream.  *DOES NOT CLOSE THE STREAM!*
+        /// Compiles to stream. *DOES NOT CLOSE THE STREAM!*
         /// </summary>
         /// <param name="stream">The stream.</param>
         /// <exception cref="MonkeyspeakException">Error compiling to stream.</exception>
@@ -313,7 +310,9 @@ namespace Monkeyspeak
         /// <summary>
         /// Gets the description for all triggers
         /// </summary>
-        /// <param name="excludeLibraryName">[true] hide library name, [false] show library name above triggers</param>
+        /// <param name="excludeLibraryName">
+        /// [true] hide library name, [false] show library name above triggers
+        /// </param>
         /// <returns>IEnumerable of Triggers</returns>
         public IEnumerable<Tuple<BaseLibrary, Trigger, string>> GetTriggerDescriptions(bool excludeLibraryName = false)
         {
@@ -332,8 +331,10 @@ namespace Monkeyspeak
         /// <summary>
         /// Gets the description for a trigger
         /// </summary>
-        /// <param name="excludeLibraryName">[true] hide library name, [false] show library name above triggers</param>
-        /// <param name="trigger">todo: describe trigger parameter on GetTriggerDescription</param>
+        /// <param name="excludeLibraryName">
+        /// [true] hide library name, [false] show library name above triggers
+        /// </param>
+        /// <param name="trigger">           todo: describe trigger parameter on GetTriggerDescription</param>
         /// <returns>string</returns>
         public string GetTriggerDescription(Trigger trigger, bool excludeLibraryName = false)
         {
@@ -374,7 +375,9 @@ namespace Monkeyspeak
         /// Loads Monkeyspeak IO Library into this Page
         /// <para>Used for File Input/Output operations</para>
         /// </summary>
-        /// <param name="authorizedPath">the directory the IO library will use that it can read/write to</param>
+        /// <param name="authorizedPath">
+        /// the directory the IO library will use that it can read/write to
+        /// </param>
         public void LoadIOLibrary(string authorizedPath = null)
         {
             LoadLibrary(new Libraries.IO(authorizedPath));
@@ -401,7 +404,7 @@ namespace Monkeyspeak
         /// <summary>
         /// Loads a <see cref="BaseLibrary"/> into this Page
         /// </summary>
-        /// <param name="lib"></param>
+        /// <param name="lib"> </param>
         /// <param name="args">Arguments to pass on the library's Initialize method</param>
         public void LoadLibrary(BaseLibrary lib, params object[] args)
         {
@@ -430,7 +433,7 @@ namespace Monkeyspeak
         /// <summary>
         /// Loads trigger handlers from a assembly instance
         /// </summary>
-        /// <param name="asm">The assembly instance</param>
+        /// <param name="asm"> The assembly instance</param>
         /// <param name="args">Arguments to pass on the library's Initialize method</param>
         public void LoadLibraryFromAssembly(Assembly asm, params object[] args)
         {
@@ -446,7 +449,7 @@ namespace Monkeyspeak
         /// Loads trigger handlers from a assembly dll file
         /// </summary>
         /// <param name="assemblyFile">The assembly in the local file system</param>
-        /// <param name="args">Arguments to pass on the library's Initialize method</param>
+        /// <param name="args">        Arguments to pass on the library's Initialize method</param>
         public void LoadLibraryFromAssembly(string assemblyFile, params object[] args)
         {
             Assembly asm;
@@ -566,8 +569,8 @@ namespace Monkeyspeak
         /// <summary>
         /// Sets the variable.
         /// </summary>
-        /// <param name="name">The name.</param>
-        /// <param name="value">The value.</param>
+        /// <param name="name">      The name.</param>
+        /// <param name="value">     The value.</param>
         /// <param name="isConstant">if set to <c>true</c> [is constant].</param>
         /// <returns></returns>
         /// <exception cref="Monkeyspeak.TypeNotSupportedException"></exception>
@@ -602,8 +605,8 @@ namespace Monkeyspeak
         /// <summary>
         /// Creates a <seealso cref="VariableTable"/>
         /// </summary>
-        /// <param name="name">The name.</param>
-        /// <param name="value">The value.</param>
+        /// <param name="name">      The name.</param>
+        /// <param name="value">     The value.</param>
         /// <param name="isConstant">if set to <c>true</c> [is constant].</param>
         /// <returns></returns>
         /// <exception cref="Monkeyspeak.TypeNotSupportedException"></exception>
@@ -631,11 +634,13 @@ namespace Monkeyspeak
         }
 
         /// <summary>
-        /// Gets a Variable with Name set to <paramref name="name"/>
-        /// <b>Throws Exception if Variable not found.</b>
+        /// Gets a Variable with Name set to <paramref name="name"/><b>Throws Exception if Variable
+        /// not found.</b>
         /// </summary>
         /// <param name="name">The name of the Variable to retrieve</param>
-        /// <returns>The variable found with the specified <paramref name="name"/> or throws Exception</returns>
+        /// <returns>
+        /// The variable found with the specified <paramref name="name"/> or throws Exception
+        /// </returns>
         public IVariable GetVariable(string name)
         {
             if (name[0] != engine.Options.VariableDeclarationSymbol)
@@ -655,7 +660,10 @@ namespace Monkeyspeak
         /// Checks the scope for the Variable with Name set to <paramref name="name"/>
         /// </summary>
         /// <param name="name">The name of the Variable to retrieve</param>
-        /// <returns>True on Variable found.  <para>False if Variable not found.</para></returns>
+        /// <returns>
+        /// True on Variable found.
+        /// <para>False if Variable not found.</para>
+        /// </returns>
         public bool HasVariable(string name)
         {
             if (name[0] != engine.Options.VariableDeclarationSymbol)
@@ -673,10 +681,8 @@ namespace Monkeyspeak
         /// Determines whether the specified variable exists.
         /// </summary>
         /// <param name="name">The name.</param>
-        /// <param name="var">The variable.</param>
-        /// <returns>
-        ///   <c>true</c> if the specified variable exists; otherwise, <c>false</c>.
-        /// </returns>
+        /// <param name="var"> The variable.</param>
+        /// <returns><c>true</c> if the specified variable exists; otherwise, <c>false</c>.</returns>
         public bool HasVariable<T>(string name, out T var) where T : IVariable
         {
             if (name[0] != engine.Options.VariableDeclarationSymbol)
@@ -699,9 +705,9 @@ namespace Monkeyspeak
         /// <summary>
         /// Assigns the TriggerHandler to a trigger with <paramref name="category"/> and <paramref name="id"/>
         /// </summary>
-        /// <param name="category"></param>
-        /// <param name="id"></param>
-        /// <param name="handler"></param>
+        /// <param name="category">   </param>
+        /// <param name="id">         </param>
+        /// <param name="handler">    </param>
         /// <param name="description"></param>
         public void AddTriggerHandler(TriggerCategory category, int id, TriggerHandler handler)
         {
@@ -711,10 +717,12 @@ namespace Monkeyspeak
         /// <summary>
         /// Assigns the TriggerHandler to <paramref name="trigger"/>
         /// </summary>
-        /// <param name="trigger"><see cref="Monkeyspeak.Trigger"/></param>
-        /// <param name="handler"><see cref="Monkeyspeak.TriggerHandler"/></param>
-        /// <param name="description">optional description of the trigger, normally the human readable form of the trigger
-        /// <para>Example: "(0:1) when someone says something,"</para></param>
+        /// <param name="trigger">    <see cref="Monkeyspeak.Trigger"/></param>
+        /// <param name="handler">    <see cref="Monkeyspeak.TriggerHandler"/></param>
+        /// <param name="description">
+        /// optional description of the trigger, normally the human readable form of the trigger
+        /// <para>Example: "(0:1) when someone says something,"</para>
+        /// </param>
         public void AddTriggerHandler(Trigger trigger, TriggerHandler handler)
         {
             lock (syncObj)
@@ -736,7 +744,7 @@ namespace Monkeyspeak
         /// Removes the trigger handler.
         /// </summary>
         /// <param name="cat">The category.</param>
-        /// <param name="id">The identifier.</param>
+        /// <param name="id"> The identifier.</param>
         public void RemoveTriggerHandler(TriggerCategory cat, int id)
         {
             handlers.Remove(new Trigger(cat, id));
@@ -781,23 +789,19 @@ namespace Monkeyspeak
         /// <summary>
         /// Gets or sets a value indicating whether this <see cref="Page"/> is in debug mode.
         /// </summary>
-        /// <value>
-        ///   <c>true</c> if debug; otherwise, <c>false</c>.
-        /// </value>
+        /// <value><c>true</c> if debug; otherwise, <c>false</c>.</value>
         public bool Debug { get; set; }
 
         /// <summary>
         /// Gets the libraries.
         /// </summary>
-        /// <value>
-        /// The libraries.
-        /// </value>
+        /// <value>The libraries.</value>
         public IEnumerable<BaseLibrary> Libraries { get => libraries; }
 
         public bool CanExecute { get; set; }
 
-        // Changed id to array for multiple Trigger processing.
-        // This Compensates for a Design Flaw Lothus Marque spotted - Gerolkae
+        // Changed id to array for multiple Trigger processing. This Compensates for a Design Flaw
+        // Lothus Marque spotted - Gerolkae
 
         /*
          * [1/7/2013 9:26:22 PM] Lothus Marque: Okay. Said feeling doesn't explain why 48 is
@@ -823,11 +827,6 @@ namespace Monkeyspeak
                 bool canContinue = handler != null ? handler(reader) : false;
                 if (TriggerHandled != null && !TriggerHandled(current)) return;
                 Logger.Debug<Page>($"{GetTriggerDescription(current, true)} returned {canContinue}");
-                if (reader.CurrentBlockIndex != index)
-                {
-                    index = reader.CurrentBlockIndex;
-                    return;
-                }
 
                 if (!canContinue)
                 {
@@ -838,25 +837,27 @@ namespace Monkeyspeak
                             // skip ahead for another cause to meet
                             index = triggerBlock.IndexOfTrigger(TriggerCategory.Cause, startIndex: index + 1);
                             found = index != -1;
+                            if (index != -1) index -= 1;
                             break;
 
                         case TriggerCategory.Condition:
                             // skip ahead for another condition to meet
                             index = triggerBlock.IndexOfTrigger(TriggerCategory.Condition, startIndex: index + 1);
                             found = index != -1;
+                            if (index != -1) index -= 1;
                             break;
 
                         case TriggerCategory.Flow:
                             // skip ahead for another flow trigger to meet
                             index = triggerBlock.IndexOfTrigger(TriggerCategory.Flow, startIndex: index + 1);
                             found = index != -1;
-                            break;
-
-                        case TriggerCategory.Effect:
-                            found = true;
+                            if (index != -1) index -= 1;
                             break;
                     }
-                    if (!found) index = triggerBlock.Count;
+                    if (!found)
+                    {
+                        index = triggerBlock.Count;
+                    }
                 }
                 else
                 {
@@ -889,7 +890,6 @@ namespace Monkeyspeak
                                 if (i == -1)
                                     break;
                             }
-                            //ExecuteBlock(subBlock, args: reader.Parameters);
                             if (j == -1)
                                 index = j + 1;
                             else index -= 1;
@@ -911,7 +911,7 @@ namespace Monkeyspeak
         /// </summary>
         /// <param name="triggerBlock">The trigger block.</param>
         /// <param name="triggerIndex">Index of the trigger.</param>
-        /// <param name="args">The arguments.</param>
+        /// <param name="args">        The arguments.</param>
         public void ExecuteBlock(TriggerBlock triggerBlock, int triggerIndex, params object[] args)
         {
             var reader = new TriggerReader(this, triggerBlock)
@@ -924,15 +924,14 @@ namespace Monkeyspeak
             {
                 ExecuteTrigger(triggerBlock, ref j, reader);
                 // if j is -1 is used for flow triggers to break out of them, I know, a hack but it works
-                if (j == -1) break;
+                if (j < 0) break;
             }
         }
 
         /// <summary>
-        /// Executes a trigger block containing TriggerCategory.Cause with ID equal to <paramref name="id" />
-        ///
+        /// Executes a trigger block containing TriggerCategory.Cause with ID equal to <paramref name="id"/>
         /// </summary>
-        /// <param name="id"></param>
+        /// <param name="id">  </param>
         /// <param name="args"></param>
         public void Execute(int id = 0, params object[] args)
         {
@@ -961,10 +960,9 @@ namespace Monkeyspeak
         }
 
         /// <summary>
-        /// Executes a trigger block containing TriggerCategory.Cause with ID equal to <param name="id" />
-        ///
+        /// Executes a trigger block containing TriggerCategory.Cause with ID equal to <param name="id"/>
         /// </summary>
-        /// <param name="ids">I dunno</param>
+        /// <param name="ids"> I dunno</param>
         /// <param name="args"></param>
         public void Execute(int[] ids, params object[] args)
         {
@@ -1000,9 +998,9 @@ namespace Monkeyspeak
         /// <summary>
         /// Executes the specified Cause Executes with specified <paramref name="ids"/> asynchronously.
         /// </summary>
-        /// <param name="ids">The ids.</param>
-        /// <param name="args">todo: describe args parameter on ExecuteAsync</param>
-        /// <param name="cat"><see cref="TriggerCategory"/></param>
+        /// <param name="ids">              The ids.</param>
+        /// <param name="args">             todo: describe args parameter on ExecuteAsync</param>
+        /// <param name="cat">              <see cref="TriggerCategory"/></param>
         /// <param name="cancellationToken">cancellation token to end the executing task</param>
         /// <returns></returns>
         public async Task ExecuteAsync(IEnumerable<int> ids, CancellationToken cancellationToken = default(CancellationToken), params object[] args)
@@ -1033,8 +1031,8 @@ namespace Monkeyspeak
         /// <summary>
         /// Executes the specified Cause asynchronously.
         /// </summary>
-        /// <param name="args"></param>
-        /// <param name="id">The id</param>
+        /// <param name="args">             </param>
+        /// <param name="id">               The id</param>
         /// <param name="cancellationToken">cancellation token to end the executing task</param>
         /// <returns></returns>
         public async Task ExecuteAsync(int id = 0, CancellationToken cancellationToken = default(CancellationToken), params object[] args)
@@ -1060,7 +1058,8 @@ namespace Monkeyspeak
         }
 
         /// <summary>
-        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting
+        /// unmanaged resources.
         /// </summary>
         public void Dispose()
         {

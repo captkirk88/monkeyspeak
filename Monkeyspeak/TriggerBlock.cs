@@ -34,8 +34,8 @@ namespace Monkeyspeak
         /// <summary>
         /// Operates like IndexOf for Triggers
         /// </summary>
-        /// <param name="cat"></param>
-        /// <param name="id"></param>
+        /// <param name="cat">       </param>
+        /// <param name="id">        </param>
         /// <param name="startIndex"></param>
         /// <returns>Index of trigger or -1 if not found</returns>
         public int IndexOfTrigger(TriggerCategory cat, int id = -1, int startIndex = 0)
@@ -72,12 +72,10 @@ namespace Monkeyspeak
         /// <summary>
         /// Determines whether the block contains the trigger.
         /// </summary>
-        /// <param name="cat">The category.</param>
-        /// <param name="id">The identifier.</param>
+        /// <param name="cat">       The category.</param>
+        /// <param name="id">        The identifier.</param>
         /// <param name="startIndex">Index in the block to start from</param>
-        /// <returns>
-        ///   <c>true</c> if the block contains the trigger; otherwise, <c>false</c>.
-        /// </returns>
+        /// <returns><c>true</c> if the block contains the trigger; otherwise, <c>false</c>.</returns>
         public bool ContainsTrigger(TriggerCategory cat, int id = -1, int startIndex = 0)
         {
             if (startIndex <= Count - 1)
@@ -101,7 +99,7 @@ namespace Monkeyspeak
         /// <returns></returns>
         public TriggerBlock GetSubBlock(int index, int count = -1)
         {
-            if (index < 0) index = 0;
+            if (index < 0) return null;
             if (count > Count) count = Count;
             return new TriggerBlock(GetRange(index, count < 0 ? Count - index : count - index));
         }
@@ -118,11 +116,9 @@ namespace Monkeyspeak
         }
 
         /// <summary>
-        /// Returns a <see cref="System.String" /> that represents this instance.
+        /// Returns a <see cref="System.String"/> that represents this instance.
         /// </summary>
-        /// <returns>
-        /// A <see cref="System.String" /> that represents this instance.
-        /// </returns>
+        /// <returns>A <see cref="System.String"/> that represents this instance.</returns>
         public override string ToString()
         {
             return base.ToString();

@@ -37,8 +37,8 @@ namespace MonkeyspeakTests
 
         public override void Unload(Page page)
         {
-            // this is called by page.Dispose() which is not called automatically
-            // remove any unmanaged and disposable resources here or just due a ending action
+            // this is called by page.Dispose() which is not called automatically remove any
+            // unmanaged and disposable resources here or just due a ending action
         }
     }
 
@@ -111,18 +111,14 @@ namespace MonkeyspeakTests
 (0:0) when the script is started,
     (5:250) create a table as %myTable.
     (5:100) set %hello to {hi}
-    (5:101) set %i to 0
-    (5:252) with table %myTable put {%hello} in it at key {myKey1}.
-    (5:252) with table %myTable put {%hello} in it at key {myKey2}.
-    (5:252) with table %myTable put {%hello} in it at key {myKey3}.
-    (5:252) with table %myTable put {%hello} in it at key {myKey4}.
-    (5:252) with table %myTable put {%hello} in it at key {myKey5}.
-    (5:252) with table %myTable put {%hello} in it at key {myKey6}.
-    (5:252) with table %myTable put {%hello} in it at key {myKey7}.
-    (5:252) with table %myTable put {123} in it at key {123}.
+    (5:100) set %myTable[1] to {%hello}
+    (5:100) set %myTable[2] to {%hello}
+    (5:100) set %myTable[3] to {%hello}
+    (5:100) set %myTable[4] to {%hello}
+    (5:100) set %myTable[5] to {%hello}
+    (5:100) set %myTable[6] to {%hello}
     (6:250) for each entry in table %myTable put it into %entry,
         (5:102) print {%entry} to the console.
-        (5:102) print {%i} to the console.
     (6:454) after the loop is done,
         (5:150) take variable %myTable[123] and add 1 to it.
         (5:102) print {%myTable[123]} to the console.
@@ -212,27 +208,41 @@ namespace MonkeyspeakTests
         [Test]
         public async Task DemoTest()
         {
-            var mac = string.Join(string.Empty, NetworkInterface.GetAllNetworkInterfaces()
-    .Where(i => i.OperationalStatus == OperationalStatus.Up && i.NetworkInterfaceType != NetworkInterfaceType.Loopback)
-    .Select(nic => Convert.ToBase64String(nic.GetPhysicalAddress().GetAddressBytes()))
-    .ToArray());
-            IPHostEntry host = Dns.GetHostEntry(Dns.GetHostName());
-
-            var localIP = host
-                .AddressList
-                .FirstOrDefault(ip => ip.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork);
-            var mappedId = string.Join(string.Empty, mac, Convert.ToBase64String(localIP.GetAddressBytes()));
-            Logger.Info(mappedId);
             var engine = new MonkeyspeakEngine();
             engine.Options.Debug = true;
             //Logger.LogOutput = new MultiLogOutput(new FileLogger(Level.Debug), new FileLogger(), new FileLogger(Level.Info));
-            Page page = engine.LoadFromString(testScript);
+            var script = @"
+(0:0) when the script is started,
+        (5:100) set %hello to {Hello World}.
+        (5:101) set %num to 3.
+
+(0:0) when the script is started,
+    (1:104) and variable %hello equals {this will be false move on to next condition}
+        (5:102) print {no} to the console.
+    (1:104) and variable %hello equals {MINTY!}
+        (5:102) print {fuck} to the console.
+        (5:102) print {me} to the console.
+
+(0:0) when the script is started,
+    (1:104) and variable %hello equals {this will be false move on to next condition}
+        (5:102) print {no} to the console.
+    (1:104) and variable %hello equals {Hello World}
+        (5:102) print {fuck} to the console.
+        (5:102) print {good?} to the console.
+
+(0:666) when the devil awakens,
+    (1:104) and variable %hello equals {this will be false move on to next condition}
+        (5:102) print {no} to the console.
+    (1:104) and variable %hello equals {MINTY!}
+        (5:102) print {fuck} to the console.
+";
+            Page page = engine.LoadFromString(script);
 
             page.LoadAllLibraries();
             //page.LoadDebugLibrary();
             page.SetVariable("%testVariable", "Hello WOrld", true);
 
-            page.AddTriggerHandler(TriggerCategory.Condition, 666, AlwaysFalseCond);
+            page.AddTriggerHandler(TriggerCategory.Cause, 666, AlwaysFalseCond);
 
             // Trigger count created by subscribing to TriggerAdded event and putting triggers into a list.
             Console.WriteLine("Trigger Count: " + page.Size);
