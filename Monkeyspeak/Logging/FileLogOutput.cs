@@ -11,10 +11,9 @@ using System.Threading.Tasks;
 namespace Monkeyspeak.Logging
 {
     /// <summary>
-    ///
     /// </summary>
-    /// <seealso cref="ILogOutput" />
-    /// <seealso cref="System.IEquatable{Logging.FileLogOutput}" />
+    /// <seealso cref="ILogOutput"/>
+    /// <seealso cref="System.IEquatable{Logging.FileLogOutput}"/>
     public class FileLogOutput : ILogOutput, IEquatable<FileLogOutput>
     {
         private readonly Level level;
@@ -22,7 +21,10 @@ namespace Monkeyspeak.Logging
 
         public FileLogOutput(string rootFolder, Level level = Level.Error)
         {
-            filePath = Path.Combine(rootFolder, $"{Assembly.GetEntryAssembly().GetName().Name}.{level}.log");
+            if (Assembly.GetEntryAssembly() != null)
+                filePath = Path.Combine(rootFolder, $"{Assembly.GetEntryAssembly().GetName().Name}.{level}.log");
+            else if (Assembly.GetCallingAssembly() != null)
+                filePath = Path.Combine(rootFolder, $"{Assembly.GetCallingAssembly().GetName().Name}.{level}.log");
             if (!Directory.Exists(Path.GetDirectoryName(filePath))) Directory.CreateDirectory(Path.GetDirectoryName(filePath));
             if (File.Exists(filePath)) File.WriteAllText(filePath, ""); // make sure it is a clean file
             this.level = level;
