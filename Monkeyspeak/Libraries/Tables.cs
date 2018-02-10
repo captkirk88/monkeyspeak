@@ -46,6 +46,23 @@ namespace Monkeyspeak.Libraries
 
             Add(TriggerCategory.Condition, TableNotContainsNumber,
                 "and table % does not contain #");
+
+            Add(TriggerCategory.Effect, MergeIntoVariable,
+                "with table % join the contents and put it into variable %");
+        }
+
+        [TriggerDescription("Merges the table contents into a string and puts the result into a variable")]
+        [TriggerStringParameter]
+        [TriggerStringParameter]
+        [TriggerVariableParameter]
+        private bool MergeIntoVariable(TriggerReader reader)
+        {
+            var table = reader.ReadVariableTable();
+            var var = reader.ReadVariable(true);
+
+            var mergedStr = string.Join(" ", table.Values);
+            var.Value = mergedStr;
+            return true;
         }
 
         [TriggerDescription("Determines if the table does not contain the number")]

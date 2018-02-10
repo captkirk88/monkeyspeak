@@ -63,9 +63,7 @@ namespace Monkeyspeak
         /// <summary>
         /// Returns the hash code for this instance.
         /// </summary>
-        /// <returns>
-        /// A 32-bit signed integer that is the hash code for this instance.
-        /// </returns>
+        /// <returns>A 32-bit signed integer that is the hash code for this instance.</returns>
         public override int GetHashCode()
         {
             unchecked
@@ -137,7 +135,6 @@ namespace Monkeyspeak
         }
 
         /// <summary>
-        ///
         /// </summary>
         /// <param name="asConstant">Clone as Constant</param>
         /// <returns></returns>
@@ -151,9 +148,7 @@ namespace Monkeyspeak
         /// </summary>
         /// <param name="varA">The variable a.</param>
         /// <param name="varB">The variable b.</param>
-        /// <returns>
-        /// The result of the operator.
-        /// </returns>
+        /// <returns>The result of the operator.</returns>
         public static bool operator ==(Variable varA, Variable varB)
         {
             return varA.Value == varB.Value;
@@ -164,9 +159,7 @@ namespace Monkeyspeak
         /// </summary>
         /// <param name="varA">The variable a.</param>
         /// <param name="varB">The variable b.</param>
-        /// <returns>
-        /// The result of the operator.
-        /// </returns>
+        /// <returns>The result of the operator.</returns>
         public static bool operator !=(Variable varA, Variable varB)
         {
             return varA.Value != varB.Value;
@@ -176,10 +169,8 @@ namespace Monkeyspeak
         /// Implements the operator +.
         /// </summary>
         /// <param name="varA">The variable a.</param>
-        /// <param name="num">The number.</param>
-        /// <returns>
-        /// The result of the operator.
-        /// </returns>
+        /// <param name="num"> The number.</param>
+        /// <returns>The result of the operator.</returns>
         public static Variable operator +(Variable varA, double num)
         {
             varA.Value = varA.Value.AsDouble() + num;
@@ -190,10 +181,8 @@ namespace Monkeyspeak
         /// Implements the operator -.
         /// </summary>
         /// <param name="varA">The variable a.</param>
-        /// <param name="num">The number.</param>
-        /// <returns>
-        /// The result of the operator.
-        /// </returns>
+        /// <param name="num"> The number.</param>
+        /// <returns>The result of the operator.</returns>
         public static Variable operator -(Variable varA, double num)
         {
             varA.Value = varA.Value.AsDouble() - num;
@@ -204,10 +193,8 @@ namespace Monkeyspeak
         /// Implements the operator *.
         /// </summary>
         /// <param name="varA">The variable a.</param>
-        /// <param name="num">The number.</param>
-        /// <returns>
-        /// The result of the operator.
-        /// </returns>
+        /// <param name="num"> The number.</param>
+        /// <returns>The result of the operator.</returns>
         public static Variable operator *(Variable varA, double num)
         {
             varA.Value = varA.Value.AsDouble() * num;
@@ -218,10 +205,8 @@ namespace Monkeyspeak
         /// Implements the operator /.
         /// </summary>
         /// <param name="varA">The variable a.</param>
-        /// <param name="num">The number.</param>
-        /// <returns>
-        /// The result of the operator.
-        /// </returns>
+        /// <param name="num"> The number.</param>
+        /// <returns>The result of the operator.</returns>
         public static Variable operator /(Variable varA, double num)
         {
             varA.Value = varA.Value.AsDouble() / num;
@@ -232,10 +217,8 @@ namespace Monkeyspeak
         /// Implements the operator +.
         /// </summary>
         /// <param name="varA">The variable a.</param>
-        /// <param name="str">The string.</param>
-        /// <returns>
-        /// The result of the operator.
-        /// </returns>
+        /// <param name="str"> The string.</param>
+        /// <returns>The result of the operator.</returns>
         public static Variable operator +(Variable varA, string str)
         {
             varA.Value = varA.Value.AsDouble() + str;
@@ -246,9 +229,7 @@ namespace Monkeyspeak
         /// Performs an implicit conversion from <see cref="Variable"/> to <see cref="System.String"/>.
         /// </summary>
         /// <param name="var">The variable.</param>
-        /// <returns>
-        /// The result of the conversion.
-        /// </returns>
+        /// <returns>The result of the conversion.</returns>
         public static implicit operator string(Variable var)
         {
             return var.Value.AsString();
@@ -258,20 +239,19 @@ namespace Monkeyspeak
         /// Performs an implicit conversion from <see cref="Variable"/> to <see cref="System.Double"/>.
         /// </summary>
         /// <param name="var">The variable.</param>
-        /// <returns>
-        /// The result of the conversion.
-        /// </returns>
+        /// <returns>The result of the conversion.</returns>
         public static implicit operator double(Variable var)
         {
             return var.Value.AsDouble();
         }
 
         /// <summary>
-        /// Determines whether the specified <see cref="System.Object" />, is equal to this instance.
+        /// Determines whether the specified <see cref="System.Object"/>, is equal to this instance.
         /// </summary>
-        /// <param name="obj">The <see cref="System.Object" /> to compare with this instance.</param>
+        /// <param name="obj">The <see cref="System.Object"/> to compare with this instance.</param>
         /// <returns>
-        ///   <c>true</c> if the specified <see cref="System.Object" /> is equal to this instance; otherwise, <c>false</c>.
+        /// <c>true</c> if the specified <see cref="System.Object"/> is equal to this instance;
+        /// otherwise, <c>false</c>.
         /// </returns>
         public override bool Equals(object obj)
         {
@@ -293,17 +273,13 @@ namespace Monkeyspeak
         /// <summary>
         /// Gets the index of the current element.
         /// </summary>
-        /// <value>
-        /// The index of the current element.
-        /// </value>
+        /// <value>The index of the current element.</value>
         public int CurrentElementIndex { get; private set; }
 
         /// <summary>
         /// Gets or sets the active string based indexer.
         /// </summary>
-        /// <value>
-        /// The active indexer.
-        /// </value>
+        /// <value>The active indexer.</value>
         public string ActiveIndexer { get; set; }
 
         internal IDictionary<string, object> values;
@@ -373,9 +349,9 @@ namespace Monkeyspeak
 
         public bool IsConstant { get; private set; }
 
-        ICollection<string> IDictionary<string, object>.Keys => new ReadOnlyCollection<string>(values.Keys.ToArray());
+        public ICollection<string> Keys => new ReadOnlyCollection<string>(values.Keys.ToArray());
 
-        ICollection<object> IDictionary<string, object>.Values => new ReadOnlyCollection<object>(values.Values.ToArray());
+        public ICollection<object> Values => new ReadOnlyCollection<object>(values.Values.ToArray());
 
         bool ICollection<KeyValuePair<string, object>>.IsReadOnly => values.IsReadOnly;
 
@@ -440,6 +416,11 @@ namespace Monkeyspeak
             else values[key] = newValue;
         }
 
+        public void AddRange(params object[] args)
+        {
+            foreach (var arg in args) Add(arg);
+        }
+
         public bool Contains(object value)
         {
             return values.Values.Contains(value);
@@ -483,9 +464,7 @@ namespace Monkeyspeak
         /// <summary>
         /// Returns the hash code for this instance.
         /// </summary>
-        /// <returns>
-        /// A 32-bit signed integer that is the hash code for this instance.
-        /// </returns>
+        /// <returns>A 32-bit signed integer that is the hash code for this instance.</returns>
         public override int GetHashCode()
         {
             unchecked

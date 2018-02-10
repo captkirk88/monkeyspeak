@@ -1,10 +1,18 @@
-﻿using System.IO;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Text;
+using Monkeyspeak.Logging;
 
 namespace Monkeyspeak.Libraries
 {
+    /// <summary>
+    /// Basic file operations
+    /// </summary>
+    /// <seealso cref="Monkeyspeak.Libraries.BaseLibrary"/>
     public class IO : BaseLibrary
     {
+        private List<string> tempFiles = new List<string>();
         private string DefaultAuthorizedPath;
 
         /// <summary>
@@ -24,6 +32,12 @@ namespace Monkeyspeak.Libraries
             if (!string.IsNullOrEmpty(authorizedPath)) DefaultAuthorizedPath = authorizedPath;
         }
 
+        /// <summary>
+        /// Initializes this instance. Add your trigger handlers here.
+        /// </summary>
+        /// <param name="args">
+        /// Parametized argument of objects to use to pass runtime objects to a library at initialization
+        /// </param>
         public override void Initialize(params object[] args)
         {
             // (1:200) and the file {...} exists,
@@ -57,10 +71,39 @@ namespace Monkeyspeak.Libraries
             //(5:203) create file {...}.
             Add(TriggerCategory.Effect, 203, CreateFile,
                 "create file {...}.");
+
+            Add(TriggerCategory.Effect, 204, CreateTempFile,
+                "create a temporary file and put the location into variable %");
         }
 
+        [TriggerDescription("Creates a temporary file and puts the location into the specified variable")]
+        [TriggerStringParameter]
+        [TriggerStringParameter]
+        private bool CreateTempFile(TriggerReader reader)
+        {
+            var tempFileName = reader.ReadString();
+            var tempFile = Path.GetTempFileName();
+            tempFiles.Add(tempFile);
+
+            var var = reader.ReadVariableAsConstant(true);
+            var.SetValue(tempFile);
+            return true;
+        }
+
+        /// <summary>
+        /// Called when page is disposing or resetting.
+        /// </summary>
+        /// <param name="page">The page.</param>
         public override void Unload(Page page)
         {
+            foreach (var tempFile in tempFiles)
+            {
+                try
+                {
+                    File.Delete(tempFile);
+                }
+                catch (Exception ex) { Logger.Error<IO>($"Failed to remove temp file {tempFile}. {ex.Message}"); }
+            }
         }
 
         [TriggerDescription("Adds text to the specified file or creates the file if it doesn't exist")]

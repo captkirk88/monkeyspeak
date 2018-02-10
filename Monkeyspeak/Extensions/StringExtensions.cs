@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Text;
+using System.Linq;
 
 namespace Monkeyspeak.Extensions
 {
@@ -77,25 +78,25 @@ namespace Monkeyspeak.Extensions
         public static string LeftOf(this string str, char c)
         {
             int index = str.IndexOf(c);
-            return (index > 0 ? str.Substring(0, index) : "");
+            return (index > 0 ? str.Slice(0, index + 1) : "");
         }
 
         public static string LeftOf(this string str, string c)
         {
             int index = str.IndexOf(c);
-            return (index > 0 ? str.Substring(0, index) : "");
+            return (index > 0 ? str.Substring(0, index + 1) : "");
         }
 
         public static string RightMostLeftOf(this string str, char c)
         {
             int index = str.LastIndexOf(c);
-            return (index > 0 ? str.Substring(0, index) : "");
+            return (index > 0 ? str.Substring(0, index + 1) : "");
         }
 
         public static string RightMostLeftOf(this string str, string c)
         {
             int index = str.LastIndexOf(c);
-            return (index > 0 ? str.Substring(0, index) : "");
+            return (index > 0 ? str.Substring(0, index + 1) : "");
         }
 
         public static string RightOf(this string str, char c)
@@ -120,6 +121,16 @@ namespace Monkeyspeak.Extensions
         {
             int index = str.LastIndexOf(c);
             return (index > 0 ? str.Substring(index + c.Length, str.Length - (index + c.Length)) : "");
+        }
+
+        public static string Slice(this string str, int start, int end)
+        {
+            if (end < 0)
+            {
+                end = str.Length + end;
+            }
+            int len = end - start;               // Calculate length
+            return str.Substring(start, len); // Return Substring of length
         }
 
         /// <summary>

@@ -11,7 +11,7 @@ using System.Timers;
 namespace Monkeyspeak.Libraries
 {
     /// <summary>
-    /// A TimerTask object contains Timer and Page Owner.  Timer is not started from a TimerTask constructor.
+    /// A TimerTask object contains Timer and Page Owner. Timer is not started from a TimerTask constructor.
     /// </summary>
     internal sealed class TimerTask : IEquatable<TimerTask>
     {
@@ -29,9 +29,9 @@ namespace Monkeyspeak.Libraries
         /// <summary>
         /// Timer task that executes (0:300) when it triggers
         /// </summary>
-        /// <param name="owner"></param>
+        /// <param name="owner">   </param>
         /// <param name="interval">Interval in Seconds</param>
-        /// <param name="id"></param>
+        /// <param name="id">      </param>
         public TimerTask(Page owner, double interval, double id, double delay = 0)
         {
             Id = id;
@@ -197,8 +197,8 @@ namespace Monkeyspeak.Libraries
             Add(TriggerCategory.Effect, GetAllTimeZones,
                 "get the available time zones and put it into table %");
 
-            Add(TriggerCategory.Effect, GetUserTimeZone,
-                "get the user's time zone and put it into variable %");
+            Add(TriggerCategory.Effect, GetLocalTimeZoneIntoVariable,
+                "get the local time zone and put it into variable %");
 
             Add(TriggerCategory.Effect, ConvertTimeToTimeZone,
                 "convert time {...} to time zone {...} and put it into variable %");
@@ -254,7 +254,7 @@ namespace Monkeyspeak.Libraries
 
         [TriggerDescription("Gets the user's time zone and puts it into a variable.")]
         [TriggerStringParameter]
-        private bool GetUserTimeZone(TriggerReader reader)
+        private bool GetLocalTimeZoneIntoVariable(TriggerReader reader)
         {
             var var = reader.ReadVariable(true);
             var.Value = TimeZoneInfo.Local.Id;

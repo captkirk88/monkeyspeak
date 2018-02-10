@@ -1,19 +1,124 @@
 ﻿using System;
+using Monkeyspeak.Extensions;
 
 namespace Monkeyspeak.Libraries
 {
-    public class StringOperations : BaseLibrary
+    public class StringOperations : AutoIncrementBaseLibrary
     {
+        public override int BaseId => 400;
+
         public override void Initialize(params object[] args)
         {
-            Add(TriggerCategory.Effect, 400, PutWordCountIntoVariable,
-                "with {...} get word count and set it to variable %.");
-            Add(TriggerCategory.Effect, 401, AddStringToVar,
-                "with {...} add it to variable %.");
-            Add(TriggerCategory.Effect, 402, SubStringToVar,
-                "with {...} get words starting at # to # and set it to variable %.");
-            Add(TriggerCategory.Effect, 403, IndexOfStringToVar,
-                "with {...} get index of {...} and set it to variable %.");
+            Add(TriggerCategory.Effect, PutWordCountIntoVariable,
+                "with {...} get word count and put it into variable %.");
+            Add(TriggerCategory.Effect, SubStringToVar,
+                "with {...} get words starting at # to # and put it into variable %.");
+            Add(TriggerCategory.Effect, IndexOfStringToVar,
+                "with {...} get index of {...} and put it into variable %.");
+            Add(TriggerCategory.Effect, ReplaceStringToVar,
+                "with {...} replace all occurances of {...} with {...} and put it into variable %.");
+            Add(TriggerCategory.Effect, LeftOfStringToVar,
+                "with {...} get everything left of {...} and put it into variable %");
+            Add(TriggerCategory.Effect, RightMostLeftOfStringToVar,
+                "with {...} get everything right most left of {...} and put it into variable %");
+            Add(TriggerCategory.Effect, RightOfStringToVar,
+                "with {...} get everything right of {...} and put it into variable %");
+            Add(TriggerCategory.Effect, RightMostRightOfStringToVar,
+                "with {...} get everything far right of {...} and put it into variable %");
+            Add(TriggerCategory.Effect, SplitStringIntoTable,
+                "with {...} split it at each {...} and put it into table %");
+        }
+
+        [TriggerDescription("Splits the specified string with the delimiter and puts the result into variable")]
+        [TriggerStringParameter]
+        [TriggerStringParameter]
+        [TriggerVariableParameter]
+        private bool SplitStringIntoTable(TriggerReader reader)
+        {
+            var str = reader.ReadString();
+            var search = reader.ReadString();
+            var split = str.Split(new string[] { search }, StringSplitOptions.RemoveEmptyEntries);
+
+            var var = reader.ReadVariableTable(true);
+            var.AddRange(split);
+            return true;
+        }
+
+        [TriggerDescription("Gets everything right most right of the specified search string and puts the result into variable")]
+        [TriggerStringParameter]
+        [TriggerStringParameter]
+        [TriggerVariableParameter]
+        private bool RightMostRightOfStringToVar(TriggerReader reader)
+        {
+            var str = reader.ReadString();
+            var search = reader.ReadString();
+            var newStr = str.RightMostRightOf(search);
+
+            var var = reader.ReadVariable(true);
+            var.Value = newStr;
+            return true;
+        }
+
+        [TriggerDescription("Gets everything right of the specified search string and puts the result into variable")]
+        [TriggerStringParameter]
+        [TriggerStringParameter]
+        [TriggerVariableParameter]
+        private bool RightOfStringToVar(TriggerReader reader)
+        {
+            var str = reader.ReadString();
+            var search = reader.ReadString();
+            var newStr = str.RightOf(search);
+
+            var var = reader.ReadVariable(true);
+            var.Value = newStr;
+            return true;
+        }
+
+        [TriggerDescription("Gets everything right most left of the specified search string and puts the result into variable")]
+        [TriggerStringParameter]
+        [TriggerStringParameter]
+        [TriggerVariableParameter]
+        private bool RightMostLeftOfStringToVar(TriggerReader reader)
+        {
+            var str = reader.ReadString();
+            var search = reader.ReadString();
+            var newStr = str.RightMostLeftOf(search);
+
+            var var = reader.ReadVariable(true);
+            var.Value = newStr;
+            return true;
+        }
+
+        [TriggerDescription("Gets everything left of the specified search string and puts the result into variable")]
+        [TriggerStringParameter]
+        [TriggerStringParameter]
+        [TriggerVariableParameter]
+        private bool LeftOfStringToVar(TriggerReader reader)
+        {
+            var str = reader.ReadString();
+            var search = reader.ReadString();
+            var newStr = str.LeftOf(search);
+
+            var var = reader.ReadVariable(true);
+            var.Value = newStr;
+            return true;
+        }
+
+        [TriggerDescription("Replaces all occurances of the specified string and puts the result into variable")]
+        [TriggerStringParameter]
+        [TriggerStringParameter]
+        [TriggerStringParameter]
+        [TriggerVariableParameter]
+        private bool ReplaceStringToVar(TriggerReader reader)
+        {
+            var str = reader.ReadString();
+            var search = reader.ReadString();
+            var replace = reader.ReadString();
+            var newStr = new System.Text.RegularExpressions.Regex($@"\b{search}\b").Replace(str, replace);
+
+            var var = reader.ReadVariable(true);
+            var.Value = newStr;
+            return true;
         }
 
         [TriggerDescription("Gets the words between a range and puts them into a variable")]
@@ -27,7 +132,7 @@ namespace Monkeyspeak.Libraries
             var start = reader.ReadNumber();
             var end = reader.ReadNumber();
             var var = reader.ReadVariable(true);
-            var subStr = str.Substring((int)start, (int)end);
+            var subStr = str.Slice((int)start, (int)end);
             var.Value = subStr;
             return true;
         }
@@ -41,18 +146,7 @@ namespace Monkeyspeak.Libraries
             var search = reader.ReadString();
             var var = reader.ReadVariable(true);
             var index = str.IndexOf(search);
-            var.Value = index;
-            return true;
-        }
-
-        [TriggerDescription("Adds the string to the variable")]
-        [TriggerStringParameter]
-        [TriggerVariableParameter]
-        private bool AddStringToVar(TriggerReader reader)
-        {
-            string str = reader.ReadString();
-            var var = reader.ReadVariable();
-            var.Value = var.Value + str;
+            var.Value = index.AsDouble();
             return true;
         }
 
@@ -61,9 +155,9 @@ namespace Monkeyspeak.Libraries
         [TriggerVariableParameter]
         private bool PutWordCountIntoVariable(TriggerReader reader)
         {
-            string[] words = reader.ReadString().Split(' ');
+            string[] words = reader.ReadString().Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
             var var = reader.ReadVariable(true);
-            var.Value = words.Length;
+            var.Value = words.Length.AsDouble();
             return true;
         }
 

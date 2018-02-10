@@ -206,6 +206,54 @@ namespace MonkeyspeakTests
         }
 
         [Test]
+        public void NewStringTriggersTest()
+        {
+            var engine = new MonkeyspeakEngine();
+            engine.Options.Debug = true;
+            //Logger.LogOutput = new MultiLogOutput(new FileLogger(Level.Debug), new FileLogger(), new FileLogger(Level.Info));
+            var script = @"
+(0:0) when the script starts,
+		(5:100) set variable %str to {I am a string, I am a string!}.
+        (5:102) print {Testing with '%str'} to the log.
+		(5:400) with {%str} get word count and put it into variable %words.
+		(5:102) print {%words} to the log.
+		(5:401) with {%str} get words starting at 2 to 5 and put it into variable %am.
+		(5:102) print {%am} to the log.
+		(5:402) with {%str} get index of {%am} and put it intovariable %index.
+		(5:102) print {%index} to the log.
+		(5:403) with {%str} replace all occurances of {a} with {the} and put it into variable %replace.
+		(5:102) print {%replace} to the log.
+		(5:404) with {%str} get everything left of {a} and put it into variable %iam
+		(5:102) print {%iam} to the log.
+		(5:405) with {%str} get everything right most left of {a} and put it into variable %IamastringIam
+		(5:102) print {%IamastringIam} to the log.
+		(5:406) with {%str} get everything right of {,} and put it into variable %Iamastring
+		(5:102) print {%Iamastring} to the log.
+		(5:407) with {%str} get everything far right of {a} and put it into variable %string
+		(5:102) print {%string} to the log.
+		(5:408) with {%str} split it at each { } and put it into table %split
+	(6:250) for each entry in table %split put it into %entry,
+		(5:102) print {%entry} to the log.
+	(6:454) after the loop is done,
+		(5:253) with table %split join the contents and put it into variable %joined
+		(5:102) print {%joined} to the log.
+";
+            Page page = engine.LoadFromString(script);
+
+            page.LoadAllLibraries();
+
+            // Trigger count created by subscribing to TriggerAdded event and putting triggers into a list.
+            Console.WriteLine("Trigger Count: " + page.Size);
+            Assert.Greater(page.Size, 0);
+            page.Error += DebugAllErrors;
+            page.Execute();
+            foreach (var variable in page.Scope)
+            {
+                Console.WriteLine(variable.ToString());
+            }
+        }
+
+        [Test]
         public async Task DemoTest()
         {
             var engine = new MonkeyspeakEngine();

@@ -52,7 +52,7 @@ namespace Monkeyspeak
         /// <summary>
         /// A Reader that is used to get Variables, Strings, and Numbers from Triggers
         /// </summary>
-        /// <param name="page"></param>
+        /// <param name="page">   </param>
         /// <param name="trigger"></param>
         public TriggerReader(Page page, TriggerBlock currentBlock)
         {
@@ -67,9 +67,7 @@ namespace Monkeyspeak
         /// <summary>
         /// Gets the trigger.
         /// </summary>
-        /// <value>
-        /// The trigger.
-        /// </value>
+        /// <value>The trigger.</value>
         public Trigger Trigger
         {
             get { return originalTrigger; }
@@ -83,9 +81,7 @@ namespace Monkeyspeak
         /// <summary>
         /// Gets the current block of triggers.
         /// </summary>
-        /// <value>
-        /// The block.
-        /// </value>
+        /// <value>The block.</value>
         public TriggerBlock CurrentBlock
         {
             get { return currentBlock; }
@@ -97,9 +93,7 @@ namespace Monkeyspeak
         /// <summary>
         /// Gets the trigger category.
         /// </summary>
-        /// <value>
-        /// The trigger category.
-        /// </value>
+        /// <value>The trigger category.</value>
         public TriggerCategory TriggerCategory
         {
             get { return Trigger.Category; }
@@ -108,9 +102,7 @@ namespace Monkeyspeak
         /// <summary>
         /// Gets the trigger identifier.
         /// </summary>
-        /// <value>
-        /// The trigger identifier.
-        /// </value>
+        /// <value>The trigger identifier.</value>
         public int TriggerId
         {
             get { return Trigger.Id; }
@@ -119,9 +111,7 @@ namespace Monkeyspeak
         /// <summary>
         /// Gets the page.
         /// </summary>
-        /// <value>
-        /// The page.
-        /// </value>
+        /// <value>The page.</value>
         public Page Page
         {
             get { return page; }
@@ -142,19 +132,14 @@ namespace Monkeyspeak
         /// <summary>
         /// Gets or sets the parameters.
         /// </summary>
-        /// <value>
-        /// The parameters.
-        /// </value>
+        /// <value>The parameters.</value>
         public object[] Parameters { get => args; internal set => args = value; }
 
         public MonkeyspeakEngine Engine { get => engine; set => engine = value; }
 
         /// <summary>
         /// Tries the get the parameter at the specified index.
-        ///
-        /// <para>
-        /// See also <seealso cref="GetParameter{T}(int)"/>
-        /// </para>
+        /// <para>See also <seealso cref="GetParameter{T}(int)"/></para>
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="index">The index.</param>
@@ -173,10 +158,7 @@ namespace Monkeyspeak
 
         /// <summary>
         /// Gets the parameter.
-        ///
-        /// <para>
-        /// See also <seealso cref="TryGetParameter{T}(int, out T)"/>
-        /// </para>
+        /// <para>See also <seealso cref="TryGetParameter{T}(int, out T)"/></para>
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="index">The index.</param>
@@ -190,10 +172,7 @@ namespace Monkeyspeak
 
         /// <summary>
         /// Gets the parameters of a certain type.
-        ///
-        /// <para>
-        /// See also <seealso cref="TryGetParameter{T}(int, out T)"/>
-        /// </para>
+        /// <para>See also <seealso cref="TryGetParameter{T}(int, out T)"/></para>
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
@@ -207,7 +186,9 @@ namespace Monkeyspeak
         /// <summary>
         /// Reads the next String, throws TriggerReaderException on failure
         /// </summary>
-        /// <param name="processVariables">[true] process variables and replace them with their values; [false] do nothing</param>
+        /// <param name="processVariables">
+        /// [true] process variables and replace them with their values; [false] do nothing
+        /// </param>
         /// <returns></returns>
         /// <exception cref="TriggerReaderException"></exception>
         public string ReadString(bool processVariables = true)
@@ -230,7 +211,7 @@ namespace Monkeyspeak
         /// <summary>
         /// Tries the read a string from the trigger.
         /// </summary>
-        /// <param name="str">The string.</param>
+        /// <param name="str">             The string.</param>
         /// <param name="processVariables">if set to <c>true</c> [process variables].</param>
         /// <returns>true on success; false otherwise</returns>
         public bool TryReadString(out string str, bool processVariables = true)
@@ -248,7 +229,9 @@ namespace Monkeyspeak
         /// <summary>
         /// Reads the next Variable available, throws TriggerReaderException on failure
         /// </summary>
-        /// <param name="addIfNotExist">Add the Variable if it doesn't exist and return that Variable with a Value equal to null.</param>
+        /// <param name="addIfNotExist">
+        /// Add the Variable if it doesn't exist and return that Variable with a Value equal to null.
+        /// </param>
         /// <returns>Variable</returns>
         /// <exception cref="TriggerReaderException"></exception>
         public IVariable ReadVariable(bool addIfNotExist = false)
@@ -260,9 +243,35 @@ namespace Monkeyspeak
         }
 
         /// <summary>
+        /// Reads the next Variable available, throws TriggerReaderException on failure
+        /// </summary>
+        /// <param name="addIfNotExist">
+        /// Add the Variable if it doesn't exist and return that Variable with a Value equal to null.
+        /// </param>
+        /// <param name="value">        
+        /// Optional value to assign to the constant if it doesn't already have one
+        /// </param>
+        /// <returns>Variable</returns>
+        /// <exception cref="TriggerReaderException"></exception>
+        public ConstantVariable ReadVariableAsConstant(bool addIfNotExist = false)
+        {
+            if (contents == null || contents.Count == 0) throw new TriggerReaderException($"Expected variable, got nothing");
+            if (contents.Peek().GetType() != Expressions.Instance[TokenType.VARIABLE] &&
+                contents.Peek().GetType() != Expressions.Instance[TokenType.TABLE]) throw new TriggerReaderException($"Expected variable, got {contents.Peek().GetType().Name} at {contents.Peek().Position}");
+            var var = (IVariable)contents.Dequeue().Execute(page, contents, addIfNotExist);
+            if (var != default(IVariable))
+            {
+                var constant = new ConstantVariable(var);
+                constant.AddToPage(page);
+                return constant;
+            }
+            return new ConstantVariable(var);
+        }
+
+        /// <summary>
         /// Trys to read the next Variable table available
         /// </summary>
-        /// <param name="table">Variable table is assigned on success</param>
+        /// <param name="table">        Variable table is assigned on success</param>
         /// <param name="addIfNotExist"></param>
         /// <returns>bool on success</returns>
         public bool TryReadVariableTable(out VariableTable table, bool addIfNotExist = false)
@@ -277,9 +286,12 @@ namespace Monkeyspeak
         }
 
         /// <summary>
-        /// Reads the next Variable table available and the key if there is one, throws TriggerReaderException on failure
+        /// Reads the next Variable table available and the key if there is one, throws
+        /// TriggerReaderException on failure
         /// </summary>
-        /// <param name="addIfNotExist">Add the Variable if it doesn't exist and return that Variable with a Value equal to null.</param>
+        /// <param name="addIfNotExist">
+        /// Add the Variable if it doesn't exist and return that Variable with a Value equal to null.
+        /// </param>
         /// <returns>Variable</returns>
         /// <exception cref="TriggerReaderException"></exception>
         public VariableTable ReadVariableTable(bool addIfNotExist = false)
@@ -324,7 +336,7 @@ namespace Monkeyspeak
         /// <summary>
         /// Trys to read the next Variable available
         /// </summary>
-        /// <param name="var">Variable is assigned on success</param>
+        /// <param name="var">          Variable is assigned on success</param>
         /// <param name="addIfNotExist"></param>
         /// <returns>bool on success</returns>
         public bool TryReadVariable(out IVariable var, bool addIfNotExist = false)
@@ -390,7 +402,8 @@ namespace Monkeyspeak
         }
 
         /// <summary>
-        /// Reads a undefined amount of values.  This is usually used for variable arguments on the end of a trigger.
+        /// Reads a undefined amount of values. This is usually used for variable arguments on the
+        /// end of a trigger.
         /// </summary>
         /// <returns></returns>
         public IEnumerable<object> ReadValues()
