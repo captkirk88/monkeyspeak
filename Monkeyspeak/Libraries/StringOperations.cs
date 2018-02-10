@@ -24,7 +24,7 @@ namespace Monkeyspeak.Libraries
             Add(TriggerCategory.Effect, RightOfStringToVar,
                 "with {...} get everything right of {...} and put it into variable %");
             Add(TriggerCategory.Effect, RightMostRightOfStringToVar,
-                "with {...} get everything far right of {...} and put it into variable %");
+                "with {...} get everything right most right of {...} and put it into variable %");
             Add(TriggerCategory.Effect, SplitStringIntoTable,
                 "with {...} split it at each {...} and put it into table %");
         }
