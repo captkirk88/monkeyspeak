@@ -837,21 +837,18 @@ namespace Monkeyspeak
                             // skip ahead for another cause to meet
                             index = triggerBlock.IndexOfTrigger(TriggerCategory.Cause, startIndex: index + 1);
                             found = index != -1;
-                            if (index != -1) index -= 1;
                             break;
 
                         case TriggerCategory.Condition:
                             // skip ahead for another condition to meet
                             index = triggerBlock.IndexOfTrigger(TriggerCategory.Condition, startIndex: index + 1);
                             found = index != -1;
-                            if (index != -1) index -= 1;
                             break;
 
                         case TriggerCategory.Flow:
                             // skip ahead for another flow trigger to meet
                             index = triggerBlock.IndexOfTrigger(TriggerCategory.Flow, startIndex: index + 1);
                             found = index != -1;
-                            if (index != -1) index -= 1;
                             break;
                     }
                     if (!found)
