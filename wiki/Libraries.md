@@ -92,6 +92,7 @@ page.RemoveLibrary(typeof(MyLibrary));
 (5:202) delete file {...}.
 (1:203) and the file {...} can be written to,
 (5:203) create file {...}.
+(5:204) create a temporary file and put the location into variable %
 (1:250) and variable % is a table,
 (5:250) create a table as %.
 (6:250) for each entry in table % put it into %,
@@ -101,6 +102,7 @@ page.RemoveLibrary(typeof(MyLibrary));
 (1:252) and table % contains {...}
 (5:252) with table % remove key {...}
 (1:253) and table % does not contain {...}
+(5:253) with table % join the contents and put it into variable %
 (1:254) and table % contains #
 (1:255) and table % does not contain #
 (0:300) when timer # goes off,
@@ -121,10 +123,17 @@ page.RemoveLibrary(typeof(MyLibrary));
 (5:312) set the time zone to {...}
 (5:313) get univeral time zone and put it into variable %
 (5:314) get the available time zones and put it into table %
-(5:400) with {...} get word count and set it to variable %.
-(5:401) with {...} add it to variable %.
-(5:402) with {...} get words starting at # to # and set it to variable %.
-(5:403) with {...} get index of {...} and set it to variable %.
+(5:315) get the local time zone and put it into variable %
+(5:316) convert time {...} to time zone {...} and put it into variable %
+(5:400) with {...} get word count and put it into variable %.
+(5:401) with {...} get words starting at # to # and put it into variable %.
+(5:402) with {...} get index of {...} and put it into variable %.
+(5:403) with {...} replace all occurances of {...} with {...} and put it into variable %.
+(5:404) with {...} get everything left of {...} and put it into variable %
+(5:405) with {...} get everything right most left of {...} and put it into variable %
+(5:406) with {...} get everything right of {...} and put it into variable %
+(5:407) with {...} get everything right most right of {...} and put it into variable %
+(5:408) with {...} split it at each {...} and put it into table %
 (5:450) exit the current loop.
 (6:450) while variable % is not #,
 (6:451) while variable % is #,

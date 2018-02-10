@@ -20,6 +20,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "wiki", "wiki", "{EBF2C0FE-BE42-4EF3-A9F2-7C8E197081A8}"
 	ProjectSection(SolutionItems) = preProject
 		wiki\Compiler.md = wiki\Compiler.md
+		Editor.md = Editor.md
 		wiki\Libraries.md = wiki\Libraries.md
 		wiki\Strings.md = wiki\Strings.md
 		wiki\Triggers.md = wiki\Triggers.md

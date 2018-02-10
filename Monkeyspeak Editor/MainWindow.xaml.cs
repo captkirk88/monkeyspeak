@@ -157,11 +157,10 @@ namespace Monkeyspeak.Editor
                 else Settings.TriggerSplitterPosition = TopRow.Height.Value;
 
                 if (!string.IsNullOrWhiteSpace(Settings.LastSession))
-                    foreach (var file in Settings.LastSession.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries))
-                    {
-                        if (!string.IsNullOrEmpty(file) && System.IO.File.Exists(file))
-                            MonkeyspeakCommands.Open.Execute(file);
-                    }
+                {
+                    var files = Settings.LastSession.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
+                    ProcessArguments(files);
+                }
 
                 notifs_flyout.AutoCloseInterval = 3000;
                 notifs_flyout.IsAutoCloseEnabled = false;
