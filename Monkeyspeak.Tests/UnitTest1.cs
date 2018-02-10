@@ -220,21 +220,13 @@ namespace MonkeyspeakTests
     (1:104) and variable %hello equals {this will be false move on to next condition}
         (5:102) print {no} to the console.
     (1:104) and variable %hello equals {MINTY!}
-        (5:102) print {fuck} to the console.
-        (5:102) print {me} to the console.
+        (5:102) print {MINTY!} to the console.
 
 (0:0) when the script is started,
     (1:104) and variable %hello equals {this will be false move on to next condition}
         (5:102) print {no} to the console.
     (1:104) and variable %hello equals {Hello World}
-        (5:102) print {fuck} to the console.
         (5:102) print {good?} to the console.
-
-(0:666) when the devil awakens,
-    (1:104) and variable %hello equals {this will be false move on to next condition}
-        (5:102) print {no} to the console.
-    (1:104) and variable %hello equals {MINTY!}
-        (5:102) print {fuck} to the console.
 ";
             Page page = engine.LoadFromString(script);
 
