@@ -13,8 +13,8 @@ namespace Monkeyspeak
         private readonly TriggerBlock triggerBlock;
         private readonly TriggerReader reader;
         private readonly Dictionary<Trigger, TriggerHandler> handlers;
-        private bool canContinue, prevCanContinue;
-        private Trigger previous, current;
+        private Trigger previous, current, next;
+        private bool canContinue;
 
         public ExecutionContext(Page page, TriggerBlock triggerBlock, params object[] args)
         {
@@ -44,6 +44,7 @@ namespace Monkeyspeak
             previous = current;
             //Logger.Debug($"{previous} Index = {index}");
             current = triggerBlock[index];
+            next = triggerBlock[index + 1]; // or undefined if none exists
             handlers.TryGetValue(current, out TriggerHandler handler);
 
             if (handler == null)
@@ -57,9 +58,8 @@ namespace Monkeyspeak
             try
             {
                 if (previous.Category == TriggerCategory.Condition)
-                    prevCanContinue = canContinue;
-                else prevCanContinue = false;
-                canContinue = handler != null ? handler(reader) : false;
+                    canContinue = canContinue && (handler != null ? handler(reader) : false);
+                else canContinue = (handler != null ? handler(reader) : false);
                 if (Logger.DebugEnabled) Logger.Debug<Page>($"{page.GetTriggerDescription(current, true)} returned {canContinue}");
 
                 if (reader.CurrentBlockIndex == -1)
@@ -68,9 +68,8 @@ namespace Monkeyspeak
                     return;
                 }
 
-                if (!canContinue)
+                if (canContinue == false)
                 {
-                    bool found = false;
                     switch (current.Category)
                     {
                         case TriggerCategory.Cause:
@@ -79,9 +78,7 @@ namespace Monkeyspeak
                             break;
 
                         case TriggerCategory.Condition:
-                            if (previous.Category == TriggerCategory.Condition && !prevCanContinue)
-                                index = triggerBlock.IndexOfTrigger(TriggerCategory.Condition, startIndex: index + 1);
-                            else if (previous.Category == TriggerCategory.Effect)
+                            if (previous.Category != TriggerCategory.Condition)
                                 index = triggerBlock.IndexOfTrigger(TriggerCategory.Condition, startIndex: index + 1);
                             break;
 
@@ -89,10 +86,6 @@ namespace Monkeyspeak
                             // skip ahead for another flow trigger to meet
                             index = triggerBlock.IndexOfTrigger(TriggerCategory.Flow, startIndex: index + 1);
                             break;
-                    }
-                    if (index == -1)
-                    {
-                        index = triggerBlock.Count;
                     }
                 }
                 else
@@ -117,18 +110,16 @@ namespace Monkeyspeak
                             var indexOfOtherFlow = triggerBlock.IndexOfTrigger(TriggerCategory.Flow, startIndex: index + 1);
                             var subBlock = triggerBlock.GetSubBlock(index + 1, indexOfOtherFlow);
                             var subReader = new TriggerReader(page, subBlock) { Parameters = reader.Parameters };
-                            int j = index;
-                            for (int i = 0; i <= subBlock.Count - 1; i++)
+                            int j = index, k = 0;
+                            for (; k <= subBlock.Count - 1; k++)
                             {
-                                ExecuteTrigger(subBlock, ref i, subReader);
-                                j += i;
-                                if (i == -1)
-                                {
+                                ExecuteTrigger(subBlock, ref k, subReader);
+                                if (k == -1)
                                     break;
-                                }
+                                j += k;
                             }
-                            if (j == -1)
-                                index = j + 1;
+                            if (k == -1)
+                                index = j;
                             else index -= 1;
                             break;
                     }
