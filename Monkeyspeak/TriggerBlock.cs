@@ -109,7 +109,7 @@ namespace Monkeyspeak
         /// <returns></returns>
         public TriggerBlock GetSubBlock(int index, int count = -1)
         {
-            if (index <= 0 || index >= Count) return null;
+            if (index > Count) index = Count - 1;
             return new TriggerBlock(GetRange(index, count < 0 ? Count - index : count - index));
         }
 

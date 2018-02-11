@@ -17,6 +17,7 @@ using System.Collections.Generic;
 using Monkeyspeak.Lexical;
 using System.Net.NetworkInformation;
 using System.Net;
+using Monkeyspeak.Tests;
 
 namespace MonkeyspeakTests
 
@@ -48,6 +49,10 @@ namespace MonkeyspeakTests
         private string testScript = @"
 (0:0) when the script is started,
     (5:102) print {Welcome to %MONKEY} to the console.
+
+(0:0) when the script is started,
+        (5:101) set %num to 0x333.
+        (5:102) print {num = %num} to the console.
 
 (0:0) when the script is started,
     (5:102) print {None = %none} to the console.
@@ -264,9 +269,9 @@ namespace MonkeyspeakTests
         (5:100) set %hello to {Hello World}.
 
 (0:0) when the script is started,
-        (5:101) set %num to 3.
-    (1:102) and variable %num equals 3
-        (5:102) print {equals 3} to the console.
+        (5:101) set %num to 0x333.
+    (1:102) and variable %num equals 0x333
+        (5:102) print {equals %num} to the console.
     (1:102) and variable %num equals 2
         (5:102) print {wtf} to the console.
 
@@ -335,19 +340,10 @@ namespace MonkeyspeakTests
         public void LexerPrint()
         {
             //using (var stream = new FileStream("testBIG.ms", FileMode.OpenOrCreate))
-            var testScript = @"
-(0:90) When the bot enters a Dream,
-(0:1) When the bot logs into furcadia,
-
-(5:6) whisper {Bot active in dream %DREAMNAME} to {}.
-
-(0:10) When someone shouts something with {fuck} in it,
-(5:5) whisper {Please do not swear in shouts! Thank you #SA} to the triggering furre.
-";
             using (var stream = new MemoryStream(Encoding.UTF8.GetBytes(testScript)))
             using (Lexer lexer = new Lexer(new MonkeyspeakEngine(), new SStreamReader(stream)))
             {
-                foreach (var token in lexer.Read())
+                foreach (var token in lexer.ReadToEnd())
                 {
                     if (token.Type != TokenType.COMMENT)
                         Logger.Info($"{token} = {new string(lexer.Read(token.ValueStartPosition, token.Length))}");
@@ -358,18 +354,10 @@ namespace MonkeyspeakTests
         [Test]
         public void LexerAndParserPrint()
         {
-            var testScript = @"
-(0:90) When the bot enters a Dream,
-(0:1) When the bot logs into furcadia,
-(5:6) whisper {Bot active in dream %DREAMNAME} to {%BOTCONTROLLER}.
-
-(0:10) When someone shouts something with {fuck} in it,
-(5:5) whisper {Please do not swear in shouts! Thank you #SA} to the triggering furre.
-";
             Logger.Debug(default(Trigger));
             var engine = new MonkeyspeakEngine();
             //engine.Options.Debug = true;
-            using (var stream = new MemoryStream(Encoding.Default.GetBytes(tableScript)))
+            using (var stream = new MemoryStream(Encoding.Default.GetBytes(testScript)))
             using (Lexer lexer = new Lexer(engine, new SStreamReader(stream)))
             {
                 Parser parser = new Parser(engine);
@@ -461,15 +449,23 @@ namespace MonkeyspeakTests
             Logger.InfoEnabled = false;
             // Set the trigger limit to int.MaxValue to prevent TriggerLimit reached exceptions
             engine.Options.TriggerLimit = int.MaxValue;
+            using (var perf = new PerfCounter((elapsed, mem) =>
+            {
+                Logger.InfoEnabled = true;
+                Logger.Info($"{elapsed} {mem}");
+                Logger.InfoEnabled = false;
+            }, TimeSpan.FromMilliseconds(100)))
+            {
+                Page page = engine.LoadFromFile(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "testBIG.ms"));
 
-            Page page = engine.LoadFromFile(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "testBIG.ms"));
-
-            page.LoadAllLibraries();
-            page.Error += DebugAllErrors;
-
-            Console.WriteLine("Trigger Count: " + page.Size);
-            page.Execute();
-            Logger.Debug($"Trigger Count: {page.Size}");
+                page.LoadAllLibraries();
+                page.Error += DebugAllErrors;
+                Logger.InfoEnabled = true;
+                Logger.Info("Trigger Count: " + page.Size);
+                Logger.InfoEnabled = false;
+                page.Execute();
+                Logger.Info($"Trigger Count: {page.Size}");
+            }
         }
 
         [Test]
@@ -517,22 +513,24 @@ namespace MonkeyspeakTests
                 sb.AppendLine();
             }
             //Logger.Info(sb.ToString());
-            Stopwatch timer = Stopwatch.StartNew();
-            Page page = engine.LoadFromString(sb.ToString());
-            timer.Stop();
-            Logger.InfoEnabled = true;
-            Logger.Info($"Elapsed (loading): {timer.ElapsedMilliseconds}ms");
-            page.LoadAllLibraries();
+            using (var perf = new PerfCounter((elapsed, mem) =>
+            {
+                Logger.InfoEnabled = true;
+                Logger.Info($"{elapsed} {mem}");
+                Logger.InfoEnabled = false;
+            }, TimeSpan.FromMilliseconds(100)))
+            {
+                Page page = engine.LoadFromString(sb.ToString());
+                page.LoadAllLibraries();
 
-            page.Error += DebugAllErrors;
+                page.Error += DebugAllErrors;
 
-            Logger.Info($"Triggers: {page.Size}");
-            Logger.InfoEnabled = false;
-            timer.Restart();
-            page.Execute();
-            timer.Stop();
-            Logger.InfoEnabled = true;
-            Logger.Info($"Elapsed (executing): {timer.ElapsedMilliseconds}ms");
+                Logger.InfoEnabled = true;
+                Logger.Info($"Triggers: {page.Size}");
+                Logger.InfoEnabled = false;
+
+                page.Execute();
+            }
         }
 
         [Test]

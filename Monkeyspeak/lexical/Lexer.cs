@@ -13,7 +13,7 @@ using System.Linq;
 namespace Monkeyspeak
 {
     /// <summary>
-    ///     Converts a reader containing a Monkeyspeak script into a
+    /// Converts a reader containing a Monkeyspeak script into a
     /// </summary>
     public sealed class Lexer : AbstractLexer
     {
@@ -37,12 +37,11 @@ namespace Monkeyspeak
         }
 
         /// <summary>
-        /// Reads the tokens from the reader.  Used by the Parser.
+        /// Reads the tokens from the reader. Used by the Parser.
         /// </summary>
         /// <returns></returns>
-        public override IEnumerable<Token> Read()
+        public override IEnumerable<Token> ReadToEnd()
         {
-            var tokens = new Queue<Token>();
             int character = 0;
             char c = (char)character;
             Token token = default(Token), lastToken = default(Token);
@@ -54,7 +53,7 @@ namespace Monkeyspeak
                 if (character == -1)
                 {
                     token = CreateToken(TokenType.END_OF_FILE);
-                    goto FINISH;
+                    goto END;
                 }
                 /*else if (c == Engine.Options.BlockCommentBeginSymbol[0])
                 {
@@ -69,17 +68,14 @@ namespace Monkeyspeak
                 {
                     SkipLineComment();
                     token = default(Token);
-                    goto FINISH;
                 }
                 else if (c == stringBeginSym)
                 {
                     token = MatchString();
-                    goto FINISH;
                 }
                 else if (c == varDeclSym)
                 {
                     token = MatchVariable();
-                    goto FINISH;
                 }
                 else
                 {
@@ -97,10 +93,6 @@ namespace Monkeyspeak
                             Next();
                             break;
 
-                        //case '+':
-                        //    token = CreateToken(TokenType.PLUS);
-                        //    break;
-
                         case '-':
                             if (char.IsDigit((char)LookAhead(2)))
                                 token = MatchNumber();
@@ -108,41 +100,16 @@ namespace Monkeyspeak
                                 token = CreateToken(TokenType.MINUS);
                             break;
 
-                        //case '^':
-                        //    token = CreateToken(TokenType.POWER);
-                        //    break;
-
-                        //case '~':
-                        //    token = CreateToken(TokenType.CONCAT);
-                        //    break;
-
-                        //case ':':
-                        //    token = CreateToken(TokenType.COLON);
-                        //    break;
-
-                        //case '(':
-                        //token = CreateToken(TokenType.LPAREN);
-                        //break;
-
-                        //case ')':
-                        //token = CreateToken(TokenType.RPAREN);
-                        //break;
-
-                        //case '*':
-                        //    token = CreateToken(TokenType.MULTIPLY);
-                        //    Next();
-                        //    break;
-
-                        //case '/':
-                        //    token = CreateToken(TokenType.DIVIDE);
-                        //    Next();
-                        //    break;
-
                         case '%':
                             token = CreateToken(TokenType.MOD);
                             break;
 
                         case '0':
+                            if (LookAhead(2) == 'x' || LookAhead(2) == 'X')
+                                token = MatchNumber(); // support for hex numbers 0x3333333 (8 digit)
+                            else token = MatchTrigger();
+                            break;
+
                         case '1':
                         case '2':
                         case '3':
@@ -158,15 +125,14 @@ namespace Monkeyspeak
                         default: Next(); break;
                     }
                 }
-            FINISH:
                 if (token.Type != TokenType.NONE)
                 {
                     //Logger.Debug<Lexer>(token);
                     lastToken = token;
-                    tokens.Enqueue(token);
+                    yield return token;
                 }
             }
-            while (tokens.Count > 0) yield return tokens.Dequeue();
+            END:;
         }
 
         public override void Reset()
@@ -318,11 +284,8 @@ namespace Monkeyspeak
             return buf;
         }
 
-        /// <summary>
-        ///     Peeks ahead in the reader
-        /// </summary>
-        /// <param name="steps"></param>
-        /// <returns>The character number of steps ahead or -1/returns>
+        /// <summary> Peeks ahead in the reader </summary> <param name="steps"></param> <returns>The
+        /// character number of steps ahead or -1/returns>
         public override int LookAhead(int steps)
         {
             if (!reader.BaseStream.CanSeek)
@@ -351,11 +314,8 @@ namespace Monkeyspeak
             return ahead;
         }
 
-        /// <summary>
-        ///     Peeks ahead in the reader
-        /// </summary>
-        /// <param name="steps"></param>
-        /// <returns>The character number of steps ahead or -1/returns>
+        /// <summary> Peeks ahead in the reader </summary> <param name="steps"></param> <returns>The
+        /// character number of steps ahead or -1/returns>
         public string LookAheadToString(int steps)
         {
             if (!reader.BaseStream.CanSeek)
@@ -372,7 +332,10 @@ namespace Monkeyspeak
 
                 char[] charArray = new char[steps];
                 for (int i = 0; i <= charArray.Length - 1; i++)
+                {
+                    reader.Position = reader.Position + i;
                     charArray[i] = (char)reader.Peek();
+                }
 
                 reader.Position = oldPosition;
                 return new string(charArray);
@@ -435,6 +398,7 @@ namespace Monkeyspeak
 
         private Token MatchNumber()
         {
+            bool @decimal = false, hex = false;
             var sourcePos = CurrentSourcePosition;
             long startPos = reader.Position;
             Next();
@@ -446,38 +410,62 @@ namespace Monkeyspeak
                 length++;
                 c = (char)currentChar;
             }
-            bool @decimal = false;
+
             while (char.IsDigit(c))
             {
                 if (!CheckEOF(currentChar)) return Token.None;
                 Next();
                 length++;
                 c = (char)currentChar;
-                if (c == '.')
+
+                // hex numbers
+                if ((c == 'x' || c == 'X'))
                 {
-                    if (!@decimal)
+                    if (LookBack(1) == '0')
                     {
-                        @decimal = true;
                         Next();
                         length++;
                         c = (char)currentChar;
+                        hex = true;
                     }
-                    else break; // we don't want duplicate decimal points
+                    else CheckIsDigit(c);
+                }
+
+                // decimal numbers
+                if (c == '.')
+                {
+                    if (!hex)
+                    {
+                        if (!@decimal)
+                        {
+                            @decimal = true;
+                            Next();
+                            length++;
+                            c = (char)currentChar;
+                        }
+                        else break; // we don't want duplicate decimal points
+                    }
+                    else if (hex && char.IsDigit((char)LookAhead(1)))
+                        throw new MonkeyspeakException($"Unexpected {c.EscapeForCSharp()} in hexadecimal number", CurrentSourcePosition);
                 }
 
                 // support for exponent
                 if (c == 'E' || c == 'e')
                 {
-                    Next();
-                    length++;
-                    c = (char)currentChar;
-                    if (c == '-' || c == '+')
+                    if (!hex)
                     {
                         Next();
                         length++;
                         c = (char)currentChar;
-                        // now resume the loop because the rest are digits
+                        if (c == '-' || c == '+')
+                        {
+                            Next();
+                            length++;
+                            c = (char)currentChar;
+                            // now resume the loop because the rest are digits
+                        }
                     }
+                    else throw new MonkeyspeakException($"Unexpected {c.EscapeForCSharp()} in hexadecimal number", CurrentSourcePosition);
                 }
             }
             return new Token(TokenType.NUMBER, startPos, length, sourcePos);

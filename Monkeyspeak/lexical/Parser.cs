@@ -7,9 +7,8 @@ using System.Collections.Generic;
 namespace Monkeyspeak
 {
     /// <summary>
-    ///
     /// </summary>
-    /// <seealso cref="Monkeyspeak.Lexical.AbstractParser" />
+    /// <seealso cref="Monkeyspeak.Lexical.AbstractParser"/>
     public class Parser : AbstractParser
     {
         public TokenVisitorHandler VisitToken;
@@ -32,15 +31,14 @@ namespace Monkeyspeak
         /// </summary>
         /// <param name="lexer">The lexer.</param>
         /// <returns></returns>
-        /// <exception cref="MonkeyspeakException">
-        /// </exception>
+        /// <exception cref="MonkeyspeakException"></exception>
         /// <exception cref="Exception">String length limit exceeded.</exception>
         public override IEnumerable<Trigger> Parse(AbstractLexer lexer)
         {
             Trigger currentTrigger = Trigger.Undefined, lastTrigger = Trigger.Undefined;
             Token token = Token.None, prevToken = default(Token), nextToken = default(Token);
             IExpression expr = null;
-            foreach (var t in lexer.Read())
+            foreach (var t in lexer.ReadToEnd())
             {
                 token = t;
                 var tokenType = token.Type;
@@ -83,10 +81,7 @@ namespace Monkeyspeak
                         break;
 
                     case TokenType.NUMBER:
-                        double val = double.Parse(value, System.Globalization.NumberStyles.AllowDecimalPoint
-                            | System.Globalization.NumberStyles.AllowLeadingSign
-                            | System.Globalization.NumberStyles.AllowExponent);
-                        expr = Expressions.Create(tokenType, sourcePos, val);
+                        expr = Expressions.Create(tokenType, sourcePos, value);
                         break;
 
                     case TokenType.COMMENT:

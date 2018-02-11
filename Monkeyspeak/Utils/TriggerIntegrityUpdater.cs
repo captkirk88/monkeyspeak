@@ -29,7 +29,7 @@ namespace Monkeyspeak.Utils
             using (var stream = new MemoryStream(Encoding.UTF8.GetBytes(code)))
             using (var reader = new SStreamReader(stream))
             using (var lexer = new Lexer(engine, reader))
-                foreach (var token in lexer.Read())
+                foreach (var token in lexer.ReadToEnd())
                 {
                     if (token.Type == TokenType.TRIGGER)
                     {

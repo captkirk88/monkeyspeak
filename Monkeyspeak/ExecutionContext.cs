@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -12,15 +13,15 @@ namespace Monkeyspeak
         private readonly Page page;
         private readonly TriggerBlock triggerBlock;
         private readonly TriggerReader reader;
-        private readonly Dictionary<Trigger, TriggerHandler> handlers;
+        private readonly ReadOnlyDictionary<Trigger, TriggerHandler> handlers;
         private Trigger previous, current, next;
         private bool canContinue;
 
         public ExecutionContext(Page page, TriggerBlock triggerBlock, params object[] args)
         {
             this.page = page;
-            this.triggerBlock = triggerBlock;
-            handlers = page.handlers;
+            this.triggerBlock = triggerBlock.GetSubBlock(0);
+            handlers = new ReadOnlyDictionary<Trigger, TriggerHandler>(page.handlers);
 
             reader = new TriggerReader(page, triggerBlock)
             {

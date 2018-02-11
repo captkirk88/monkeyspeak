@@ -43,7 +43,7 @@ namespace Monkeyspeak
         /// Reads the tokens from the reader.  Used by the Parser.
         /// </summary>
         /// <returns></returns>
-        public abstract IEnumerable<Token> Read();
+        public abstract IEnumerable<Token> ReadToEnd();
 
         /// <summary>
         /// Reads the specified start position in stream.  Used by the Token to read the token's value.

@@ -13,32 +13,30 @@ namespace Monkeyspeak
     public enum TriggerCategory : int
     {
         /// <summary>
-        /// A trigger that was not defined.  You should never encounter this
-        /// if you do then something isn't quite right.
+        /// A trigger that was not defined. You should never encounter this if you do then something
+        /// isn't quite right.
         /// </summary>
         Undefined = -1,
 
         /// <summary>
         /// A trigger defined with a 0
-        /// <para>Example: (0:1) when someone says something, </para>
+        /// <para>Example: (0:1) when someone says something,</para>
         /// </summary>
         Cause = 0,
 
         /// <summary>
         /// A trigger defined with a 1
-        /// <para>Example: (1:2) and they moved # units left, </para>
+        /// <para>Example: (1:2) and they moved # units left,</para>
         /// </summary>
         Condition = 1,
 
         /// <summary>
         /// A trigger defined with a 5
-        /// <para>Example: (5:1) print {Hello World} to the console. </para>
+        /// <para>Example: (5:1) print {Hello World} to the console.</para>
         /// </summary>
         Effect = 5,
 
-        /// <summary>
-        /// A trigger defined with a 6
-        /// <para>Example: (6:0) while variable % is #, </para>
+        /// <summary> A trigger defined with a 6 <para>Example: (6:0) while variable % is #, </para>
         Flow = 6
     }
 
@@ -73,9 +71,7 @@ namespace Monkeyspeak
         /// <summary>
         /// Gets the category.
         /// </summary>
-        /// <value>
-        /// The category.
-        /// </value>
+        /// <value>The category.</value>
         public TriggerCategory Category
         {
             get { return category; }
@@ -85,9 +81,7 @@ namespace Monkeyspeak
         /// <summary>
         /// Gets the identifier.
         /// </summary>
-        /// <value>
-        /// The identifier.
-        /// </value>
+        /// <value>The identifier.</value>
         public int Id
         {
             get { return id; }
@@ -134,9 +128,7 @@ namespace Monkeyspeak
         /// </summary>
         /// <param name="a">a.</param>
         /// <param name="b">The b.</param>
-        /// <returns>
-        /// The result of the operator.
-        /// </returns>
+        /// <returns>The result of the operator.</returns>
         public static bool operator ==(Trigger a, Trigger b)
         {
             return a.Equals(b);
@@ -147,9 +139,7 @@ namespace Monkeyspeak
         /// </summary>
         /// <param name="a">a.</param>
         /// <param name="b">The b.</param>
-        /// <returns>
-        /// The result of the operator.
-        /// </returns>
+        /// <returns>The result of the operator.</returns>
         public static bool operator !=(Trigger a, Trigger b)
         {
             return !a.Equals(b);
@@ -160,7 +150,7 @@ namespace Monkeyspeak
         /// </summary>
         /// <param name="other">An object to compare with this object.</param>
         /// <returns>
-        /// true if the current object is equal to the <paramref name="other" /> parameter; otherwise, false.
+        /// true if the current object is equal to the <paramref name="other"/> parameter; otherwise, false.
         /// </returns>
         public bool Equals(Trigger other)
         {
@@ -169,11 +159,12 @@ namespace Monkeyspeak
         }
 
         /// <summary>
-        /// Determines whether the specified <see cref="System.Object" />, is equal to this instance.
+        /// Determines whether the specified <see cref="System.Object"/>, is equal to this instance.
         /// </summary>
-        /// <param name="obj">The <see cref="System.Object" /> to compare with this instance.</param>
+        /// <param name="obj">The <see cref="System.Object"/> to compare with this instance.</param>
         /// <returns>
-        ///   <c>true</c> if the specified <see cref="System.Object" /> is equal to this instance; otherwise, <c>false</c>.
+        /// <c>true</c> if the specified <see cref="System.Object"/> is equal to this instance;
+        /// otherwise, <c>false</c>.
         /// </returns>
         public override bool Equals(object obj)
         {
@@ -190,7 +181,8 @@ namespace Monkeyspeak
         /// Returns a hash code for this instance.
         /// </summary>
         /// <returns>
-        /// A hash code for this instance, suitable for use in hashing algorithms and data structures like a hash table.
+        /// A hash code for this instance, suitable for use in hashing algorithms and data structures
+        /// like a hash table.
         /// </returns>
         public override int GetHashCode()
         {
@@ -198,24 +190,20 @@ namespace Monkeyspeak
         }
 
         /// <summary>
-        /// Returns a <see cref="System.String" /> that represents this instance.
+        /// Returns a <see cref="System.String"/> that represents this instance.
         /// </summary>
-        /// <param name="engine">The engine.</param>
+        /// <param name="engine">          The engine.</param>
         /// <param name="includeSourcePos">if set to <c>true</c> [include source position].</param>
-        /// <returns>
-        /// A <see cref="System.String" /> that represents this instance.
-        /// </returns>
+        /// <returns>A <see cref="System.String"/> that represents this instance.</returns>
         public string ToString(MonkeyspeakEngine engine, bool includeSourcePos = false)
         {
             return RebuildToString(engine.Options, includeSourcePos);
         }
 
         /// <summary>
-        /// Returns a <see cref="string" /> that represents this instance.
+        /// Returns a <see cref="string"/> that represents this instance.
         /// </summary>
-        /// <returns>
-        /// A <see cref="string" /> that represents this instance.
-        /// </returns>
+        /// <returns>A <see cref="string"/> that represents this instance.</returns>
         public override string ToString() => $"({(int)category}:{id})";
 
         public string RebuildToString(Options options, bool includeSourcePos = false)
@@ -231,6 +219,7 @@ namespace Monkeyspeak
                     var expr = contents[i];
                     var tokenType = Expressions.GetTokenTypeFor(contents[i].GetType());
                     if (tokenType == null) continue;
+                    sb.Append('\"');
                     switch (tokenType)
                     {
                         case TokenType.STRING_LITERAL:
@@ -241,6 +230,7 @@ namespace Monkeyspeak
                             sb.Append(expr.ToString());
                             break;
                     }
+                    sb.Append('\"');
                     if (includeSourcePos) sb.Append(' ').Append(expr.Position);
                     if (i != contents.Count - 1) sb.Append(' ');
                 }
