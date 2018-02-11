@@ -87,6 +87,10 @@ namespace Monkeyspeak
                             // skip ahead for another flow trigger to meet
                             index = triggerBlock.IndexOfTrigger(TriggerCategory.Flow, startIndex: index + 1);
                             break;
+
+                        case TriggerCategory.Effect:
+                            index = -1;
+                            break;
                     }
                 }
                 else
