@@ -78,7 +78,7 @@ namespace Monkeyspeak
                             break;
 
                         case TriggerCategory.Condition:
-                            if (previous.Category != TriggerCategory.Condition)
+                            if (previous.Category != TriggerCategory.Condition && next.Category != TriggerCategory.Condition)
                                 index = triggerBlock.IndexOfTrigger(TriggerCategory.Condition, startIndex: index + 1);
                             break;
 
