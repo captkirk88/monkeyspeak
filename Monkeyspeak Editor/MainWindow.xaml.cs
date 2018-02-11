@@ -173,6 +173,8 @@ namespace Monkeyspeak.Editor
                 NotificationManager.Instance.AddNotification(new WelcomeNotification());
                 Plugins.PluginsManager.Initialize();
             });
+
+            BottomRow.MinHeight = gridContainer.ActualHeight - statusbar.ActualHeight;
         }
 
         public void ProcessArguments(string[] args)
@@ -509,6 +511,14 @@ namespace Monkeyspeak.Editor
         private void errors_flyout_button_Click(object sender, RoutedEventArgs e)
         {
             errors_flyout.IsOpen = !errors_flyout.IsOpen;
+        }
+
+        private void splitter_PreviewMouseMove(object sender, MouseEventArgs e)
+        {
+            if (e.GetPosition(gridContainer).Y > gridContainer.ActualHeight - 30)
+            {
+                e.Handled = true;
+            }
         }
     }
 }

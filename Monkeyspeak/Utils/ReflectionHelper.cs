@@ -10,21 +10,11 @@ namespace Monkeyspeak.Utils
 {
     public class ReflectionHelper
     {
-        private static List<Assembly> all;
+        private static bool cached = false;
 
         public static Type[] GetAllTypesWithAttributeInMembers<T>(Assembly asm) where T : Attribute
         {
-            return asm.Modules.SelectMany(mod =>
-            {
-                try
-                {
-                    return mod.GetTypes();
-                }
-                catch (ReflectionTypeLoadException e)
-                {
-                    return e.Types.Where(t => t != null);
-                }
-            }).Where(type => type.GetMembers().Any(member => member.GetCustomAttribute<T>() != null)).ToArray();
+            return GetAllTypesInAssembly(asm).Where(type => type.GetMembers().Any(member => member.GetCustomAttribute<T>() != null)).ToArray();
         }
 
         public static IEnumerable<T> GetAllAttributesFromMethod<T>(MethodInfo methodInfo) where T : Attribute
@@ -73,17 +63,7 @@ namespace Monkeyspeak.Utils
         {
             var desiredType = typeof(T);
             var types = new List<Type>();
-            foreach (var type in asm.Modules.SelectMany(mod =>
-                {
-                    try
-                    {
-                        return mod.GetTypes();
-                    }
-                    catch (ReflectionTypeLoadException e)
-                    {
-                        return e.Types.Where(t => t != null);
-                    }
-                }).Where(t => GetAllBaseTypes(t).Contains(desiredType)))
+            foreach (var type in GetAllTypesInAssembly(asm).Where(t => GetAllBaseTypes(t).Contains(desiredType)))
             {
                 yield return type;
             }
@@ -104,17 +84,7 @@ namespace Monkeyspeak.Utils
             var desiredType = typeof(T);
             if (desiredType.IsInterface)
             {
-                foreach (var type in asm.Modules.SelectMany(mod =>
-                    {
-                        try
-                        {
-                            return mod.GetTypes();
-                        }
-                        catch (ReflectionTypeLoadException e)
-                        {
-                            return e.Types.Where(t => t != null);
-                        }
-                    })
+                foreach (var type in GetAllTypesInAssembly(asm)
                     .Where(t => t.GetInterfaces().Contains(desiredType))) yield return type;
             }
         }
@@ -126,16 +96,17 @@ namespace Monkeyspeak.Utils
         /// <returns></returns>
         public static IEnumerable<Type> GetAllTypesInAssembly(Assembly asm)
         {
-            Type[] types;
+            IEnumerable<Type> types = Enumerable.Empty<Type>();
+            if (asm == null) return types;
             try
             {
-                types = asm.Modules.SelectMany(mod => mod.GetTypes()).ToArray();
+                types = asm.GetTypes();
             }
             catch (ReflectionTypeLoadException e)
             {
-                types = e.Types.Where(t => t != null).ToArray();
+                types = e.Types.Where(t => t != null);
             }
-            foreach (var type in types) yield return type;
+            return types;
         }
 
         /// <summary>
@@ -144,26 +115,22 @@ namespace Monkeyspeak.Utils
         /// <returns></returns>
         public static IEnumerable<Assembly> GetAllAssemblies()
         {
-            if (all != null && all.Count > 0) return all;
-            all = new List<Assembly>();
+            if (cached) return AppDomain.CurrentDomain.GetAssemblies();
+            //all = new List<Assembly>();
             foreach (string asmFile in Directory.EnumerateFiles(Path.GetFullPath(AppDomain.CurrentDomain.BaseDirectory), "*.*", SearchOption.TopDirectoryOnly)
                                         .Where(s => s.EndsWith(".dll") || s.EndsWith(".exe")))
             {
                 if (TryLoadAssemblyFromFile(asmFile, out var asm))
                 {
-                    all.AddIfUnique(asm);
+                    try
+                    {
+                        AppDomain.CurrentDomain.Load(asm.GetName());
+                    }
+                    catch { }
                 }
             }
-
-            foreach (var asm in AppDomain.CurrentDomain.GetAssemblies())
-            {
-                // avoid all the Microsoft and System assemblies. All assesmblies it is looking for
-                // should be in the local path
-                if (asm.GlobalAssemblyCache) continue;
-
-                all.AddIfUnique(asm);
-            }
-            return all;
+            cached = true;
+            return AppDomain.CurrentDomain.GetAssemblies();
         }
 
         /// <summary>

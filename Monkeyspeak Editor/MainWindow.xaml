@@ -121,7 +121,7 @@
         </Controls:WindowCommands>
     </Controls:MetroWindow.RightWindowCommands>
     <DockPanel>
-        <StatusBar DockPanel.Dock="Bottom">
+        <StatusBar x:Name="statusbar" DockPanel.Dock="Bottom">
             <StatusBarItem>
                 <Button x:Name="errors_flyout_button" Background="{DynamicResource AccentColorBrush}" Click="errors_flyout_button_Click">
                     <iconPacks:Material Kind="Bug" />
@@ -134,11 +134,11 @@
                 </StackPanel>
             </StatusBarItem>
         </StatusBar>
-        <Grid Name="gridContainer" Width="Auto" Height="Auto" ClipToBounds="True">
+        <Grid Name="gridContainer" Width="Auto" Height="Auto">
             <Grid.RowDefinitions>
-                <RowDefinition x:Name="TopRow" MinHeight="300" Height="Auto" MaxHeight="{Binding ActualHeight, ElementName=gridContainer}" />
+                <RowDefinition x:Name="TopRow" MinHeight="30" Height="Auto" />
                 <RowDefinition Height="5" />
-                <RowDefinition Height="250" MinHeight="250" />
+                <RowDefinition x:Name="BottomRow" Height="1*" />
             </Grid.RowDefinitions>
             <Controls:MetroAnimatedSingleRowTabControl x:Name="docs" Width="Auto" Height="Auto" Padding="10,10,10,10"
                                     Controls:TabControlHelper.IsUnderlined="True"
@@ -151,8 +151,8 @@
                 </Controls:MetroAnimatedSingleRowTabControl.ItemTemplate>
             </Controls:MetroAnimatedSingleRowTabControl>
             <GridSplitter x:Name="splitter" Grid.Row="1" Width="Auto" HorizontalAlignment="Stretch" ResizeDirection="Rows" Background="{DynamicResource AccentColorBrush}"
-                       ShowsPreview="False" />
-            <Controls:MetroAnimatedSingleRowTabControl  Width="Auto" MinHeight="250" Grid.Row="2"
+                       ShowsPreview="False" PreviewMouseMove="splitter_PreviewMouseMove" />
+            <Controls:MetroAnimatedSingleRowTabControl x:Name="triggerListControl"  Width="Auto" MinHeight="250" Grid.Row="2"
                                           Controls:TabControlHelper.IsUnderlined="True"
                                           Controls:TabControlHelper.Underlined="SelectedTabItem"
                                           Controls:TabControlHelper.UnderlineSelectedBrush="{DynamicResource AccentColorBrush}"

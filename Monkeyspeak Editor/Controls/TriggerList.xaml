@@ -17,7 +17,6 @@
         </Grid.RowDefinitions>
         <TextBox x:Name="searchBox" Grid.Row="0" AcceptsReturn="False" Width="300" MaxWidth ="300" HorizontalAlignment="Left" Controls:TextBoxHelper.Watermark="Type here to search" Controls:TextBoxHelper.AutoWatermark="True" />
         <ListView x:Name="trigger_view" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-              Grid.IsSharedSizeScope="True"
               MouseDoubleClick="Content_MouseDoubleClick">
             <ListView.ItemsPanel>
                 <ItemsPanelTemplate>
