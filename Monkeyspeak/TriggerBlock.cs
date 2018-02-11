@@ -31,6 +31,16 @@ namespace Monkeyspeak
         {
         }
 
+        public new Trigger this[int index]
+        {
+            get
+            {
+                if (index >= 0 && index <= Count - 1)
+                    return base[index];
+                return Trigger.Undefined;
+            }
+        }
+
         /// <summary>
         /// Operates like IndexOf for Triggers
         /// </summary>
@@ -40,7 +50,7 @@ namespace Monkeyspeak
         /// <returns>Index of trigger or -1 if not found</returns>
         public int IndexOfTrigger(TriggerCategory cat, int id = -1, int startIndex = 0)
         {
-            if (startIndex <= Count - 1)
+            if (startIndex >= 0 && startIndex <= Count - 1)
                 for (int i = startIndex; i <= Count - 1; i++)
                 {
                     Trigger trigger = base[i];
@@ -53,11 +63,11 @@ namespace Monkeyspeak
             return -1;
         }
 
-        public int LastIndexOfTrigger(TriggerCategory cat, int id = -1, int index = 0)
+        public int LastIndexOfTrigger(TriggerCategory cat, int id = -1, int startIndex = 0)
         {
             int lastIndex = -1;
-            if (index <= Count - 1)
-                for (int i = index; i <= Count - 1; i++)
+            if (startIndex >= 0 && startIndex <= Count - 1)
+                for (int i = startIndex; i <= Count - 1; i++)
                 {
                     Trigger trigger = base[i];
                     if (trigger.Category == cat)
@@ -78,7 +88,7 @@ namespace Monkeyspeak
         /// <returns><c>true</c> if the block contains the trigger; otherwise, <c>false</c>.</returns>
         public bool ContainsTrigger(TriggerCategory cat, int id = -1, int startIndex = 0)
         {
-            if (startIndex <= Count - 1)
+            if (startIndex >= 0 && startIndex <= Count - 1)
                 for (int i = startIndex; i <= Count - 1; i++)
                 {
                     Trigger trigger = base[i];
@@ -99,8 +109,7 @@ namespace Monkeyspeak
         /// <returns></returns>
         public TriggerBlock GetSubBlock(int index, int count = -1)
         {
-            if (index < 0) return null;
-            if (count > Count) count = Count;
+            if (index <= 0 || index >= Count) return null;
             return new TriggerBlock(GetRange(index, count < 0 ? Count - index : count - index));
         }
 

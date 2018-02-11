@@ -176,6 +176,15 @@ namespace Monkeyspeak
             }
         }
 
+        internal void OnError(TriggerHandler triggerHandler, Trigger current, Exception e)
+        {
+            try
+            {
+                Error?.Invoke(this, triggerHandler, current, e);
+            }
+            catch (Exception ex) { ex.Log(Level.Error); }
+        }
+
         private void TrimToLimit(int limit)
         {
             lock (syncObj)
@@ -800,131 +809,6 @@ namespace Monkeyspeak
 
         public bool CanExecute { get; set; }
 
-        // Changed id to array for multiple Trigger processing. This Compensates for a Design Flaw
-        // Lothus Marque spotted - Gerolkae
-
-        /*
-         * [1/7/2013 9:26:22 PM] Lothus Marque: Okay. Said feeling doesn't explain why 48 is
-         * happening before 46, since your execute does them in increasing order. But what I
-         * was suddenly staring at is that this has the definite potential to "run all 46,
-         * then run 47, then run 48" ... and they're not all at once, in sequence.
-         */
-
-        internal void ExecuteTrigger(TriggerBlock triggerBlock, ref int index, TriggerReader reader)
-        {
-            var current = triggerBlock[index];
-            handlers.TryGetValue(current, out TriggerHandler handler);
-
-            if (handler == null)
-            {
-                throw new TriggerHanderNotFoundException($"No handler found for {current}");
-            }
-
-            reader.Trigger = current;
-            reader.CurrentBlockIndex = index;
-            try
-            {
-                bool canContinue = handler != null ? handler(reader) : false;
-                if (TriggerHandled != null && !TriggerHandled(current)) return;
-                Logger.Debug<Page>($"{GetTriggerDescription(current, true)} returned {canContinue}");
-
-                if (!canContinue)
-                {
-                    bool found = false;
-                    switch (current.Category)
-                    {
-                        case TriggerCategory.Cause:
-                            // skip ahead for another cause to meet
-                            index = triggerBlock.IndexOfTrigger(TriggerCategory.Cause, startIndex: index + 1);
-                            found = index != -1;
-                            break;
-
-                        case TriggerCategory.Condition:
-                            // skip ahead for another condition to meet
-                            index = triggerBlock.IndexOfTrigger(TriggerCategory.Condition, startIndex: index + 1);
-                            found = index != -1;
-                            break;
-
-                        case TriggerCategory.Flow:
-                            // skip ahead for another flow trigger to meet
-                            index = triggerBlock.IndexOfTrigger(TriggerCategory.Flow, startIndex: index + 1);
-                            found = index != -1;
-                            break;
-                    }
-                    if (!found)
-                    {
-                        index = triggerBlock.Count;
-                    }
-                }
-                else
-                {
-                    switch (current.Category)
-                    {
-                        case TriggerCategory.Cause:
-                            // skip any more causes since the initial failed
-                            Trigger possibleCause = Trigger.Undefined;
-                            for (int i = index + 1; i <= triggerBlock.Count - 1; i++)
-                            {
-                                possibleCause = triggerBlock[i];
-                                if (possibleCause.Category == TriggerCategory.Cause)
-                                {
-                                    index = i; // set the current index of the outer loop
-                                    break;
-                                }
-                            }
-                            if (possibleCause.Category == TriggerCategory.Undefined) return;
-                            break;
-
-                        case TriggerCategory.Flow:
-                            var indexOfOtherFlow = triggerBlock.IndexOfTrigger(TriggerCategory.Flow, startIndex: index + 1);
-                            var subBlock = triggerBlock.GetSubBlock(index + 1, indexOfOtherFlow);
-                            var subReader = new TriggerReader(this, subBlock) { Parameters = reader.Parameters };
-                            int j = index;
-                            for (int i = 0; i <= subBlock.Count - 1; i++)
-                            {
-                                ExecuteTrigger(subBlock, ref i, subReader);
-                                j += i;
-                                if (i == -1)
-                                    break;
-                            }
-                            if (j == -1)
-                                index = j + 1;
-                            else index -= 1;
-                            break;
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                index = triggerBlock.Count;
-                if (Error != null)
-                    Error(this, handlers[current], current, e);
-                else throw;
-            }
-        }
-
-        /// <summary>
-        /// Executes the <seealso cref="TriggerBlock"/>.
-        /// </summary>
-        /// <param name="triggerBlock">The trigger block.</param>
-        /// <param name="triggerIndex">Index of the trigger.</param>
-        /// <param name="args">        The arguments.</param>
-        public void ExecuteBlock(TriggerBlock triggerBlock, int triggerIndex, params object[] args)
-        {
-            var reader = new TriggerReader(this, triggerBlock)
-            {
-                Parameters = args ?? new object[0]
-            };
-
-            int j = 0;
-            for (j = triggerIndex; j <= triggerBlock.Count - 1; j++)
-            {
-                ExecuteTrigger(triggerBlock, ref j, reader);
-                // if j is -1 is used for flow triggers to break out of them, I know, a hack but it works
-                if (j < 0) break;
-            }
-        }
-
         /// <summary>
         /// Executes a trigger block containing TriggerCategory.Cause with ID equal to <paramref name="id"/>
         /// </summary>
@@ -942,7 +826,7 @@ namespace Monkeyspeak
                     {
                         if ((index = triggerBlocks[j].IndexOfTrigger(TriggerCategory.Cause, id)) != -1)
                         {
-                            ExecuteBlock(triggerBlocks[j], index, args);
+                            new ExecutionContext(this, triggerBlocks[j], args).Run(index);
                             executed++;
                         }
                     }
@@ -976,7 +860,7 @@ namespace Monkeyspeak
                         {
                             if ((index = triggerBlocks[j].IndexOfTrigger(cat, id)) != -1)
                             {
-                                ExecuteBlock(triggerBlocks[j], index, args);
+                                new ExecutionContext(this, triggerBlocks[j], args).Run(index);
                                 executed++;
                             }
                         }

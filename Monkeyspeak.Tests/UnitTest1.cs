@@ -131,7 +131,7 @@ namespace MonkeyspeakTests
         (1:102) and variable %answer equals 21,
             (5:450) exit the current loop.
     (6:454) after the loop is done,
-        (5:102) print {We may never know the answer...} to the console.
+        (5:102) print {We may never know the answer...but the answer right now is %answer} to the console.
 
 (0:0) when the script is started,
     (5:250) create a table as %mytable
@@ -265,12 +265,18 @@ namespace MonkeyspeakTests
         (5:101) set %num to 3.
 
 (0:0) when the script is started,
-    (1:104) and variable %hello equals {this will be false move on to next condition}
+        (5:101) set %num to 3.
+    (1:102) and variable %num equals 3
+        (5:102) print {equals 3} to the console.
+    (1:102) and variable %num equals 2
+        (5:102) print {wtf} to the console.
+
+(0:0) when the script is started,
+    (1:104) and variable %hello equals {Hello World}
     (1:104) and variable %hello equals {Hello World}
         (5:102) print {Will show} to the console.
 
 (0:0) when the script is started,
-    (5:100) set %hello to {Hello World}.
     (1:104) and variable %hello equals {Hello World}
     (1:104) and variable %hello equals {this will be false move on to next condition}
         (5:102) print {Will not show even though the first was true} to the console.
