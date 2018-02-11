@@ -12,9 +12,19 @@ namespace Monkeyspeak.Utils
     {
         private static List<Assembly> all;
 
-        public static Type[] GetAllTypesWithAttributeInMembers<T>(Assembly assembly) where T : Attribute
+        public static Type[] GetAllTypesWithAttributeInMembers<T>(Assembly asm) where T : Attribute
         {
-            return assembly.GetTypes().Where(type => type.GetMembers().Any(member => member.GetCustomAttribute<T>() != null)).ToArray();
+            return asm.Modules.SelectMany(mod =>
+            {
+                try
+                {
+                    return mod.GetTypes();
+                }
+                catch (ReflectionTypeLoadException e)
+                {
+                    return e.Types.Where(t => t != null);
+                }
+            }).Where(type => type.GetMembers().Any(member => member.GetCustomAttribute<T>() != null)).ToArray();
         }
 
         public static IEnumerable<T> GetAllAttributesFromMethod<T>(MethodInfo methodInfo) where T : Attribute
@@ -63,7 +73,17 @@ namespace Monkeyspeak.Utils
         {
             var desiredType = typeof(T);
             var types = new List<Type>();
-            foreach (var type in GetAllTypesInAssembly(asm).Where(t => GetAllBaseTypes(t).Contains(desiredType)))
+            foreach (var type in asm.Modules.SelectMany(mod =>
+                {
+                    try
+                    {
+                        return mod.GetTypes();
+                    }
+                    catch (ReflectionTypeLoadException e)
+                    {
+                        return e.Types.Where(t => t != null);
+                    }
+                }).Where(t => GetAllBaseTypes(t).Contains(desiredType)))
             {
                 yield return type;
             }
@@ -84,7 +104,17 @@ namespace Monkeyspeak.Utils
             var desiredType = typeof(T);
             if (desiredType.IsInterface)
             {
-                foreach (var type in GetAllTypesInAssembly(asm)
+                foreach (var type in asm.Modules.SelectMany(mod =>
+                    {
+                        try
+                        {
+                            return mod.GetTypes();
+                        }
+                        catch (ReflectionTypeLoadException e)
+                        {
+                            return e.Types.Where(t => t != null);
+                        }
+                    })
                     .Where(t => t.GetInterfaces().Contains(desiredType))) yield return type;
             }
         }
@@ -99,13 +129,13 @@ namespace Monkeyspeak.Utils
             Type[] types;
             try
             {
-                types = asm.GetTypes();
+                types = asm.Modules.SelectMany(mod => mod.GetTypes()).ToArray();
             }
             catch (ReflectionTypeLoadException e)
             {
-                return e.Types.Where(t => t != null);
+                types = e.Types.Where(t => t != null).ToArray();
             }
-            return types;
+            foreach (var type in types) yield return type;
         }
 
         /// <summary>
@@ -127,7 +157,8 @@ namespace Monkeyspeak.Utils
 
             foreach (var asm in AppDomain.CurrentDomain.GetAssemblies())
             {
-                // avoid all the Microsoft and System assemblies.  All assesmblies it is looking for should be in the local path
+                // avoid all the Microsoft and System assemblies. All assesmblies it is looking for
+                // should be in the local path
                 if (asm.GlobalAssemblyCache) continue;
 
                 all.AddIfUnique(asm);
@@ -140,7 +171,7 @@ namespace Monkeyspeak.Utils
         /// </summary>
         /// <param name="type">The type.</param>
         /// <returns>
-        ///   <c>true</c> if [the specified type] has a no-arg constructor; otherwise, <c>false</c>.
+        /// <c>true</c> if [the specified type] has a no-arg constructor; otherwise, <c>false</c>.
         /// </returns>
         public static bool HasNoArgConstructor(Type type)
         {
@@ -151,7 +182,7 @@ namespace Monkeyspeak.Utils
         /// Tries the load assembly from file.
         /// </summary>
         /// <param name="assemblyFile">The assembly file.</param>
-        /// <param name="asm">The asm.</param>
+        /// <param name="asm">         The asm.</param>
         /// <returns></returns>
         public static bool TryLoadAssemblyFromFile(string assemblyFilePath, out Assembly asm)
         {
@@ -175,7 +206,7 @@ namespace Monkeyspeak.Utils
         /// Tries the load assembly.
         /// </summary>
         /// <param name="assemblyName">The assembly string.</param>
-        /// <param name="asm">The asm.</param>
+        /// <param name="asm">         The asm.</param>
         /// <returns></returns>
         public static bool TryLoadAssemblyFromName(AssemblyName assemblyName, out Assembly asm)
         {
@@ -200,7 +231,7 @@ namespace Monkeyspeak.Utils
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="type">The type.</param>
-        /// <param name="obj">The object.</param>
+        /// <param name="obj"> The object.</param>
         /// <param name="args">The arguments.</param>
         /// <returns></returns>
         public static bool TryCreate<T>(Type type, out T obj, params object[] args)
@@ -227,7 +258,7 @@ namespace Monkeyspeak.Utils
         /// Tries to create the specfied type.
         /// </summary>
         /// <typeparam name="T"></typeparam>
-        /// <param name="obj">The object.</param>
+        /// <param name="obj"> The object.</param>
         /// <param name="args">The arguments.</param>
         /// <returns><c>true</c> if type was created; otherwise <c>false</c></returns>
         public static bool TryCreate<T>(out T obj, params object[] args)
