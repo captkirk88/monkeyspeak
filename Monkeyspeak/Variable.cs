@@ -548,5 +548,45 @@ namespace Monkeyspeak
             foreach (var kv in dict) table.Add(kv);
             return table;
         }
+
+        /// <summary>
+        /// Index of key.
+        /// </summary>
+        /// <param name="searchKey">The search key.</param>
+        /// <returns></returns>
+        public int IndexOfKey(string searchKey)
+        {
+            int index = 0;
+            foreach (var key in values.Keys)
+            {
+                if (key.Equals(searchKey, StringComparison.InvariantCulture))
+                {
+                    return index;
+                }
+                index++;
+            }
+            return -1;
+        }
+
+        /// <summary>
+        /// Index of value.
+        /// </summary>
+        /// <param name="searchValue">The search value.</param>
+        /// <returns></returns>
+        public int IndexOfValue(object searchValue)
+        {
+            if (!CheckType(searchValue)) return -1;
+
+            int index = 0;
+            foreach (var value in values.Values)
+            {
+                if (value.Equals(searchValue))
+                {
+                    return index;
+                }
+                index++;
+            }
+            return -1;
+        }
     }
 }

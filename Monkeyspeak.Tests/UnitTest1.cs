@@ -126,6 +126,9 @@ namespace MonkeyspeakTests
     (6:454) after the loop is done,
         (5:150) take variable %myTable[123] and add 1 to it.
         (5:102) print {%myTable[123]} to the console.
+        (5:254) with table %myTable create a copy between keys {1} and {3} and put it into table %copy
+    (6:250) for each entry in table %copy put it into %entry,
+        (5:102) print {Copy: %entry} to the console.
 
 (0:0) when the script is started,
     (5:101) set %answer to 0

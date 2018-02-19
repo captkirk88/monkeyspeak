@@ -23,11 +23,20 @@ namespace Monkeyspeak.Libraries
             Add(TriggerCategory.Flow, WhileVarIsValue,
                 "while variable % is #,");
 
+            Add(TriggerCategory.Flow, WhileVarIsGreaterThanValue,
+                "while variable % is greater than #,");
+
+            Add(TriggerCategory.Flow, WhileVarIsLessThanValue,
+                "while variable % is less than #,");
+
             Add(TriggerCategory.Flow, WhileVarIsNotString,
                 "while variable % is not {...},");
 
             Add(TriggerCategory.Flow, WhileVarIsString,
                 "while variable % is {...},");
+
+            Add(TriggerCategory.Flow, RepeatNumTimes,
+                "repeat # times,");
 
             Add(TriggerCategory.Flow, AfterLoopIsDone,
                 "after the loop is done,");
@@ -36,20 +45,89 @@ namespace Monkeyspeak.Libraries
                 "exit the current loop.");
         }
 
+        private bool RepeatNumTimes(TriggerReader reader)
+        {
+            var num = reader.ReadNumber();
+
+            if (!reader.Page.HasVariable("___repeat_counter", out ConstantVariable repeatCounter))
+                repeatCounter = reader.Page.SetVariable(new ConstantVariable("___repeat_counter", 0d));
+            if (!reader.Page.HasVariable("___repeat_counter_max", out ConstantVariable repeatCounterMax))
+                repeatCounterMax = reader.Page.SetVariable(new ConstantVariable("___repeat_counter_max", num));
+            repeatCounter.SetValue(repeatCounter.Value.AsDouble() + 1);
+            bool canContinue = repeatCounter.Value.AsDouble() < repeatCounterMax.Value.AsDouble();
+            if (repeatCounter.Value.AsDouble() >= reader.Engine.Options.LoopLimit)
+            {
+                canContinue = false;
+            }
+
+            if (!canContinue)
+            {
+                reader.Page.RemoveVariable(repeatCounter);
+                reader.Page.RemoveVariable(repeatCounterMax);
+            }
+            return canContinue;
+        }
+
+        private bool WhileVarIsLessThanValue(TriggerReader reader)
+        {
+            var var = reader.ReadVariable();
+            var value = reader.ReadNumber();
+            var varVal = var.Value.AsDouble();
+            bool canContinue = varVal < value;
+
+            if (!reader.Page.HasVariable("___while_counter", out ConstantVariable whileCounter))
+                whileCounter = reader.Page.SetVariable(new ConstantVariable("___while_counter", 0d));
+            whileCounter.SetValue(whileCounter.Value.AsDouble() + 1);
+            if (whileCounter.Value.AsDouble() >= reader.Engine.Options.LoopLimit)
+            {
+                canContinue = false;
+            }
+
+            if (!canContinue)
+            {
+                reader.Page.RemoveVariable(whileCounter);
+            }
+            return canContinue;
+        }
+
+        private bool WhileVarIsGreaterThanValue(TriggerReader reader)
+        {
+            var var = reader.ReadVariable();
+            var value = reader.ReadNumber();
+            var varVal = var.Value.AsDouble();
+            bool canContinue = varVal > value;
+
+            if (!reader.Page.HasVariable("___while_counter", out ConstantVariable whileCounter))
+                whileCounter = reader.Page.SetVariable(new ConstantVariable("___while_counter", 0d));
+            whileCounter.SetValue(whileCounter.Value.AsDouble() + 1);
+            if (whileCounter.Value.AsDouble() >= reader.Engine.Options.LoopLimit)
+            {
+                canContinue = false;
+            }
+
+            if (!canContinue)
+            {
+                reader.Page.RemoveVariable(whileCounter);
+            }
+            return canContinue;
+        }
+
         [TriggerDescription("Executed when the loop completes or is exited")]
         private bool AfterLoopIsDone(TriggerReader reader)
         {
             bool canContinue = true;
-            reader.Page.RemoveVariable("___while_counter");
             if (!reader.Page.HasVariable("___after_loop", out ConstantVariable counter))
                 counter = reader.Page.SetVariable(new ConstantVariable("___after_loop", 0d));
             else counter.SetValue(counter.Value.AsDouble() + 1d);
             if (counter.Value.AsDouble() >= 1)
             {
                 canContinue = false;
-                reader.Page.RemoveVariable(counter);
+                foreach (var var in reader.Page.Scope)
+                {
+                    if (var.Name.StartsWith("___") && var.IsConstant)
+                        reader.Page.RemoveVariable(var);
+                }
             }
-            //canContinue &= !reader.CurrentBlock.ContainsTrigger(TriggerCategory.Flow, index: reader.CurrentBlock.IndexOfTrigger(TriggerCategory.Flow));
             return canContinue;
         }
 
@@ -57,7 +135,11 @@ namespace Monkeyspeak.Libraries
         private bool BreakCurrentFlow(TriggerReader reader)
         {
             reader.CurrentBlockIndex = -2;
-            reader.Page.RemoveVariable("___while_counter");
+            foreach (var var in reader.Page.Scope)
+            {
+                if (var.Name.StartsWith("___") && var.IsConstant)
+                    reader.Page.RemoveVariable(var);
+            }
             return true;
         }
 

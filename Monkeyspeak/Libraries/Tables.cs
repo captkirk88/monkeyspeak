@@ -35,20 +35,43 @@ namespace Monkeyspeak.Libraries
             Add(TriggerCategory.Condition, VariableIsNotTable,
                 "and variable % is not a table,");
 
-            Add(TriggerCategory.Condition, TableContains,
-                "and table % contains {...}");
-
-            Add(TriggerCategory.Condition, TableNotContains,
-                "and table % does not contain {...}");
-
             Add(TriggerCategory.Condition, TableContainsNumber,
                 "and table % contains #");
 
             Add(TriggerCategory.Condition, TableNotContainsNumber,
                 "and table % does not contain #");
 
+            Add(TriggerCategory.Condition, TableContains,
+                "and table % contains {...}");
+
+            Add(TriggerCategory.Condition, TableNotContains,
+                "and table % does not contain {...}");
+
             Add(TriggerCategory.Effect, MergeIntoVariable,
                 "with table % join the contents and put it into variable %");
+
+            Add(TriggerCategory.Effect, CopyTableIntoNewTable,
+                "with table % create a copy between keys {...} and {...} and put it into table %");
+        }
+
+        private bool CopyTableIntoNewTable(TriggerReader reader)
+        {
+            var table = reader.ReadVariableTable();
+            var firstKey = reader.ReadString();
+            var lastKey = reader.ReadString();
+            var newTable = reader.ReadVariableTable(true);
+            var indexOfFirst = table.IndexOfKey(firstKey);
+            var indexOfLast = table.IndexOfKey(lastKey);
+            if (indexOfFirst == -1 || indexOfLast == -1)
+            {
+                reader.Page.RemoveVariable(newTable);
+                return false;
+            }
+            for (int i = indexOfFirst; i <= indexOfLast; i++)
+            {
+                newTable.Add(table[i]);
+            }
+            return true;
         }
 
         [TriggerDescription("Merges the table contents into a string and puts the result into a variable")]
