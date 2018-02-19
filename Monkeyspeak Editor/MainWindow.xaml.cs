@@ -2,7 +2,6 @@
 using MahApps.Metro;
 using MahApps.Metro.Controls;
 using MahApps.Metro.Controls.Dialogs;
-using Monkeyspeak.Editor.Collaborate;
 using Monkeyspeak.Editor.Commands;
 using Monkeyspeak.Editor.Controls;
 using Monkeyspeak.Editor.Extensions;

@@ -22,7 +22,6 @@ using ICSharpCode.AvalonEdit.Search;
 using Monkeyspeak.Editor.Syntax;
 using Monkeyspeak.Editor.Utils;
 using Monkeyspeak.Editor.Commands;
-using Monkeyspeak.Editor.Collaborate;
 using ICSharpCode.AvalonEdit.Folding;
 
 namespace Monkeyspeak.Editor.Controls
