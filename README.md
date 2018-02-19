@@ -1,4 +1,7 @@
 # Monkeyspeak
+
+[![GitHub release](https://img.shields.io/github/release/captkirk88/monkeyspeak.svg)](https://gitHub.com/captkirk88/monkeyspeak/releases/)
+
 Linux/Mono | Windows
 ------------ | ---------
 [![Build Status](https://travis-ci.org/captkirk88/monkeyspeak.svg?branch=master)](https://travis-ci.org/captkirk88/monkeyspeak) | [![Build status](https://ci.appveyor.com/api/projects/status/eh3ang36lymr5ty8/branch/master?svg=true)](https://ci.appveyor.com/project/captkirk88/monkeyspeak/branch/master)
@@ -6,8 +9,6 @@ Linux/Mono | Windows
 [![Waffle.io](https://badge.waffle.io/captkirk88/monkeyspeak.svg?columns=inbox,In%20Progress&style=plastic)](https://waffle.io/captkirk88/monkeyspeak) 
 
 [![forthebadge](http://forthebadge.com/images/badges/60-percent-of-the-time-works-every-time.svg)](http://forthebadge.com)  [![forthebadge](http://forthebadge.com/images/badges/winter-is-coming.svg)](http://forthebadge.com)
-
-[![GitHub release](https://img.shields.io/github/release/captkirk88/monkeyspeak.svg)](https://gitHub.com/captkirk88/monkeyspeak/releases/)
 
 Monkeyspeak aims to give the end-user a very easy to use scripting language.  
 
