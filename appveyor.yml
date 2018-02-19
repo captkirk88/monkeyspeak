@@ -1,4 +1,4 @@
-version: 7.0.6624.8237
+version: 1.0.6624.8711
 branches:
   only:
   - master
@@ -28,9 +28,9 @@ assembly_info:
   assembly_file_version: '{version}'
   assembly_informational_version: '{version}'
 
-test:
-  assemblies:
-    - '**\*.Tests.dll'
+#test:
+  #assemblies:
+    #- '**\*.Tests.dll'
 
 before_build:
     - choco install winrar
