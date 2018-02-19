@@ -41,6 +41,7 @@ namespace Monkeyspeak.Editor
 
         public static Page LoadString(string code)
         {
+            if (string.IsNullOrWhiteSpace(code)) return CurrentPage;
             page = Engine.LoadFromString(code);
             return page;
         }
