@@ -9,9 +9,8 @@ using System.Threading.Tasks;
 namespace Monkeyspeak.Libraries
 {
     /// <summary>
-    ///
     /// </summary>
-    /// <seealso cref="Monkeyspeak.Libraries.BaseLibrary" />
+    /// <seealso cref="Monkeyspeak.Libraries.BaseLibrary"/>
     public sealed class Loops : AutoIncrementBaseLibrary
     {
         public override int BaseId => 450;
@@ -57,7 +56,7 @@ namespace Monkeyspeak.Libraries
         [TriggerDescription("Exits the current loop")]
         private bool BreakCurrentFlow(TriggerReader reader)
         {
-            reader.CurrentBlockIndex = -1;
+            reader.CurrentBlockIndex = -2;
             reader.Page.RemoveVariable("___while_counter");
             return true;
         }

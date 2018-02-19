@@ -99,7 +99,7 @@ namespace Monkeyspeak
                             break;
 
                         case TriggerCategory.Condition:
-                            if (next.Category != TriggerCategory.Condition)
+                            if (previous.Category == TriggerCategory.Condition || next.Category != TriggerCategory.Condition)
                                 index = triggerBlock.IndexOfTrigger(TriggerCategory.Condition, startIndex: index + 1);
                             break;
 
@@ -139,14 +139,17 @@ namespace Monkeyspeak
                             for (; k <= subBlock.Count - 1; k++)
                             {
                                 ExecuteTrigger(subBlock, ref k, subReader);
-                                if (k == -1)
+                                if (k == -2)
                                 {
                                     j -= 1;
                                     break;
                                 }
+                                else if (k == -1) break;
                                 j += k;
                             }
-                            if (k == -1)
+                            if (k == -2)
+                                index += subBlock.Count;
+                            else if (k == -1)
                                 index = j;
                             else index -= 1;
                             break;

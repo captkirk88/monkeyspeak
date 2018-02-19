@@ -134,6 +134,8 @@ namespace MonkeyspeakTests
         (5:150) take variable %answer and add 1 to it.
         (1:102) and variable %answer equals 21,
             (5:450) exit the current loop.
+        (1:103) and variable %answer does not equal 21,
+            (5:150) take variable %answer and add 1 to it.
     (6:454) after the loop is done,
         (5:102) print {We may never know the answer...but the answer right now is %answer} to the console.
 
