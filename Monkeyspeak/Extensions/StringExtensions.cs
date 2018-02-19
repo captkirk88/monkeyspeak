@@ -84,19 +84,19 @@ namespace Monkeyspeak.Extensions
         public static string LeftOf(this string str, string c)
         {
             int index = str.IndexOf(c);
-            return (index > 0 ? str.Substring(0, index + 1) : "");
+            return (index > 0 ? str.Slice(0, index) : "");
         }
 
         public static string RightMostLeftOf(this string str, char c)
         {
             int index = str.LastIndexOf(c);
-            return (index > 0 ? str.Substring(0, index + 1) : "");
+            return (index > 0 ? str.Slice(0, index) : "");
         }
 
         public static string RightMostLeftOf(this string str, string c)
         {
             int index = str.LastIndexOf(c);
-            return (index > 0 ? str.Substring(0, index + 1) : "");
+            return (index > 0 ? str.Slice(0, index) : "");
         }
 
         public static string RightOf(this string str, char c)

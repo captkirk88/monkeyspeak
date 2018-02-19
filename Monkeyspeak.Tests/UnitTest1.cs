@@ -243,8 +243,8 @@ namespace MonkeyspeakTests
 		(5:102) print {%index} to the log.
 		(5:403) with {%str} replace all occurances of {a} with {the} and put it into variable %replace.
 		(5:102) print {%replace} to the log.
-		(5:404) with {%str} get everything left of {a} and put it into variable %iam
-		(5:102) print {%iam} to the log.
+		(5:404) with {%str} get everything left of {string} and put it into variable %iama
+		(5:102) print {%iama} to the log.
 		(5:405) with {%str} get everything right most left of {a} and put it into variable %IamastringIam
 		(5:102) print {%IamastringIam} to the log.
 		(5:406) with {%str} get everything right of {,} and put it into variable %Iamastring
