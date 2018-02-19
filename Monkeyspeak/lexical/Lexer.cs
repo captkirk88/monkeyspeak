@@ -245,6 +245,20 @@ namespace Monkeyspeak
             return true;
         }
 
+        private bool IsNewLine(int c)
+        {
+            return (c == '\r' && LookAhead(1) == '\n') || // windows \r\n
+                (c == '\r' && LookAhead(1) != '\n') || // just carriage return
+                (c == '\n'); // Unix new line
+        }
+
+        private bool IsNewLine(char c)
+        {
+            return (c == '\r' && LookAhead(1) == '\n') || // windows \r\n
+                (c == '\r' && LookAhead(1) != '\n') || // just carriage return
+                (c == '\n'); // Unix new line
+        }
+
         private Token CreateToken(TokenType type)
         {
             var sourcePos = CurrentSourcePosition;
@@ -380,7 +394,7 @@ namespace Monkeyspeak
                 int c = reader.Read();
                 if (c != -1)
                 {
-                    if (c == '\n') //|| (before == '\r' && c == '\n'))
+                    if (IsNewLine(c))
                     {
                         lineNo++;
                         columnNo = 0;

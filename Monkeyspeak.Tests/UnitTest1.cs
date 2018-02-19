@@ -192,7 +192,15 @@ namespace MonkeyspeakTests
             var engine = new MonkeyspeakEngine();
             engine.Options.Debug = true;
 
-            Logger.Info(tableScript);
+            StringBuilder sb = new StringBuilder();
+            var lines = tableScript.Split('\r', '\n');
+            for (int i = 0; i <= lines.Length - 1; i++)
+            {
+                if (!string.IsNullOrWhiteSpace(lines[i]))
+                    sb.Append($"[{i + 1}]").AppendLine(lines[i]);
+            }
+            Logger.Info(sb.ToString());
+
             Page page = engine.LoadFromString(tableScript); // replace with tableScriptMini to see results of that script
 
             page.Error += DebugAllErrors;
