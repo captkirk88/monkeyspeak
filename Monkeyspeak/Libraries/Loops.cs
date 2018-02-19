@@ -54,7 +54,7 @@ namespace Monkeyspeak.Libraries
             if (!reader.Page.HasVariable("___repeat_counter_max", out ConstantVariable repeatCounterMax))
                 repeatCounterMax = reader.Page.SetVariable(new ConstantVariable("___repeat_counter_max", num));
             repeatCounter.SetValue(repeatCounter.Value.AsDouble() + 1);
-            bool canContinue = repeatCounter.Value.AsDouble() < repeatCounterMax.Value.AsDouble();
+            bool canContinue = repeatCounter.Value.AsDouble() <= repeatCounterMax.Value.AsDouble();
             if (repeatCounter.Value.AsDouble() >= reader.Engine.Options.LoopLimit)
             {
                 canContinue = false;
