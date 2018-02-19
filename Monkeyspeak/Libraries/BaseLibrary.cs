@@ -113,13 +113,13 @@ namespace Monkeyspeak.Libraries
         /// Builds a string representation of the descriptions of <paramref name="trigger"/>.
         /// </summary>
         /// <returns></returns>
-        public string ToString(Trigger trigger, bool excludeDescriptions = false)
+        public string ToString(Trigger trigger, bool excludeDescriptions = false, bool includeSourcePosition = false)
         {
             StringBuilder sb = new StringBuilder();
             sb.Append(trigger);
             descriptions.TryGetValue(trigger, out string value);
             sb.Append(' ').Append(!excludeDescriptions ? value ?? string.Empty : string.Empty);
-            sb.Append(' ').Append(trigger.SourcePosition);
+            if (includeSourcePosition) sb.Append(' ').Append(trigger.SourcePosition);
             return sb.ToString();
         }
 

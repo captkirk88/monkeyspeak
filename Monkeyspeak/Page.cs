@@ -107,9 +107,22 @@ namespace Monkeyspeak
         /// </summary>
         public event TriggerHandledEventHandler TriggerHandled;
 
+        /// <summary>
+        /// Gets the triggers.
+        /// </summary>
+        /// <value>The triggers.</value>
         public IReadOnlyCollection<Trigger> Triggers
         {
             get => new ReadOnlyCollection<Trigger>(triggerBlocks.SelectMany(block => block).ToArray());
+        }
+
+        /// <summary>
+        /// Gets the blocks.
+        /// </summary>
+        /// <value>The blocks.</value>
+        public IReadOnlyCollection<TriggerBlock> Blocks
+        {
+            get => new ReadOnlyCollection<TriggerBlock>(triggerBlocks);
         }
 
         /// <summary>
@@ -345,12 +358,12 @@ namespace Monkeyspeak
         /// </param>
         /// <param name="trigger">           todo: describe trigger parameter on GetTriggerDescription</param>
         /// <returns>string</returns>
-        public string GetTriggerDescription(Trigger trigger, bool excludeLibraryName = false)
+        public string GetTriggerDescription(Trigger trigger, bool excludeLibraryName = false, bool includeSourcePosition = false)
         {
             if (trigger == null || trigger == Trigger.Undefined) return string.Empty;
             lock (syncObj)
             {
-                return libraries.FirstOrDefault(lib => lib.Contains(trigger.Category, trigger.Id))?.ToString(trigger) ?? trigger.ToString();
+                return libraries.FirstOrDefault(lib => lib.Contains(trigger.Category, trigger.Id))?.ToString(trigger, includeSourcePosition: includeSourcePosition) ?? trigger.ToString();
             }
         }
 

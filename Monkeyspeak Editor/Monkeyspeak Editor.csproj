@@ -109,6 +109,7 @@
     <Compile Include="Extensions\ThemeExtensions.cs" />
     <Compile Include="HelperClasses\DictionaryPropertyGridAdapter.cs" />
     <Compile Include="HelperClasses\Settings.cs" />
+    <Compile Include="MSFoldingStrategy.cs" />
     <Compile Include="Notifications\ExceptionNotification.cs" />
     <Compile Include="Syntax\ITextMarker.cs" />
     <Compile Include="Syntax\SyntaxChecker.cs" />

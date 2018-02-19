@@ -81,7 +81,7 @@ namespace Monkeyspeak
                 if (previous.Category == TriggerCategory.Condition && current.Category == TriggerCategory.Condition)
                     canContinue = canContinue && (handler != null ? handler(reader) : false);
                 else canContinue = (handler != null ? handler(reader) : false);
-                if (Logger.DebugEnabled) Logger.Debug<Page>($"{page.GetTriggerDescription(current, true)} returned {canContinue} at trigger position {index}");
+                if (Logger.DebugEnabled) Logger.Debug<Page>($"{page.GetTriggerDescription(current, true, true)} returned {canContinue} at trigger position {index}");
 
                 if (reader.CurrentBlockIndex < 0)
                 {

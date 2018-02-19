@@ -23,6 +23,7 @@ using Monkeyspeak.Editor.Syntax;
 using Monkeyspeak.Editor.Utils;
 using Monkeyspeak.Editor.Commands;
 using Monkeyspeak.Editor.Collaborate;
+using ICSharpCode.AvalonEdit.Folding;
 
 namespace Monkeyspeak.Editor.Controls
 {
@@ -59,6 +60,8 @@ namespace Monkeyspeak.Editor.Controls
         private MonkeyspeakEngine engine;
         private readonly Page page;
 
+        private FoldingManager foldingManager;
+
         private FileSystemWatcher fileWatcher;
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -78,6 +81,7 @@ namespace Monkeyspeak.Editor.Controls
 
             //textEditor.SyntaxHighlighting = HighlightingManager.Instance.GetDefinitionByExtension(".ms");
             SearchPanel.Install(textEditor);
+            foldingManager = FoldingManager.Install(textEditor.TextArea);
             SyntaxChecker.Install(this);
 
             textEditor.TextArea.Caret.PositionChanged += (sender, e) =>
@@ -136,11 +140,13 @@ namespace Monkeyspeak.Editor.Controls
                 // if it was a trigger that was added
                 if (Trigger.TryParse(MonkeyspeakRunner.Engine, text, out var trigger)) TriggerCount++;
                 SyntaxChecker.Check(this, line, text);
+                foldingManager.UpdateFoldings(MSFoldingStrategy.Generate(textEditor.TextArea), 0);
             };
             LineRemoved += (text, line) =>
             {
                 // if it was a trigger that was removed
                 if (Trigger.TryParse(MonkeyspeakRunner.Engine, text, out var trigger)) TriggerCount--;
+                foldingManager.UpdateFoldings(MSFoldingStrategy.Generate(textEditor.TextArea), 0);
             };
 
             textEditor.Document.LineTrackers.Add(new LineAddedOrRemovedTracker(this));
