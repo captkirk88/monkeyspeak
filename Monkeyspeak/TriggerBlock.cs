@@ -41,6 +41,10 @@ namespace Monkeyspeak
             }
         }
 
+        public Trigger First => this[0];
+
+        public Trigger Last => this[Count - 1];
+
         /// <summary>
         /// Operates like IndexOf for Triggers
         /// </summary>

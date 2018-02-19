@@ -65,7 +65,7 @@ namespace Monkeyspeak.Editor.Syntax
                 triggerCompletionWindow = new CompletionWindow(textEditor.TextArea)
                 {
                     CloseAutomatically = false,
-                    CloseWhenCaretAtBeginning = true,
+                    CloseWhenCaretAtBeginning = false,
                     Background = ThemeHelper.ToThemeBackground()
                 };
                 Style windowStyle = new Style(typeof(CompletionWindow), Application.Current.MainWindow.Style);
@@ -90,17 +90,23 @@ namespace Monkeyspeak.Editor.Syntax
             triggerCompletionWindow.CompletionList.ListBox.Style = listBoxStyle;
 
             triggerCompletionWindow.SizeToContent = SizeToContent.Width;
-            if (data.Count > 0) triggerCompletionWindow.Show();
+            if (data.Count > 0)
+            {
+                triggerCompletionWindow.Show();
+            }
             triggerCompletionWindow.Closed += delegate
             {
                 triggerCompletionWindow = null;
+                editor.textEditor.Focus();
             };
         }
 
         /// <summary>
         /// Add this to the text editor's TextEntered event
         /// </summary>
-        /// <param name="e">The <see cref="TextCompositionEventArgs"/> instance containing the event data.</param>
+        /// <param name="e">
+        /// The <see cref="TextCompositionEventArgs"/> instance containing the event data.
+        /// </param>
         public static void TextEntered(TextCompositionEventArgs e)
         {
             if (!Enabled) return;
