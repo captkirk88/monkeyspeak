@@ -23,13 +23,15 @@ namespace Monkeyspeak.Editor
             MonkeyspeakRunner.LoadString(area.Document.Text);
             foreach (var block in MonkeyspeakRunner.CurrentPage.Blocks)
             {
+                if (block == null || block.Count == 0) continue;
                 var first = block.First;
                 var last = block.Last;
                 if (first != Trigger.Undefined && last != Trigger.Undefined)
                 {
-                    var firstOffset = area.Document.GetLineByNumber(first.SourcePosition.Line).Offset;
-                    var lastOffset = area.Document.GetLineByNumber(last.SourcePosition.Line).NextLine.Offset;
-                    yield return new NewFolding(firstOffset, lastOffset)
+                    var firstOffset = area.Document.GetLineByNumber(first.SourcePosition.Line)?.Offset;
+                    var lastOffset = area.Document.GetLineByNumber(last.SourcePosition.Line)?.NextLine?.Offset;
+                    if (firstOffset == null || lastOffset == null) continue;
+                    yield return new NewFolding(firstOffset.Value, lastOffset.Value)
                     {
                         IsDefinition = false
                     };
