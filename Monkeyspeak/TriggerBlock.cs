@@ -88,17 +88,7 @@ namespace Monkeyspeak
         /// <returns><c>true</c> if the block contains the trigger; otherwise, <c>false</c>.</returns>
         public bool ContainsTrigger(TriggerCategory cat, int id = -1, int startIndex = 0)
         {
-            if (startIndex >= 0 && startIndex <= Count - 1)
-                for (int i = startIndex; i <= Count - 1; i++)
-                {
-                    Trigger trigger = base[i];
-                    if (trigger.Category == cat)
-                    {
-                        if (id == -1 || trigger.Id == id)
-                            return true;
-                    }
-                }
-            return false;
+            return IndexOfTrigger(cat, id, startIndex) != -1;
         }
 
         /// <summary>

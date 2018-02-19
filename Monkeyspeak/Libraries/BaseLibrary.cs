@@ -26,9 +26,11 @@ namespace Monkeyspeak.Libraries
         }
 
         /// <summary>
-        /// Initializes this instance.  Add your trigger handlers here.
+        /// Initializes this instance. Add your trigger handlers here.
         /// </summary>
-        /// <param name="args">Parametized argument of objects to use to pass runtime objects to a library at initialization</param>
+        /// <param name="args">
+        /// Parametized argument of objects to use to pass runtime objects to a library at initialization
+        /// </param>
         public abstract void Initialize(params object[] args);
 
         /// <summary>
@@ -43,8 +45,8 @@ namespace Monkeyspeak.Libraries
         /// <summary>
         /// Registers a Trigger to the TriggerHandler with optional description
         /// </summary>
-        /// <param name="trigger"></param>
-        /// <param name="handler"></param>
+        /// <param name="trigger">    </param>
+        /// <param name="handler">    </param>
         /// <param name="description"></param>
         public virtual void Add(Trigger trigger, MethodInfo handler, string description = null)
         {
@@ -60,8 +62,8 @@ namespace Monkeyspeak.Libraries
         /// <summary>
         /// Registers a Trigger to the TriggerHandler with optional description
         /// </summary>
-        /// <param name="trigger"></param>
-        /// <param name="handler"></param>
+        /// <param name="trigger">    </param>
+        /// <param name="handler">    </param>
         /// <param name="description"></param>
         public virtual void Add(Trigger trigger, TriggerHandler handler, string description = null)
         {
@@ -76,9 +78,9 @@ namespace Monkeyspeak.Libraries
         /// <summary>
         /// Registers a Trigger to the TriggerHandler with optional description
         /// </summary>
-        /// <param name="cat"></param>
-        /// <param name="id"></param>
-        /// <param name="handler"></param>
+        /// <param name="cat">        </param>
+        /// <param name="id">         </param>
+        /// <param name="handler">    </param>
         /// <param name="description"></param>
         public virtual void Add(TriggerCategory cat, int id, TriggerHandler handler, string description = null)
         {
@@ -117,6 +119,7 @@ namespace Monkeyspeak.Libraries
             sb.Append(trigger);
             descriptions.TryGetValue(trigger, out string value);
             sb.Append(' ').Append(!excludeDescriptions ? value ?? string.Empty : string.Empty);
+            sb.Append(' ').Append(trigger.SourcePosition);
             return sb.ToString();
         }
 

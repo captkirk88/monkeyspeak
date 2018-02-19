@@ -21,9 +21,7 @@ namespace Monkeyspeak.Lexical
         /// <summary>
         /// Gets the line.
         /// </summary>
-        /// <value>
-        /// The line.
-        /// </value>
+        /// <value>The line.</value>
         public int Line
         {
             get { return line; }
@@ -32,20 +30,17 @@ namespace Monkeyspeak.Lexical
         /// <summary>
         /// Gets the column.
         /// </summary>
-        /// <value>
-        /// The column.
-        /// </value>
+        /// <value>The column.</value>
         public int Column
         {
             get { return col; }
         }
 
         /// <summary>
-        /// Gets the raw character position.  Useful for looking up the location from a string.Substring call.
+        /// Gets the raw character position. Useful for looking up the location from a
+        /// string.Substring call.
         /// </summary>
-        /// <value>
-        /// The character position.
-        /// </value>
+        /// <value>The character position.</value>
         public int RawPosition
         {
             get { return rawPos; }
@@ -59,6 +54,12 @@ namespace Monkeyspeak.Lexical
             }
             SourcePosition pos = (SourcePosition)obj;
             return line == pos.line && this.col == pos.col;
+        }
+
+        public string ToString(bool simple = false)
+        {
+            if (!simple) return this.ToString();
+            else return $"{line},{col}";
         }
 
         public override string ToString()

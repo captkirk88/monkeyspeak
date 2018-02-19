@@ -16,6 +16,7 @@ namespace Monkeyspeak
         private readonly ReadOnlyDictionary<Trigger, TriggerHandler> handlers;
         private Trigger previous, current, next;
         private bool canContinue;
+        private int step = 0;
 
         public ExecutionContext(Page page, TriggerBlock triggerBlock, params object[] args)
         {
@@ -29,10 +30,14 @@ namespace Monkeyspeak
             };
         }
 
+        public async Task RunAsync(int triggerIndex)
+        {
+            await Task.Run(() => Run(triggerIndex));
+        }
+
         public void Run(int triggerIndex)
         {
-            int j = 0;
-            for (j = triggerIndex; j <= triggerBlock.Count - 1; j++)
+            for (int j = triggerIndex; j <= triggerBlock.Count - 1; j++)
             {
                 ExecuteTrigger(triggerBlock, ref j, reader);
                 // if j is -1 is used for flow triggers to break out of them, I know, a hack but it works
@@ -40,10 +45,25 @@ namespace Monkeyspeak
             }
         }
 
-        internal void ExecuteTrigger(TriggerBlock triggerBlock, ref int index, TriggerReader reader)
+        public void RunOneStep(int triggerIndex)
         {
-            previous = current;
-            //Logger.Debug($"{previous} Index = {index}");
+            if (step == -1) return;
+            int j = triggerIndex + step;
+            ExecuteTrigger(triggerBlock, ref j, reader);
+            // if j is -1 is used for flow triggers to break out of them, I know, a hack but it works
+            if (j < 0)
+                step = -1;
+            else step++;
+        }
+
+        public async Task RunOneStepAsync(int triggerIndex)
+        {
+            await Task.Run(() => RunOneStep(triggerIndex));
+        }
+
+        private void ExecuteTrigger(TriggerBlock triggerBlock, ref int index, TriggerReader reader)
+        {
+            previous = triggerBlock[index - 1];
             current = triggerBlock[index];
             next = triggerBlock[index + 1]; // or undefined if none exists
             handlers.TryGetValue(current, out TriggerHandler handler);
@@ -58,10 +78,10 @@ namespace Monkeyspeak
 
             try
             {
-                if (previous.Category == TriggerCategory.Condition)
+                if (previous.Category == TriggerCategory.Condition && current.Category == TriggerCategory.Condition)
                     canContinue = canContinue && (handler != null ? handler(reader) : false);
                 else canContinue = (handler != null ? handler(reader) : false);
-                if (Logger.DebugEnabled) Logger.Debug<Page>($"{page.GetTriggerDescription(current, true)} returned {canContinue}");
+                if (Logger.DebugEnabled) Logger.Debug<Page>($"{page.GetTriggerDescription(current, true)} returned {canContinue} at trigger position {index}");
 
                 if (reader.CurrentBlockIndex == -1)
                 {
@@ -79,7 +99,7 @@ namespace Monkeyspeak
                             break;
 
                         case TriggerCategory.Condition:
-                            if (previous.Category != TriggerCategory.Condition && next.Category != TriggerCategory.Condition)
+                            if (next.Category != TriggerCategory.Condition)
                                 index = triggerBlock.IndexOfTrigger(TriggerCategory.Condition, startIndex: index + 1);
                             break;
 
