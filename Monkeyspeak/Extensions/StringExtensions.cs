@@ -78,7 +78,7 @@ namespace Monkeyspeak.Extensions
         public static string LeftOf(this string str, char c)
         {
             int index = str.IndexOf(c);
-            return (index > 0 ? str.Slice(0, index + 1) : "");
+            return (index > 0 ? str.Slice(0, index) : "");
         }
 
         public static string LeftOf(this string str, string c)

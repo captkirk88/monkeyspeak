@@ -83,7 +83,7 @@ namespace Monkeyspeak
                 else canContinue = (handler != null ? handler(reader) : false);
                 if (Logger.DebugEnabled) Logger.Debug<Page>($"{page.GetTriggerDescription(current, true)} returned {canContinue} at trigger position {index}");
 
-                if (reader.CurrentBlockIndex == -1)
+                if (reader.CurrentBlockIndex < 0)
                 {
                     index = reader.CurrentBlockIndex;
                     return;
@@ -140,7 +140,10 @@ namespace Monkeyspeak
                             {
                                 ExecuteTrigger(subBlock, ref k, subReader);
                                 if (k == -1)
+                                {
+                                    j -= 1;
                                     break;
+                                }
                                 j += k;
                             }
                             if (k == -1)
