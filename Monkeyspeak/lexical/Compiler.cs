@@ -1,5 +1,6 @@
 ﻿using Monkeyspeak.Lexical.Expressions;
 using Monkeyspeak.Logging;
+using Monkeyspeak.Utils;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -26,7 +27,7 @@ namespace Monkeyspeak.Lexical
             get { return version; }
         }
 
-        private Trigger[] ReadVersion7_0(BinaryReader reader)
+        private Trigger[] ReadVersion1(BinaryReader reader)
         {
             var sourcePos = new SourcePosition();
 
@@ -62,12 +63,10 @@ namespace Monkeyspeak.Lexical
                 switch (fileVersion.Major)
                 {
                     case 1:
-                        throw new MonkeyspeakException("Version 1 is a incompatible version.");
-
                     case 6:
                     case 7:
                     default:
-                        triggers = ReadVersion7_0(reader);
+                        triggers = ReadVersion1(reader);
                         break;
                 }
             }
@@ -95,7 +94,7 @@ namespace Monkeyspeak.Lexical
                     for (int k = 0; k <= count - 1; k++)
                     {
                         var content = trigger.contents[k];
-                        if (content.GetType().GetConstructor(Type.EmptyTypes) == null)
+                        if (!ReflectionHelper.HasNoArgConstructor(content.GetType()))
                             throw new MonkeyspeakException($"{content.GetType().Name} cannot be compiled, no parameter-less constructor");
                         var tokenType = Expressions.Expressions.GetTokenTypeFor(content.GetType());
                         if (tokenType == null)

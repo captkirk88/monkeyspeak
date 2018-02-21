@@ -118,10 +118,10 @@ namespace MonkeyspeakTests
             Stopwatch timer = Stopwatch.StartNew();
             Page page = engine.LoadFromString(sb.ToString());
             Logger.InfoEnabled = true;
-            Logger.Info($"Elapsed (loading): {timer.ElapsedMilliseconds}ms");
+            Logger.Info($"Elapsed (uncompiled loading): {timer.ElapsedMilliseconds}ms");
             page.LoadAllLibraries();
 
-            Logger.Info($"Triggers: {page.Size}");
+            Logger.Info($"Triggers (uncompiled): {page.Size}");
             Logger.InfoEnabled = false;
             timer.Restart();
 
@@ -132,6 +132,7 @@ namespace MonkeyspeakTests
             var compiled = engine.LoadCompiledStream(memory);
             timer.Stop();
             Logger.InfoEnabled = true;
+            Logger.Info($"Triggers (compiled): {compiled.Size}");
             Logger.Info($"Elapsed (compiled load): {timer.ElapsedMilliseconds}ms");
 
             compiled.LoadAllLibraries();

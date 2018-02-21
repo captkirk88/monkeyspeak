@@ -459,7 +459,8 @@ namespace Monkeyspeak.Editor.Controls
                     var page = MonkeyspeakRunner.LoadFile(CurrentFilePath);
                     foreach (var trigger in page.Triggers)
                     {
-                        AddLine(trigger.RebuildToString(page.Engine.Options), false);
+                        if (trigger != Trigger.Undefined)
+                            AddLine(trigger.RebuildToString(page.Engine.Options), false);
                     }
                     textEditor.SyntaxHighlighting = HighlightingManager.Instance.GetDefinitionByExtension(System.IO.Path.GetExtension(CurrentFilePath)) ??
                             HighlightingManager.Instance.GetDefinition("Monkeyspeak");

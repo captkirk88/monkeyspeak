@@ -12,6 +12,10 @@ namespace Monkeyspeak.Lexical.Expressions
 {
     internal class TriggerExpression : Expression<Trigger>
     {
+        public TriggerExpression()
+        {
+        }
+
         public TriggerExpression(SourcePosition pos, string value) : base(pos, ParseToTrigger(value, pos))
         {
         }

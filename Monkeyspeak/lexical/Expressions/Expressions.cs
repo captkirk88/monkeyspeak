@@ -31,7 +31,7 @@ namespace Monkeyspeak.Lexical.Expressions
 
         public static TokenType? GetTokenTypeFor(Type exprType)
         {
-            var tokenType = Instance.Where(kv => kv.Value == exprType).Select(kv => kv.Key).FirstOrDefault();
+            var tokenType = Instance.Where(kv => kv.Value.Equals(exprType)).Select(kv => kv.Key).FirstOrDefault();
             if (tokenType == default(TokenType))
                 return null;
             return tokenType;

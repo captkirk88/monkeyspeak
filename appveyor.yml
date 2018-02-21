@@ -1,4 +1,4 @@
-version: 1.0.6625.30903
+version: 1.0.6625.31757
 branches:
   only:
   - master
@@ -64,7 +64,7 @@ deploy:
     appveyor_repo_tag: false        # deploy on tag push only
     release: Build
     tag: "$(appveyor_build_version)"
-    description: "[$(appveyor_build_version)]\n$(APPVEYOR_REPO_COMMIT_MESSAGE)"
+    description: "[$(appveyor_build_version)]\n$(APPVEYOR_REPO_COMMIT_MESSAGE)\n$(APPVEYOR_REPO_COMMIT_MESSAGE_EXTENDED)"
     auth_token:
         secure: O1WNJUJxBOAXq0u7U/lAJZREJ4INf6cMp4wAtcxBG60kemmYLumTDyjArtZEtNRl # your encrypted token from GitHub
     on:

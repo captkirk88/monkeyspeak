@@ -5,12 +5,11 @@ using System.IO;
 namespace Monkeyspeak.Lexical.Expressions
 {
     /// <summary>
-    ///
     /// </summary>
-    /// <seealso cref="Monkeyspeak.Lexical.Expressions.IExpression" />
-    /// <seealso cref="System.IComparable{Monkeyspeak.Lexical.Expressions.Expression}" />
-    /// <seealso cref="System.IEquatable{Monkeyspeak.Lexical.Expressions.Expression}" />
-    public class Expression : IExpression, IComparable<Expression>, IEquatable<Expression>
+    /// <seealso cref="Monkeyspeak.Lexical.Expressions.IExpression"/>
+    /// <seealso cref="System.IComparable{Monkeyspeak.Lexical.Expressions.Expression}"/>
+    /// <seealso cref="System.IEquatable{Monkeyspeak.Lexical.Expressions.Expression}"/>
+    public class Expression : IExpression, IComparable<Expression>, IEquatable<Expression>, ICompilable
     {
         private readonly SourcePosition sourcePosition;
         private object value;
@@ -85,12 +84,11 @@ namespace Monkeyspeak.Lexical.Expressions
     }
 
     /// <summary>
-    ///
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    /// <seealso cref="Monkeyspeak.Lexical.Expressions.IExpression" />
-    /// <seealso cref="System.IComparable{Monkeyspeak.Lexical.Expressions.Expression}" />
-    /// <seealso cref="System.IEquatable{Monkeyspeak.Lexical.Expressions.Expression}" />
+    /// <seealso cref="Monkeyspeak.Lexical.Expressions.IExpression"/>
+    /// <seealso cref="System.IComparable{Monkeyspeak.Lexical.Expressions.Expression}"/>
+    /// <seealso cref="System.IEquatable{Monkeyspeak.Lexical.Expressions.Expression}"/>
     public class Expression<T> : Expression, IComparable<Expression>, IEquatable<Expression>, IEquatable<Expression<T>>
     {
         /// <summary>
