@@ -450,7 +450,7 @@ namespace Monkeyspeak.Editor
             var release = await Github.GetLatestRelease();
             // in case internet is not connected or other issue return to prevent a nagging dialog
             if (release == null || release.Prerelease || release.Draft) return;
-            var currentVersion = new Version(release.Body);
+            var currentVersion = new Version(release.Body.RightOf('[').LeftOf(']'));
             if (currentVersion > userVersion)
             {
                 foreach (var asset in release.Assets)

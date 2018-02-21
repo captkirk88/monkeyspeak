@@ -58,7 +58,7 @@ namespace Monkeyspeak.Lexical
 
         public string ToString(bool simple = false)
         {
-            if (!simple) return this.ToString();
+            if (!simple) return base.ToString();
             else return $"{line},{col}";
         }
 
