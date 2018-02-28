@@ -22,13 +22,12 @@ namespace Monkeyspeak.Editor
     /// </summary>
     public partial class App : Application, ISingleInstanceApp
     {
+        private static Exception lastException = null;
+
         private App()
         {
             InitializeComponent();
-            Logger.LogCallingMethod = false;
-            var localAppDataPath = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Monkeyspeak", "logs");
-            Logger.LogOutput = new MultiLogOutput(new FileLogOutput(localAppDataPath), new FileLogOutput(localAppDataPath, Level.Debug));
-            Exception lastException = null;
+
             DispatcherUnhandledException += (sender, e) =>
             {
                 e.Handled = true;
@@ -62,9 +61,26 @@ namespace Monkeyspeak.Editor
         [STAThread]
         public static void Main()
         {
+            Logger.LogCallingMethod = false;
+            var localAppDataPath = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Monkeyspeak", "logs");
+            Logger.LogOutput = new MultiLogOutput(new FileLogOutput(localAppDataPath), new FileLogOutput(localAppDataPath, Level.Debug));
+
+            AppDomain.CurrentDomain.UnhandledException += (sender, e) =>
+            {
+                if (e.ExceptionObject is Exception ex)
+                {
+                    ex.Log();
+                    if (ex.TargetSite == lastException?.TargetSite)
+                    {
+                        new ForceSaveAllCommand().Execute(null);
+                        Application.Current.Shutdown(404);
+                    }
+                    lastException = ex;
+                }
+            };
+
             if (SingleInstance<App>.InitializeAsFirstInstance("Monkeyspeak_Editor"))
             {
-                AppDomain.CurrentDomain.UnhandledException += (sender, e) => Logger.Error($"{sender.GetType().Name}: {e.ExceptionObject}");
                 var app = new App();
                 app.Run();
 
