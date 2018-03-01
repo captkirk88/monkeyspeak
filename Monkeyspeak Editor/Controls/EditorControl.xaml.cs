@@ -181,7 +181,7 @@ namespace Monkeyspeak.Editor.Controls
             textEditor.Options.CutCopyWholeLine = true;
             textEditor.Options.InheritWordWrapIndentation = false;
             textEditor.ShowLineNumbers = true;
-            textEditor.TextArea.IndentationStrategy = new MonkeyspeakIndentationStrategy();
+            //textEditor.TextArea.IndentationStrategy = new MonkeyspeakIndentationStrategy();
             textEditor.Options.ShowBoxForControlCharacters = true;
 
             Visibility = Visibility.Visible;

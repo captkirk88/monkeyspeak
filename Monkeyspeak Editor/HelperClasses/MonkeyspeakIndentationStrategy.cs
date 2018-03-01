@@ -19,6 +19,7 @@ namespace Monkeyspeak.Editor.HelperClasses
         public MonkeyspeakIndentationStrategy()
         {
             parser = new Parser(MonkeyspeakRunner.Engine);
+            page = MonkeyspeakRunner.CurrentPage;
         }
 
         public void IndentLine(TextDocument document, DocumentLine line)
