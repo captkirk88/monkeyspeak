@@ -21,14 +21,7 @@ namespace Monkeyspeak.Editor
         private static Page page = new Page(Engine);
 
         [Browsable(false)]
-        public static Page CurrentPage
-        {
-            get
-            {
-                if (page == null) page = new Page(Engine);
-                return page;
-            }
-        }
+        public static Page CurrentPage => page;
 
         public static Options Options => Engine.Options;
 
