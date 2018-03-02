@@ -393,7 +393,9 @@ namespace Monkeyspeak.Libraries
         }
 
         [TriggerDescription("Creates a timer with the specified id")]
-        [TriggerNumberParameter]
+        [TriggerNumberParameter("The timer id")]
+        [TriggerNumberParameter("The interval in seconds")]
+        [TriggerNumberParameter("[Optional] The delay before the timer runs")]
         private bool CreateTimer(TriggerReader reader)
         {
             if (timers.Count >= timersLimit)

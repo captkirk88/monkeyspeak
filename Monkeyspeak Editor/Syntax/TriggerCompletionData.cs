@@ -128,20 +128,25 @@ namespace Monkeyspeak.Editor.Syntax
                     {
                         var triggerDescriptions = ReflectionHelper.GetAllAttributesFromMethod<TriggerDescriptionAttribute>(handler.Method).ToArray();
                         sb.AppendLine(triggerDescriptions.FirstOrDefault()?.Description ?? string.Empty);
-                        int arg = 0;
-                        foreach (var desc in triggerDescriptions.Skip(1))
+                        var triggerParameters = ReflectionHelper.GetAllAttributesFromMethod<TriggerParameterAttribute>(handler.Method).ToArray();
+                        int arg = 1;
+                        foreach (var desc in triggerParameters)
                         {
                             if (desc != null)
-                                sb.AppendLine($"Param {arg++}: {desc.Description}");
+                                sb.AppendLine($"Parameter {arg++}: {desc.Description}");
                         }
                     }
                     else sb.AppendLine("No description found."); // should never happen
+#if DEBUG
                     sb.AppendLine($"Library: {lib.GetType().Name}");
+#endif
                 }
                 if (sb.Length > 0)
                 {
-                    descriptionViewer = new TextView();
-                    descriptionViewer.Document = new TextDocument(sb.ToString());
+                    descriptionViewer = new TextView
+                    {
+                        Document = new TextDocument(sb.ToString())
+                    };
                     if (highlightingDef != null)
                     {
                         HighlightingColorizer colorizer = new HighlightingColorizer(highlightingDef);
@@ -170,17 +175,20 @@ namespace Monkeyspeak.Editor.Syntax
                     {
                         var triggerDescriptions = ReflectionHelper.GetAllAttributesFromMethod<TriggerDescriptionAttribute>(handler.Method).ToArray();
                         sb.AppendLine(triggerDescriptions.FirstOrDefault()?.Description ?? string.Empty);
-                        int arg = 0;
-                        foreach (var desc in triggerDescriptions.Skip(1))
+                        var triggerParameters = ReflectionHelper.GetAllAttributesFromMethod<TriggerParameterAttribute>(handler.Method).ToArray();
+                        int arg = 1;
+                        foreach (var desc in triggerParameters)
                         {
                             if (desc != null)
-                                sb.AppendLine($"Param {arg++}: {desc.Description}");
+                                sb.AppendLine($"Parameter {arg++}: {desc.Description}");
                         }
                     }
-                    else sb.AppendLine("No description found."); // should never happen
+                    else sb.AppendLine("No handler found."); // should never happen
+#if DEBUG
                     sb.AppendLine($"Library: {lib.GetType().Name}");
+#endif
                 }
-                else sb.AppendLine("No description found.");
+                else sb.AppendLine("No handler found.");
 
                 if (sb.Length > 0)
                 {

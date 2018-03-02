@@ -18,14 +18,18 @@ namespace Monkeyspeak.Editor
             }
         };
 
-        private static Page page = new Page(Engine);
+        private static Page page = null;
 
         [Browsable(false)]
         public static Page CurrentPage
         {
             get
             {
-                if (page == null) page = new Page(Engine);
+                if (page == null)
+                {
+                    page = new Page(Engine);
+                    page.LoadAllLibraries();
+                }
                 return page;
             }
         }
@@ -37,12 +41,13 @@ namespace Monkeyspeak.Editor
 
         public static void WarmUp()
         {
-            page.LoadAllLibraries();
+            var page = CurrentPage;
         }
 
         public static Page LoadFile(string filePath)
         {
             page = Engine.LoadFromFile(filePath);
+            page.LoadAllLibraries();
             return page;
         }
 
@@ -50,6 +55,7 @@ namespace Monkeyspeak.Editor
         {
             if (string.IsNullOrWhiteSpace(code)) return CurrentPage;
             page = Engine.LoadFromString(code);
+            page.LoadAllLibraries();
             return page;
         }
 
@@ -66,6 +72,7 @@ namespace Monkeyspeak.Editor
                 if (page != null)
                 {
                     page.CompileToFile(Path.Combine(Path.GetDirectoryName(filePath), $"{Path.GetFileNameWithoutExtension(filePath)}.msx"));
+                    page.LoadAllLibraries();
                     return true;
                 }
             }

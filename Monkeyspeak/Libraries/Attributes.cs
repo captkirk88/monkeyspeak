@@ -9,10 +9,10 @@ namespace Monkeyspeak.Libraries
     /// <summary>
     /// Specifically made for the Monkeyspeak Editor.
     ///
-    /// Any description you provide will be used in the intellisense of the editor.
-    /// Add it to your TriggerHandler methods.
+    /// Any description you provide will be used in the intellisense of the editor. Add it to your
+    /// TriggerHandler methods.
     /// </summary>
-    /// <seealso cref="System.Attribute" />
+    /// <seealso cref="System.Attribute"/>
     [System.AttributeUsage(AttributeTargets.Method, Inherited = false, AllowMultiple = false)]
     public sealed class TriggerDescriptionAttribute : Attribute
     {
@@ -30,7 +30,7 @@ namespace Monkeyspeak.Libraries
     }
 
     [System.AttributeUsage(AttributeTargets.Method, Inherited = false, AllowMultiple = true)]
-    public class TriggerParameterAttribute : Attribute
+    public abstract class TriggerParameterAttribute : Attribute
     {
         private readonly string description;
 
@@ -46,9 +46,25 @@ namespace Monkeyspeak.Libraries
     }
 
     [System.AttributeUsage(AttributeTargets.Method, Inherited = false, AllowMultiple = true)]
+    public sealed class TriggerValuesParameterAttribute : TriggerParameterAttribute
+    {
+        public TriggerValuesParameterAttribute() : base("Multiple values allowed, such as string, number, variable.")
+        {
+        }
+
+        public TriggerValuesParameterAttribute(string desc) : base(desc)
+        {
+        }
+    }
+
+    [System.AttributeUsage(AttributeTargets.Method, Inherited = false, AllowMultiple = true)]
     public sealed class TriggerVariableParameterAttribute : TriggerParameterAttribute
     {
         public TriggerVariableParameterAttribute() : base("Variable or table")
+        {
+        }
+
+        public TriggerVariableParameterAttribute(string desc) : base(desc)
         {
         }
     }
@@ -59,12 +75,20 @@ namespace Monkeyspeak.Libraries
         public TriggerNumberParameterAttribute() : base("Number or variable with number in it")
         {
         }
+
+        public TriggerNumberParameterAttribute(string desc) : base(desc)
+        {
+        }
     }
 
     [System.AttributeUsage(AttributeTargets.Method, Inherited = false, AllowMultiple = true)]
     public sealed class TriggerStringParameterAttribute : TriggerParameterAttribute
     {
         public TriggerStringParameterAttribute() : base("String containing words, variables and/or numbers")
+        {
+        }
+
+        public TriggerStringParameterAttribute(string desc) : base(desc)
         {
         }
     }

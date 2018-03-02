@@ -81,7 +81,7 @@ namespace Monkeyspeak.Libraries
 
         [TriggerDescription("Calls the job")]
         [TriggerNumberParameter]
-        [TriggerParameter("Parameters to call the job with")]
+        [TriggerValuesParameter("Parameters to call the job with")]
         private bool CallJob(TriggerReader reader)
         {
             double jobNumber = 0;
@@ -132,7 +132,7 @@ namespace Monkeyspeak.Libraries
         }
 
         [TriggerDescription("Deletes the variable, this is not recoverable")]
-        [TriggerParameter("The variable")]
+        [TriggerVariableParameter("The variable")]
         private bool DeleteVariable(TriggerReader reader)
         {
             var var = reader.ReadVariable();

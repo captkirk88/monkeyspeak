@@ -185,8 +185,8 @@ namespace Monkeyspeak.Libraries
         }
 
         [TriggerDescription("Iterates through a table")]
-        [TriggerParameter("Variable to assign the table key on each iteration")]
-        [TriggerParameter("Variable to assign the table value on each iteration")]
+        [TriggerVariableParameter("Variable to assign the table key on each iteration")]
+        [TriggerVariableParameter("Variable to assign the table value on each iteration")]
         private bool ForKeyValueInTable(TriggerReader reader)
         {
             var table = reader.ReadVariableTable();
@@ -204,7 +204,7 @@ namespace Monkeyspeak.Libraries
         }
 
         [TriggerDescription("Iterates through a table")]
-        [TriggerParameter("Variable to assign the table entry on each iteration")]
+        [TriggerVariableParameter("Variable to assign the table entry on each iteration")]
         private bool ForEntryInTable(TriggerReader reader)
         {
             var table = reader.ReadVariableTable();

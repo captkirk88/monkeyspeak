@@ -1,4 +1,5 @@
 ﻿using Monkeyspeak.Extensions;
+using Monkeyspeak.Libraries;
 using Monkeyspeak.Logging;
 using System;
 using System.Collections.Generic;
@@ -19,11 +20,12 @@ namespace Monkeyspeak.Utils
 
         public static IEnumerable<T> GetAllAttributesFromMethod<T>(MethodInfo methodInfo) where T : Attribute
         {
-            var attributes = methodInfo.GetCustomAttributes(true).OfType<T>().ToArray();
+            var attributes = methodInfo.GetCustomAttributes(false);
             if (attributes != null && attributes.Length > 0)
                 for (int k = 0; k <= attributes.Length - 1; k++)
                 {
-                    yield return attributes[k];
+                    if (attributes[k] is T attr)
+                        yield return attr;
                 }
         }
 
