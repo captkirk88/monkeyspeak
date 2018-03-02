@@ -128,13 +128,6 @@ namespace Monkeyspeak.Editor.Syntax
                     {
                         var triggerDescriptions = ReflectionHelper.GetAllAttributesFromMethod<TriggerDescriptionAttribute>(handler.Method).ToArray();
                         sb.AppendLine(triggerDescriptions.FirstOrDefault()?.Description ?? string.Empty);
-                        var triggerParameters = ReflectionHelper.GetAllAttributesFromMethod<TriggerParameterAttribute>(handler.Method).ToArray();
-                        int arg = 1;
-                        foreach (var desc in triggerParameters)
-                        {
-                            if (desc != null)
-                                sb.AppendLine($"Parameter {arg++}: {desc.Description}");
-                        }
                     }
                     else sb.AppendLine("No description found."); // should never happen
 #if DEBUG
