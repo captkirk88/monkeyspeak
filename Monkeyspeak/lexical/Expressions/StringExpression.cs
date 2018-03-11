@@ -20,7 +20,11 @@ namespace Monkeyspeak.Lexical.Expressions
         }
 
         public StringExpression(SourcePosition pos, string value)
-            : base(pos, value) { }
+            : base(pos, value)
+        {
+            specialPrefixes.Add('@');
+            specialPrefixes.Add('!');
+        }
 
         public override void Write(BinaryWriter writer)
         {
