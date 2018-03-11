@@ -411,6 +411,15 @@ namespace Monkeyspeak
                 c = (char)currentChar;
             }
 
+            Action<char> skipCommas = (char _c) =>
+            {
+                if (_c == ',')
+                {
+                    Next(); length++; c =
+                    (char)currentChar;
+                }
+            };
+
             while (char.IsDigit(c))
             {
                 if (!CheckEOF(currentChar)) return Token.None;
@@ -430,6 +439,8 @@ namespace Monkeyspeak
                     }
                     else CheckIsDigit(c);
                 }
+
+                skipCommas(c);
 
                 // decimal numbers
                 if (c == '.')

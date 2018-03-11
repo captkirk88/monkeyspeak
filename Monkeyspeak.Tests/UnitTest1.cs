@@ -284,10 +284,13 @@ namespace MonkeyspeakTests
         (5:100) set %hello to {Hello World}.
 
 (0:0) when the script is started,
-        (5:101) set %num to 0x333.
-    (1:102) and variable %num equals 0x333
-        (5:102) print {equals %num} to the console.
-    (1:102) and variable %num equals 2
+        (5:101) set %hex to 0x333.
+        (5:101) set %million to 1,000,000.
+    (1:102) and variable %million equals 1,000,000,
+        (5:102) print {$million = %million} to the console.
+    (1:102) and variable %hex equals 0x333
+        (5:102) print {hex = %hex} to the console.
+    (1:102) and variable %hex equals 2
         (5:102) print {wtf} to the console.
         (5:102) print {1} to the console.
 

@@ -26,6 +26,7 @@ namespace Monkeyspeak.Lexical.Expressions
             {
                 double.TryParse(value, System.Globalization.NumberStyles.AllowDecimalPoint
                  | System.Globalization.NumberStyles.AllowLeadingSign
+                 | System.Globalization.NumberStyles.AllowThousands
                  | System.Globalization.NumberStyles.AllowExponent, null, out val);
             }
             return val;

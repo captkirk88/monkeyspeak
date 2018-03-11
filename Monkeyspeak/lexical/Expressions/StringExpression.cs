@@ -2,6 +2,7 @@
 using Monkeyspeak.Logging;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Text.RegularExpressions;
 
@@ -9,6 +10,8 @@ namespace Monkeyspeak.Lexical.Expressions
 {
     public sealed class StringExpression : Expression<string>
     {
+        private bool humanReadableNumbers = false;
+
         public StringExpression()
         {
         }
@@ -37,6 +40,11 @@ namespace Monkeyspeak.Lexical.Expressions
                     processVariables = false;
                     str = str.Substring(1);
                 }
+                else if (str[0] == '$')
+                {
+                    humanReadableNumbers = true;
+                    str = str.Substring(1);
+                }
 
                 if (processVariables)
                 {
@@ -63,7 +71,24 @@ namespace Monkeyspeak.Lexical.Expressions
                                 else
                                     value = var.Value;
                             }
-                            return value != null ? value.AsString() : "null";
+
+                            if (value != null)
+                            {
+                                string result = value.AsString();
+                                if (humanReadableNumbers && value is double)
+                                {
+                                    NumberFormatInfo nfo = new NumberFormatInfo
+                                    {
+                                        CurrencyGroupSeparator = ",",
+                                        // you are interested in this part of controlling the group sizes
+                                        CurrencyGroupSizes = new int[] { 3, 2 },
+                                        CurrencySymbol = ""
+                                    };
+                                    return String.Format(CultureInfo.CurrentCulture, "{0:n0}", value);
+                                }
+                                else return result;
+                            }
+                            return "null";
                         }), RegexOptions.CultureInvariant);
                     }
                 }
