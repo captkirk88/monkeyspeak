@@ -1,4 +1,4 @@
-version: 1.0.6644.14760
+version: 1.0.6644.16153
 branches:
   only:
   - master
@@ -33,7 +33,7 @@ test:
     - '**\*.Tests.dll'
 
 before_build:
-    - choco install winrar
+    - choco install 7zip
     - nuget restore Monkeyspeak.sln
 #    - ps: git config --global credential.helper store
 #    - ps: Add-Content "$($env:USERPROFILE)\.git-credentials" "https://$($env:GITHUB_AUTH):x-oauth-basic@github.com`n"
@@ -51,13 +51,15 @@ build:
 
 
 artifacts:
-  - path: '**\*.rar'
-    name: rars
+  - path: '**\*.tar'
+    name: tars
 
+before_deploy:
+    ps: "if (Get-Variable $env:APPVEYOR_REPO_COMMIT_MESSAGE_EXTENDED -Scope Global -ErrorAction SilentlyContinue){ }else{$env:APPVEYOR_REPO_COMMIT_MESSAGE_EXTENDED = ""}"
 # Deploy to GitHub Releases
 deploy:
   - provider: GitHub
-    artifact: rars           # upload all rars to release assets
+    artifact: tars           # upload all tars to release assets
     draft: false
     prerelease: false
     force_update: true
