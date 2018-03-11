@@ -11,9 +11,12 @@ namespace Monkeyspeak.Lexical.Expressions
     public sealed class StringExpression : Expression<string>
     {
         private bool humanReadableNumbers = true;
+        private List<char> specialPrefixes = new List<char>();
 
         public StringExpression()
         {
+            specialPrefixes.Add('@');
+            specialPrefixes.Add('!');
         }
 
         public StringExpression(SourcePosition pos, string value)
@@ -35,15 +38,18 @@ namespace Monkeyspeak.Lexical.Expressions
             {
                 var str = GetValue<string>();
 
-                if (str[0] == '@')
+                while (specialPrefixes.Contains(str[0]))
                 {
-                    processVariables = false;
-                    str = str.Substring(1);
-                }
-                else if (str[0] == '!')
-                {
-                    humanReadableNumbers = false;
-                    str = str.Substring(1);
+                    if (str[0] == '@')
+                    {
+                        processVariables = false;
+                        str = str.Substring(1);
+                    }
+                    else if (str[0] == '!')
+                    {
+                        humanReadableNumbers = false;
+                        str = str.Substring(1);
+                    }
                 }
 
                 if (processVariables)
