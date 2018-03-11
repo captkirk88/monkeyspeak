@@ -12,7 +12,7 @@ Linux/Mono | Windows
 
 Monkeyspeak aims to give the end-user a very easy to use scripting language.  
 
-### Progress v7.0
+### Progress v1.0
 
 ```
 '+' = Complete
@@ -27,13 +27,18 @@ Monkeyspeak aims to give the end-user a very easy to use scripting language.
 + Effects `(5:0) do something about it.
 + Flow `(6:0) while it still is happening,
 
++ [Strings]
++ Prefix support to remove certain formatting
++ '!' will remove processing variables resulting in returning the variable name
++ '@' will remove human readable format of numbers (i.e comma seperated numbers won't show commas)
+
 + [Variables] %myVariable or %myTable[myKey]
 + Double (with -+ and exponent support)
 + Strings (Unicode)
 + Tables (Dictionary objects with a configurable limit)
 + Constants (unmodifiable variables)
 
-- [Core Library]
++ [Core Library]
 + Sys (triggers that support core Monkeyspeak tasks like setting variables)
 + Math (very basic math operations + - / *)
 + StringOperations (very basic string operations)
