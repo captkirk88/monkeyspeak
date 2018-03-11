@@ -40,6 +40,10 @@ namespace Monkeyspeak.Editor.Syntax
 
         public static bool Enabled => Settings.SyntaxCheckingEnabled;
 
+        static SyntaxChecker()
+        {
+        }
+
         public static void Install(EditorControl editor)
         {
             var textEditor = editor.textEditor;
@@ -122,7 +126,6 @@ namespace Monkeyspeak.Editor.Syntax
                         }
                     }
                 }
-                editor.textEditor.Focus();
             });
         }
 

@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Threading;
+using Monkeyspeak.Editor.Controls;
 
 namespace Monkeyspeak.Editor.Commands
 {
@@ -14,8 +15,8 @@ namespace Monkeyspeak.Editor.Commands
     {
         public override async void Execute(object parameter)
         {
-            var editor = Editors.Instance.Add();
             var filePath = parameter as string;
+            EditorControl editor = Editors.Instance.Add();
             if (!string.IsNullOrEmpty(filePath) && File.Exists(filePath))
             {
                 editor.CurrentFilePath = filePath;

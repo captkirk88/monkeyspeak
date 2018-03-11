@@ -477,6 +477,7 @@ namespace Monkeyspeak.Editor.Controls
             }
             Plugins.PluginsManager.AllEnabled = true;
             foldingManager.UpdateFoldings(MSFoldingStrategy.Generate(textEditor.TextArea), 0);
+            SyntaxChecker.Check(this);
             return opened ?? false;
         }
 
@@ -575,6 +576,7 @@ namespace Monkeyspeak.Editor.Controls
             HasChanges = false;
             Plugins.PluginsManager.AllEnabled = true;
             foldingManager.UpdateFoldings(MSFoldingStrategy.Generate(textEditor.TextArea), 0);
+            SyntaxChecker.Check(this);
         }
 
         public async Task<bool> Close()
