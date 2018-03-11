@@ -10,7 +10,7 @@ namespace Monkeyspeak.Lexical.Expressions
 {
     public sealed class StringExpression : Expression<string>
     {
-        private bool humanReadableNumbers = false;
+        private bool humanReadableNumbers = true;
 
         public StringExpression()
         {
@@ -40,9 +40,9 @@ namespace Monkeyspeak.Lexical.Expressions
                     processVariables = false;
                     str = str.Substring(1);
                 }
-                else if (str[0] == '$')
+                else if (str[0] == '!')
                 {
-                    humanReadableNumbers = true;
+                    humanReadableNumbers = false;
                     str = str.Substring(1);
                 }
 

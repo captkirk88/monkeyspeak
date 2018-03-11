@@ -287,7 +287,7 @@ namespace MonkeyspeakTests
         (5:101) set %hex to 0x333.
         (5:101) set %million to 1,000,000.
     (1:102) and variable %million equals 1,000,000,
-        (5:102) print {$million = %million} to the console.
+        (5:102) print {million = %million} to the console.
     (1:102) and variable %hex equals 0x333
         (5:102) print {hex = %hex} to the console.
     (1:102) and variable %hex equals 2
