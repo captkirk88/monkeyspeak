@@ -55,7 +55,7 @@ artifacts:
     name: tars
 
 before_deploy:
-    ps: "if (Get-Variable $env:APPVEYOR_REPO_COMMIT_MESSAGE_EXTENDED -Scope Global -ErrorAction SilentlyContinue){ }else{$env:APPVEYOR_REPO_COMMIT_MESSAGE_EXTENDED = ""}"
+    ps: if (Get-Variable $env:APPVEYOR_REPO_COMMIT_MESSAGE_EXTENDED -Scope Global -ErrorAction SilentlyContinue){ }else{$env:APPVEYOR_REPO_COMMIT_MESSAGE_EXTENDED = ""}
 # Deploy to GitHub Releases
 deploy:
   - provider: GitHub
