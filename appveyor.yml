@@ -1,4 +1,4 @@
-version: 1.0.6644.16939
+version: 1.0.6644.17037
 branches:
   only:
   - master
@@ -55,7 +55,7 @@ artifacts:
     name: tars
 
 before_deploy:
-    ps: if (Get-Variable $env:APPVEYOR_REPO_COMMIT_MESSAGE_EXTENDED -ErrorAction SilentlyContinue){ }else{$env:APPVEYOR_REPO_COMMIT_MESSAGE_EXTENDED = " "}
+    ps: if ($env:APPVEYOR_REPO_COMMIT_MESSAGE_EXTENDED -eq $Null){ }else{ $env:APPVEYOR_REPO_COMMIT_MESSAGE_EXTENDED = " " }
 
 # Deploy to GitHub Releases
 deploy:
