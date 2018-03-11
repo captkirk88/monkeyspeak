@@ -60,9 +60,13 @@ namespace Monkeyspeak.Editor.Syntax
 
         private static void Editor_Unloaded(object sender, System.Windows.RoutedEventArgs e)
         {
-            ((EditorControl)sender).Unloaded -= Editor_Unloaded;
-            ClearAllMarkers((EditorControl)sender);
-            textMarkers.Remove((EditorControl)sender);
+            EditorControl editor = sender as EditorControl;
+            if (editor == null) return;
+            editor.Unloaded -= Editor_Unloaded;
+            ClearAllMarkers(editor);
+            textMarkers.Remove(editor);
+            var services = (IServiceContainer)editor.textEditor.Document.ServiceProvider.GetService(typeof(IServiceContainer));
+            services.RemoveService(typeof(ITextMarkerService));
         }
 
         public static IEnumerable<SyntaxError> GetErrors(EditorControl editor)

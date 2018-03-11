@@ -310,8 +310,13 @@ namespace Monkeyspeak.Editor
             });
             content.Children.Add(new TextBlock { IsHyphenationEnabled = true, Text = error.Exception.Message, FontWeight = FontWeights.Bold, FontStyle = FontStyles.Italic, Foreground = brush });
             item.Content = content;
+            Editors.Instance.SelectionChanged += editorCtrl =>
+            {
+                item.Visibility = editorCtrl == editor ? Visibility.Visible : Visibility.Collapsed;
+            };
+            item.Visibility = Editors.Instance.Selected == editor ? Visibility.Collapsed : Visibility.Visible;
             errors_list.Items.Add(item);
-            if (errors_flyout.IsOpen == false && error.Severity == SyntaxChecker.Severity.Error ||
+            if (Editors.Instance.Selected == editor && errors_flyout.IsOpen == false && error.Severity == SyntaxChecker.Severity.Error ||
                 (error.Severity == SyntaxChecker.Severity.Warning &&
                 Settings.AutoOpenOnWarning &&
                 Settings.ShowWarnings))
@@ -326,8 +331,6 @@ namespace Monkeyspeak.Editor
 
             Settings.Saving += Settings_Saving;
             Settings.Save();
-
-            Dispatcher.Invoke(async () => await Check());
         }
 
         private void MetroWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
@@ -447,7 +450,12 @@ namespace Monkeyspeak.Editor
         {
             var userVersion = Assembly.GetExecutingAssembly().GetName().Version;
             var web = new WebClient();
-            var release = await Github.GetLatestRelease();
+            Release release = null;
+            try
+            {
+                release = await Github.GetLatestRelease();
+            }
+            catch { }
             // in case internet is not connected or other issue return to prevent a nagging dialog
             if (release == null || release.Prerelease || release.Draft) return;
             var currentVersion = new Version(release.Body.RightOf('[').LeftOf(']'));
@@ -458,7 +466,8 @@ namespace Monkeyspeak.Editor
                     if (asset.Name.Contains("Editor") && asset.Name.Contains("Binaries"))
                     {
                         var result = DialogManager.ShowModalMessageExternal(System.Windows.Application.Current.MainWindow as MetroWindow,
-                                    "Update Found!", $"A update was found ({userVersion} -> {currentVersion}), would you like to download the latest version?", MessageDialogStyle.AffirmativeAndNegative,
+                                    "Update Found!", $"A update was found ({userVersion} -> {currentVersion}), would you like to download the latest version? (You will need to replace the contents of the rar download into this directory)",
+                                    MessageDialogStyle.AffirmativeAndNegative,
                                     new MetroDialogSettings { DefaultButtonFocus = MessageDialogResult.Affirmative, AffirmativeButtonText = "Yes!", NegativeButtonText = "No" });
 
                         if (result == MessageDialogResult.Affirmative)
