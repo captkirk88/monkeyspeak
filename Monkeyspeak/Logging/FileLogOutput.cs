@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Monkeyspeak.Logging
@@ -18,6 +19,7 @@ namespace Monkeyspeak.Logging
     {
         private readonly Level level;
         private readonly string filePath;
+        private EventWaitHandle waitHandle;
 
         public FileLogOutput(string rootFolder, Level level = Level.Error)
         {
@@ -28,6 +30,7 @@ namespace Monkeyspeak.Logging
             if (!Directory.Exists(Path.GetDirectoryName(filePath))) Directory.CreateDirectory(Path.GetDirectoryName(filePath));
             if (File.Exists(filePath)) File.WriteAllText(filePath, ""); // make sure it is a clean file
             this.level = level;
+            waitHandle = new EventWaitHandle(false, EventResetMode.ManualReset);
         }
 
         public override bool Equals(object obj)
@@ -58,10 +61,21 @@ namespace Monkeyspeak.Logging
         {
             if (logMsg.Level != level) return;
             logMsg = BuildMessage(ref logMsg);
-            using (FileStream stream = new FileStream(filePath, FileMode.Append, FileAccess.Write, FileShare.Write, 4096))
-            using (StreamWriter writer = new StreamWriter(stream))
+            using (var mutex = new Mutex(false, GetType().Name))
             {
-                writer.WriteLine(logMsg.message);
+                if (mutex.WaitOne())
+                    try
+                    {
+                        using (FileStream stream = new FileStream(filePath, FileMode.Append, FileAccess.Write, FileShare.Write, 4096))
+                        using (StreamWriter writer = new StreamWriter(stream))
+                        {
+                            writer.WriteLine(logMsg.message);
+                        }
+                    }
+                    finally
+                    {
+                        mutex.ReleaseMutex();
+                    }
             }
         }
 
