@@ -19,7 +19,6 @@ namespace Monkeyspeak.Logging
     {
         private readonly Level level;
         private readonly string filePath;
-        private EventWaitHandle waitHandle;
 
         public FileLogOutput(string rootFolder, Level level = Level.Error)
         {
@@ -30,7 +29,6 @@ namespace Monkeyspeak.Logging
             if (!Directory.Exists(Path.GetDirectoryName(filePath))) Directory.CreateDirectory(Path.GetDirectoryName(filePath));
             if (File.Exists(filePath)) File.WriteAllText(filePath, ""); // make sure it is a clean file
             this.level = level;
-            waitHandle = new EventWaitHandle(false, EventResetMode.ManualReset);
         }
 
         public override bool Equals(object obj)
