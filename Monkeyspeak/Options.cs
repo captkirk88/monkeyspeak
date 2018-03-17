@@ -1,5 +1,7 @@
 ﻿using Monkeyspeak.Logging;
 using System;
+using System.Collections.Generic;
+using System.IO;
 
 namespace Monkeyspeak
 {
@@ -20,6 +22,7 @@ namespace Monkeyspeak
             StringLengthLimit = 1000;
             VariableTableCountLimit = 1000;
             LoopLimit = 10000;
+
             Version = typeof(MonkeyspeakEngine).Assembly.GetName().Version;
         }
 
@@ -91,25 +94,19 @@ namespace Monkeyspeak
         /// <summary>
         /// Gets or sets the variable table count limit.
         /// </summary>
-        /// <value>
-        /// The variable table count limit.
-        /// </value>
+        /// <value>The variable table count limit.</value>
         public int VariableTableCountLimit { get => VariableTable.Limit; set => VariableTable.Limit = value; }
 
         /// <summary>
         /// Gets or sets the loop limit.
         /// </summary>
-        /// <value>
-        /// The loop limit.
-        /// </value>
+        /// <value>The loop limit.</value>
         public int LoopLimit { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether debug log output is enabled.
         /// </summary>
-        /// <value>
-        ///   <c>true</c> if debug; otherwise, <c>false</c>.
-        /// </value>
+        /// <value><c>true</c> if debug; otherwise, <c>false</c>.</value>
         public bool Debug
         {
             get => Logger.DebugEnabled;

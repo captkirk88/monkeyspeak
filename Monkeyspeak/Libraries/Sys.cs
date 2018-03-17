@@ -1,6 +1,7 @@
 ﻿using Monkeyspeak.Extensions;
 using Monkeyspeak.Logging;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -78,23 +79,6 @@ namespace Monkeyspeak.Libraries
 
             Add(TriggerCategory.Effect, 115, CallJob,
                 "call job # with (add strings, variables, numbers here) arguments.");
-
-            Add(TriggerCategory.Effect, 120, LoadScriptFile,
-                "load script file {...}.");
-        }
-
-        [TriggerDescription("Loads a script file into the running script, file path can be relative or absolute.")]
-        [TriggerStringParameter("The file to load")]
-        private bool LoadScriptFile(TriggerReader reader)
-        {
-            string filePath = reader.ReadString();
-            if (filePath.IsNullOrBlank()) return false;
-            string fullPath = Path.GetFullPath(filePath);
-            if (File.Exists(fullPath))
-            {
-                reader.Page.Engine.LoadFromFile(reader.Page, fullPath);
-            }
-            return true;
         }
 
         [TriggerDescription("Calls the job")]

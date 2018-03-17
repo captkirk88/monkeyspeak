@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using Monkeyspeak.Extensions;
 using Monkeyspeak.Logging;
 
 namespace Monkeyspeak.Libraries
@@ -10,15 +11,17 @@ namespace Monkeyspeak.Libraries
     /// Basic file operations
     /// </summary>
     /// <seealso cref="Monkeyspeak.Libraries.BaseLibrary"/>
-    public class IO : BaseLibrary
+    public class IO : AutoIncrementBaseLibrary
     {
         private List<string> tempFiles = new List<string>();
-        private string DefaultAuthorizedPath;
+        private string AuthorizedPath = System.Environment.GetFolderPath(System.Environment.SpecialFolder.Personal);
+
+        public override int BaseId => 200;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="IO"/> class.
         /// </summary>
-        public IO() : this(System.Environment.GetFolderPath(System.Environment.SpecialFolder.Personal))
+        public IO()
         {
             // satisfies the page.LoadAllLibraries reflection usage.
         }
@@ -29,7 +32,7 @@ namespace Monkeyspeak.Libraries
         /// <param name="authorizedPath">The authorized path.</param>
         public IO(string authorizedPath = null)
         {
-            if (!string.IsNullOrEmpty(authorizedPath)) DefaultAuthorizedPath = authorizedPath;
+            if (!authorizedPath.IsNullOrBlank()) AuthorizedPath = authorizedPath;
         }
 
         /// <summary>
@@ -41,39 +44,56 @@ namespace Monkeyspeak.Libraries
         public override void Initialize(params object[] args)
         {
             // (1:200) and the file {...} exists,
-            Add(TriggerCategory.Condition, 200, FileExists,
+            Add(TriggerCategory.Condition, FileExists,
                 "and the file {...} exists,");
 
             // (1:201) and the file {...} does not exist,
-            Add(TriggerCategory.Condition, 201, FileNotExists,
+            Add(TriggerCategory.Condition, FileNotExists,
                 "and the file {...} does not exist,");
 
             // (1:202) and the file {...} can be read from,
-            Add(TriggerCategory.Condition, 202, CanReadFile,
+            Add(TriggerCategory.Condition, CanReadFile,
                 "and the file {...} can be read from,");
 
             // (1:203) and the file {...} can be written to,
-            Add(TriggerCategory.Condition, 203, CanWriteFile,
+            Add(TriggerCategory.Condition, CanWriteFile,
                 "and the file {...} can be written to,");
 
             // (5:200) append {...} to file {...}.
-            Add(TriggerCategory.Effect, 200, AppendToFile,
+            Add(TriggerCategory.Effect, AppendToFile,
                 "append {...} to file {...}.");
 
             // (5:201) read from file {...} and put it into variable %.
-            Add(TriggerCategory.Effect, 201, ReadFileIntoVariable,
+            Add(TriggerCategory.Effect, ReadFileIntoVariable,
                 "read from file {...} and put it into variable %.");
 
             // (5:202) delete file {...}.
-            Add(TriggerCategory.Effect, 202, DeleteFile,
+            Add(TriggerCategory.Effect, DeleteFile,
                 "delete file {...}.");
 
             //(5:203) create file {...}.
-            Add(TriggerCategory.Effect, 203, CreateFile,
+            Add(TriggerCategory.Effect, CreateFile,
                 "create file {...}.");
 
-            Add(TriggerCategory.Effect, 204, CreateTempFile,
+            Add(TriggerCategory.Effect, CreateTempFile,
                 "create a temporary file and put the location into variable %");
+
+            Add(TriggerCategory.Effect, LoadScriptFile,
+                "load script file {...}.");
+        }
+
+        [TriggerDescription("Loads a script file into the running script, file path can be relative or absolute.")]
+        [TriggerStringParameter("The file to load")]
+        private bool LoadScriptFile(TriggerReader reader)
+        {
+            string filePath = reader.ReadString();
+            if (filePath.IsNullOrBlank()) return false;
+            string fullPath = Path.Combine(AuthorizedPath, Path.GetFullPath(filePath));
+            if (File.Exists(fullPath))
+            {
+                reader.Engine.LoadFromFile(reader.Page, fullPath);
+            }
+            return true;
         }
 
         [TriggerDescription("Creates a temporary file and puts the location into the specified variable")]
@@ -114,7 +134,7 @@ namespace Monkeyspeak.Libraries
             string data = reader.ReadString();
             string file = reader.ReadString();
 
-            using (var streamWriter = new StreamWriter(Path.Combine(DefaultAuthorizedPath, file), true))
+            using (var streamWriter = new StreamWriter(Path.Combine(AuthorizedPath, file), true))
             {
                 streamWriter.WriteLine(data);
             }
@@ -129,7 +149,7 @@ namespace Monkeyspeak.Libraries
             string file = reader.ReadString();
             try
             {
-                using (var stream = File.Open(Path.Combine(DefaultAuthorizedPath, file), FileMode.Open, FileAccess.Read))
+                using (var stream = File.Open(Path.Combine(AuthorizedPath, file), FileMode.Open, FileAccess.Read))
                 {
                     return true;
                 }
@@ -147,7 +167,7 @@ namespace Monkeyspeak.Libraries
             string file = reader.ReadString();
             try
             {
-                using (var stream = File.Open(Path.Combine(DefaultAuthorizedPath, file), FileMode.Open, FileAccess.Write))
+                using (var stream = File.Open(Path.Combine(AuthorizedPath, file), FileMode.Open, FileAccess.Write))
                 {
                     return true;
                 }
@@ -164,7 +184,7 @@ namespace Monkeyspeak.Libraries
         {
             if (!reader.PeekString()) return false;
             string file = reader.ReadString();
-            File.CreateText(Path.Combine(DefaultAuthorizedPath, file)).Close();
+            File.CreateText(Path.Combine(AuthorizedPath, file)).Close();
             return true;
         }
 
@@ -174,7 +194,7 @@ namespace Monkeyspeak.Libraries
         {
             if (!reader.PeekString()) return false;
             string file = reader.ReadString();
-            File.Delete(Path.Combine(DefaultAuthorizedPath, file));
+            File.Delete(Path.Combine(AuthorizedPath, file));
             return true;
         }
 
@@ -201,7 +221,7 @@ namespace Monkeyspeak.Libraries
             string file = reader.ReadString();
             var var = reader.ReadVariable(true);
             StringBuilder sb = new StringBuilder();
-            using (var stream = File.Open(Path.Combine(DefaultAuthorizedPath, file), FileMode.Open, FileAccess.Read))
+            using (var stream = File.Open(Path.Combine(AuthorizedPath, file), FileMode.Open, FileAccess.Read))
             {
                 using (var streamReader = new StreamReader(stream))
                 {
