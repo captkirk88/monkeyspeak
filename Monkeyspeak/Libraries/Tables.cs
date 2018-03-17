@@ -52,8 +52,27 @@ namespace Monkeyspeak.Libraries
 
             Add(TriggerCategory.Effect, CopyTableIntoNewTable,
                 "with table % create a copy between keys {...} and {...} and put it into table %");
+
+            Add(TriggerCategory.Effect, GetTableCount,
+                "with table % get the amount of items and put it into variable %");
         }
 
+        [TriggerDescription("Gets the item count from the table and puts it into a variable")]
+        [TriggerVariableParameter]
+        [TriggerVariableParameter]
+        private bool GetTableCount(TriggerReader reader)
+        {
+            var table = reader.ReadVariableTable();
+            var var = reader.ReadVariable(true);
+            var.Value = table.Count.AsDouble();
+            return true;
+        }
+
+        [TriggerDescription("Copies the contents of the table and puts it into a new table")]
+        [TriggerVariableParameter]
+        [TriggerStringParameter]
+        [TriggerStringParameter]
+        [TriggerVariableParameter]
         private bool CopyTableIntoNewTable(TriggerReader reader)
         {
             var table = reader.ReadVariableTable();

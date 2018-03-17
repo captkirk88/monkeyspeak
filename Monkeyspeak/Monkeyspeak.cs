@@ -111,9 +111,7 @@ namespace Monkeyspeak
         /// <summary>
         /// Gets the banner.
         /// </summary>
-        /// <value>
-        /// The banner.
-        /// </value>
+        /// <value>The banner.</value>
         public string Banner
         {
             get
@@ -131,9 +129,7 @@ namespace Monkeyspeak
         /// <summary>
         /// Gets or sets the options.
         /// </summary>
-        /// <value>
-        /// The options.
-        /// </value>
+        /// <value>The options.</value>
         public Options Options
         {
             get { return options; }
@@ -223,6 +219,31 @@ namespace Monkeyspeak
         /// Loads a Monkeyspeak script from a file into a <see cref="Monkeyspeak.Page"/>.
         /// </summary>
         /// <param name="filePath">the file path to the script</param>
+        /// <returns></returns>
+        /// <exception cref="System.IO.IOException"></exception>
+        public void LoadFromFile(Page existing, string filePath)
+        {
+            if (!File.Exists(filePath))
+            {
+                throw new IOException($"{filePath} does not exist");
+            }
+            using (Stream stream = new FileStream(filePath, FileMode.Open, FileAccess.Read))
+            {
+                if (Path.GetExtension(filePath) == "msx")
+                {
+                    LoadCompiledStream(existing, stream);
+                }
+                else
+                {
+                    LoadFromStream(existing, stream);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Loads a Monkeyspeak script from a file into a <see cref="Monkeyspeak.Page"/>.
+        /// </summary>
+        /// <param name="filePath">the file path to the script</param>
         /// <returns><see cref="Page"/></returns>
         public async Task<Page> LoadFromFileAsync(string filePath)
         {
@@ -236,7 +257,7 @@ namespace Monkeyspeak
         /// <summary>
         /// Loads a Monkeyspeak script from a string into a <see cref="Monkeyspeak.Page"/>.
         /// </summary>
-        /// <param name="chunk">String that contains the Monkeyspeak script source.</param>
+        /// <param name="chunk">       String that contains the Monkeyspeak script source.</param>
         /// <param name="existingPage"></param>
         public async Task LoadFromStringAsync(Page existingPage, string chunk)
         {
@@ -247,11 +268,11 @@ namespace Monkeyspeak
         }
 
         /// <summary>
-        /// Loads a Monkeyspeak script from a string into <paramref name="existingPage"/>. and
-        /// clears the old page
+        /// Loads a Monkeyspeak script from a string into <paramref name="existingPage"/>. and clears
+        /// the old page
         /// </summary>
         /// <param name="existingPage">Reference to an existing Page</param>
-        /// <param name="chunk">String that contains the Monkeyspeak script source.</param>
+        /// <param name="chunk">       String that contains the Monkeyspeak script source.</param>
         /// <returns></returns>
         public void LoadFromString(Page existingPage, string chunk)
         {
@@ -319,7 +340,9 @@ namespace Monkeyspeak
         /// <summary>
         /// Loads a Monkeyspeak script from a Stream into a <see cref="Monkeyspeak.Page"/>.
         /// </summary>
-        /// <param name="stream">Stream that contains the Monkeyspeak script. Closes the stream.</param>
+        /// <param name="stream">      
+        /// Stream that contains the Monkeyspeak script. Closes the stream.
+        /// </param>
         /// <param name="existingPage"></param>
         public async Task LoadFromStreamAsync(Page existingPage, Stream stream)
         {
@@ -333,7 +356,9 @@ namespace Monkeyspeak
         /// Loads a Monkeyspeak script from a Stream into <paramref name="existingPage"/>.
         /// </summary>
         /// <param name="existingPage">Reference to an existing Page</param>
-        /// <param name="stream">Stream that contains the Monkeyspeak script. Closes the stream.</param>
+        /// <param name="stream">      
+        /// Stream that contains the Monkeyspeak script. Closes the stream.
+        /// </param>
         public void LoadFromStream(Page existingPage, Stream stream)
         {
             try
@@ -357,10 +382,10 @@ namespace Monkeyspeak
         /// <summary>
         /// Loads and executes the script.
         /// </summary>
-        /// <param name="chunk">The script code.</param>
-        /// <param name="triggerIds">The trigger ids.</param>
+        /// <param name="chunk">       The script code.</param>
+        /// <param name="triggerIds">  The trigger ids.</param>
         /// <param name="entryHandler">The entry handler.</param>
-        /// <param name="args">The arguments.</param>
+        /// <param name="args">        The arguments.</param>
         /// <returns></returns>
         public Page DoString(string chunk, int[] triggerIds, TriggerHandler entryHandler = null, params object[] args)
         {
@@ -374,10 +399,10 @@ namespace Monkeyspeak
         /// <summary>
         /// Loads and executes the script.
         /// </summary>
-        /// <param name="stream">The stream.</param>
-        /// <param name="triggerIds">The trigger ids.</param>
+        /// <param name="stream">      The stream.</param>
+        /// <param name="triggerIds">  The trigger ids.</param>
         /// <param name="entryHandler">The entry handler.</param>
-        /// <param name="args">The arguments.</param>
+        /// <param name="args">        The arguments.</param>
         /// <returns></returns>
         public Page DoStream(Stream stream, int[] triggerIds, TriggerHandler entryHandler = null, params object[] args)
         {
@@ -391,10 +416,10 @@ namespace Monkeyspeak
         /// <summary>
         /// Loads and executes the script.
         /// </summary>
-        /// <param name="filePath">The file path.</param>
-        /// <param name="triggerIds">The trigger ids.</param>
+        /// <param name="filePath">    The file path.</param>
+        /// <param name="triggerIds">  The trigger ids.</param>
         /// <param name="entryHandler">The entry handler.</param>
-        /// <param name="args">The arguments.</param>
+        /// <param name="args">        The arguments.</param>
         /// <returns></returns>
         public Page DoFile(string filePath, int[] triggerIds, TriggerHandler entryHandler = null, params object[] args)
         {
@@ -424,6 +449,25 @@ namespace Monkeyspeak
                 throw new MonkeyspeakException("Error reading compiled stream.", ex);
             }
             return page;
+        }
+
+        /// <summary>
+        /// Loads a compiled script from stream
+        /// </summary>
+        /// <param name="stream"></param>
+        /// <returns></returns>
+        public void LoadCompiledStream(Page existing, Stream stream)
+        {
+            try
+            {
+                Compiler compiler = new Compiler(this);
+                using (stream)
+                    existing.AddBlocks(compiler.DecompileFromStream(stream));
+            }
+            catch (Exception ex)
+            {
+                throw new MonkeyspeakException("Error reading compiled stream.", ex);
+            }
         }
     }
 }
