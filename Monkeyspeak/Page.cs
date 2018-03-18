@@ -172,7 +172,7 @@ namespace Monkeyspeak
                         block.Add(curTrig);
                     }
 
-                    if ((curTrig.Category == TriggerCategory.Effect) &&
+                    if ((curTrig.Category == TriggerCategory.Effect || curTrig.Category == TriggerCategory.Condition || curTrig.Category == TriggerCategory.Flow) &&
                         nextTrig.Category == TriggerCategory.Cause)
                     {
                         triggerBlocks.Add(block);

@@ -304,6 +304,7 @@ namespace MonkeyspeakTests
     (1:104) and variable %hello equals {Hello World}
     (1:104) and variable %hello equals {this will be false move on to next condition}
     (1:104) and variable %hello equals {Hello World}
+(0:0) when the script is started,
         (5:102) print {Will not show even though the first was true} to the console.
         (5:102) print {should not show} to the console.
     (1:104) and variable %hello equals {Hello World}
