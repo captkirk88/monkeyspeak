@@ -907,7 +907,10 @@ namespace Monkeyspeak
                     await Task.Run(() =>
                     {
                         Execute(id, args);
-                    }, cancellationToken);
+                    }, cancellationToken).ContinueWith(task =>
+                    {
+                        if (task.Exception != null) task.Exception.Log<Page>();
+                    });
                 }
                 catch (OperationCanceledException ex)
                 {
@@ -937,7 +940,10 @@ namespace Monkeyspeak
                 await Task.Run(() =>
                 {
                     Execute(id, args);
-                }, cancellationToken);
+                }, cancellationToken).ContinueWith(task =>
+                {
+                    if (task.Exception != null) task.Exception.Log<Page>();
+                });
             }
             catch (OperationCanceledException ex)
             {

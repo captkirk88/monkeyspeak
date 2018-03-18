@@ -56,13 +56,6 @@ namespace MonkeyspeakTests
         (5:102) print {num = %num} to the console.
 
 (0:0) when the script is started,
-    (5:102) print {None = %none} to the console.
-
-(0:0) when the script is started,
-    (1:666) and false,
-        (5:102) print {better not be seen} to the console.
-
-(0:0) when the script is started,
     (1:104) and variable %hello equals {this will be false move on to next condition}
 		(5:100) set %hello to {Hello World}.
         (5:101) set %helloNum to 5.69.
@@ -75,9 +68,14 @@ namespace MonkeyspeakTests
         (5:102) print {%hello} to the console.
 
 (0:0) when the script is started,
+		(5:250) create a table as %multi
+		(5:101) set variable %multi[name][test] to 3
+		(5:102) print {%multi[name][test]} to the log.
+
+(0:0) when the script is started,
     *Uncommented version
-    (1:104) and variable %hello equals {this will be false move on to next condition}
-        (5:102) print {the pen is blue!} to the console
+    *(1:104) and variable %hello equals {this will be false move on to next condition}
+     *   (5:102) print {the pen is blue!} to the console
     (1:104) and variable %hello equals {Hello World}
         (5:102) print {the pen is red!} to the console
         (5:102) print {hello = %hello helloNum = %helloNum} to the console
@@ -94,19 +92,13 @@ namespace MonkeyspeakTests
         (6:250) for each entry in table %myTable put it into %entry,
             (5:102) print {%entry} to the console.
 
-(0:0) when the script is started,
-		(5:10000) create a debug breakpoint here,
-        (5:100) set %testVariable to {Modified!}. -- try to modify constant variable
-		(5:102) print {%testVariable} to the console.
-
-(0:10000) when a debug breakpoint is hit,
-		(5:102) print {Hit a breakpoint!} to the console.
-        (5:105) raise an error. * dirty exit
-
 (0:100) when job 1 is called put arguments into table %table,
-    (5:102) print {job 1 executed} to the console
-        (6:250) for each entry in table %table put it into %entry,
-            (5:102) print {%entry} to the console.
+    	(5:102) print {job 1 executed} to the console
+		(5:101) set variable %counter to 1.
+	(6:453) while variable %counter is less than 1000000,
+		(5:150) take variable %counter and add 1 to it.
+	(6:457) after the loop is done,
+		(5:102) print {counter = %counter} to the log.
 
 (0:100) when job 2 is called,
     (5:102) print {job will not execute because infinite loop possibility} to the console
@@ -441,17 +433,13 @@ namespace MonkeyspeakTests
             {
                 return "LOL!";
             }
-
-            public override void Apply(Trigger? trigger)
-            {
-                trigger?.Add(this);
-            }
         }
 
         [Test]
         public void DebugTest()
         {
             var engine = new MonkeyspeakEngine();
+            engine.Options.LoopLimit = int.MaxValue;
             Page page = engine.LoadFromString(testScript);
 
             page.Error += DebugAllErrors;
@@ -462,8 +450,8 @@ namespace MonkeyspeakTests
             var var = page.SetVariable("%testVariable", "Hello WOrld", true);
 
             Console.WriteLine("Trigger Count: " + page.Size);
-
-            page.Execute(0);
+            using (PerfCounter perf = new PerfCounter((time, mem) => Logger.Info($"{time}\n{mem}")))
+                page.Execute(0);
         }
 
         [Test]
