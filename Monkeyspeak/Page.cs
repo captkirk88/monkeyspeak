@@ -910,7 +910,7 @@ namespace Monkeyspeak
                     }, cancellationToken).ContinueWith(task =>
                     {
                         if (task.Exception != null) task.Exception.Log<Page>();
-                    });
+                    }, TaskContinuationOptions.OnlyOnFaulted);
                 }
                 catch (OperationCanceledException ex)
                 {
@@ -943,7 +943,7 @@ namespace Monkeyspeak
                 }, cancellationToken).ContinueWith(task =>
                 {
                     if (task.Exception != null) task.Exception.Log<Page>();
-                });
+                }, TaskContinuationOptions.OnlyOnFaulted);
             }
             catch (OperationCanceledException ex)
             {

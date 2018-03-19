@@ -40,7 +40,7 @@ namespace Monkeyspeak.Lexical.Expressions
             if (!page.HasVariable(varRef, out var))
                 if (addToPage)
                     var = page.SetVariable(varRef, null, false);
-            return var;
+            return var ?? Variable.NoValue;
         }
 
         public override string ToString()

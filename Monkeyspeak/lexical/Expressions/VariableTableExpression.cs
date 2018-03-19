@@ -10,15 +10,14 @@ using System.Threading.Tasks;
 namespace Monkeyspeak.Lexical.Expressions
 {
     /// <summary>
-    ///
     /// </summary>
-    /// <seealso cref="Monkeyspeak.Lexical.Expressions.VariableExpression" />
+    /// <seealso cref="Monkeyspeak.Lexical.Expressions.VariableExpression"/>
     public sealed class VariableTableExpression : VariableExpression
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="VariableTableExpression"/> class.
         /// </summary>
-        /// <param name="pos">The position.</param>
+        /// <param name="pos">   The position.</param>
         /// <param name="varRef">The variable reference.</param>
         public VariableTableExpression(SourcePosition pos, string varRef) : base(pos, varRef.Substring(0, varRef.IndexOf('[')))
         {
@@ -67,7 +66,7 @@ namespace Monkeyspeak.Lexical.Expressions
                         return table;
                     }
                 }
-                return var;
+                return var ?? VariableTable.Empty;
             }
             catch (Exception ex)
             {
