@@ -95,7 +95,7 @@ namespace MonkeyspeakTests
 (0:100) when job 1 is called put arguments into table %table,
     	(5:102) print {job 1 executed} to the console
 		(5:101) set variable %counter to 1.
-	(6:453) while variable %counter is less than 1000000,
+	(6:453) while variable %counter is less than 10000,
 		(5:150) take variable %counter and add 1 to it.
 	(6:457) after the loop is done,
 		(5:102) print {counter = %counter} to the log.
@@ -332,7 +332,7 @@ namespace MonkeyspeakTests
         public async Task AsyncDemoTest()
         {
             var engine = new MonkeyspeakEngine();
-            engine.Options.Debug = true;
+            engine.Options.LoopLimit = int.MaxValue;
             Page page = await engine.LoadFromStringAsync(testScript);
 
             page.Error += DebugAllErrors;
@@ -340,8 +340,6 @@ namespace MonkeyspeakTests
             page.LoadAllLibraries();
             //page.LoadDebugLibrary();
             page.SetVariable("%testVariable", "Hello WOrld", true);
-
-            page.AddTriggerHandler(TriggerCategory.Condition, 666, AlwaysFalseCond);
 
             // Trigger count created by subscribing to TriggerAdded event and putting triggers into a list.
             Console.WriteLine("Trigger Count: " + page.Size);
@@ -640,7 +638,6 @@ namespace MonkeyspeakTests
         public void GetTriggerDescriptionsTest()
         {
             MonkeyspeakEngine engine = new MonkeyspeakEngine();
-            engine.Options.Debug = true;
             Page page = engine.LoadFromString(testScript);
 
             page.Error += DebugAllErrors;
@@ -728,7 +725,6 @@ namespace MonkeyspeakTests
             var testScript = @"
 ";
             var engine = new MonkeyspeakEngine();
-            engine.Options.Debug = true;
             Assert.Throws<NullReferenceException>(() => engine.LoadFromString(testScript));
         }
 
@@ -736,7 +732,6 @@ namespace MonkeyspeakTests
         public void CallEffectTest()
         {
             var engine = new MonkeyspeakEngine();
-            engine.Options.Debug = true;
             var page = engine.LoadFromString(testScript);
 
             page.Error += DebugAllErrors;
