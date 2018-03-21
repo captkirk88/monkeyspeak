@@ -8,8 +8,17 @@ using System.Threading.Tasks;
 
 namespace Monkeyspeak.Libraries
 {
+    /// <summary>
+    /// </summary>
+    /// <seealso cref="BaseLibrary"/>
     public class Sys : BaseLibrary
     {
+        /// <summary>
+        /// Initializes this instance. Add your trigger handlers here.
+        /// </summary>
+        /// <param name="args">
+        /// Parametized argument of objects to use to pass runtime objects to a library at initialization
+        /// </param>
         public override void Initialize(params object[] args)
         {
             // (1:100) and variable % is defined,
@@ -174,7 +183,6 @@ namespace Monkeyspeak.Libraries
         private bool IsVariableEqualToNumberOrVar(TriggerReader reader)
         {
             var var = reader.ReadVariable();
-            double num = 0;
             return reader.ReadNumber() == var.Value.AsDouble();
         }
 
@@ -240,6 +248,11 @@ namespace Monkeyspeak.Libraries
             return true;
         }
 
+        /// <summary>
+        /// Prints to log.
+        /// </summary>
+        /// <param name="reader">The reader.</param>
+        /// <returns></returns>
         [TriggerDescription("Prints to the log")]
         [TriggerStringParameter]
         public virtual bool PrintToLog(TriggerReader reader)
@@ -260,7 +273,7 @@ namespace Monkeyspeak.Libraries
             return true;
         }
 
-        [TriggerDescription("Sets a variable to a number or variable")]
+        [TriggerDescription("Sets a variable to a number or variable as double")]
         [TriggerVariableParameter]
         [TriggerNumberParameter]
         private bool SetVariableToNumberOrVariable(TriggerReader reader)
@@ -296,13 +309,17 @@ namespace Monkeyspeak.Libraries
             return reader.ReadVariable().IsConstant;
         }
 
-        [TriggerDescription("Determines whether the variable is not constant/unmodifiablet")]
+        [TriggerDescription("Determines whether the variable is not constant/unmodifiable")]
         [TriggerVariableParameter]
         private bool VariableIsNotConstant(TriggerReader reader)
         {
             return !reader.ReadVariable().IsConstant;
         }
 
+        /// <summary>
+        /// @ Called when page is disposing or resetting.
+        /// </summary>
+        /// <param name="page">The page.</param>
         public override void Unload(Page page)
         {
         }
