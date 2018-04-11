@@ -44,7 +44,11 @@ namespace Monkeyspeak.Lexical.Expressions
 
                 while (specialPrefixes.Contains(str[0]))
                 {
-                    if (str[0] == '@')
+                    if (str[0] == '\\')
+                    {
+                        str = str.Substring(1);
+                    }
+                    else if (str[0] == '@')
                     {
                         processVariables = false;
                         str = str.Substring(1);
