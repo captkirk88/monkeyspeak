@@ -60,8 +60,8 @@ namespace Monkeyspeak.Editor.HelperClasses
                 var existingOpen = await github.Issue.GetAllForRepository(gitOwner, gitRepo, apiOpts);
                 var closed = existingClosed.FirstOrDefault(issue => issue.Title.Equals(title));
 
-                // If a previous issue with the same exception type was open
-                // reopen the issue with a comment of the log.
+                // If a previous issue with the same exception type was open reopen the issue with a
+                // comment of the log.
                 if (closed != null)
                 {
                     sb.AppendLine($"Updated on {DateTime.UtcNow}");
@@ -109,6 +109,12 @@ namespace Monkeyspeak.Editor.HelperClasses
                 ex.Log<Github>();
             }
             return null;
+        }
+
+        public static async Task<string> GetRepoUrl()
+        {
+            var repo = await github.Repository.Get(gitOwner, gitRepo);
+            return repo.Url;
         }
     }
 }

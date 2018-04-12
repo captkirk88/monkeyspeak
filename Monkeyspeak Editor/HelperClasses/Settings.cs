@@ -41,11 +41,25 @@ namespace Monkeyspeak.Editor.HelperClasses
             LastSession = string.Empty;
             TriggerSplitterPosition = 250;
             ResetSplitterPosition = false;
+            CheckForUpdates = true;
 #if DEBUG
             Debug = true;
 #else
             Debug = false;
 #endif
+        }
+
+        public static bool CheckForUpdates
+        {
+            get
+            {
+                return ((bool)(dictionary["Check For Updates"]));
+            }
+            set
+            {
+                dictionary["Check For Updates"] = value;
+                SettingChanged?.Invoke("Check For Updates", value);
+            }
         }
 
         public static bool SaveSession

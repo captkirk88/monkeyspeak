@@ -172,6 +172,8 @@ namespace Monkeyspeak.Editor
 
                 NotificationManager.Instance.AddNotification(new WelcomeNotification());
                 Plugins.PluginsManager.Initialize();
+
+                Dispatcher.Invoke(async () => await UpdateCheck());
             });
 
             BottomRow.MinHeight = gridContainer.ActualHeight - statusbar.ActualHeight;
@@ -449,6 +451,8 @@ namespace Monkeyspeak.Editor
 
         public async Task UpdateCheck()
         {
+            if (Settings.CheckForUpdates == false) return;
+
             var userVersion = Assembly.GetExecutingAssembly().GetName().Version;
             var web = new WebClient();
             Release release = null;
@@ -459,7 +463,6 @@ namespace Monkeyspeak.Editor
             catch { }
             // in case internet is not connected or other issue return to prevent a nagging dialog
             if (release == null || release.Prerelease || release.Draft) return;
-            Logger.Debug(release.Body);
             var currentVersion = new Version(release.Body.RightOf('[').LeftOf(']'));
             if (currentVersion > userVersion)
             {
