@@ -238,7 +238,8 @@ namespace Monkeyspeak
         {
             if (contents == null || contents.Count == 0) throw new TriggerReaderException($"Expected variable, got nothing");
             if (contents.Peek().GetType() != Expressions.Instance[TokenType.VARIABLE] &&
-                contents.Peek().GetType() != Expressions.Instance[TokenType.TABLE]) throw new TriggerReaderException($"Expected variable, got {contents.Peek().GetType().Name} at {contents.Peek().Position}");
+                contents.Peek().GetType() != Expressions.Instance[TokenType.TABLE] &&
+                contents.Peek().GetType() != Expressions.Instance[TokenType.OBJ_VAR]) throw new TriggerReaderException($"Expected variable, got {contents.Peek().GetType().Name} at {contents.Peek().Position}");
             return (IVariable)contents.Dequeue().Execute(page, contents, addIfNotExist);
         }
 
@@ -257,7 +258,8 @@ namespace Monkeyspeak
         {
             if (contents == null || contents.Count == 0) throw new TriggerReaderException($"Expected variable, got nothing");
             if (contents.Peek().GetType() != Expressions.Instance[TokenType.VARIABLE] &&
-                contents.Peek().GetType() != Expressions.Instance[TokenType.TABLE]) throw new TriggerReaderException($"Expected variable, got {contents.Peek().GetType().Name} at {contents.Peek().Position}");
+                contents.Peek().GetType() != Expressions.Instance[TokenType.TABLE] &&
+                contents.Peek().GetType() != Expressions.Instance[TokenType.OBJ_VAR]) throw new TriggerReaderException($"Expected variable, got {contents.Peek().GetType().Name} at {contents.Peek().Position}");
             var var = (IVariable)contents.Dequeue().Execute(page, contents, addIfNotExist);
             if (var != default(IVariable))
             {
@@ -310,6 +312,44 @@ namespace Monkeyspeak
         }
 
         /// <summary>
+        /// Reads the next Object Variable available and the key if there is one, throws
+        /// TriggerReaderException on failure
+        /// </summary>
+        /// <param name="addIfNotExist">
+        /// Add the Variable if it doesn't exist and return that Variable with a Value equal to null.
+        /// </param>
+        /// <returns>Variable</returns>
+        /// <exception cref="TriggerReaderException"></exception>
+        public ObjectVariable ReadObjectVariable(bool addIfNotExist = false)
+        {
+            if (contents == null || contents.Count == 0) throw new TriggerReaderException($"Expected table, got nothing");
+
+            if (contents.Peek().GetType() == Expressions.Instance[TokenType.VARIABLE])
+            {
+                return ((IVariable)contents.Dequeue().Execute(page, contents, addIfNotExist)).ConvertToObjectVariable(page);
+            }
+            else if (contents.Peek().GetType() == Expressions.Instance[TokenType.TABLE])
+            {
+                return ((VariableTable)contents.Dequeue().Execute(page, contents, addIfNotExist)).ConvertToObjectVariable(page);
+            }
+            else if (contents.Peek().GetType() == Expressions.Instance[TokenType.OBJ_VAR])
+            {
+                return (ObjectVariable)contents.Dequeue().Execute(page, contents, addIfNotExist);
+            }
+            else throw new TriggerReaderException($"Expected variable table, got {contents.Peek().GetType().Name} at {contents.Peek().Position}");
+        }
+
+        /// <summary>
+        /// Peeks at the next value
+        /// </summary>
+        /// <returns></returns>
+        public bool PeekObjectVariable()
+        {
+            if (contents.Count == 0) return false;
+            return contents.Peek().GetType() == Expressions.Instance[TokenType.OBJ_VAR];
+        }
+
+        /// <summary>
         /// Peeks at the next value
         /// </summary>
         /// <returns></returns>
@@ -328,7 +368,9 @@ namespace Monkeyspeak
         {
             if (contents.Count == 0) return false;
             var expr = contents.Peek();
-            if (expr.GetType() == Expressions.Instance[TokenType.VARIABLE])
+            if (expr.GetType() == Expressions.Instance[TokenType.VARIABLE] ||
+                expr.GetType() == Expressions.Instance[TokenType.TABLE] ||
+                expr.GetType() == Expressions.Instance[TokenType.OBJ_VAR])
                 return page.HasVariable(expr.GetValue<string>(), out IVariable var) ? var.Value is T : false;
             return false;
         }

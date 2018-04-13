@@ -24,7 +24,8 @@ namespace Monkeyspeak.Lexical.Expressions
             {TokenType.STRING_LITERAL, typeof(StringExpression) },
             {TokenType.TRIGGER, typeof(TriggerExpression) },
             {TokenType.VARIABLE, typeof(VariableExpression) },
-            {TokenType.TABLE, typeof(VariableTableExpression) }
+            {TokenType.TABLE, typeof(VariableTableExpression) },
+            {TokenType.OBJ_VAR, typeof(ObjectVariableExpression) }
         };
 
         private static Dictionary<Type, ObjectCreation.Creator> typeCache = new Dictionary<Type, ObjectCreation.Creator>();

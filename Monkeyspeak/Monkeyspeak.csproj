@@ -121,17 +121,20 @@
     <Compile Include="lexical\Expressions\Expressions.cs" />
     <Compile Include="lexical\Expressions\NullExpression.cs" />
     <Compile Include="lexical\Expressions\TriggerExpression.cs" />
+    <Compile Include="lexical\Expressions\ObjectVariableExpression.cs" />
     <Compile Include="lexical\Expressions\VariableTableExpression.cs" />
     <Compile Include="lexical\TokenDefinitions\ITokenDefinition.cs" />
     <Compile Include="lexical\TokenDefinitions\VariableDefinition.cs" />
     <Compile Include="Libraries\AutoIncrementBaseLibrary.cs" />
     <Compile Include="Libraries\BaseLibrary.cs" />
+    <Compile Include="Libraries\Dynamic.cs" />
     <Compile Include="Libraries\Loops.cs" />
     <Compile Include="Libraries\Tables.cs" />
     <Compile Include="Collections\ConcurrentList.cs" />
     <Compile Include="Libraries\Attributes.cs" />
     <Compile Include="Logging\FileLogOutput.cs" />
     <Compile Include="Logging\MutliLogOutput.cs" />
+    <Compile Include="ObjectVariable.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>

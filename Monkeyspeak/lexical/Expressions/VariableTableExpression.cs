@@ -19,7 +19,8 @@ namespace Monkeyspeak.Lexical.Expressions
         /// </summary>
         /// <param name="pos">   The position.</param>
         /// <param name="varRef">The variable reference.</param>
-        public VariableTableExpression(SourcePosition pos, string varRef) : base(pos, varRef.Substring(0, varRef.IndexOf('[')))
+        public VariableTableExpression(SourcePosition pos, string varRef) :
+            base(pos, varRef.LeftOf('['))
         {
             Indexer = varRef.RightOf('[').LeftOf(']');
         }

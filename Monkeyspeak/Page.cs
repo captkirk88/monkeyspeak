@@ -528,6 +528,10 @@ namespace Monkeyspeak
             if (string.IsNullOrWhiteSpace(name)) return true;
             if (name[0] != engine.Options.VariableDeclarationSymbol)
                 name = engine.Options.VariableDeclarationSymbol + name;
+            if (name.IndexOf('[') != -1)
+                name = name.LeftOf('[');
+            if (name.IndexOf('.') != -1)
+                name = name.LeftOf('.');
 
             lock (syncObj)
             {
@@ -597,11 +601,17 @@ namespace Monkeyspeak
         /// <returns></returns>
         /// <exception cref="Monkeyspeak.TypeNotSupportedException"></exception>
         /// <exception cref="Exception">Variable limit exceeded, operation failed.</exception>
+        [Obsolete("Use SetVariable(IVariable var), it is better capable to handle custom implimentations of IVariable", true)]
         public IVariable SetVariable(string name, object value, bool isConstant = false)
         {
             if (!CheckType(value)) throw new TypeNotSupportedException(String.Format("{0} is not a supported type. Expecting string or double.", value.GetType().Name));
             if (name[0] != engine.Options.VariableDeclarationSymbol)
                 name = engine.Options.VariableDeclarationSymbol + name;
+            if (name.IndexOf('[') != -1)
+                name = name.LeftOf('[');
+            if (name.IndexOf('.') != -1)
+                name = name.LeftOf('.');
+
             IVariable var;
 
             lock (syncObj)
@@ -668,7 +678,9 @@ namespace Monkeyspeak
             if (name[0] != engine.Options.VariableDeclarationSymbol)
                 name = engine.Options.VariableDeclarationSymbol + name;
             if (name.IndexOf('[') != -1)
-                name = name.Substring(0, name.IndexOf('[') - 1);
+                name = name.LeftOf('[');
+            if (name.IndexOf('.') != -1)
+                name = name.LeftOf('.');
 
             lock (syncObj)
             {
@@ -692,6 +704,8 @@ namespace Monkeyspeak
                 name = engine.Options.VariableDeclarationSymbol + name;
             if (name.IndexOf('[') != -1)
                 name = name.LeftOf('[');
+            if (name.IndexOf('.') != -1)
+                name = name.LeftOf('.');
 
             lock (syncObj)
             {
@@ -711,6 +725,8 @@ namespace Monkeyspeak
                 name = engine.Options.VariableDeclarationSymbol + name;
             if (name.IndexOf('[') != -1)
                 name = name.LeftOf('[');
+            if (name.IndexOf('.') != -1)
+                name = name.LeftOf('.');
 
             lock (syncObj)
             {

@@ -71,6 +71,7 @@ namespace Monkeyspeak
 
                     case TokenType.VARIABLE:
                     case TokenType.TABLE:
+                    case TokenType.OBJ_VAR:
                         expr = Expressions.Create(tokenType, sourcePos, value);
                         break;
 
@@ -82,10 +83,6 @@ namespace Monkeyspeak
 
                     case TokenType.NUMBER:
                         expr = Expressions.Create(tokenType, sourcePos, value);
-                        break;
-
-                    case TokenType.COMMENT:
-                        // we don't care about comments
                         break;
 
                     case TokenType.PREPROCESSOR:

@@ -29,6 +29,32 @@ namespace Monkeyspeak.Utils
                 }
         }
 
+        public static void SetPropertyValue<T>(T target, string desiredProperty, object value) where T : class
+        {
+            var targetType = target.GetType();
+            var pi = targetType.GetProperty(desiredProperty, BindingFlags.Instance | BindingFlags.Public);
+            if (pi == null || pi.CanWrite == false) return;
+            if (pi.PropertyType != value.GetType()) return;
+            try
+            {
+                pi.SetValue(target, value);
+            }
+            catch { }
+        }
+
+        public static object GetPropertyValue<T>(T target, string desiredProperty) where T : class
+        {
+            var targetType = target.GetType();
+            var pi = targetType.GetProperty(desiredProperty, BindingFlags.Instance | BindingFlags.Public);
+            if (pi == null || pi.CanRead == false) return null;
+            try
+            {
+                return pi.GetValue(target);
+            }
+            catch { }
+            return null;
+        }
+
         public static IEnumerable<MethodInfo> GetAllMethods(Type type, params Type[] args)
         {
             MethodInfo[] methods = type.GetMethods();

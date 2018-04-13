@@ -69,7 +69,7 @@ namespace Monkeyspeak.Lexical.Expressions
                         // replaced string.replace with Regex because
                         //  %ListName would replace %ListName2 leaving the 2 at the end
                         //- Gerolkae
-                        var pattern = var.Name + @"\b(\[[a-zA-Z_0-9]*\]+)?";
+                        var pattern = var.Name + @"\b(\[[a-zA-Z_0-9\$\@]*\]+)?";
                         str = Regex.Replace(str, pattern, new MatchEvaluator(match =>
                         {
                             if (match.Success)
@@ -80,6 +80,14 @@ namespace Monkeyspeak.Lexical.Expressions
                                     if (var is VariableTable)
                                     {
                                         value = (var as VariableTable)[val.RightOf('[').LeftOf(']')];
+                                    }
+                                }
+                                else if (val.IndexOf('.') != -1)
+                                {
+                                    if (var is ObjectVariable)
+                                    {
+                                        (var as ObjectVariable).DesiredProperty = val.RightOf('.');
+                                        value = var.Value;
                                     }
                                 }
                                 else
@@ -94,11 +102,10 @@ namespace Monkeyspeak.Lexical.Expressions
                                     NumberFormatInfo nfo = new NumberFormatInfo
                                     {
                                         CurrencyGroupSeparator = ",",
-                                        // you are interested in this part of controlling the group sizes
                                         CurrencyGroupSizes = new int[] { 3, 2 },
                                         CurrencySymbol = ""
                                     };
-                                    return String.Format(CultureInfo.CurrentCulture, "{0:n0}", value);
+                                    return String.Format(CultureInfo.GetCultureInfoByIetfLanguageTag("en-US"), "{0:n0}", value);
                                 }
                                 else return result;
                             }

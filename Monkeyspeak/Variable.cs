@@ -102,13 +102,13 @@ namespace Monkeyspeak
 
         public string Name { get; internal set; }
 
-        internal Variable(string name, bool constant = false)
+        public Variable(string name, bool constant = false)
         {
             IsConstant = constant;
             Name = name;
         }
 
-        internal Variable(string name, object value, bool constant = false)
+        public Variable(string name, object value, bool constant = false)
         {
             IsConstant = constant;
             Name = name;

@@ -578,21 +578,36 @@ namespace Monkeyspeak
                        || (currentChar >= 'A' && currentChar <= 'Z')
                        || (currentChar >= '0' && currentChar <= '9')
                        || currentChar == '_' || currentChar == '@'
-                       || currentChar == '$' || currentChar == '#'
+                       || currentChar == '$'
                        || currentChar == '&')
                 {
                     if (!CheckEOF(currentChar)) return Token.None;
 
                     Next();
                     length++;
-                    if (currentChar == ']')
-                    {
-                        break;
-                    }
                 }
-                if (!CheckMatch(']')) return Token.None;
                 length++;
                 return new Token(TokenType.TABLE, startPos, length, sourcePos);
+            }
+
+            if (IsMatch('.'))
+            {
+                Next();
+                length++;
+                while ((currentChar >= 'a' && currentChar <= 'z')
+                       || (currentChar >= 'A' && currentChar <= 'Z')
+                       || (currentChar >= '0' && currentChar <= '9')
+                       || currentChar == '_' || currentChar == '@'
+                       || currentChar == '$'
+                       || currentChar == '&')
+                {
+                    if (!CheckEOF(currentChar)) return Token.None;
+
+                    Next();
+                    length++;
+                }
+
+                return new Token(TokenType.OBJ_VAR, startPos, length, sourcePos);
             }
 
             if (!CheckEOF((char)currentChar)) return Token.None;

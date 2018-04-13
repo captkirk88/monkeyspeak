@@ -205,7 +205,7 @@ namespace MonkeyspeakTests
             page.Error += DebugAllErrors;
             page.AddTriggerHandler(TriggerCategory.Condition, 666, AlwaysFalseCond);
             page.LoadAllLibraries();
-            page.SetVariable("%testVariable", "Hello WOrld", true);
+            page.SetVariable(new Variable("%testVariable", "Hello WOrld", true));
 
             // Trigger count created by subscribing to TriggerAdded event and putting triggers into a list.
             Console.WriteLine("Trigger Count: " + page.Size);
@@ -312,7 +312,7 @@ namespace MonkeyspeakTests
 
             page.LoadAllLibraries();
             //page.LoadDebugLibrary();
-            page.SetVariable("%testVariable", "Hello WOrld", true);
+            page.SetVariable(new Variable("%testVariable", "Hello WOrld", true));
 
             page.AddTriggerHandler(TriggerCategory.Cause, 666, AlwaysFalseCond);
 
@@ -339,7 +339,7 @@ namespace MonkeyspeakTests
 
             page.LoadAllLibraries();
             //page.LoadDebugLibrary();
-            page.SetVariable("%testVariable", "Hello WOrld", true);
+            page.SetVariable(new Variable("%testVariable", "Hello WOrld", true));
 
             // Trigger count created by subscribing to TriggerAdded event and putting triggers into a list.
             Console.WriteLine("Trigger Count: " + page.Size);
@@ -445,7 +445,7 @@ namespace MonkeyspeakTests
             page.LoadAllLibraries();
             //page.LoadDebugLibrary();
 
-            var var = page.SetVariable("%testVariable", "Hello WOrld", true);
+            var var = page.SetVariable(new Variable("%testVariable", "Hello WOrld", true));
 
             Console.WriteLine("Trigger Count: " + page.Size);
             using (PerfCounter perf = new PerfCounter((time, mem) => Logger.Info($"{time}\n{mem}")))
@@ -591,7 +591,7 @@ namespace MonkeyspeakTests
             page.Error += DebugAllErrors;
 
             for (int i = 0; i <= 10000; i++)
-                page.SetVariable(i.ToString(), true.ToString(), false);
+                page.SetVariable(new Variable(i.ToString(), true.ToString(), false));
             foreach (var variable in page.Scope)
             {
                 Console.WriteLine(variable.ToString());

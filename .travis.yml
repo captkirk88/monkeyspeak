@@ -5,9 +5,9 @@ dist: trusty
 bundler_args: "--retry 5"
 mono: latest
 
-#branches:
-#  except:
-#    - /^*-v[0-9]/
+branches:
+    only:
+        - master
 
 notifications:
     email:

@@ -7,26 +7,15 @@ using System.Threading.Tasks;
 namespace Monkeyspeak.Libraries
 {
     /// <summary>
-    /// Automatically increments the Trigger Id for each Trigger category so that you don't have to deal with it!
+    /// Automatically increments the Trigger Id for each Trigger category so that you don't have to
+    /// deal with it!
     /// </summary>
-    /// <seealso cref="Monkeyspeak.Libraries.BaseLibrary" />
+    /// <seealso cref="Monkeyspeak.Libraries.BaseLibrary"/>
     public abstract class AutoIncrementBaseLibrary : BaseLibrary
     {
         private int triggerCauseIdCounter = 0, triggerConditionIdCounter = 0, triggerEffectIdCounter = 0, triggerFlowIdCounter = 0;
 
         public abstract int BaseId { get; }
-
-        /// <summary>
-        /// Registers a Trigger to the TriggerHandler with optional description
-        /// </summary>
-        /// <param name="trigger"></param>
-        /// <param name="handler"></param>
-        /// <param name="description"></param>
-        [Obsolete("Use Add(TriggerCategory, TriggerHandler, string)", true)]
-        public override void Add(Trigger trigger, TriggerHandler handler, string description = null)
-        {
-            throw new NotImplementedException("For Auto-Increment libraries, this method is not used");
-        }
 
         [Obsolete("Use Add(TriggerCategory, TriggerHandler, string)", true)]
         public override void Add(TriggerCategory cat, int id, TriggerHandler handler, string description = null)
@@ -37,9 +26,9 @@ namespace Monkeyspeak.Libraries
         /// <summary>
         /// Registers a Trigger to the TriggerHandler with optional description
         /// </summary>
-        /// <param name="cat"></param>
-        /// <param name="id"></param>
-        /// <param name="handler"></param>
+        /// <param name="cat">        </param>
+        /// <param name="id">         </param>
+        /// <param name="handler">    </param>
         /// <param name="description"></param>
         public void Add(TriggerCategory cat, TriggerHandler handler, string description = null)
         {
@@ -67,7 +56,8 @@ namespace Monkeyspeak.Libraries
             if (description != null) descriptions.Add(trigger, description);
             if (!handlers.ContainsKey(trigger))
                 handlers.Add(trigger, handler);
-            // the below should never happen with this approach provided the BaseId is a unassigned trigger id
+            // the below should never happen with this approach provided the BaseId is a unassigned
+            // trigger id
             else throw new UnauthorizedAccessException($"Override of existing Trigger {trigger}'s handler with handler in {handler.Method}.");
         }
     }
