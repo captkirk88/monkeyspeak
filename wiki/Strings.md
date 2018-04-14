@@ -14,6 +14,14 @@ Strings are optionally limited to a certain amount, the
 default is 1000 characters.  Strings cannot contain inner brackets such as `{ {} }`.  It is a limitation of the 
 engine unfortunately.  Strings do not support unicode characters as of v7.0.
 
+#### Prefixes
+Certain prefixes can be used at the beginning of a String to prevent certain processing actions.
+
+- **!** - will prevent numbers from being converted into a human readable format.  Such as with commas for 1,000.
+- **@** - will prevent variables from being processed.  For example, %myVar has a value of 2 so printing %myVar with a @ will not print 2, it will print %myVar.
+
+Usage would be {@Set %myVar!} or {!1000} or {@!%myVar = 1000}.
+
 #### Next Up
 > :book: [Libraries](Libraries.md)
 

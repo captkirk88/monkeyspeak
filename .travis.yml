@@ -17,7 +17,7 @@ notifications:
         on_failure: always
 
 before_install:
-- sudo apt-get install rar
+- sudo apt-get install tar
 - sudo apt-get update
 
 install:
@@ -25,8 +25,8 @@ install:
 - nuget restore Monkeyspeak.sln
 
 script:
-- msbuild /p:Configuration=Release Monkeyspeak/Monkeyspeak.csproj
-- msbuild /p:Configuration=Release msxc/msxc.csproj
-- msbuild /p:Configuration=Release Monkeyspeak.Tests/Monkeyspeak.Tests.csproj
+- msbuild /p:PreBuildEvent="" /p:PostBuildEvent="" /p:Configuration=Release Monkeyspeak/Monkeyspeak.csproj
+- msbuild /p:PreBuildEvent="" /p:PostBuildEvent="" /p:Configuration=Release msxc/msxc.csproj
+- msbuild /p:PreBuildEvent="" /p:PostBuildEvent="" /p:Configuration=Release Monkeyspeak.Tests/Monkeyspeak.Tests.csproj
 - mono ./testrunner/NUnit.ConsoleRunner.3.7.0/tools/nunit3-console.exe ./Monkeyspeak.Tests/bin/Release/Monkeyspeak.Tests.dll
 
