@@ -39,7 +39,7 @@ namespace Monkeyspeak.Lexical.Expressions
             var varRef = GetValue<string>();
             if (!page.HasVariable(varRef, out var))
                 if (addToPage)
-                    var = page.SetVariable(new Variable(varRef));
+                    return page.SetVariable(new Variable(varRef));
             return var ?? Variable.NoValue;
         }
 

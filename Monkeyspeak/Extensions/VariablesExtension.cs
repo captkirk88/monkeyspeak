@@ -22,7 +22,7 @@ namespace Monkeyspeak.Extensions
         {
             if (var is ObjectVariable objVar) return objVar;
             page.RemoveVariable(var);
-            var obj = page.SetVariable(new ObjectVariable(var.Name));
+            var obj = (ObjectVariable)page.SetVariable(new ObjectVariable(var.Name));
             if (var.Value != null)
                 obj.Value = var.Value;
             return obj;
@@ -34,9 +34,9 @@ namespace Monkeyspeak.Extensions
             var obj = page.SetVariable(new ObjectVariable(table.Name));
             if (table.Count > 0)
             {
-                return page.SetVariable(new ObjectVariable(table.Name, table.values));
+                return (ObjectVariable)page.SetVariable(new ObjectVariable(table.Name, table.values));
             }
-            return page.SetVariable(new ObjectVariable(table.Name, table.Value));
+            return (ObjectVariable)page.SetVariable(new ObjectVariable(table.Name, table.Value));
         }
     }
 }

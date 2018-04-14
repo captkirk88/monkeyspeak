@@ -50,9 +50,9 @@ namespace Monkeyspeak.Libraries
             var num = reader.ReadNumber();
 
             if (!reader.Page.HasVariable("___repeat_counter", out ConstantVariable repeatCounter))
-                repeatCounter = reader.Page.SetVariable(new ConstantVariable("___repeat_counter", 0d));
+                repeatCounter = (ConstantVariable)reader.Page.SetVariable(new ConstantVariable("___repeat_counter", 0d));
             if (!reader.Page.HasVariable("___repeat_counter_max", out ConstantVariable repeatCounterMax))
-                repeatCounterMax = reader.Page.SetVariable(new ConstantVariable("___repeat_counter_max", num));
+                repeatCounterMax = (ConstantVariable)reader.Page.SetVariable(new ConstantVariable("___repeat_counter_max", num));
             repeatCounter.SetValue(repeatCounter.Value.AsDouble() + 1);
             bool canContinue = repeatCounter.Value.AsDouble() <= repeatCounterMax.Value.AsDouble();
             if (repeatCounter.Value.AsDouble() >= reader.Engine.Options.LoopLimit)
@@ -76,7 +76,7 @@ namespace Monkeyspeak.Libraries
             bool canContinue = varVal < value;
 
             if (!reader.Page.HasVariable("___while_counter", out ConstantVariable whileCounter))
-                whileCounter = reader.Page.SetVariable(new ConstantVariable("___while_counter", 0d));
+                whileCounter = (ConstantVariable)reader.Page.SetVariable(new ConstantVariable("___while_counter", 0d));
             whileCounter.SetValue(whileCounter.Value.AsDouble() + 1);
             if (whileCounter.Value.AsDouble() >= reader.Engine.Options.LoopLimit)
             {
@@ -98,7 +98,7 @@ namespace Monkeyspeak.Libraries
             bool canContinue = varVal > value;
 
             if (!reader.Page.HasVariable("___while_counter", out ConstantVariable whileCounter))
-                whileCounter = reader.Page.SetVariable(new ConstantVariable("___while_counter", 0d));
+                whileCounter = (ConstantVariable)reader.Page.SetVariable(new ConstantVariable("___while_counter", 0d));
             whileCounter.SetValue(whileCounter.Value.AsDouble() + 1);
             if (whileCounter.Value.AsDouble() >= reader.Engine.Options.LoopLimit)
             {
@@ -117,7 +117,7 @@ namespace Monkeyspeak.Libraries
         {
             bool canContinue = true;
             if (!reader.Page.HasVariable("___after_loop", out ConstantVariable counter))
-                counter = reader.Page.SetVariable(new ConstantVariable("___after_loop", 0d));
+                counter = (ConstantVariable)reader.Page.SetVariable(new ConstantVariable("___after_loop", 0d));
             else counter.SetValue(counter.Value.AsDouble() + 1d);
             if (counter.Value.AsDouble() >= 1)
             {
@@ -153,7 +153,7 @@ namespace Monkeyspeak.Libraries
             bool canContinue = var.Value.AsString().Equals(value, StringComparison.InvariantCulture);
 
             if (!reader.Page.HasVariable("___while_counter", out ConstantVariable whileCounter))
-                whileCounter = reader.Page.SetVariable(new ConstantVariable("___while_counter", 0d));
+                whileCounter = (ConstantVariable)reader.Page.SetVariable(new ConstantVariable("___while_counter", 0d));
             whileCounter.SetValue(whileCounter.Value.AsDouble() + 1);
             if (whileCounter.Value.AsDouble() >= reader.Engine.Options.LoopLimit)
             {
@@ -176,7 +176,7 @@ namespace Monkeyspeak.Libraries
             var value = reader.ReadString();
             bool canContinue = !var.Value.AsString().Equals(value, StringComparison.InvariantCulture);
             if (!reader.Page.HasVariable("___while_counter", out ConstantVariable whileCounter))
-                whileCounter = reader.Page.SetVariable(new ConstantVariable("___while_counter", 0d));
+                whileCounter = (ConstantVariable)reader.Page.SetVariable(new ConstantVariable("___while_counter", 0d));
             whileCounter.SetValue(whileCounter.Value.AsDouble() + 1);
             if (whileCounter.Value.AsDouble() >= reader.Engine.Options.LoopLimit)
             {
@@ -201,7 +201,7 @@ namespace Monkeyspeak.Libraries
             bool canContinue = varVal == value;
 
             if (!reader.Page.HasVariable("___while_counter", out ConstantVariable whileCounter))
-                whileCounter = reader.Page.SetVariable(new ConstantVariable("___while_counter", 0d));
+                whileCounter = (ConstantVariable)reader.Page.SetVariable(new ConstantVariable("___while_counter", 0d));
             whileCounter.SetValue(whileCounter.Value.AsDouble() + 1);
             if (whileCounter.Value.AsDouble() >= reader.Engine.Options.LoopLimit)
             {
@@ -224,7 +224,7 @@ namespace Monkeyspeak.Libraries
             var value = reader.ReadNumber();
             bool canContinue = var.Value.AsDouble() != value;
             if (!reader.Page.HasVariable("___while_counter", out ConstantVariable whileCounter))
-                whileCounter = reader.Page.SetVariable(new ConstantVariable("___while_counter", 0d));
+                whileCounter = (ConstantVariable)reader.Page.SetVariable(new ConstantVariable("___while_counter", 0d));
             whileCounter.SetValue(whileCounter.Value.AsDouble() + 1);
             if (whileCounter.Value.AsDouble() >= reader.Engine.Options.LoopLimit)
             {

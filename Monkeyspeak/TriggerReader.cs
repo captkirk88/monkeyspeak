@@ -239,7 +239,7 @@ namespace Monkeyspeak
             if (contents == null || contents.Count == 0) throw new TriggerReaderException($"Expected variable, got nothing");
             if (contents.Peek().GetType() != Expressions.Instance[TokenType.VARIABLE] &&
                 contents.Peek().GetType() != Expressions.Instance[TokenType.TABLE] &&
-                contents.Peek().GetType() != Expressions.Instance[TokenType.OBJ_VAR]) throw new TriggerReaderException($"Expected variable, got {contents.Peek().GetType().Name} at {contents.Peek().Position}");
+                contents.Peek().GetType() != Expressions.Instance[TokenType.OBJ_VAR]) throw new TriggerReaderException($"Expected variable, got {contents.Peek().GetType().Name} {contents.Peek().Position}");
             return (IVariable)contents.Dequeue().Execute(page, contents, addIfNotExist);
         }
 
@@ -259,7 +259,7 @@ namespace Monkeyspeak
             if (contents == null || contents.Count == 0) throw new TriggerReaderException($"Expected variable, got nothing");
             if (contents.Peek().GetType() != Expressions.Instance[TokenType.VARIABLE] &&
                 contents.Peek().GetType() != Expressions.Instance[TokenType.TABLE] &&
-                contents.Peek().GetType() != Expressions.Instance[TokenType.OBJ_VAR]) throw new TriggerReaderException($"Expected variable, got {contents.Peek().GetType().Name} at {contents.Peek().Position}");
+                contents.Peek().GetType() != Expressions.Instance[TokenType.OBJ_VAR]) throw new TriggerReaderException($"Expected variable, got {contents.Peek().GetType().Name} {contents.Peek().Position}");
             var var = (IVariable)contents.Dequeue().Execute(page, contents, addIfNotExist);
             if (var != default(IVariable))
             {
@@ -308,7 +308,11 @@ namespace Monkeyspeak
             {
                 return (VariableTable)contents.Dequeue().Execute(page, contents, addIfNotExist);
             }
-            else throw new TriggerReaderException($"Expected variable table, got {contents.Peek().GetType().Name} at {contents.Peek().Position}");
+            else if (contents.Peek().GetType() == Expressions.Instance[TokenType.OBJ_VAR])
+            {
+                return ((ObjectVariable)contents.Dequeue().Execute(page, contents, addIfNotExist)).ConvertToTable();
+            }
+            else throw new TriggerReaderException($"Expected variable table, got {contents.Peek().GetType().Name} {contents.Peek().Position}");
         }
 
         /// <summary>
@@ -336,7 +340,7 @@ namespace Monkeyspeak
             {
                 return (ObjectVariable)contents.Dequeue().Execute(page, contents, addIfNotExist);
             }
-            else throw new TriggerReaderException($"Expected variable table, got {contents.Peek().GetType().Name} at {contents.Peek().Position}");
+            else throw new TriggerReaderException($"Expected variable table, got {contents.Peek().GetType().Name} {contents.Peek().Position}");
         }
 
         /// <summary>
@@ -414,7 +418,7 @@ namespace Monkeyspeak
                 var table = ReadVariableTable();
                 return table[table?.ActiveIndexer].AsDouble();
             }
-            else throw new TriggerReaderException($"Expected number, got {contents.Peek().GetType().Name} at {contents.Peek().Position}");
+            else throw new TriggerReaderException($"Expected number, got {contents.Peek().GetType().Name} {contents.Peek().Position}");
         }
 
         /// <summary>

@@ -13,12 +13,20 @@ namespace Monkeyspeak.Lexical.Expressions
         private bool humanReadableNumbers = true;
         private List<char> specialPrefixes = new List<char>();
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="StringExpression"/> class.
+        /// </summary>
         public StringExpression()
         {
             specialPrefixes.Add('@');
             specialPrefixes.Add('!');
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="StringExpression"/> class.
+        /// </summary>
+        /// <param name="pos">  The position.</param>
+        /// <param name="value">The value.</param>
         public StringExpression(SourcePosition pos, string value)
             : base(pos, value)
         {
@@ -26,16 +34,32 @@ namespace Monkeyspeak.Lexical.Expressions
             specialPrefixes.Add('!');
         }
 
+        /// <summary>
+        /// Writes the specified writer.
+        /// </summary>
+        /// <param name="writer">The writer.</param>
         public override void Write(BinaryWriter writer)
         {
             writer.Write(GetValue<string>());
         }
 
+        /// <summary>
+        /// Reads the specified reader.
+        /// </summary>
+        /// <param name="reader">The reader.</param>
         public override void Read(BinaryReader reader)
         {
             SetValue(reader.ReadString());
         }
 
+        /// <summary>
+        /// Executes the specified page.
+        /// </summary>
+        /// <param name="page">            The page.</param>
+        /// <param name="contents">        The contents.</param>
+        /// <param name="processVariables">if set to <c>true</c> [process variables].</param>
+        /// <returns></returns>
+        /// <exception cref="TriggerReaderException"></exception>
         public override object Execute(Page page, Queue<IExpression> contents, bool processVariables = false)
         {
             try
@@ -66,10 +90,7 @@ namespace Monkeyspeak.Lexical.Expressions
                     {
                         var var = page.Scope[i];
                         object value = null;
-                        // replaced string.replace with Regex because
-                        //  %ListName would replace %ListName2 leaving the 2 at the end
-                        //- Gerolkae
-                        var pattern = var.Name + @"\b(\[[a-zA-Z_0-9\$\@]*\]+)?";
+                        var pattern = var.Name + @"(?:(\b(\[[a-zA-Z_0-9\$\@]*\]+))|(\b(\.[a-zA-Z_0-9]+)))?";
                         str = Regex.Replace(str, pattern, new MatchEvaluator(match =>
                         {
                             if (match.Success)

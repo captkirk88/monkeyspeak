@@ -79,7 +79,7 @@ namespace Monkeyspeak
 
         public override string ToString()
         {
-            return $"Type: {Type} at {Position.ToString()}";
+            return $"Type: {Type} {Position}";
         }
 
         public static bool operator ==(Token a, Token b) => a.Type == b.Type && a.valueStart == b.valueStart;

@@ -60,6 +60,24 @@ namespace Monkeyspeak.Libraries
             else throw new UnauthorizedAccessException($"Override of existing Trigger {trigger}'s handler with handler in {handler.Method.DeclaringType.Name}.");
         }
 
+        /// <summary>
+        /// Registers a Trigger to the TriggerHandler with optional description
+        /// </summary>
+        /// <param name="cat">        </param>
+        /// <param name="id">         </param>
+        /// <param name="handler">    </param>
+        /// <param name="description"></param>
+        public virtual void Add(TriggerCategory cat, int id, MethodInfo handler, string description = null)
+        {
+            Trigger trigger = new Trigger(cat, id);
+            if (!handlers.ContainsKey(trigger) || handler.DeclaringType == GetType())
+            {
+                if (description != null && !descriptions.ContainsKey(trigger)) descriptions.Add(trigger, description);
+                handlers.Add(trigger, handler.CreateDelegate(typeof(TriggerHandler)) as TriggerHandler);
+            }
+            else throw new UnauthorizedAccessException($"Override of existing Trigger {trigger}'s handler with handler in {handler.DeclaringType.Name}.");
+        }
+
         public virtual bool Contains(TriggerCategory cat, int id)
         {
             foreach (var desc in descriptions)

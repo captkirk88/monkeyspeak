@@ -567,7 +567,7 @@ namespace Monkeyspeak
         /// <param name="var">The variable.</param>
         /// <exception cref="Monkeyspeak.TypeNotSupportedException"></exception>
         /// <exception cref="Exception">Variable limit exceeded, operation failed.</exception>
-        public T SetVariable<T>(T var) where T : IVariable
+        public IVariable SetVariable(IVariable var)
         {
             if (!CheckType(var.Value)) throw new TypeNotSupportedException(String.Format("{0} is not a supported type. Expecting string or double.", var.Value.GetType().Name));
 
@@ -581,7 +581,7 @@ namespace Monkeyspeak
                 {
                     if (!(existing is ConstantVariable))
                         existing.Value = var.Value;
-                    return (T)existing;
+                    return existing;
                 }
                 else
                 {

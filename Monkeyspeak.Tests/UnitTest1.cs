@@ -87,7 +87,7 @@ namespace MonkeyspeakTests
 
 (0:0) when the script is started,
         (5:250) create a table as %myTable.
-        (5:252) with table %myTable put {Hello World} in it at key {myKey}.
+        (5:100) set %myTable[myKey] to {Hello World}.
         (5:102) print {%myTable[myKey]} to the console.
         (6:250) for each entry in table %myTable put it into %entry,
             (5:102) print {%entry} to the console.
@@ -146,23 +146,25 @@ namespace MonkeyspeakTests
         (5:102) print {%mytable[123]} to the console.
 ";
 
-        public static string tableScriptMini = @"
-(0:0)(5:250) %myTable(5:100) %hello {hi}(5:101) %i 0 (5:252) %myTable {%hello} {myKey1}.
-(5:252) %myTable {%hello} {myKey2}(5:252) %myTable {%hello} {myKey3}(5:252) %myTable {%hello}{myKey4}(5:252) %myTable {%hello} {myKey5}.
-(5:252) %myTable {%hello} {myKey6}(5:252) %myTable {%hello} {myKey7}(6:250) %myTable %entry
-(5:102) {%entry}(5:150) %i 1(5:102) {%i}(6:454),(5:102) {I'm done!}(1:250) %myTable(5:101) %myTable[myKey1] 123
-(5:102) {%myTable[myKey1]}
-
-(0:0)(5:101) %answer 0(5:101)%life 42
-(6:450) %answer %life(5:150) %answer 1(1:102) %answer 21(5:450)(6:454)(5:102) {%answer}(5:102) {We may never know the answer...}
-";
-
         public static string testGerolkaeTemplate = @"
 *MSPK V04.00 Silver Monkey
 *MonkeySpeak Script File
 *Created by <name>
 
 *Endtriggers* 8888 *Endtriggers*
+";
+
+        public static string objVarScript = @"
+(0:0) when the script is started,
+    (5:100) set %hello to {Hello World}.
+    (5:270) create a object variable %objVar1
+    (5:100) set variable %objVar1 to {test}.
+    (5:102) print {%objVar1} to the log.
+
+(0:0) when the script is started,
+    (5:102) print {objVar2.Test = %objVar2.Test} to the log.
+    (5:101) set variable %objVar2.Test to 321.
+    (5:102) print {objVar2.Test = %objVar2.Test} to the log.
 ";
 
         [SetUp]
@@ -296,7 +298,6 @@ namespace MonkeyspeakTests
     (1:104) and variable %hello equals {Hello World}
     (1:104) and variable %hello equals {this will be false move on to next condition}
     (1:104) and variable %hello equals {Hello World}
-(0:0) when the script is started,
         (5:102) print {Will not show even though the first was true} to the console.
         (5:102) print {should not show} to the console.
     (1:104) and variable %hello equals {Hello World}
@@ -352,10 +353,37 @@ namespace MonkeyspeakTests
         }
 
         [Test]
+        public async Task ObjectVariables()
+        {
+            var engine = new MonkeyspeakEngine();
+            engine.Options.Debug = true;
+            //Logger.LogOutput = new MultiLogOutput(new FileLogger(Level.Debug), new FileLogger(), new FileLogger(Level.Info));
+
+            Page page = engine.LoadFromString(objVarScript);
+
+            page.LoadAllLibraries();
+
+            var objVar = (ObjectVariable)page.SetVariable(new ObjectVariable("%objVar2"));
+            dynamic value = objVar.DynamicValue;
+            value.Test = 123d;
+
+            // Trigger count created by subscribing to TriggerAdded event and putting triggers into a list.
+            Console.WriteLine("Trigger Count: " + page.Size);
+            Assert.Greater(page.Size, 0);
+            page.Error += DebugAllErrors;
+
+            page.Execute();
+            foreach (var variable in page.Scope)
+            {
+                Console.WriteLine(variable.ToString());
+            }
+        }
+
+        [Test]
         public void LexerPrint()
         {
             //using (var stream = new FileStream("testBIG.ms", FileMode.OpenOrCreate))
-            using (var stream = new MemoryStream(Encoding.UTF8.GetBytes(testScript)))
+            using (var stream = new MemoryStream(Encoding.UTF8.GetBytes(objVarScript)))
             using (Lexer lexer = new Lexer(new MonkeyspeakEngine(), new SStreamReader(stream)))
             {
                 foreach (var token in lexer.ReadToEnd())
@@ -372,7 +400,7 @@ namespace MonkeyspeakTests
             Logger.Debug(default(Trigger));
             var engine = new MonkeyspeakEngine();
             //engine.Options.Debug = true;
-            using (var stream = new MemoryStream(Encoding.Default.GetBytes(testScript)))
+            using (var stream = new MemoryStream(Encoding.Default.GetBytes(objVarScript)))
             using (Lexer lexer = new Lexer(engine, new SStreamReader(stream)))
             {
                 Parser parser = new Parser(engine);
@@ -567,11 +595,16 @@ namespace MonkeyspeakTests
             {
                 sb2.AppendLine("(5:100) set %hello to {Hello World}.");
             }
+
+            var script = sb2.ToString();
             var tasks = new Task[5];
             for (int i = 0; i <= tasks.Length - 1; i++)
             {
-                tasks[i] = engine.LoadFromStringAsync(page, sb2.ToString());
-                tasks[i].ContinueWith(task => Logger.Info($"Triggers: {page.Size}"));
+                tasks[i] = Task.Run(async () =>
+                {
+                    using (var mon = new PerfCounter((time, mem) => Logger.Info($"{time}\n{mem}")))
+                        await engine.LoadFromStringAsync(page, script);
+                }).ContinueWith(task => Logger.Info($"Triggers: {page.Size}"));
             }
 
             page.Error += DebugAllErrors;

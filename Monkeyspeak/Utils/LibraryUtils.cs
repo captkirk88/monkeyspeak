@@ -19,7 +19,7 @@ namespace Monkeyspeak.Utils
         /// <summary>
         /// Saves the handler mappings from the specified <paramref name="lib"/> to a file.
         /// </summary>
-        /// <param name="lib">The library.</param>
+        /// <param name="lib">     The library.</param>
         /// <param name="filePath">The file path.</param>
         public static void SaveHandlerMappings(BaseLibrary lib, string filePath)
         {
@@ -35,10 +35,11 @@ namespace Monkeyspeak.Utils
         }
 
         /// <summary>
-        /// Saves the handler mappings from the specified <paramref name="old"/> library to map to the specified <paramref name="newLib"/> later.
+        /// Saves the handler mappings from the specified <paramref name="old"/> library to map to
+        /// the specified <paramref name="newLib"/> later.
         /// *Note* <paramref name="newLib"/> must be used when loading the mappings later on.
         /// </summary>
-        /// <param name="lib">The library.</param>
+        /// <param name="lib">     The library.</param>
         /// <param name="filePath">The file path.</param>
         public static void SaveHandlerMappings<T, U>(T old, U newLib, string filePath) where T : BaseLibrary where U : BaseLibrary
         {
@@ -69,8 +70,8 @@ namespace Monkeyspeak.Utils
         /// <summary>
         /// Loads the handler mappings from the file into the specified <paramref name="lib"/>.
         /// </summary>
-        /// <param name="engine">The engine.</param>
-        /// <param name="lib">The library.</param>
+        /// <param name="engine">  The engine.</param>
+        /// <param name="lib">     The library.</param>
         /// <param name="filePath">The file path.</param>
         public static void LoadHandlerMappings<T>(MonkeyspeakEngine engine, T lib, string filePath) where T : BaseLibrary
         {
@@ -91,7 +92,7 @@ namespace Monkeyspeak.Utils
                         Logger.Debug<LibraryUtils>($"method null with {handler} in {type.Name}");
                         continue;
                     }
-                    lib.Add(trigger, method);
+                    lib.Add(trigger.Category, trigger.Id, method);
                     Logger.Debug<LibraryUtils>($"Registered {trigger} to {method.Name} in {type.Name}");
                 }
             }

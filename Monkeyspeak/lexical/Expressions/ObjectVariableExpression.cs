@@ -41,17 +41,23 @@ namespace Monkeyspeak.Lexical.Expressions
 
         public override object Execute(Page page, Queue<IExpression> contents, bool addToPage = false)
         {
-            IVariable var;
+            IVariable var = null;
             var varRef = GetValue<string>();
             if (!page.HasVariable(varRef, out var))
                 if (addToPage)
                     var = page.SetVariable(new ObjectVariable(varRef));
+
+            if (var is ObjectVariable obj)
+            {
+                obj.DesiredProperty = DesiredProperty;
+                return obj;
+            }
             return var ?? ObjectVariable.Null;
         }
 
         public override string ToString()
         {
-            return GetValue<string>();
+            return $"{GetValue<string>()}.{DesiredProperty}";
         }
     }
 }

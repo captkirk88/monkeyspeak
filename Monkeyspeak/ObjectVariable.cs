@@ -2,23 +2,26 @@
 using System.Collections.Generic;
 using System.Dynamic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.CSharp.RuntimeBinder;
 using Monkeyspeak.Extensions;
+using Monkeyspeak.Logging;
 using Monkeyspeak.Utils;
 
 namespace Monkeyspeak
 {
     public class ObjectVariable : IVariable
     {
-        public static readonly ObjectVariable Null = new ObjectVariable("%null", null);
+        public static readonly ObjectVariable Null = new ObjectVariable("%null");
 
-        private readonly dynamic wrappedObject;
+        private dynamic wrappedObject;
 
         public ObjectVariable(string name)
         {
             Name = name;
-            this.wrappedObject = new ExpandoObject();
+            wrappedObject = new ExpandoObject();
         }
 
         public ObjectVariable(string name, object wrappedObject)
@@ -46,6 +49,15 @@ namespace Monkeyspeak
         public string DesiredProperty { get; set; }
 
         /// <summary>
+        /// Gets the dynamic value.
+        /// </summary>
+        /// <value>The dynamic value.</value>
+        public dynamic DynamicValue
+        {
+            get => wrappedObject;
+        }
+
+        /// <summary>
         /// Gets or sets the value.
         /// </summary>
         /// <value>The value.</value>
@@ -53,13 +65,23 @@ namespace Monkeyspeak
         {
             get
             {
-                if (wrappedObject == null || DesiredProperty.IsNullOrBlank()) return null;
+                if (wrappedObject == null) return null;
+                if (DesiredProperty.IsNullOrBlank())
+                {
+                    try
+                    {
+                        if (CheckType(wrappedObject.Value))
+                            return wrappedObject.Value;
+                        else return null;
+                    }
+                    catch (RuntimeBinderException) { return null; }
+                }
                 object value = null;
-                if (wrappedObject.GetType() != typeof(ExpandoObject))
+                if (!(wrappedObject is ExpandoObject))
                     value = ReflectionHelper.GetPropertyValue(wrappedObject, DesiredProperty);
                 else
                 {
-                    Dictionary<string, object> dynDict = wrappedObject;
+                    IDictionary<string, object> dynDict = wrappedObject;
                     dynDict.TryGetValue(DesiredProperty, out value);
                 }
                 if (CheckType(value))
@@ -68,9 +90,19 @@ namespace Monkeyspeak
             }
             set
             {
-                if (wrappedObject == null || DesiredProperty.IsNullOrBlank()) return;
                 if (CheckType(value))
-                    ReflectionHelper.SetPropertyValue(wrappedObject, DesiredProperty, value);
+                {
+                    if (wrappedObject is ExpandoObject)
+                    {
+                        if (!DesiredProperty.IsNullOrBlank())
+                        {
+                            var dynDict = wrappedObject as IDictionary<string, object>;
+                            dynDict[DesiredProperty] = value;
+                        }
+                        else wrappedObject.Value = value;
+                    }
+                    else ReflectionHelper.SetPropertyValue(wrappedObject, DesiredProperty, value);
+                }
             }
         }
 
@@ -79,7 +111,7 @@ namespace Monkeyspeak
             VariableTable table = new VariableTable(Name);
             if (wrappedObject.GetType() == typeof(ExpandoObject))
             {
-                Dictionary<string, object> dynDict = wrappedObject;
+                IDictionary<string, object> dynDict = wrappedObject;
                 foreach (var pair in dynDict)
                 {
                     table.Add(pair);
@@ -102,9 +134,19 @@ namespace Monkeyspeak
             bool result = _value is string ||
                    _value is double ||
                    _value is IVariable;
-            if (!result) throw new TypeNotSupportedException(_value.GetType().Name +
-                " is not a supported type. Expecting string, double or variable.");
+            if (!result) throw new TypeNotSupportedException($"{_value.GetType().Name} is not a supported type. Expecting string, double or variable.");
             return result;
+        }
+
+        public override string ToString()
+        {
+            if (wrappedObject is ExpandoObject)
+            {
+                IDictionary<string, object> dynDict = wrappedObject;
+                string replace = dynDict.ToString(',');
+                return $"{Name} = {replace}";
+            }
+            return $"{Name}{(DesiredProperty.IsNullOrBlank() ? string.Empty : "." + DesiredProperty)}";
         }
 
         /// <summary>

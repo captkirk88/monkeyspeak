@@ -33,7 +33,7 @@ namespace Monkeyspeak.Utils
         {
             var targetType = target.GetType();
             var pi = targetType.GetProperty(desiredProperty, BindingFlags.Instance | BindingFlags.Public);
-            if (pi == null || pi.CanWrite == false) return;
+            if (pi == null || pi.CanWrite == false || pi.PropertyType != value.GetType()) return;
             if (pi.PropertyType != value.GetType()) return;
             try
             {
