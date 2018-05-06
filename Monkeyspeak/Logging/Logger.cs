@@ -101,11 +101,12 @@ namespace Monkeyspeak.Logging
         }
 
         /// <summary>
-        /// Determines whether the specified <see cref="System.Object" />, is equal to this instance.
+        /// Determines whether the specified <see cref="System.Object"/>, is equal to this instance.
         /// </summary>
-        /// <param name="obj">The <see cref="System.Object" /> to compare with this instance.</param>
+        /// <param name="obj">The <see cref="System.Object"/> to compare with this instance.</param>
         /// <returns>
-        ///   <c>true</c> if the specified <see cref="System.Object" /> is equal to this instance; otherwise, <c>false</c>.
+        /// <c>true</c> if the specified <see cref="System.Object"/> is equal to this instance;
+        /// otherwise, <c>false</c>.
         /// </returns>
         public override bool Equals(object obj)
         {
@@ -113,11 +114,9 @@ namespace Monkeyspeak.Logging
         }
 
         /// <summary>
-        /// Returns a <see cref="System.String" /> that represents this instance.
+        /// Returns a <see cref="System.String"/> that represents this instance.
         /// </summary>
-        /// <returns>
-        /// A <see cref="System.String" /> that represents this instance.
-        /// </returns>
+        /// <returns>A <see cref="System.String"/> that represents this instance.</returns>
         public override string ToString()
         {
             return message;
@@ -186,18 +185,7 @@ namespace Monkeyspeak.Logging
         private static void Initialize()
         {
             cancelToken = new CancellationTokenSource();
-            logTask = new Task(() =>
-            {
-                while (true)
-                {
-                    Thread.Sleep(10);
-                    if (!singleThreaded)
-                    {
-                        // take a dump
-                        Dump();
-                    }
-                }
-            }, cancelToken.Token, TaskCreationOptions.LongRunning);
+            logTask = new Task(ProcessQueue, cancelToken.Token, TaskCreationOptions.LongRunning);
             if (!singleThreaded) logTask.Start();
         }
 
@@ -234,14 +222,11 @@ namespace Monkeyspeak.Logging
         }
 
         /// <summary>
-        /// Gets or sets the messages expire time limit.
-        /// Messages that have expired are removed from history.
-        /// This property used in conjunction with SupressSpam = true prevents
-        /// too much memory from being used over time
+        /// Gets or sets the messages expire time limit. Messages that have expired are removed from
+        /// history. This property used in conjunction with SupressSpam = true prevents too much
+        /// memory from being used over time
         /// </summary>
-        /// <value>
-        /// The messages expire time limit.
-        /// </value>
+        /// <value>The messages expire time limit.</value>
         public static TimeSpan MessagesExpire
         {
             get { return _messagesExpire; }
@@ -265,9 +250,7 @@ namespace Monkeyspeak.Logging
         /// <summary>
         /// Gets or sets a value indicating whether [single threaded].
         /// </summary>
-        /// <value>
-        ///   <c>true</c> if [single threaded]; otherwise, <c>false</c>.
-        /// </value>
+        /// <value><c>true</c> if [single threaded]; otherwise, <c>false</c>.</value>
         public static bool SingleThreaded
         {
             get
@@ -280,10 +263,14 @@ namespace Monkeyspeak.Logging
                 if (singleThreaded) cancelToken.Cancel();
                 else
                 {
-                    if (logTask.Status == TaskStatus.Running)
+                    if (logTask.Status == TaskStatus.Running ||
+                        logTask.Status == TaskStatus.WaitingToRun ||
+                        logTask.Status == TaskStatus.WaitingForActivation)
                         return;
                     cancelToken.Dispose();
                     cancelToken = new CancellationTokenSource();
+                    logTask.Dispose();
+                    logTask = new Task(ProcessQueue, cancelToken.Token, TaskCreationOptions.LongRunning);
                     logTask.Start();
                 }
             }
@@ -317,6 +304,19 @@ namespace Monkeyspeak.Logging
             if (singleThreaded)
             {
                 Dump();
+            }
+        }
+
+        private static void ProcessQueue()
+        {
+            while (true)
+            {
+                Thread.Sleep(10);
+                if (!singleThreaded)
+                {
+                    // take a dump
+                    Dump();
+                }
             }
         }
 

@@ -10,6 +10,7 @@ using System.Configuration;
 using System.Data;
 using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
@@ -68,6 +69,7 @@ namespace Monkeyspeak.Editor
             if (SingleInstance<App>.InitializeAsFirstInstance("Monkeyspeak_Editor"))
             {
                 AppDomain.CurrentDomain.UnhandledException += (sender, e) => Logger.Error($"{sender.GetType().Name}: {e.ExceptionObject}");
+                AppDomain.CurrentDomain.AssemblyResolve += CurrentDomain_AssemblyResolve;
                 var app = new App();
                 app.Run();
 
@@ -77,6 +79,15 @@ namespace Monkeyspeak.Editor
             {
                 Current.Shutdown();
             }
+        }
+
+        private static System.Reflection.Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args)
+        {
+            try
+            {
+                return Assembly.LoadFrom(args.Name);
+            }
+            catch { return null; }
         }
     }
 }

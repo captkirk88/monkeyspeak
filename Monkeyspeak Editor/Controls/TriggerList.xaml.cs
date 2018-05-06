@@ -1,5 +1,6 @@
 ﻿using Monkeyspeak.Editor.HelperClasses;
 using Monkeyspeak.Editor.Syntax;
+using Monkeyspeak.Extensions;
 using Monkeyspeak.Libraries;
 using Monkeyspeak.Utils;
 using System;
@@ -36,21 +37,13 @@ namespace Monkeyspeak.Editor.Controls
 
         private void SearchBox_KeyUp(object sender, KeyEventArgs e)
         {
-            if (e.Key == Key.Back)
-            {
-                triggers.Clear();
-                trigger_view.Items.Clear();
-                triggers.AddRange(Intellisense.GetTriggerCompletionData().Where(data => data.Trigger.Category == TriggerCategory && data.IsValid));
-                foreach (var trigger in triggers)
-                    trigger_view.Items.Add(trigger);
-            }
         }
 
         private void SearchBox_TextChanged(object sender, TextChangedEventArgs e)
         {
             triggers.Clear();
             trigger_view.Items.Clear();
-            if (string.IsNullOrWhiteSpace(searchBox.Text))
+            if (searchBox.Text.IsNullOrBlank())
                 triggers.AddRange(Intellisense.GetTriggerCompletionData().Where(data => data.Trigger.Category == TriggerCategory && data.IsValid));
             else
                 triggers.AddRange(Intellisense.GetTriggerCompletionData().Where(data => data.Trigger.Category == TriggerCategory && data.IsValid && data.Text.IndexOf(searchBox.Text, StringComparison.InvariantCultureIgnoreCase) >= 0 || searchBox.Text.CompareTo(data.Text) == 0));

@@ -18,6 +18,7 @@ namespace Monkeyspeak.Lexical.Expressions
         /// </summary>
         public StringExpression()
         {
+            specialPrefixes.Add('\\');
             specialPrefixes.Add('@');
             specialPrefixes.Add('!');
         }
@@ -30,6 +31,7 @@ namespace Monkeyspeak.Lexical.Expressions
         public StringExpression(SourcePosition pos, string value)
             : base(pos, value)
         {
+            specialPrefixes.Add('\\');
             specialPrefixes.Add('@');
             specialPrefixes.Add('!');
         }
@@ -65,22 +67,31 @@ namespace Monkeyspeak.Lexical.Expressions
             try
             {
                 var str = GetValue<string>();
-
+                bool negatePrefix = false;
                 while (specialPrefixes.Contains(str[0]))
                 {
                     if (str[0] == '\\')
                     {
-                        str = str.Substring(1);
+                        if (negatePrefix)
+                        {
+                            negatePrefix = false;
+                        }
+                        else
+                        {
+                            negatePrefix = true;
+                        }
                     }
                     else if (str[0] == '@')
                     {
-                        processVariables = false;
-                        str = str.Substring(1);
+                        if (!negatePrefix) processVariables = false;
+                        str = str.Slice(negatePrefix ? 2 : 1, -1);
+                        negatePrefix = false;
                     }
                     else if (str[0] == '!')
                     {
-                        humanReadableNumbers = false;
-                        str = str.Substring(1);
+                        if (!negatePrefix) humanReadableNumbers = false;
+                        str = str.Slice(negatePrefix ? 2 : 1, -1);
+                        negatePrefix = false;
                     }
                 }
 
