@@ -162,6 +162,7 @@ namespace Monkeyspeak.Logging
         private static Task logTask;
 
         private static CancellationTokenSource cancelToken;
+        private static bool abortMultithread;
 
         public static event Action<LogMessage> SpamFound;
 
@@ -269,6 +270,12 @@ namespace Monkeyspeak.Logging
                         return;
                     cancelToken.Dispose();
                     cancelToken = new CancellationTokenSource();
+
+                    // exit while loop gracefully
+                    abortMultithread = true;
+                    Thread.Sleep(50);
+                    abortMultithread = false;
+
                     logTask.Dispose();
                     logTask = new Task(ProcessQueue, cancelToken.Token, TaskCreationOptions.LongRunning);
                     logTask.Start();
@@ -309,7 +316,7 @@ namespace Monkeyspeak.Logging
 
         private static void ProcessQueue()
         {
-            while (true)
+            while (!abortMultithread)
             {
                 Thread.Sleep(10);
                 if (!singleThreaded)
@@ -317,6 +324,7 @@ namespace Monkeyspeak.Logging
                     // take a dump
                     Dump();
                 }
+                else break;
             }
         }
 
