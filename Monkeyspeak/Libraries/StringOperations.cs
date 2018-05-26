@@ -27,6 +27,20 @@ namespace Monkeyspeak.Libraries
                 "with {...} get everything right most right of {...} and put it into variable %");
             Add(TriggerCategory.Effect, SplitStringIntoTable,
                 "with {...} split it at each {...} and put it into table %");
+            Add(TriggerCategory.Effect, AddToVariable,
+                "take variable % and add {...} to the end,");
+        }
+
+        [TriggerDescription("Takes a variable and adds a string to the end of it")]
+        [TriggerVariableParameter]
+        [TriggerStringParameter]
+        private bool AddToVariable(TriggerReader reader)
+        {
+            var var = reader.ReadVariable();
+            var str = reader.ReadString();
+            var newVal = $"{var.AsString("")}{str}";
+            var.Value = newVal;
+            return true;
         }
 
         [TriggerDescription("Splits the specified string with the delimiter and puts the result into variable")]

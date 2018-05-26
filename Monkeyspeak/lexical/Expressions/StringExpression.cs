@@ -67,31 +67,22 @@ namespace Monkeyspeak.Lexical.Expressions
             try
             {
                 var str = GetValue<string>();
-                bool negatePrefix = false;
                 while (specialPrefixes.Contains(str[0]))
                 {
                     if (str[0] == '\\')
                     {
-                        if (negatePrefix)
-                        {
-                            negatePrefix = false;
-                        }
-                        else
-                        {
-                            negatePrefix = true;
-                        }
+                        str = str.Substring(1);
+                        break;
                     }
                     else if (str[0] == '@')
                     {
-                        if (!negatePrefix) processVariables = false;
-                        str = str.Slice(negatePrefix ? 2 : 1, -1);
-                        negatePrefix = false;
+                        processVariables = false;
+                        str = str.Substring(1);
                     }
                     else if (str[0] == '!')
                     {
-                        if (!negatePrefix) humanReadableNumbers = false;
-                        str = str.Slice(negatePrefix ? 2 : 1, -1);
-                        negatePrefix = false;
+                        humanReadableNumbers = false;
+                        str = str.Substring(1);
                     }
                 }
 
