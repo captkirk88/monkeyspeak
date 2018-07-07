@@ -686,6 +686,7 @@ namespace Monkeyspeak
             {
                 if (scope.TryGetValue(name, out IVariable var))
                     return var;
+                else return Variable.NoValue;
                 throw new Exception("Variable \"" + name + "\" not found.");
             }
         }

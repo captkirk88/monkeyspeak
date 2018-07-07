@@ -20,10 +20,13 @@ namespace Monkeyspeak.Editor.Syntax
         private DocumentHighlighter textHighlighter, syntaxViewerHighlighter;
         private IHighlightingDefinition highlightingDef;
 
-        public VariableCompletionData(Page page, string varRef)
+        private object value;
+
+        public VariableCompletionData(Page page, string varRef, object value = null)
         {
             this.page = page;
-            Text = varRef;
+            Text = varRef ?? string.Empty;
+            this.value = value;
             highlightingDef = HighlightingManager.Instance.GetDefinition("Monkeyspeak");
             this.text = new TextView();
             syntaxViewer = new TextView();
@@ -40,7 +43,7 @@ namespace Monkeyspeak.Editor.Syntax
         {
             get
             {
-                text.Document = new TextDocument(Text ?? string.Empty);
+                text.Document = new TextDocument(Text);
                 HighlightingColorizer colorizer = new HighlightingColorizer(highlightingDef);
                 text.LineTransformers.Add(colorizer);
                 text.EnsureVisualLines();
@@ -53,7 +56,7 @@ namespace Monkeyspeak.Editor.Syntax
         {
             get
             {
-                syntaxViewer.Document = new TextDocument(Text);
+                syntaxViewer.Document = new TextDocument(value != null ? $"{Text} = {value}" : Text);
                 HighlightingColorizer colorizer = new HighlightingColorizer(highlightingDef);
                 syntaxViewer.LineTransformers.Add(colorizer);
                 syntaxViewer.EnsureVisualLines();
@@ -64,13 +67,15 @@ namespace Monkeyspeak.Editor.Syntax
 
         public double Priority => 0;
 
+        public IVariable Variable => page.GetVariable(Text);
         public Trigger Trigger => trigger;
 
         public void Complete(TextArea textArea, ISegment completionSegment,
             EventArgs insertionRequestEventArgs)
         {
             var line = textArea.Document.GetLineByOffset(completionSegment.Offset);
-            textArea.Document.Replace(line.Offset, line.Length, Text);
+            textArea.Document.Replace(line.Offset, line.Length, "");
+            textArea.Document.Insert(line.Offset, Text);
         }
     }
 }

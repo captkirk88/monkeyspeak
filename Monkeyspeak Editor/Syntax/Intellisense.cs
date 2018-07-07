@@ -18,6 +18,7 @@ using Monkeyspeak.Editor.Extensions;
 using Monkeyspeak.Editor.HelperClasses;
 using Monkeyspeak.Editor.Syntax;
 using Monkeyspeak.Editor.Utils;
+using Monkeyspeak.Extensions;
 using Monkeyspeak.Lexical.Expressions;
 using Monkeyspeak.Utils;
 
@@ -26,19 +27,22 @@ namespace Monkeyspeak.Editor.Syntax
     public static class Intellisense
     {
         private static CompletionWindow triggerCompletionWindow;
-        private static CompletionWindow variableCompletionWindow;
 
-        private static List<TriggerCompletionData> triggerCompletions = new List<TriggerCompletionData>();
+        private static List<ICompletionData> triggerCompletions = new List<ICompletionData>();
 
         private static Page page;
 
         public static bool Enabled => Settings.Intellisense;
-        public static List<TriggerCompletionData> TriggerCompletions { get => triggerCompletions; }
+        public static List<ICompletionData> TriggerCompletions { get => triggerCompletions; }
         public static bool IsOpen { get => triggerCompletionWindow != null && triggerCompletionWindow.IsVisible; }
 
-        public static IEnumerable<TriggerCompletionData> GetTriggerCompletionData()
+        public static IEnumerable<ICompletionData> GetTriggerCompletionData(EditorControl editor = null, bool forceRefresh = false)
         {
             MonkeyspeakRunner.WarmUp();
+            if (forceRefresh)
+            {
+                TriggerCompletions.Clear();
+            }
             if (TriggerCompletions.Count == 0)
             {
                 foreach (var lib in MonkeyspeakRunner.CurrentPage.Libraries.OrderByDescending(l => l.GetType().Name))
@@ -48,15 +52,52 @@ namespace Monkeyspeak.Editor.Syntax
                         yield return new TriggerCompletionData(MonkeyspeakRunner.CurrentPage, lib, kv.Key);
                     }
                 }
+
+                List<VariableCompletionData> vars = new List<VariableCompletionData>();
+                try
+                {
+                    Page page = MonkeyspeakRunner.CurrentPage;
+                    if (editor != null)
+                    {
+                        page = MonkeyspeakRunner.LoadString(editor.Text);
+                        foreach (var trig in page.Triggers)
+                        {
+                            foreach (var expr in page.Triggers.SelectMany(t => t.Contents.OfType<VariableExpression>()))
+                            {
+                                expr.Execute(page, new Queue<IExpression>(trig.Contents), true);
+                            }
+                        }
+                    }
+
+                    foreach (var var in page.Scope)
+                    {
+                        vars.AddIfUnique(new VariableCompletionData(MonkeyspeakRunner.CurrentPage, var.Name, var.Value));
+                    }
+                }
+                catch
+                {
+                    vars.Clear();
+                    foreach (var var in MonkeyspeakRunner.CurrentPage.Scope)
+                    {
+                        vars.AddIfUnique(new VariableCompletionData(MonkeyspeakRunner.CurrentPage, var.Name, var.Value));
+                    }
+                }
+
+                foreach (var var in vars)
+                {
+                    yield return var;
+                }
             }
         }
 
         public static void GenerateTriggerListCompletion(EditorControl editor)
         {
-            if (TriggerCompletions.Count == 0)
-                TriggerCompletions.AddRange(GetTriggerCompletionData());
-
             if (!Enabled || editor == null) return;
+
+            foreach (var cd in GetTriggerCompletionData(editor, true))
+            {
+                TriggerCompletions.AddIfUnique(cd);
+            }
 
             var selected = editor;
             var textEditor = selected.textEditor;
@@ -79,7 +120,7 @@ namespace Monkeyspeak.Editor.Syntax
             var line = selected.CurrentLine.Trim(' ', '\t', '\n');
             foreach (var tc in triggerCompletions
                 .Where(tc => tc.Text.IndexOf(line, StringComparison.InvariantCultureIgnoreCase) >= 0 || line.CompareTo(tc.Text) == 0)
-                .OrderBy(t => t.Trigger.Category))
+                .OrderBy(t => t is TriggerCompletionData ? ((TriggerCompletionData)t).Trigger.Category.ToString() : ((VariableCompletionData)t).Variable.Name))
             {
                 data.Add(tc);
             }
@@ -150,8 +191,6 @@ namespace Monkeyspeak.Editor.Syntax
         {
             if (triggerCompletionWindow != null)
                 triggerCompletionWindow.Close();
-            if (variableCompletionWindow != null)
-                variableCompletionWindow.Close();
         }
     }
 }

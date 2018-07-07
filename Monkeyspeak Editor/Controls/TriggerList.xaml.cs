@@ -1,4 +1,5 @@
-﻿using Monkeyspeak.Editor.HelperClasses;
+﻿using ICSharpCode.AvalonEdit.CodeCompletion;
+using Monkeyspeak.Editor.HelperClasses;
 using Monkeyspeak.Editor.Syntax;
 using Monkeyspeak.Extensions;
 using Monkeyspeak.Libraries;
@@ -22,7 +23,7 @@ namespace Monkeyspeak.Editor.Controls
     {
         public event Action<TriggerCompletionData> TriggerSelected;
 
-        private List<TriggerCompletionData> triggers = new List<TriggerCompletionData>();
+        private List<ICompletionData> triggers = new List<ICompletionData>();
 
         public TriggerList()
 
@@ -44,9 +45,9 @@ namespace Monkeyspeak.Editor.Controls
             triggers.Clear();
             trigger_view.Items.Clear();
             if (searchBox.Text.IsNullOrBlank())
-                triggers.AddRange(Intellisense.GetTriggerCompletionData().Where(data => data.Trigger.Category == TriggerCategory && data.IsValid));
+                triggers.AddRange(Intellisense.GetTriggerCompletionData().Where(data => data is TriggerCompletionData d && d.Trigger.Category == TriggerCategory && d.IsValid));
             else
-                triggers.AddRange(Intellisense.GetTriggerCompletionData().Where(data => data.Trigger.Category == TriggerCategory && data.IsValid && data.Text.IndexOf(searchBox.Text, StringComparison.InvariantCultureIgnoreCase) >= 0 || searchBox.Text.CompareTo(data.Text) == 0));
+                triggers.AddRange(Intellisense.GetTriggerCompletionData().Where(data => (data is TriggerCompletionData d) && d.Trigger.Category == TriggerCategory && d.IsValid && (d.Text.IndexOf(searchBox.Text, StringComparison.InvariantCultureIgnoreCase) >= 0 || d.Text.CompareTo(searchBox.Text) == 0)));
             foreach (var trigger in triggers)
                 trigger_view.Items.Add(trigger);
         }
@@ -59,7 +60,7 @@ namespace Monkeyspeak.Editor.Controls
                 _triggerCategory = value;
                 triggers.Clear();
                 trigger_view.Items.Clear();
-                triggers.AddRange(Intellisense.GetTriggerCompletionData().Where(data => data.Trigger.Category == TriggerCategory && data.IsValid));
+                triggers.AddRange(Intellisense.GetTriggerCompletionData().Where(data => (data is TriggerCompletionData d) && d.Trigger.Category == TriggerCategory && d.IsValid));
                 foreach (var trigger in triggers)
                     trigger_view.Items.Add(trigger);
             }
