@@ -67,8 +67,8 @@ deploy:
     description: "[$(appveyor_build_version)]\n$(APPVEYOR_REPO_COMMIT_MESSAGE)\n$(APPVEYOR_REPO_COMMIT_MESSAGE_EXTENDED)"
     auth_token:
         secure: O1WNJUJxBOAXq0u7U/lAJZREJ4INf6cMp4wAtcxBG60kemmYLumTDyjArtZEtNRl # your encrypted token from GitHub
-    on:
-        branch: master                 # release from master branch only
+    #on:
+        #branch: master                 # release from master branch only
 
 notifications:
 - provider: Email
