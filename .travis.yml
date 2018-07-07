@@ -5,10 +5,6 @@ dist: trusty
 bundler_args: "--retry 5"
 mono: latest
 
-branches:
-    only:
-        - master
-
 notifications:
     email:
         recipients:
