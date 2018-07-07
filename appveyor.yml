@@ -1,4 +1,4 @@
-version: 1.0.6761.37809
+version: 1.0.6761.37940
 image: Visual Studio 2017
 configuration: Release
 platform: Any CPU
@@ -62,7 +62,7 @@ deploy:
     prerelease: false
     force_update: true
     appveyor_repo_tag: false        # deploy on tag push only
-    release: "Build $(APPVEYOR_REPO_NAME)"
+    release: "Build $(APPVEYOR_REPO_BRANCH)"
     tag: "$(appveyor_build_version)"
     description: "[$(appveyor_build_version)]\n$(APPVEYOR_REPO_COMMIT_MESSAGE)\n$(APPVEYOR_REPO_COMMIT_MESSAGE_EXTENDED)"
     auth_token:
