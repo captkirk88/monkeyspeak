@@ -27,7 +27,11 @@ namespace Monkeyspeak.Editor.HelperClasses
             if (!line.IsDeleted && line.LineNumber == lineNumber)
             {
                 if (start == 0 && end == 0) return;
-                ChangeLinePart(line.Offset + start, line.Offset + end, ApplyChanges);
+                try
+                {
+                    ChangeLinePart(line.Offset + start, line.Offset + end, ApplyChanges);
+                }
+                catch (Exception) { }
             }
         }
 
@@ -59,7 +63,9 @@ namespace Monkeyspeak.Editor.HelperClasses
                 {
                     ChangeLinePart(line.Offset + start, line.Offset + end, ApplyChanges);
                 }
-                catch { }
+                catch (Exception)
+                {
+                }
             }
         }
 

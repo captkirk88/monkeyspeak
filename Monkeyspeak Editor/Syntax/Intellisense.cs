@@ -164,6 +164,7 @@ namespace Monkeyspeak.Editor.Syntax
 
             var textArea = textEditor.TextArea;
             var pos = textEditor.GetPositionFromPoint(Mouse.GetPosition(textEditor));
+            string textAtOffset = string.Empty;
             bool inDocument = pos.HasValue;
             if (inDocument)
             {
@@ -174,16 +175,19 @@ namespace Monkeyspeak.Editor.Syntax
                 var offset = textEditor.Document.GetOffset(line, column);
                 var wordStart = TextUtilities.GetNextCaretPosition(textEditor.Document, offset, System.Windows.Documents.LogicalDirection.Backward, CaretPositioningMode.WordStartOrSymbol);
                 var wordEnd = TextUtilities.GetNextCaretPosition(textEditor.Document, offset, System.Windows.Documents.LogicalDirection.Forward, CaretPositioningMode.WordBorderOrSymbol);
-                var textAtOffset = textEditor.Document.GetText(wordStart, wordEnd - wordStart);
-                if (!string.IsNullOrWhiteSpace(textAtOffset))
+                if (wordEnd - wordStart > 0)
                 {
-                    if (textAtOffset.StartsWith(MonkeyspeakRunner.Engine.Options.VariableDeclarationSymbol.ToString()))
+                    textAtOffset = textEditor.Document.GetText(wordStart, wordEnd - wordStart);
+                    if (!string.IsNullOrWhiteSpace(textAtOffset))
                     {
-                        completionData = new VariableCompletionData(MonkeyspeakRunner.CurrentPage, editor, textAtOffset);
-                        ToolTipManager.Add(completionData.Description);
-                        ToolTipManager.Target = editor;
-                        e.Handled = true;
-                        return true;
+                        if (textAtOffset.StartsWith(MonkeyspeakRunner.Engine.Options.VariableDeclarationSymbol.ToString()))
+                        {
+                            completionData = new VariableCompletionData(MonkeyspeakRunner.CurrentPage, editor, textAtOffset);
+                            ToolTipManager.Add(completionData.Description);
+                            ToolTipManager.Target = editor;
+                            e.Handled = true;
+                            return true;
+                        }
                     }
                 }
 
