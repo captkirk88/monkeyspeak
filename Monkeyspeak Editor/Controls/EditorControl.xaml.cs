@@ -114,7 +114,6 @@ namespace Monkeyspeak.Editor.Controls
             {
                 if (!string.IsNullOrWhiteSpace(e.Text))
                 {
-                    SyntaxChecker.Check(this, CaretLine);
                     Intellisense.GenerateTriggerListCompletion(this);
 
                     Typing?.Invoke(this, e.Text, CaretLine);
@@ -122,17 +121,25 @@ namespace Monkeyspeak.Editor.Controls
                     Plugins.PluginsManager.AllEnabled = true;
                     Plugins.PluginsManager.OnEditorTextChanged(this);
                 }
+                else
+                {
+                    if (e.Text == " " || e.Text == "\n")
+                    {
+                        if (CaretLine - 1 >= 0)
+                            SyntaxChecker.Check(this, CaretLine - 1);
+                    }
+                }
                 e.Handled = false;
             };
             textEditor.TextArea.TextEntering += (sender, e) =>
             {
-                if (!string.IsNullOrWhiteSpace(e.Text))
+                if (e.Text != null)
                 {
                     if (e.Text == " ")
                     {
                         Intellisense.TextEntered(e);
+                        SyntaxChecker.Check(this, CaretLine);
                     }
-                    SyntaxChecker.Check(this, CaretLine);
                 }
                 e.Handled = false;
             };

@@ -14,19 +14,19 @@ namespace Monkeyspeak.Test.Plugin
     /// <summary>
     /// Colorizes the highlighted word Red
     /// </summary>
-    /// <seealso cref="Monkeyspeak.Editor.Plugins.Plugin" />
+    /// <seealso cref="Monkeyspeak.Editor.Plugins.Plugin"/>
     public class MyTestPlugin : Editor.Plugins.Plugin
     {
         /// <summary>
-        /// Initializes the specified plugin container.
+        /// Initializes this plugin.
         /// </summary>
-        public override void Initialize()
+        /// <param name="notificationManager">
+        /// The notification manager. Add your notifications or store the notificationManager
+        /// somewhere to use later on.
+        /// </param>
+        public override void Initialize(INotificationManager notificationManager)
         {
-        }
-
-        public override void AddNotifications(INotificationManager notificationManager)
-        {
-            notificationManager.AddNotification(new MyTimedFunNotification(notificationManager));
+            notificationManager.AddNotification(new MyTimedNotification());
         }
 
         public override void OnEditorSaveCompleted(IEditor editor)

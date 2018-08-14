@@ -27,13 +27,10 @@ namespace Monkeyspeak.Editor.Syntax
     public static class Intellisense
     {
         private static CompletionWindow triggerCompletionWindow;
-
-        private static List<ICompletionData> triggerCompletions = new List<ICompletionData>();
-
         private static Page page;
 
         public static bool Enabled => Settings.Intellisense;
-        public static List<ICompletionData> TriggerCompletions { get => triggerCompletions; }
+        public static List<ICompletionData> TriggerCompletions { get; } = new List<ICompletionData>();
         public static bool IsOpen { get => triggerCompletionWindow != null && triggerCompletionWindow.IsVisible; }
 
         public static IEnumerable<ICompletionData> GetTriggerCompletionData(EditorControl editor = null, bool forceRefresh = false)
@@ -53,7 +50,7 @@ namespace Monkeyspeak.Editor.Syntax
                     }
                 }
 
-                List<VariableCompletionData> vars = new List<VariableCompletionData>();
+                var vars = new List<VariableCompletionData>();
                 try
                 {
                     Page page = MonkeyspeakRunner.CurrentPage;
@@ -71,15 +68,15 @@ namespace Monkeyspeak.Editor.Syntax
 
                     foreach (var var in page.Scope)
                     {
-                        vars.AddIfUnique(new VariableCompletionData(MonkeyspeakRunner.CurrentPage, var.Name, var.Value));
+                        vars.AddIfUnique(new VariableCompletionData(MonkeyspeakRunner.CurrentPage, editor, var.Name, var.Value));
                     }
                 }
-                catch
+                catch (Exception)
                 {
                     vars.Clear();
                     foreach (var var in MonkeyspeakRunner.CurrentPage.Scope)
                     {
-                        vars.AddIfUnique(new VariableCompletionData(MonkeyspeakRunner.CurrentPage, var.Name, var.Value));
+                        vars.AddIfUnique(new VariableCompletionData(MonkeyspeakRunner.CurrentPage, editor, var.Name, var.Value));
                     }
                 }
 
@@ -110,15 +107,15 @@ namespace Monkeyspeak.Editor.Syntax
                     Background = ThemeHelper.ToThemeBackground()
                 };
                 Style windowStyle = new Style(typeof(CompletionWindow), Application.Current.MainWindow.Style);
-                windowStyle.Setters.Add(new Setter(CompletionWindow.WindowStyleProperty, WindowStyle.None));
-                windowStyle.Setters.Add(new Setter(CompletionWindow.ResizeModeProperty, ResizeMode.NoResize));
-                windowStyle.Setters.Add(new Setter(CompletionWindow.BorderThicknessProperty, new Thickness(0)));
+                windowStyle.Setters.Add(new Setter(Window.WindowStyleProperty, WindowStyle.None));
+                windowStyle.Setters.Add(new Setter(Window.ResizeModeProperty, ResizeMode.NoResize));
+                windowStyle.Setters.Add(new Setter(Control.BorderThicknessProperty, new Thickness(0)));
                 triggerCompletionWindow.Style = windowStyle;
             }
             var data = triggerCompletionWindow.CompletionList.CompletionData;
             data.Clear();
             var line = selected.CurrentLine.Trim(' ', '\t', '\n');
-            foreach (var tc in triggerCompletions
+            foreach (var tc in TriggerCompletions
                 .Where(tc => tc.Text.IndexOf(line, StringComparison.InvariantCultureIgnoreCase) >= 0 || line.CompareTo(tc.Text) == 0)
                 .OrderBy(t => t is TriggerCompletionData ? ((TriggerCompletionData)t).Trigger.Category.ToString() : ((VariableCompletionData)t).Variable.Name))
             {
@@ -126,20 +123,22 @@ namespace Monkeyspeak.Editor.Syntax
             }
 
             Style listBoxStyle = new Style(typeof(CompletionListBox), triggerCompletionWindow.CompletionList.ListBox.Style);
-            listBoxStyle.Setters.Add(new Setter(CompletionListBox.BackgroundProperty, ThemeHelper.ToThemeBackground()));
-            listBoxStyle.Setters.Add(new Setter(CompletionListBox.ForegroundProperty, ThemeHelper.ToThemeForeground()));
+            listBoxStyle.Setters.Add(new Setter(Control.BackgroundProperty, ThemeHelper.ToThemeBackground()));
+            listBoxStyle.Setters.Add(new Setter(Control.ForegroundProperty, ThemeHelper.ToThemeForeground()));
             triggerCompletionWindow.CompletionList.ListBox.Style = listBoxStyle;
 
             triggerCompletionWindow.SizeToContent = SizeToContent.Width;
-            if (data.Count > 0)
-            {
-                triggerCompletionWindow.Show();
-            }
             triggerCompletionWindow.Closed += delegate
             {
                 triggerCompletionWindow = null;
                 editor.textEditor.Focus();
             };
+
+            if (data.Count > 0)
+            {
+                triggerCompletionWindow.Show();
+            }
+            else triggerCompletionWindow.Close();
         }
 
         /// <summary>
@@ -168,16 +167,36 @@ namespace Monkeyspeak.Editor.Syntax
             bool inDocument = pos.HasValue;
             if (inDocument)
             {
+                ICompletionData completionData = null;
                 var line = pos.Value.Line;
+                var column = pos.Value.Column;
+                var wordHover = string.Empty;
+                var offset = textEditor.Document.GetOffset(line, column);
+                var wordStart = TextUtilities.GetNextCaretPosition(textEditor.Document, offset, System.Windows.Documents.LogicalDirection.Backward, CaretPositioningMode.WordStartOrSymbol);
+                var wordEnd = TextUtilities.GetNextCaretPosition(textEditor.Document, offset, System.Windows.Documents.LogicalDirection.Forward, CaretPositioningMode.WordBorderOrSymbol);
+                var textAtOffset = textEditor.Document.GetText(wordStart, wordEnd - wordStart);
+                if (!string.IsNullOrWhiteSpace(textAtOffset))
+                {
+                    if (textAtOffset.StartsWith(MonkeyspeakRunner.Engine.Options.VariableDeclarationSymbol.ToString()))
+                    {
+                        completionData = new VariableCompletionData(MonkeyspeakRunner.CurrentPage, editor, textAtOffset);
+                        ToolTipManager.Add(completionData.Description);
+                        ToolTipManager.Target = editor;
+                        e.Handled = true;
+                        return true;
+                    }
+                }
+
                 var lineContents = textEditor.Document.GetLineByNumber(line);
-                var offset = lineContents.Offset;
-                var textAtOffset = textEditor.Document.GetText(lineContents).Trim(' ', '\t', '\n');
+                offset = lineContents.Offset;
+                textAtOffset = textEditor.Document.GetText(lineContents).Trim(' ', '\t', '\n');
                 if (string.IsNullOrWhiteSpace(textAtOffset))
                 {
                     ToolTipManager.Opened = false;
                     return false;
                 }
-                var completionData = new TriggerCompletionData(MonkeyspeakRunner.CurrentPage, textAtOffset);
+
+                completionData = new TriggerCompletionData(MonkeyspeakRunner.CurrentPage, textAtOffset);
                 ToolTipManager.Add(completionData.Description);
                 ToolTipManager.Target = editor;
                 e.Handled = true;

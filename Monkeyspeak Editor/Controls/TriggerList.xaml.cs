@@ -45,7 +45,7 @@ namespace Monkeyspeak.Editor.Controls
             triggers.Clear();
             trigger_view.Items.Clear();
             if (searchBox.Text.IsNullOrBlank())
-                triggers.AddRange(Intellisense.GetTriggerCompletionData().Where(data => data is TriggerCompletionData d && d.Trigger.Category == TriggerCategory && d.IsValid));
+                triggers.AddRange(Intellisense.GetTriggerCompletionData(null, true).Where(data => data is TriggerCompletionData d && d.Trigger.Category == TriggerCategory && d.IsValid));
             else
                 triggers.AddRange(Intellisense.GetTriggerCompletionData().Where(data => (data is TriggerCompletionData d) && d.Trigger.Category == TriggerCategory && d.IsValid && (d.Text.IndexOf(searchBox.Text, StringComparison.InvariantCultureIgnoreCase) >= 0 || d.Text.CompareTo(searchBox.Text) == 0)));
             foreach (var trigger in triggers)

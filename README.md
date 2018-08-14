@@ -141,7 +141,7 @@ To execute the [Advanced Usage](#advanced-usage) example, it is no different
 than [Basic Usage](#basic-usage)'s execution example.
 
 #### Monkeyspeak Editor
-Yes there is a editor in there.  See [Editor](wiki/Editor.md)
+Yes there is a editor in there.  See [Editor](wiki/mseditor.md)
 
 #### Guides
 1) :book: [Triggers](wiki/Triggers.md)

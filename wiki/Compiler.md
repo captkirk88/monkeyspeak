@@ -1,4 +1,4 @@
-### Triggers
+### Compiler
 
 #### What is it?
 I call it a compiler but in reality it serializes the Triggers into a binary format
@@ -13,7 +13,7 @@ and CompileToFile.  Calling those will create a compiled file with the extension
 provided or the default "msx" extension.  Loading the compiled file can either be done from 
 the MonkeyspeakEngine class or from the already loaded Page.
 
-```cpp
+```csharp
 page.CompileToFile("script.msx");
 page.CompileToStream(new FileStream(...)); // does not have to be FileStream
 

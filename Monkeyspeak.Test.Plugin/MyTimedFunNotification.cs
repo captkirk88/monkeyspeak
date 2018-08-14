@@ -8,9 +8,9 @@ using Monkeyspeak.Editor.Notifications;
 
 namespace Monkeyspeak.Test.Plugin
 {
-    public class MyTimedFunNotification : TimedNotification
+    public class MyTimedNotification : TimedNotification
     {
-        public MyTimedFunNotification(INotificationManager manager) : base(manager, TimeSpan.FromSeconds(3))
+        public MyTimedNotification() : base(TimeSpan.FromSeconds(3))
         {
         }
     }

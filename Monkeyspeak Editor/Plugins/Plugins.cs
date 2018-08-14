@@ -79,8 +79,7 @@ namespace Monkeyspeak.Editor.Plugins
                 {
                     try
                     {
-                        plugin.Initialize();
-                        plugin.AddNotifications(NotificationManager.Instance);
+                        plugin.Initialize(NotificationManager.Instance);
                     }
                     catch (Exception ex)
                     {

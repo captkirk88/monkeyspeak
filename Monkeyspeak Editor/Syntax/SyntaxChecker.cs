@@ -78,9 +78,11 @@ namespace Monkeyspeak.Editor.Syntax
             return errors[editor];
         }
 
-        public static void Check(EditorControl editor, int line = -1, string text = null)
+        public static bool Check(EditorControl editor, int line = -1, string text = null)
         {
-            if (!Enabled) return;
+            if (!Enabled) return false;
+            int syntaxIssueCount = 0;
+
             editor.Dispatcher.Invoke(() =>
             {
                 SourcePosition pos = default(SourcePosition);
@@ -105,6 +107,7 @@ namespace Monkeyspeak.Editor.Syntax
                     {
                         var error = new SyntaxError { Editor = editor, Exception = ex, SourcePosition = line == -1 ? ex.SourcePosition : pos, Severity = Severity.Error };
                         errors[editor].Add(error);
+                        syntaxIssueCount++;
                         Error?.Invoke(editor, error);
                     };
                     foreach (var trigger in parser.Parse(lexer))
@@ -122,11 +125,13 @@ namespace Monkeyspeak.Editor.Syntax
                                 Severity = Severity.Warning
                             };
                             errors[editor].Add(error);
+                            syntaxIssueCount++;
                             Warning?.Invoke(editor, error);
                         }
                     }
                 }
             });
+            return syntaxIssueCount > 0;
         }
 
         private static void AddMarker(Token token, EditorControl editor, string message = null, Severity severity = Severity.Error)

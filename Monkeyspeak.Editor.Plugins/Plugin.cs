@@ -13,29 +13,23 @@ namespace Monkeyspeak.Editor.Plugins
         /// <summary>
         /// Gets the name.
         /// </summary>
-        /// <value>
-        /// The name.
-        /// </value>
+        /// <value>The name.</value>
         public virtual string Name { get => GetType().Name; }
 
         /// <summary>
         /// Gets or sets a value indicating whether this <see cref="Plugin"/> is enabled.
         /// </summary>
-        /// <value>
-        ///   <c>true</c> if enabled; otherwise, <c>false</c>.
-        /// </value>
+        /// <value><c>true</c> if enabled; otherwise, <c>false</c>.</value>
         public virtual bool Enabled { get; set; }
 
         /// <summary>
-        /// Initializes the specified plugin container.
+        /// Initializes this plugin.
         /// </summary>
-        public abstract void Initialize();
-
-        /// <summary>
-        /// Add your notifications in this method
-        /// </summary>
-        /// <param name="notificationManager">The notification manager.</param>
-        public abstract void AddNotifications(INotificationManager notificationManager);
+        /// <param name="notificationManager">
+        /// The notification manager. Add your notifications or store the notificationManager
+        /// somewhere to use later on.
+        /// </param>
+        public abstract void Initialize(INotificationManager notificationManager);
 
         /// <summary>
         /// Called when [editor selection changed].

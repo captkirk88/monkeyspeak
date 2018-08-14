@@ -177,6 +177,19 @@ namespace Monkeyspeak.Editor
             });
 
             BottomRow.MinHeight = gridContainer.ActualHeight - statusbar.ActualHeight;
+
+            this.PreviewDrop += (sender, e) =>
+            {
+                if (e.Data.GetDataPresent(DataFormats.FileDrop))
+                {
+                    var files = (string[])e.Data.GetData(DataFormats.FileDrop);
+                    foreach (var file in files)
+                    {
+                        MonkeyspeakCommands.Open.Execute(file);
+                    }
+                    e.Handled = true;
+                }
+            };
         }
 
         public void ProcessArguments(string[] args)
@@ -451,7 +464,7 @@ namespace Monkeyspeak.Editor
 
         public async Task UpdateCheck()
         {
-            if (Settings.CheckForUpdates == false) return;
+            if (!Settings.CheckForUpdates) return;
 
             var userVersion = Assembly.GetExecutingAssembly().GetName().Version;
             var web = new WebClient();
@@ -524,7 +537,10 @@ namespace Monkeyspeak.Editor
         private void errors_flyout_button_Click(object sender, RoutedEventArgs e)
         {
             if (!Editors.Instance.IsEmpty)
-                SyntaxChecker.Check(Editors.Instance.Selected);
+                if (SyntaxChecker.Check(Editors.Instance.Selected))
+                {
+                    return;
+                }
             errors_flyout.IsOpen = !errors_flyout.IsOpen;
         }
 

@@ -20,11 +20,13 @@ namespace Monkeyspeak.Editor.Syntax
         private DocumentHighlighter textHighlighter, syntaxViewerHighlighter;
         private IHighlightingDefinition highlightingDef;
 
+        private IEditor editorFoundIn;
         private object value;
 
-        public VariableCompletionData(Page page, string varRef, object value = null)
+        public VariableCompletionData(Page page, IEditor editorFoundIn, string varRef, object value = null)
         {
             this.page = page;
+            this.editorFoundIn = editorFoundIn;
             Text = varRef ?? string.Empty;
             this.value = value;
             highlightingDef = HighlightingManager.Instance.GetDefinition("Monkeyspeak");
@@ -56,7 +58,7 @@ namespace Monkeyspeak.Editor.Syntax
         {
             get
             {
-                syntaxViewer.Document = new TextDocument(value != null ? $"{Text} = {value}" : Text);
+                syntaxViewer.Document = new TextDocument(value != null ? $"{Text} = {value} {(editorFoundIn != null ? "(" + editorFoundIn.Title + ")" : "")}" : Text);
                 HighlightingColorizer colorizer = new HighlightingColorizer(highlightingDef);
                 syntaxViewer.LineTransformers.Add(colorizer);
                 syntaxViewer.EnsureVisualLines();

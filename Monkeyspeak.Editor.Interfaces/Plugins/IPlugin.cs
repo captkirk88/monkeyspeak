@@ -8,13 +8,11 @@ namespace Monkeyspeak.Editor.Interfaces.Plugins
         /// <summary>
         /// Initializes this plugin.
         /// </summary>
-        void Initialize();
-
-        /// <summary>
-        /// Add your notifications in this method
-        /// </summary>
-        /// <param name="notificationManager">The notification manager.</param>
-        void AddNotifications(INotificationManager notificationManager);
+        /// <param name="notificationManager">
+        /// The notification manager. Add your notifications or store the notificationManager
+        /// somewhere to use later on.
+        /// </param>
+        void Initialize(INotificationManager notificationManager);
 
         /// <summary>
         /// Called when [editor text changed].
@@ -42,17 +40,13 @@ namespace Monkeyspeak.Editor.Interfaces.Plugins
         /// <summary>
         /// Gets or sets a value indicating whether this <see cref="Plugin"/> is enabled.
         /// </summary>
-        /// <value>
-        ///   <c>true</c> if enabled; otherwise, <c>false</c>.
-        /// </value>
+        /// <value><c>true</c> if enabled; otherwise, <c>false</c>.</value>
         bool Enabled { get; set; }
 
         /// <summary>
         /// Gets the name.
         /// </summary>
-        /// <value>
-        /// The name.
-        /// </value>
+        /// <value>The name.</value>
         string Name { get; }
     }
 }

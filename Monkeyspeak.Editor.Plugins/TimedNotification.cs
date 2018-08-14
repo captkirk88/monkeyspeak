@@ -22,7 +22,7 @@ namespace Monkeyspeak.Editor.Notifications
 
         private DateTime pauseStart;
 
-        public TimedNotification(INotificationManager manager, TimeSpan timeToRemove)
+        protected TimedNotification(TimeSpan timeToRemove)
         {
             if (timeToRemove.TotalSeconds < 1d) timeToRemove = TimeSpan.FromSeconds(1);
             end = DateTime.Now.Add(timeToRemove);
@@ -48,7 +48,6 @@ namespace Monkeyspeak.Editor.Notifications
             };
             timer.Elapsed += (sender, e) => container.Dispatcher.Invoke(UpdateProgress);
             timer.Start();
-            this.manager = manager;
         }
 
         public virtual object SetContent()
