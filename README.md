@@ -41,9 +41,10 @@ Monkeyspeak aims to give the end-user a very easy to use scripting language.  Or
 + Strings (Unicode)
 + Tables (Dictionary objects with a configurable limit)
 + Constants (unmodifiable variables)
++ Object Variables (allow for %myVariable.myKey)
 
 + [Core Library]
-+ Sys (triggers that support core Monkeyspeak tasks like setting variables)
++ Sys (triggers that support core Monkeyspeak tasks like setting variables, jobs, etc)
 + Math (very basic math operations + - / *)
 + StringOperations (very basic string operations)
 + IO (basic file operations)
