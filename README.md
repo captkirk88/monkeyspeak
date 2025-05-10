@@ -1,6 +1,6 @@
 # Monkeyspeak
 
-[![forthebadge](http://forthebadge.com/images/badges/60-percent-of-the-time-works-every-time.svg)](http://forthebadge.com)  [![forthebadge](http://forthebadge.com/images/badges/winter-is-coming.svg)](http://forthebadge.com)
+[![forthebadge](http://forthebadge.com/images/badges/60-percent-of-the-time-works-every-time.svg)](http://forthebadge.com)
 
 Monkeyspeak aims to give the end-user a very easy to use scripting language.  Originally based off Dragonspeak, a scripting language used by [Furcadia](http://www.guinnessworldrecords.com/world-records/longest-running-social-mmorpg) and processed by the server to send effects to the client.  Highly efficient, very user friendly and free to use under the MIT license.
 
